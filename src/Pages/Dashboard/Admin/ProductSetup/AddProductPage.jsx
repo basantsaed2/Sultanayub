@@ -758,7 +758,33 @@ const AddProductPage = () => {
     //   return;
     // }
 
+    if (Array.isArray(productVariations) && productVariations.length > 0) {
+      for (const [indexVar, variation] of productVariations.entries()) {
+        if (Array.isArray(variation.options)) {
+          for (const [indexOption, option] of variation.options.entries()) {
+            if (!Array.isArray(option.names) || option.names.length === 0) {
+              auth.toastError(`Option at index ${indexOption} in variation ${indexVar} must have at least one name`);
+              return;
+            }
+            for (const [indexOpNa, optionNa] of option.names.entries()) {
+              if (!optionNa.name || typeof optionNa.name !== 'string' || !optionNa.name.trim()) {
+                auth.toastError(`Missing or invalid name at variations[${indexVar}][options][${indexOption}][names][${indexOpNa}]`);
+                return;
+              }
+            }
+          }
+        }
+      }
+    }
 
+    
+if (productTimeStatus === 1) {
+  if (!productStatusFrom || !productStatusTo) {
+    auth.toastError("Both 'From' and 'To' fields are required when Product Time Status is enabled.");
+    return; // Stop execution to prevent submitting incomplete data
+  }
+}
+    
     const formData = new FormData();
     formData.append('category_id', selectedCategoryId)
     formData.append('sub_category_id', selectedSubCategoryId)
@@ -769,9 +795,14 @@ const AddProductPage = () => {
     formData.append('discount_id', selectedDiscountId)
     formData.append('tax_id', selectedTaxId)
     formData.append('points', productPoint)
-    formData.append('from', productStatusFrom)
-    formData.append('to', productStatusTo)
+
     formData.append('product_time_status', productTimeStatus)
+    if(productStatusFrom){
+      formData.append('from', productStatusFrom)
+    }
+    if(productStatusTo){
+      formData.append('to', productStatusTo)
+    }
     formData.append('recommended', productRecommended)
     formData.append('status', productStatus)
     formData.append('image', productImage)
@@ -850,25 +881,71 @@ const AddProductPage = () => {
 
             // Append formData fields for names
             formData.append(`variations[${indexVar}][names][${index}][name]`, name.name);
-            formData.append(`variations[${indexVar}][names][${index}][tranlation_name]`,
-              typeof name.tranlation_name === 'string' ? name.tranlation_name : '');
-            formData.append(`variations[${indexVar}][names][${index}][tranlation_id]`,
-              name.tranlation_id !== undefined ? String(name.tranlation_id) : '');
+            formData.append(`variations[${indexVar}][names][${index}][tranlation_name]`, name.tranlation_name );
+            formData.append(`variations[${indexVar}][names][${index}][tranlation_id]`,name.tranlation_id);
           });
         } else {
           console.warn(`variation.names is not a valid array for variation index ${indexVar}`);
         }
 
         /* Options */
+        // if (Array.isArray(variation.options)) {
+        //   variation.options.forEach((option, indexOption) => {
+        //     console.log(`Processing option at index ${indexOption}:`, option);
+
+        //     // Extra Option Handling
+        //     if (Array.isArray(option.extra)) {
+        //       option.extra.forEach((extraOption, indexExtra) => {
+        //         console.log(`Processing extra option at index ${indexExtra}:`, extraOption);
+
+        //         if (Array.isArray(extraOption.extra_names)) {
+        //           extraOption.extra_names.forEach((extraName, indexNextra) => {
+        //             formData.append(`variations[${indexVar}][options][${indexOption}][extra][${indexExtra}][extra_names][${indexNextra}][extra_name]`,
+        //               extraName.extra_name);
+        //             formData.append(`variations[${indexVar}][options][${indexOption}][extra][${indexExtra}][extra_names][${indexNextra}][tranlation_name]`,
+        //               typeof extraName.tranlation_name === 'string' ? extraName.tranlation_name : '');
+        //             formData.append(`variations[${indexVar}][options][${indexOption}][extra][${indexExtra}][extra_names][${indexNextra}][tranlation_id]`,
+        //               extraName.tranlation_id !== undefined ? String(extraName.tranlation_id) : '');
+        //           });
+        //         } else {
+        //           console.warn(`extraOption.extra_names is not a valid array at index ${indexExtra}`);
+        //         }
+
+        //         formData.append(`variations[${indexVar}][options][${indexOption}][extra][${indexExtra}][extra_price]`, extraOption.extra_price);
+        //       });
+        //     }
+
+        //     // Names Option Handling
+        //     if (Array.isArray(option.names)) {
+        //       option.names.forEach((optionNa, indexOpNa) => {
+        //         console.log(`Processing option name at index ${indexOpNa}:`, optionNa);
+
+        //         formData.append(`variations[${indexVar}][options][${indexOption}][names][${indexOpNa}][name]`, optionNa.name);
+        //         formData.append(`variations[${indexVar}][options][${indexOption}][names][${indexOpNa}][tranlation_id]`,
+        //           optionNa.tranlation_id !== undefined ? String(optionNa.tranlation_id) : '');
+        //         formData.append(`variations[${indexVar}][options][${indexOption}][names][${indexOpNa}][tranlation_name]`,
+        //           typeof optionNa.tranlation_name === 'string' ? optionNa.tranlation_name : '');
+        //       });
+        //     }
+
+        //     // Append other option-specific data
+        //     formData.append(`variations[${indexVar}][options][${indexOption}][price]`, option.price);
+        //     formData.append(`variations[${indexVar}][options][${indexOption}][status]`, option.status);
+        //     formData.append(`variations[${indexVar}][options][${indexOption}][points]`, option.points);
+        //   });
+        // } else {
+        //   console.warn(`variation.options is not a valid array for variation index ${indexVar}`);
+        // }
+
         if (Array.isArray(variation.options)) {
           variation.options.forEach((option, indexOption) => {
             console.log(`Processing option at index ${indexOption}:`, option);
-
+        
             // Extra Option Handling
             if (Array.isArray(option.extra)) {
               option.extra.forEach((extraOption, indexExtra) => {
                 console.log(`Processing extra option at index ${indexExtra}:`, extraOption);
-
+        
                 if (Array.isArray(extraOption.extra_names)) {
                   extraOption.extra_names.forEach((extraName, indexNextra) => {
                     formData.append(`variations[${indexVar}][options][${indexOption}][extra][${indexExtra}][extra_names][${indexNextra}][extra_name]`,
@@ -881,28 +958,36 @@ const AddProductPage = () => {
                 } else {
                   console.warn(`extraOption.extra_names is not a valid array at index ${indexExtra}`);
                 }
-
-                formData.append(`variations[${indexVar}][options][${indexOption}][extra][${indexExtra}][extra_price]`, extraOption.extra_price);
+        
+                formData.append(`variations[${indexVar}][options][${indexOption}][extra][${indexExtra}][extra_price]`, extraOption.extra_price || '0');
               });
             }
-
+        
             // Names Option Handling
-            if (Array.isArray(option.names)) {
+            if (Array.isArray(option.names) && option.names.length > 0) {
               option.names.forEach((optionNa, indexOpNa) => {
                 console.log(`Processing option name at index ${indexOpNa}:`, optionNa);
-
-                formData.append(`variations[${indexVar}][options][${indexOption}][names][${indexOpNa}][name]`, optionNa.name);
+        
+                if (optionNa.name && typeof optionNa.name === 'string') {
+                  formData.append(`variations[${indexVar}][options][${indexOption}][names][${indexOpNa}][name]`, optionNa.name);
+                } else {
+                  console.warn(`Missing or invalid name at variations[${indexVar}][options][${indexOption}][names][${indexOpNa}]`);
+                  formData.append(`variations[${indexVar}][options][${indexOption}][names][${indexOpNa}][name]`, '');
+                }
+        
                 formData.append(`variations[${indexVar}][options][${indexOption}][names][${indexOpNa}][tranlation_id]`,
                   optionNa.tranlation_id !== undefined ? String(optionNa.tranlation_id) : '');
                 formData.append(`variations[${indexVar}][options][${indexOption}][names][${indexOpNa}][tranlation_name]`,
                   typeof optionNa.tranlation_name === 'string' ? optionNa.tranlation_name : '');
               });
+            } else {
+              console.warn(`option.names is empty or not an array for option at index ${indexOption}`);
             }
-
+        
             // Append other option-specific data
-            formData.append(`variations[${indexVar}][options][${indexOption}][price]`, option.price);
-            formData.append(`variations[${indexVar}][options][${indexOption}][status]`, option.status);
-            formData.append(`variations[${indexVar}][options][${indexOption}][points]`, option.points);
+            formData.append(`variations[${indexVar}][options][${indexOption}][price]`, option.price || '0');
+            formData.append(`variations[${indexVar}][options][${indexOption}][status]`, option.status || 'inactive');
+            formData.append(`variations[${indexVar}][options][${indexOption}][points]`, option.points || '0');
           });
         } else {
           console.warn(`variation.options is not a valid array for variation index ${indexVar}`);
@@ -926,7 +1011,7 @@ const AddProductPage = () => {
 
 
     postData(formData, 'Product Added Success')
-
+  
   };
 
   useEffect(() => {
