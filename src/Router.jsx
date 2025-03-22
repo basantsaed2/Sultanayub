@@ -63,6 +63,10 @@ import {
   AdminsLayout,
   EditAdminLayout,
   MenuLayout,
+  BranchCategoryLayout,
+  CategoryProductLayout,
+  ProductVariationLayout,
+  VariationOptionLayout,
 } from "./layouts/Layouts";
 import ProtectedLogin from "./ProtectedData/ProtectedLogin";
 import NotFoundPage from "./Pages/NotFoundPage/NotFoundPage";
@@ -76,6 +80,11 @@ const SettingLayout = () => {
   return <Outlet />;
 }
 const OrderLayout = () => {
+  return (
+    <Outlet />
+  );
+};
+const AppBranchCategoryLayout= () => {
   return (
     <Outlet />
   );
@@ -262,6 +271,28 @@ export const router = createBrowserRouter([
                   {
                     path: 'edit/:branchId',
                     element: <EditBranchLayout />,
+                  },
+                  {
+                    path: 'branch_category/:branchId',
+                    element: <AppBranchCategoryLayout />,
+                    children:[
+                      {
+                        path: '',
+                        element: <BranchCategoryLayout />,
+                      },
+                      {
+                        path: 'category_product/:productId',
+                        element: <CategoryProductLayout />,
+                      },
+                      {
+                        path: 'product_variation/:variationId',
+                        element: <ProductVariationLayout />,
+                      },
+                      {
+                        path: 'variation_option/:optionId',
+                        element: <VariationOptionLayout />,
+                      }
+                    ]
                   }
                 ]
               },

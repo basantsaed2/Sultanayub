@@ -41,6 +41,10 @@ export { default as EditCityLayout } from "./Dashboard/Setting/Cities/EditCityLa
 // Setting -> Branches
 export { default as BranchesLayout } from "./Dashboard/Setting/Branches/BranchesLayout";
 export { default as EditBranchLayout } from "./Dashboard/Setting/Branches/EditBranchLayout";
+export { default as BranchCategoryLayout } from "./Dashboard/Setting/Branches/BranchCategoryLayout";
+export { default as CategoryProductLayout } from "./Dashboard/Setting/Branches/CategoryProductLayout";
+export { default as ProductVariationLayout } from "./Dashboard/Setting/Branches/ProductVariationLayout";
+export { default as VariationOptionLayout } from "./Dashboard/Setting/Branches/VariationOptionLayout";
 // Setting -> Zones
 export { default as ZonesLayout } from "./Dashboard/Setting/Zones/ZonesLayout";
 export { default as EditZoneLayout } from "./Dashboard/Setting/Zones/EditZoneLayout";

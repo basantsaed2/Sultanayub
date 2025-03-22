@@ -90,7 +90,7 @@ const BranchesPage = ({ refetch }) => {
 
 
 
-       const headers = ['#', 'Image', 'Name', 'City', 'Address', 'Phone', 'Preparation Time', 'Status', 'Action'];
+       const headers = ['#', 'Image', 'Name', 'City', 'Address', 'Phone', 'Preparation Time','Branch Includes', 'Status', 'Action'];
 
        return (
               <div className="w-full pb-28 flex items-start justify-start overflow-x-scroll scrollSection">
@@ -144,6 +144,11 @@ const BranchesPage = ({ refetch }) => {
                                                                       </td>
                                                                       <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                                                              {branch?.food_preparion_time || '-'}
+                                                                      </td>
+                                                                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-blue-500 cursor-pointer">
+                                                                             <Link to={`branch_category/${branch.id}`} className='text-mainColor text-xl border-b-2 border-mainColor font-TextFontSemiBold cursor-pointer'>
+                                                                                    View
+                                                                             </Link>
                                                                       </td>
                                                                       <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                                                              <Switch

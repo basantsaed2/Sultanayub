@@ -45,6 +45,10 @@ export { default as EditCityPage } from "./Dashboard/Admin/Setting/Cities/EditCi
 export { default as BranchesPage } from "./Dashboard/Admin/Setting/Branches/BranchesPage";
 export { default as AddBranchSection } from "./Dashboard/Admin/Setting/Branches/addBranchSection";
 export { default as EditBranchPage } from "./Dashboard/Admin/Setting/Branches/EditBranchPage";
+export { default as BranchCategoryPage } from "./Dashboard/Admin/Setting/Branches/BranchCategoryPage";
+export { default as CategoryProductPage } from "./Dashboard/Admin/Setting/Branches/CategoryProductPage";
+export { default as ProductVariationPage } from "./Dashboard/Admin/Setting/Branches/ProductVariationPage";
+export { default as VariationOptionPage } from "./Dashboard/Admin/Setting/Branches/VariationOptionPage";
 // Setting -> Zones
 export { default as ZonesPage } from "./Dashboard/Admin/Setting/Zones/ZonesPage";
 export { default as AddZoneSection } from "./Dashboard/Admin/Setting/Zones/addZoneSection";
