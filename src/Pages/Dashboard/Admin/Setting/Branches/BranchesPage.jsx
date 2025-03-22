@@ -90,7 +90,7 @@ const BranchesPage = ({ refetch }) => {
 
 
 
-       const headers = ['#', 'Image', 'Name', 'City', 'Address', 'Phone', 'Preparation Time','Branch Includes', 'Status', 'Action'];
+       const headers = ['#', 'Image', 'Name', 'City', 'Address', 'Phone', 'Preparation Time','Branch Category', 'Status', 'Action'];
 
        return (
               <div className="w-full pb-28 flex items-start justify-start overflow-x-scroll scrollSection">
