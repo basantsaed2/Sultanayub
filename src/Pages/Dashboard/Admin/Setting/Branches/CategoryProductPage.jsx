@@ -70,7 +70,7 @@ const CategoryProductPage = ({ refetch }) => {
   };
 
  
-    const headers = ['#', 'Name','Image','Product variations', 'Status',];
+    const headers = ['#','Image', 'Name','Product variations', 'Status',];
  
      return (
                <div className="w-full pb-28 flex items-start justify-start overflow-x-scroll scrollSection">

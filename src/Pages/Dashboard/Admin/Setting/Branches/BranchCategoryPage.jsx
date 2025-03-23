@@ -117,7 +117,7 @@ const BranchCategoryPage = ({ refetch }) => {
 
     }
 
-       const headers = ['#', 'Name','Image','Category Products', 'Status',];
+       const headers = ['#','Image','Name','Category Products', 'Status',];
 
        return (
               <div className="w-full pb-28 flex items-start justify-start overflow-x-scroll scrollSection">
