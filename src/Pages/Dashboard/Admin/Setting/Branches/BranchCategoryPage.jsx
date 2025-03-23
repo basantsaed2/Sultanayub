@@ -161,7 +161,7 @@ const BranchCategoryPage = ({ refetch }) => {
                                                                              {branch?.name || '-'}
                                                                       </td>
                                                                       <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-blue-500 cursor-pointer">
-                                                                             <Link to={`/dashboard/setting/branches/branch_category/${branchId}/category_product/${branch.id}`} className='text-mainColor text-xl border-b-2 border-mainColor font-TextFontSemiBold cursor-pointer'>
+                                                                             <Link to={`/dashboard/branches/branch_category/${branchId}/category_product/${branch.id}`} className='text-mainColor text-xl border-b-2 border-mainColor font-TextFontSemiBold cursor-pointer'>
                                                                                     View
                                                                              </Link>
                                                                       </td>

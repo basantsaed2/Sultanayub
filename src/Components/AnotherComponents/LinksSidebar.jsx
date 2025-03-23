@@ -15,6 +15,7 @@ import { HiReceiptTax } from 'react-icons/hi';
 import { TbBorderAll, TbReportSearch } from 'react-icons/tb';
 import { BiSolidCoupon } from "react-icons/bi";
 import { FaUsers } from "react-icons/fa6";
+import { IoMdGitBranch } from "react-icons/io";
 
 const LinksSidebar = () => {
        const auth = useAuth();
@@ -86,13 +87,17 @@ const LinksSidebar = () => {
        const [isActiveRoles, setIsActiveRoles] = useState(false);
        const [isActivePaymentMethod, setIsActivePaymentMethod] = useState(false);
        const [isActiveCities, setIsActiveCities] = useState(false);
-       const [isActiveBranches, setIsActiveBranches] = useState(false);
+       // const [isActiveBranches, setIsActiveBranches] = useState(false);
        const [isActiveZones, setIsActiveZones] = useState(false);
 
        const [isActiveOrderType, setIsActiveOrderType] = useState(false);
        const [isActiveResturantTime, setIsActiveResturantTime] = useState(false);
        const [isActiveCancelTime, setIsActiveCancelTime] = useState(false);
        const [isActiveDeliveryTime, setIsActiveDeliveryTime] = useState(false);
+
+       // Branches 
+       const [isActiveBranches, setIsActiveBranches] = useState(false);
+       const [isActiveBranchesIcon, setIsActiveBranchesIcon] = useState(false);
 
        const [isActiveAutomaticPayment, setIsActiveAutomaticPayment] = useState(false);
        /* Sound */
@@ -196,7 +201,7 @@ const LinksSidebar = () => {
               setIsActiveSettingIcon(false);
               setIsActivePaymentMethod(false);
               setIsActiveCities(false)
-              setIsActiveBranches(false)
+              // setIsActiveBranches(false)
               setIsActiveZones(false)
               setIsActiveOrderType(false)
               setIsActiveResturantTime(false)
@@ -204,6 +209,9 @@ const LinksSidebar = () => {
               setIsActiveDeliveryTime(false)
               setIsActiveSound(false)
               setIsActiveMenu(false)
+
+              setIsActiveBranches(false)
+              setIsActiveBranchesIcon(false)
 
               setIsActiveOrdersPayment(false)
               setIsActiveOrdersPaymentIcon(false)
@@ -390,7 +398,7 @@ const LinksSidebar = () => {
                      !["/dashboard/setting/payment_method",
                             "/dashboard/setting/roles",
                             "/dashboard/setting/cities",
-                            "/dashboard/setting/branches",
+                            // "/dashboard/setting/branches",
                             "/dashboard/setting/zones",
                             "/dashboard/setting/order_type",
                             "/dashboard/setting/resturant_time",
@@ -469,19 +477,33 @@ const LinksSidebar = () => {
               }
        }, [location])
        /* Branches */
+       // const handleClickBranches = useCallback(() => {
+       //        handleStateLinks()
+       //        setIsOpenSetting(true);
+       //        setIsActiveSetting(true);
+       //        setIsActiveBranches(true);
+       // }, []);
+       // useEffect(() => {
+       //        const part = pathName.split('/');
+       //        const result = part.slice(0, 4).join('/');
+       //        if (result == "/dashboard/setting/branches") {
+       //               handleClickBranches()
+       //        }
+       // }, [location])
+
        const handleClickBranches = useCallback(() => {
-              handleStateLinks()
-              setIsOpenSetting(true);
-              setIsActiveSetting(true);
+              handleStateLinks();
               setIsActiveBranches(true);
+              setIsActiveBranchesIcon(true);
        }, []);
        useEffect(() => {
               const part = pathName.split('/');
-              const result = part.slice(0, 4).join('/');
-              if (result == "/dashboard/setting/branches") {
+              const result = part.slice(0, 3).join('/');
+              if (result == "/dashboard/branches") {
                      handleClickBranches()
               }
        }, [location])
+
 
        /* Zones */
        const handleClickZones = useCallback(() => {
@@ -1484,6 +1506,32 @@ const LinksSidebar = () => {
                                           </div>
                                    </div>
 
+                                   <Link to="branches"
+                                          onMouseMove={() => setIsActiveBranchesIcon(true)}
+                                          onMouseOut={() => setIsActiveBranchesIcon(false)}
+                                          onClick={handleClickBranches}
+                                          className={`
+                            ${isActiveBranches ? 'active' : ''}
+                            ${hideSide ? 'justify-between' : 'justify-center'} 
+                            hover:rounded-xl pl-2 pr-1 hover:py-2 hover:bg-white 
+                            hover:text-mainColor w-full flex items-center 
+                            transition-all duration-300 group`}
+                                   >
+                                          <div className="flex items-center gap-x-2">
+                                                 <IoMdGitBranch
+                                                        className={`${isActiveBranchesIcon || isActiveBranches ? 'text-[#9E090F]' : 'text-[#fff]'} text-3xl`}
+                                                 />
+                                                 <span
+                                                        className={`${hideSide ? 'block' : 'hidden'}
+                                          ${isActiveBranches ? "text-mainColor" : "text-white"}
+                                   text-lg font-[400] transition-all duration-300
+                                   group-hover:text-mainColor`}
+                                                 >
+                                                        Branches
+                                                 </span>
+                                          </div>
+                                   </Link>
+
                                    {/* Setting */}
                                    <div className="w-full flex flex-col">
                                           <Link to="setting"
@@ -1548,14 +1596,14 @@ const LinksSidebar = () => {
                                                                       Cities
                                                                </li>
                                                         </Link>
-                                                        <Link to={"setting/branches"} onClick={handleClickBranches}>
+                                                        {/* <Link to={"setting/branches"} onClick={handleClickBranches}>
                                                                <li
                                                                       className={`${isActiveBranches ? 'rounded-xl bg-white text-mainColor' : 'text-white'}
                                                  text-xl font-TextFontLight rounded-xl px-4 py-1  hover:bg-white transition-all duration-300 hover:text-mainColor`
                                                                       }>
                                                                       Branches
                                                                </li>
-                                                        </Link>
+                                                        </Link> */}
                                                         <Link to={"setting/zones"} onClick={handleClickZones}>
                                                                <li
                                                                       className={`${isActiveZones ? 'rounded-xl bg-white text-mainColor' : 'text-white'}
@@ -2319,6 +2367,35 @@ const LinksSidebar = () => {
                                           </div>
                                    </div>
 
+                                   {/*Branches */}
+                                   {permission.includes('Branch') && (
+                                          <Link to="branches"
+                                                 onMouseMove={() => setIsActiveBranches(true)}
+                                                 onMouseOut={() => setIsActiveBranchesIcon(false)}
+                                                 onClick={handleClickBranches}
+                                                 className={`
+                                   ${isActiveBranches ? 'active' : ''}
+                                   ${hideSide ? 'justify-between' : 'justify-center'} 
+                                   hover:rounded-xl pl-2 pr-1 hover:py-2 hover:bg-white 
+                                   hover:text-mainColor w-full flex items-center 
+                                   transition-all duration-300 group`}
+                                          >
+                                                 <div className="flex items-center gap-x-2">
+                                                        <IoMdGitBranch
+                                                               className={`${isActiveBranchesIcon || isActiveBranches ? 'text-[#9E090F]' : 'text-[#fff]'} text-3xl`}
+                                                        />
+                                                        <span
+                                                               className={`${hideSide ? 'block' : 'hidden'}
+                                           ${isActiveBranches ? "text-mainColor" : "text-white"}
+                                          text-lg font-[400] transition-all duration-300
+                                          group-hover:text-mainColor`}
+                                                        >
+                                                              Branches
+                                                        </span>
+                                                 </div>
+                                          </Link>
+                                   )}
+
                                    {/* Setting */}
                                    {permission.includes("Setting") && (
                                           <>
@@ -2385,14 +2462,14 @@ const LinksSidebar = () => {
                                                                                     Cities
                                                                              </li>
                                                                       </Link>
-                                                                      <Link to={"setting/branches"} onClick={handleClickBranches}>
+                                                                      {/* <Link to={"setting/branches"} onClick={handleClickBranches}>
                                                                              <li
                                                                                     className={`${isActiveBranches ? 'rounded-xl bg-white text-mainColor' : 'text-white'}
                                           text-xl font-TextFontLight rounded-xl px-4 py-1  hover:bg-white transition-all duration-300 hover:text-mainColor`
                                                                                     }>
                                                                                     Branches
                                                                              </li>
-                                                                      </Link>
+                                                                      </Link> */}
                                                                       <Link to={"setting/zones"} onClick={handleClickZones}>
                                                                              <li
                                                                                     className={`${isActiveZones ? 'rounded-xl bg-white text-mainColor' : 'text-white'}

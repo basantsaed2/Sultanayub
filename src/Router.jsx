@@ -187,6 +187,41 @@ export const router = createBrowserRouter([
             ]
           },
           {
+            path: 'branches',
+            children: [
+              {
+                path: '',
+                element: <BranchesLayout />,
+              },
+              {
+                path: 'edit/:branchId',
+                element: <EditBranchLayout />,
+              },
+              {
+                path: 'branch_category/:branchId',
+                element: <AppBranchCategoryLayout />,
+                children:[
+                  {
+                    path: '',
+                    element: <BranchCategoryLayout />,
+                  },
+                  {
+                    path: 'category_product/:productId',
+                    element: <CategoryProductLayout />,
+                  },
+                  {
+                    path: 'product_variation/:variationId',
+                    element: <ProductVariationLayout />,
+                  },
+                  {
+                    path: 'variation_option/:optionId',
+                    element: <VariationOptionLayout />,
+                  }
+                ]
+              }
+            ]
+          },
+          {
             path: 'setting',
             element: <SettingLayout />,
             children: [
@@ -261,41 +296,41 @@ export const router = createBrowserRouter([
                   }
                 ]
               },
-              {
-                path: 'branches',
-                children: [
-                  {
-                    path: '',
-                    element: <BranchesLayout />,
-                  },
-                  {
-                    path: 'edit/:branchId',
-                    element: <EditBranchLayout />,
-                  },
-                  {
-                    path: 'branch_category/:branchId',
-                    element: <AppBranchCategoryLayout />,
-                    children:[
-                      {
-                        path: '',
-                        element: <BranchCategoryLayout />,
-                      },
-                      {
-                        path: 'category_product/:productId',
-                        element: <CategoryProductLayout />,
-                      },
-                      {
-                        path: 'product_variation/:variationId',
-                        element: <ProductVariationLayout />,
-                      },
-                      {
-                        path: 'variation_option/:optionId',
-                        element: <VariationOptionLayout />,
-                      }
-                    ]
-                  }
-                ]
-              },
+              // {
+              //   path: 'branches',
+              //   children: [
+              //     {
+              //       path: '',
+              //       element: <BranchesLayout />,
+              //     },
+              //     {
+              //       path: 'edit/:branchId',
+              //       element: <EditBranchLayout />,
+              //     },
+              //     {
+              //       path: 'branch_category/:branchId',
+              //       element: <AppBranchCategoryLayout />,
+              //       children:[
+              //         {
+              //           path: '',
+              //           element: <BranchCategoryLayout />,
+              //         },
+              //         {
+              //           path: 'category_product/:productId',
+              //           element: <CategoryProductLayout />,
+              //         },
+              //         {
+              //           path: 'product_variation/:variationId',
+              //           element: <ProductVariationLayout />,
+              //         },
+              //         {
+              //           path: 'variation_option/:optionId',
+              //           element: <VariationOptionLayout />,
+              //         }
+              //       ]
+              //     }
+              //   ]
+              // },
               {
                 path: 'zones',
                 children: [
