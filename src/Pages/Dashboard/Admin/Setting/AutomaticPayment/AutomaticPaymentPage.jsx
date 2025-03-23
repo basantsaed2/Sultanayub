@@ -171,7 +171,9 @@ const AutomaticPaymentPage = ({ refetch }) => {
             </div>
             {/* Content */}
             <div className="w-full">
-              {automaticPayments[currentTap]?.name === 'paymob' && (
+            {["visa", "paymob", "master", "mastercard", "visa/mastercard"].some(keyword =>
+                automaticPayments[currentTap]?.name?.toLowerCase().includes(keyword)
+              ) &&  (
                 <div className="w-full flex flex-wrap items-center justify-start gap-4">
                   <div className="w-full flex items-center gap-x-4">
                     <div className="flex items-center">
