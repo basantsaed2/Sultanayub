@@ -84,7 +84,7 @@ const ConfirmedOrdersPage = () => {
     'Delivery Date',
     'Customer Info',
     'Branch',
-    "Total Amount",
+    "Total Price",
     'Order Status',
     'Order Type',
     'Actions'

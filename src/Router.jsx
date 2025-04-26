@@ -71,7 +71,9 @@ import {
 import ProtectedLogin from "./ProtectedData/ProtectedLogin";
 import NotFoundPage from "./Pages/NotFoundPage/NotFoundPage";
 import App from "./App";
-import { BusinessSettingsPage, CustomerLoginPage, MainBranchSetupPage, OrdersPage, OrdersPaymentHistoryPage, OrdersPaymentPendingPage, RestaurantTimeSlotPage } from "./Pages/Pages";
+import { BusinessSettingsPage, CustomerLoginPage, EditRolePage, MainBranchSetupPage, OrdersPage, OrdersPaymentHistoryPage, OrdersPaymentPendingPage, RestaurantTimeSlotPage } from "./Pages/Pages";
+import LogOrders from "./Pages/Dashboard/Admin/Orders/LogOrders/LogOrders";
+//import ToggleItems from "./Pages/Dashboard/Admin/ProductSetup/ToggleItems";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -114,8 +116,13 @@ export const router = createBrowserRouter([
       }
     ]
   },
-
-  /* Dashboard or main app routes after login */
+{/** 
+    {
+    path: "/product/:id",
+    element: <ToggleItems />
+  },
+  */},
+    /* Dashboard or main app routes after login */
   {
     path: "/dashboard",
     element: <ProtectedLogin />,
@@ -233,10 +240,9 @@ export const router = createBrowserRouter([
                     element: <RolesLayout />,
                   },
                   {
-                    path: 'edit/:roleId',
-                    element: <EditRoleLayout />,
-                  }
-                ]
+                    path: "edit/:roleId",
+                    element: <EditRolePage />
+                  }                ]
               },
               {
                 path: 'payment_method',
@@ -588,6 +594,10 @@ export const router = createBrowserRouter([
               {
                 path: 'schedule',
                 element: <ScheduleOrdersLayout />
+              },
+              {
+                path: 'log',
+                element: <LogOrders />
               },
 
               /* Details Order */

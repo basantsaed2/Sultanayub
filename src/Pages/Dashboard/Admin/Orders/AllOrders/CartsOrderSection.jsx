@@ -1,4 +1,3 @@
-import React from 'react'
 import { Cart } from '../../../../../Components/Components'
 import { CanceledIcon, ConfirmedIcon, DeliveredIcon, FailedToDeliverIcon, OutForDeliveryIcon, PendingIcon, ProcessingIcon, ReturnedIcon } from '../../../../../Assets/Icons/AllIcons'
 

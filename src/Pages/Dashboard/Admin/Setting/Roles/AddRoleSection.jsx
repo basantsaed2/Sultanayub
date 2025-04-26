@@ -1,100 +1,155 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { StaticButton, StaticLoader, SubmitButton, Switch, TextInput, UploadInput } from '../../../../../Components/Components';
-import { usePost } from '../../../../../Hooks/usePostJson';
-import { useAuth } from '../../../../../Context/Auth';
-import { MultiSelect } from 'primereact/multiselect';
-
+import { useEffect, useState } from "react";
+import {
+  StaticButton,
+  StaticLoader,
+  SubmitButton,
+  Switch,
+  TextInput,
+} from "../../../../../Components/Components";
+import { usePost } from "../../../../../Hooks/usePostJson";
+import { useAuth } from "../../../../../Context/Auth";
+import { MultiSelect } from "primereact/multiselect";
 
 const AddRoleSection = ({ update, setUpdate, permissionRoles }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
-  const { postData, loadingPost, response } = usePost({
-    url: `${apiUrl}/admin/admin_roles/add`
+  const { postData, loadingPost } = usePost({
+    url: `${apiUrl}/admin/admin_roles/add`,
   });
-
   const auth = useAuth();
 
-  const [roleName, setRoleName] = useState('');
+  const [roleName, setRoleName] = useState("");
   const [permissionsData, setPermissionsData] = useState([]);
   const [selectedPermissions, setSelectedPermissions] = useState([]);
+  const [selectedActions, setSelectedActions] = useState({});
   const [roleStatus, setRoleStatus] = useState(0);
-
+  const [availableActions, setAvailableActions] = useState([]);
 
   const handleRoleStatus = () => {
-    const currentState = roleStatus;
-    { currentState === 0 ? setRoleStatus(1) : setRoleStatus(0) }
-  }
+    setRoleStatus((prev) => (prev === 0 ? 1 : 0));
+  };
 
   useEffect(() => {
-    console.log('response', response)
-    if (!loadingPost) {
-      handleReset()
+    if (permissionRoles && typeof permissionRoles === "object") {
+      const formattedPermissions = Object.entries(permissionRoles).map(
+        ([name, actionsArray]) => ({
+          name,
+          actions: Array.isArray(actionsArray) ? actionsArray : actionsArray.actions || [],
+        })
+      );
+      setPermissionsData(formattedPermissions);
     }
-    setUpdate(!update)
-  }, [response])
+  }, [permissionRoles]);
 
   useEffect(() => {
-    setPermissionsData(permissionRoles.map((permission) => ({ name: permission })))
-  }, [permissionRoles])
+    const actions = selectedPermissions.flatMap((permission) => {
+      const found = permissionsData.find((p) => p.name === permission.name);
+      return found ? found.actions.map((act) => ({ permission: permission.name, name: act })) : [];
+    });
+    setAvailableActions(actions);
+  }, [selectedPermissions, permissionsData]);
 
   useEffect(() => {
-    console.log('permissionRoles', permissionRoles)
-    console.log('permissionRolesdata', permissionsData)
-  }, [])
+    setSelectedActions((prev) => {
+      const updated = {};
+      selectedPermissions.forEach((permission) => {
+        if (prev[permission.name]) {
+          updated[permission.name] = prev[permission.name];
+        }
+      });
+      return updated;
+    });
+  }, [selectedPermissions]);
 
   const handleReset = () => {
-    setRoleName('')
-    setSelectedPermissions([])
-    setRoleStatus(0)
-  }
+    setRoleName("");
+    setSelectedPermissions([]);
+    setSelectedActions({});
+    setRoleStatus(0);
+  };
 
   const handleRoleAdd = (e) => {
     e.preventDefault();
-
-
-    if (!roleName) {
-      auth.toastError('please Enter Role Name')
+  
+    if (!roleName.trim()) {
+      auth.toastError("Please enter a role name.");
       return;
     }
-    if (!selectedPermissions.length === 0) {
-      auth.toastError('please Select Role Permissions')
+  
+    if (selectedPermissions.length === 0) {
+      auth.toastError("Please select at least one permission.");
       return;
     }
+  
     const formData = new FormData();
-
-
-    formData.append('name', roleName);
-    formData.append('roles', JSON.stringify(selectedPermissions.map((permission) => permission.name)));
-    formData.append('status', roleStatus);
-    postData(formData, 'Role Added Success');
-
+    formData.append("name", roleName.trim());
+    formData.append("status", roleStatus);
+  
+    selectedPermissions.forEach((permission, index) => {
+      formData.append(`roles[${index}][role]`, permission.name);
+  
+      // تأكد من أن الأفعال تكون موجودة للشخصية الحالية
+      const validActions = availableActions
+        .filter((actionObj) => actionObj.permission === permission.name)
+        .map((actionObj) => actionObj.name);
+  
+      const actions = (selectedActions[permission.name] || []).filter((act) =>
+        validActions.includes(act)
+      );
+  
+      // أضف الأفعال بشكل صحيح مع صيغة "action[]"
+      actions.forEach((action) => {
+        formData.append(`roles[${index}][action][]`, action);
+      });
+    });
+  
+    postData(formData, "Role Added Successfully");
+    handleReset();
+    setUpdate((prev) => !prev);
   };
+  
+
+  const handleActionsChange = (e) => {
+    const updatedSelectedActions = {};
+
+    // Loop through the selected actions and group them by their permission
+    e.value.forEach((actionObj) => {
+      if (!updatedSelectedActions[actionObj.permission]) {
+        updatedSelectedActions[actionObj.permission] = [];
+      }
+      updatedSelectedActions[actionObj.permission].push(actionObj.name);
+    });
+
+    setSelectedActions(updatedSelectedActions);
+  };
+
   return (
     <>
       {loadingPost ? (
-        <>
-          <div className="w-full h-56 flex justify-center items-center">
-            <StaticLoader />
-          </div>
-        </>
+        <div className="w-full h-56 flex justify-center items-center">
+          <StaticLoader />
+        </div>
       ) : (
         <section>
           <form onSubmit={handleRoleAdd}>
             <div className="sm:py-3 lg:py-6">
-              <div
-                className="w-full flex flex-wrap items-center justify-start gap-4">
-
-                {/* Name Input */}
-                <div className="sm:w-full md:w-[40%] lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                  <span className="text-xl font-TextFontRegular text-thirdColor">Role Name:</span>
+              <div className="w-full flex items-center justify-start gap-x-4">
+                {/* Role Name Input */}
+                <div className="w-[25%] flex flex-col gap-y-1">
+                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                    Role Name:
+                  </span>
                   <TextInput
-                    value={roleName} // Access category_name property
+                    value={roleName}
                     onChange={(e) => setRoleName(e.target.value)}
-                    placeholder="Role Name"
+                    placeholder="Enter Role Name"
                   />
                 </div>
-                {/* Permissions */}
-                <div className="sm:w-full md:w-[40%] lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                  <span className="text-xl font-TextFontRegular text-thirdColor">Role Name:</span>
+
+                {/* Permissions MultiSelect */}
+                <div className="w-[25%] flex flex-col gap-y-1">
+                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                    Permissions:
+                  </span>
                   <MultiSelect
                     value={selectedPermissions}
                     onChange={(e) => setSelectedPermissions(e.value)}
@@ -102,38 +157,63 @@ const AddRoleSection = ({ update, setUpdate, permissionRoles }) => {
                     optionLabel="name"
                     placeholder="Select Permissions"
                     maxSelectedLabels={3}
-                    className="w-full text-xl text-secoundColor font-TextFontRegular shadow-sm"
+                    className="w-full text-xl text-secoundColor font-TextFontRegular shadow-md rounded-[20px] mt-2 px-3 py-1"
                   />
                 </div>
 
-                <div className="sm:w-full lg:w-[30%] flex items-start justify-start gap-x-1 pt-10">
-                  <div className='w-2/4 flex items-center justify-start gap-x-1'>
-                    <span className="text-xl font-TextFontRegular text-thirdColor">Active:</span>
-                    <Switch handleClick={handleRoleStatus} checked={roleStatus} />
-                  </div>
+                {/* Actions MultiSelect */}
+                <div className="w-[25%] flex flex-col gap-y-1">
+                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                    Actions:
+                  </span>
+                  <MultiSelect
+                    value={availableActions.filter((actionObj) => {
+                      const selected = selectedActions[actionObj.permission] || [];
+                      return selected.includes(actionObj.name);
+                    })}
+                    onChange={handleActionsChange}
+                    options={availableActions}
+                    optionLabel="name"
+                    placeholder="Select Actions"
+                    maxSelectedLabels={3}
+                    className="w-full text-xl text-secoundColor font-TextFontRegular shadow-md rounded-[20px] mt-2 px-3 py-1"
+                  />
+                </div>
+
+                {/* Role Status Switch */}
+                <div className="w-[25%] flex items-center gap-x-2 pt-10">
+                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                    Active:
+                  </span>
+                  <Switch handleClick={handleRoleStatus} checked={roleStatus} />
                 </div>
               </div>
             </div>
 
-            {/* Buttons*/}
-            <div className="w-full flex items-center justify-end gap-x-4">
-              <div className="">
-                <StaticButton text={'Reset'} handleClick={handleReset} bgColor='bg-transparent' Color='text-mainColor' border={'border-2'} borderColor={'border-mainColor'} rounded='rounded-full' />
-              </div>
-              <div className="">
-                <SubmitButton
-                  text={'Submit'}
-                  rounded='rounded-full'
-                  handleClick={handleRoleAdd}
-                />
-              </div>
-
+            {/* Buttons */}
+            <div className="w-[50%] m-auto flex justify-end gap-x-4 mt-4">
+              <StaticButton
+                text="Reset"
+                handleClick={handleReset}
+                bgColor="bg-transparent"
+                Color="text-mainColor"
+                border="border-2"
+                borderColor="border-mainColor"
+                rounded="rounded-full"
+                className="px-4 py-2 text-base"
+              />
+              <SubmitButton
+                text="Submit"
+                rounded="rounded-full"
+                handleClick={handleRoleAdd}
+                className="px-4 py-2 text-base"
+              />
             </div>
           </form>
         </section>
       )}
     </>
-  )
-}
+  );
+};
 
-export default AddRoleSection
+export default AddRoleSection;

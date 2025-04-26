@@ -1,11 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { DateInput, DropDown, StaticButton, StaticLoader, SubmitButton, TitleSection } from '../../../../Components/Components'
 import { usePost } from '../../../../Hooks/usePostJson';
 import { useDispatch } from 'react-redux';
-import { OrdersComponent, setOrdersAll, setOrdersCanceled, setOrdersConfirmed, setOrdersDelivered, setOrdersFailed, setOrdersOutForDelivery, setOrdersPending, setOrdersProcessing, setOrdersReturned, setOrdersSchedule } from '../../../../Store/CreateSlices';
+import {  setOrdersAll, setOrdersCanceled, setOrdersConfirmed, setOrdersDelivered, setOrdersFailed, setOrdersOutForDelivery, setOrdersPending, setOrdersProcessing, setOrdersReturned, setOrdersSchedule } from '../../../../Store/CreateSlices';
+import { useAuth } from '../../../../Context/Auth';
 
 const SelectDateRangeSection = ({ typPage, branchsData }) => {
        const dispatch = useDispatch()
+       const auth = useAuth()      
 
        const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -81,6 +83,15 @@ const SelectDateRangeSection = ({ typPage, branchsData }) => {
        }, [response, typPage, dispatch]);
 
 
+       useEffect(() => {
+              console.log('Full API Response:', response);
+          
+              if (response && response.data && Array.isArray(response.data.orders)) {
+                  console.log('Orders Count:', response.data.orders.length);
+                  console.log('First Order (if any):', response.data.orders[0]);
+              }
+          }, [response]);
+          
 
        useEffect(() => {
               const handleClickOutside = (event) => {
@@ -106,16 +117,38 @@ const SelectDateRangeSection = ({ typPage, branchsData }) => {
        }
        const handleData = (e) => {
               e.preventDefault();
+            
+              // تحقق من أن تاريخ النهاية ليس قبل تاريخ البداية
+              if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
+                auth.toastError("End date cannot be before start date.");
+                return;
+              }
+            
               const formData = new FormData();
-
-              formData.append('branch_id', branchId)
-              formData.append('from', startDate)
-              formData.append('to', endDate)
-              formData.append('type', typPage)
-
+            
+              if (branchId) {
+                formData.set('branch_id', branchId);
+              }
+            
+              if (startDate) {
+                formData.set('from', startDate);
+              }
+            
+              if (endDate) {
+                formData.set('to', endDate);
+              }
+            
+              console.log('FormData being sent:');
+              for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+              }
+            
               postData(formData);
-       }
-
+            };
+            
+            
+            
+            
 
 
        return (

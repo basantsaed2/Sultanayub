@@ -80,7 +80,8 @@ const PendingOrdersPage = () => {
     'Delivery Date',
     'Customer Info',
     'Branch',
-    "Total Amount",
+    "Total Price",
+    "Payment Method",
     'Order Status',
     'Order Type',
     'Actions'
@@ -181,15 +182,27 @@ const PendingOrdersPage = () => {
                           </td>   
 
                         {/* Branch */}
-                        <td className="px-4 py-2 text-center text-sm lg:text-base">
-                          <span className="text-cyan-500 bg-cyan-200 rounded-md px-2 py-1">
-                            {order.branch?.name || '-'}
-                          </span>
-                        </td>
+                        <td className="px-4 py-2 text-center text-sm lg:text-base relative">
+  <span className="text-cyan-500 bg-cyan-200 rounded-md px-2 py-1 inline-block max-w-[120px] truncate cursor-pointer group">
+    {order?.branch?.address?.length > 20 
+      ? order.branch.address.slice(0, 20) + "..." 
+      : order?.branch?.address || '-'}
+    <span className="absolute bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-all left-1/2 transform -translate-x-1/2 mt-1 z-10 whitespace-nowrap">
+      {order?.branch?.address}
+    </span>
+  </span>
+</td>
+
 
                         {/* Order Amount */}
                         <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
                           {order?.amount || '-'}
+                        </td>
+
+                        
+                        {/* payment method*/}
+                        <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
+                          {order?.payment_method?.name || '-'}
                         </td>
 
                         {/* Order Status */}
