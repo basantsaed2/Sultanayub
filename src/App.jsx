@@ -26,7 +26,6 @@ const App = () => {
   const soundNotification = useSelector((state) => state.soundNotification);
 
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const [isOpen, setIsOpen] = useState(false);
   const [orderCounts, setOrderCounts] = useState(0);
