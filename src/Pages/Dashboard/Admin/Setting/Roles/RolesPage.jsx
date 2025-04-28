@@ -144,7 +144,8 @@ const RolesPage = ({ loadingRoles, roles }) => {
                           <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                             <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
                               <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                                {Array.isArray(role?.roles) && role.roles.length === 0 ? (
+                                {Array.isArray(role?.roles) &&
+                                role.roles.length === 0 ? (
                                   <div className="w-full text-center text-sm font-TextFontMedium text-gray-500 my-3">
                                     No Permissions for this Role.
                                   </div>
@@ -156,7 +157,8 @@ const RolesPage = ({ loadingRoles, roles }) => {
                                         className="w-full flex items-center justify-center shadow-sm hover:shadow-none duration-300 py-2 px-3 rounded-lg bg-gray-50"
                                       >
                                         <span className="text-mainColor text-sm font-TextFontMedium capitalize">
-                                          {index + 1}. {permission.role} - {permission.action}
+                                          {index + 1}. {permission.role} -{" "}
+                                          {permission.action}
                                         </span>
                                       </div>
                                     ))}
@@ -185,7 +187,11 @@ const RolesPage = ({ loadingRoles, roles }) => {
                       <Switch
                         checked={role?.status === 1}
                         handleClick={() =>
-                          handleChangeStatus(role.id, role.name, role.status === 1 ? 0 : 1)
+                          handleChangeStatus(
+                            role.id,
+                            role.name,
+                            role.status === 1 ? 0 : 1
+                          )
                         }
                         className="scale-75"
                       />
@@ -219,16 +225,25 @@ const RolesPage = ({ loadingRoles, roles }) => {
                               <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
                                 <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm">
                                   <div className="flex flex-col items-center justify-center bg-white px-4 pb-4 pt-5 sm:p-4 sm:pb-4">
-                                    <Warning width="24" height="24" aria-hidden="true" />
+                                    <Warning
+                                      width="24"
+                                      height="24"
+                                      aria-hidden="true"
+                                    />
                                     <div className="mt-2 text-center text-sm">
                                       You are about to delete the role{" "}
-                                      <span className="font-TextFontMedium">{role?.name || "-"}</span>.
+                                      <span className="font-TextFontMedium">
+                                        {role?.name || "-"}
+                                      </span>
+                                      .
                                     </div>
                                   </div>
                                   <div className="px-4 py-2 sm:flex sm:flex-row-reverse sm:px-6">
                                     <button
                                       className="inline-flex w-full justify-center rounded-md bg-mainColor px-4 py-2 text-sm font-TextFontMedium text-white shadow-sm sm:ml-2 sm:w-auto hover:bg-mainColor-dark"
-                                      onClick={() => handleDelete(role.id, role.name)}
+                                      onClick={() =>
+                                        handleDelete(role.id, role.name)
+                                      }
                                     >
                                       Confirm Delete
                                     </button>
@@ -266,19 +281,21 @@ const RolesPage = ({ loadingRoles, roles }) => {
                 </button>
               )}
 
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={`px-3 py-1 text-sm font-TextFontMedium rounded-md transition ${
-                    currentPage === page
-                      ? "bg-mainColor text-white"
-                      : "text-mainColor hover:bg-gray-100"
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-3 py-1 text-sm font-TextFontMedium rounded-md transition ${
+                      currentPage === page
+                        ? "bg-mainColor text-white"
+                        : "text-mainColor hover:bg-gray-100"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
 
               {currentPage < totalPages && (
                 <button

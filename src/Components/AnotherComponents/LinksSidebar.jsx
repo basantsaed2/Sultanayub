@@ -200,7 +200,8 @@ const LinksSidebar = () => {
   const [isActiveOrdersCanceled, setIsActiveOrdersCanceled] = useState(false);
   const [isActiveOrdersSchedule, setIsActiveOrdersSchedule] = useState(false);
   const [isActiveLogOrders, setIsActiveLogOrders] = useState(false);
-
+//setting emails
+  const [isActiveEmails, setIsActiveEmails] = useState(false);
 
   // Handler functions to manage all state
   const handleStateLinks = () => {
@@ -292,6 +293,9 @@ const LinksSidebar = () => {
     setIsActiveOrdersCanceled(false);
     setIsActiveOrdersSchedule(false);
     setIsActiveLogOrders(false);
+
+    //setting emails
+    setIsActiveEmails(false);
 
 
     setIsActiveCoupon(false);
@@ -443,6 +447,7 @@ const LinksSidebar = () => {
     }
   }, [pathName]);
 
+
   /* Roles */
   const handleClickRoles = useCallback(() => {
     handleStateLinks();
@@ -457,6 +462,24 @@ const LinksSidebar = () => {
       handleClickRoles();
     }
   }, [location]);
+  
+
+// Handle clicking on Emails
+const handleClickEmails = useCallback(() => {
+  handleStateLinks();
+  setIsOpenSetting(true);
+  setIsActiveSetting(true);
+  setIsActiveEmails(true);
+}, []);
+
+useEffect(() => {
+  const parts = pathName.split("/");
+  const result = parts.slice(0, 4).join("/");
+  if (result === "/dashboard/setting/emails") {
+    handleClickEmails();
+  }
+}, [location]);
+
 
   /* Payment Method */
   const handleClickPaymentMethod = useCallback(() => {
@@ -3435,6 +3458,23 @@ const LinksSidebar = () => {
                   </ul>
                 </div>
               </div>
+              <Link
+                      to={"setting/emails"}
+                      onClick={handleClickEmails}
+                    >
+                      <li
+                        className={`${
+                          isActiveEmails
+                            ? "rounded-xl bg-white text-mainColor"
+                            : "text-white"
+                        }
+                                                 text-xl font-TextFontLight rounded-xl  pl-3 pr-2 py-1 flex items-center justify-between
+                                                 hover:bg-white transition-all duration-300 hover:text-mainColor`}
+                      >
+                        <span>Emails</span>
+
+                      </li>
+                    </Link>
             </>
           )}
 

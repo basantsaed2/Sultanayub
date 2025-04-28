@@ -170,7 +170,7 @@ const EditRolePage = () => {
   return (
     <>
       {loadingRoles || loadingPost ? (
-        <div className="w-full flex justify-center items-center py-10">
+        <div className="w-full flex justify-center mb-96 pb-96 items-center py-10">
           <LoaderLogin className="w-10 h-10" />
         </div>
       ) : (
@@ -178,7 +178,7 @@ const EditRolePage = () => {
           <form onSubmit={handleRoleEdit} className="space-y-10">
             
             {/* Fields Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1   md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Role Name */}
               <div className="flex flex-col gap-y-2">
                 <label className="text-sm font-semibold text-gray-800">
@@ -261,7 +261,7 @@ const EditRolePage = () => {
             </div>
   
             {/* Buttons */}
-            <div className="flex justify-center gap-6">
+            <div className="flex mb-96 pb-96  justify-center gap-6">
               <StaticButton
                 text="Cancel"
                 handleClick={handleBack}

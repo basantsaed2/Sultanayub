@@ -67,12 +67,14 @@ import {
   CategoryProductLayout,
   ProductVariationLayout,
   VariationOptionLayout,
+  EmailLayout,
 } from "./layouts/Layouts";
 import ProtectedLogin from "./ProtectedData/ProtectedLogin";
 import NotFoundPage from "./Pages/NotFoundPage/NotFoundPage";
 import App from "./App";
 import { BusinessSettingsPage, CustomerLoginPage, EditRolePage, MainBranchSetupPage, OrdersPage, OrdersPaymentHistoryPage, OrdersPaymentPendingPage, RestaurantTimeSlotPage } from "./Pages/Pages";
 import LogOrders from "./Pages/Dashboard/Admin/Orders/LogOrders/LogOrders";
+import EditEmailPage from "./Pages/Dashboard/Admin/Setting/Email/EditEmail";
 //import ToggleItems from "./Pages/Dashboard/Admin/ProductSetup/ToggleItems";
 
 const ProductSetupLayout = () => {
@@ -548,6 +550,20 @@ export const router = createBrowserRouter([
           {
             path: 'buy_offer',
             element: <BuyOfferLayout />,
+          },
+
+
+          {
+            path: 'emails',
+            children: [
+              {
+                path: '',
+                element: <EmailLayout />,
+              },
+              {
+                path: "edit/:emailId",
+                element: <EditEmailPage />
+              }                ]
           },
 
           {
