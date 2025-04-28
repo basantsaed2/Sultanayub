@@ -29,7 +29,7 @@ const DetailsOrderPage = () => {
   const { postData, loadingPost, response } = usePost({
     url: `${apiUrl}/admin/order/delivery`,
   });
-  const { changeState, loadingChange, responseChange } = useChangeState();  const [detailsData, setDetailsData] = useState([]);
+  const { changeState, loadingChange, responseChange } = useChangeState(); const [detailsData, setDetailsData] = useState([]);
   const [orderStatus, setOrderStatus] = useState([]);
   const [deliveries, setDeliveries] = useState([]);
   const [deliveriesFilter, setDeliveriesFilter] = useState([]);
@@ -51,20 +51,20 @@ const DetailsOrderPage = () => {
   const [openReceipt, setOpenReceipt] = useState(null);
   const [openOrderNumber, setOpenOrderNumber] = useState(null);
   const [openDeliveries, setOpenDeliveries] = useState(null);
-// State to hold computed values
-const [permission, setPermission] = useState([]);
+  // State to hold computed values
+  const [permission, setPermission] = useState([]);
 
-useEffect(() => {
-       const computedPermission = auth?.userState?.user_positions?.roles?.map((role) => role.role) || [];
-       const ACTIONS = auth?.userState?.user_positions?.roles?.map((role) => role.action) || [];
-       setPermission(computedPermission);
+  useEffect(() => {
+    const computedPermission = auth?.userState?.user_positions?.roles?.map((role) => role.role) || [];
+    const ACTIONS = auth?.userState?.user_positions?.roles?.map((role) => role.action) || [];
+    setPermission(computedPermission);
 
-       // Log the computed values
-       auth.userState.user_positions.roles.forEach((role, index) => {
-        console.log(`Role #${index + 1}: ${role.role} | Actions: ${role.action}`);
-      });
-      
-}, [auth?.userState?.user_positions?.roles]);
+    // Log the computed values
+    auth.userState.user_positions.roles.forEach((role, index) => {
+      console.log(`Role #${index + 1}: ${role.role} | Actions: ${role.action}`);
+    });
+
+  }, [auth?.userState?.user_positions?.roles]);
   useEffect(() => {
     refetchDetailsOrder();
   }, [orderNumPath]);
@@ -185,38 +185,48 @@ useEffect(() => {
     setOpenDeliveries(null);
   };
   const handleOpenOrderStatus = () => {
-    const hasOrderPermission = auth.user?.roles?.some(
-      (perm) => perm === "order"
+    const hasOrderPermission = auth.userState.user_positions.roles?.some(
+      (perm) => perm.role === "Order"
     );
-    const hasValidAction = auth.user?.action?.some(
-      (action) => action === "all" || action === "back_status"
+    console.log("hasOrderPermission", hasOrderPermission);
+    const hasValidAction = auth.userState.user_positions.roles?.some(
+      (action) => action.action === "all" || action.action === "back_status"
     );
-  
+
     if (hasOrderPermission && hasValidAction) {
       setIsOpenOrderStatus(!isOpenOrderStatus);
     } else {
       auth.toastError("You don't have permission to change the order status");
     }
   };
-  
-  
+
+
   const handleOpenOptionOrderStatus = () => setIsOpenOrderStatus(false);
 
   const handleSelectOrderStatus = (selectedOption) => {
-    const hasOrderPermission = auth.user?.roles?.some(
-      (perm) => perm.name === "order"
+    console.log("selectedOption", selectedOption);
+    const hasOrderPermission = auth.userState.user_positions.roles?.some(
+      (perm) => perm.role === "Order"
     );
-    const hasValidAction = auth.user?.action?.some(
-      (action) => action.name === "all" || action.name === "back_status"
+    console.log("hasOrderPermission", hasOrderPermission);
+    const hasValidAction = auth.userState.user_positions.roles?.some(
+      (action) => action.action === "all" || action.action === "back_status"
     );
-  
+
     if (hasOrderPermission && hasValidAction) {
-      setOrderStatusName(selectedOption);
+      if (selectedOption.name === 'canceled') {
+        setShowReason(true)
+        setOrderStatusName(selectedOption.name);
+      } else {
+        setShowReason(false);
+        setOrderStatusName(selectedOption.name);
+        handleChangeStaus(detailsData.id, '', selectedOption.name, '');
+      }
     } else {
       auth.toastError("You don't have permission to change the order status");
     }
   };
-  
+
 
   const handleOrderNumber = (id) => {
     if (!orderNumber) {
@@ -359,17 +369,15 @@ useEffect(() => {
                               </h1>
                               <div className="sm:w-full lg:w-6/12 flex items-center justify-center gap-2">
                                 <Link
-                                  to={`/dashboard/orders/details/${
-                                    Number(orderNumPath) - 1
-                                  }`}
+                                  to={`/dashboard/orders/details/${Number(orderNumPath) - 1
+                                    }`}
                                   className="w-6/12 text-center text-sm md:text-md text-white bg-mainColor border-2 border-mainColor px-1 py-1 rounded-lg transition-all ease-in-out duration-300  hover:bg-white hover:text-mainColor"
                                 >
                                   {"<<"} Prev Order
                                 </Link>
                                 <Link
-                                  to={`/dashboard/orders/details/${
-                                    Number(orderNumPath) + 1
-                                  }`}
+                                  to={`/dashboard/orders/details/${Number(orderNumPath) + 1
+                                    }`}
                                   className="w-6/12 text-center text-sm md:text-md text-white bg-mainColor border-2 border-mainColor px-1 py-1 rounded-lg transition-all ease-in-out duration-300  hover:bg-white hover:text-mainColor"
                                 >
                                   Next Order {">>"}
@@ -714,7 +722,7 @@ useEffect(() => {
                                     {/* Addons Column: Just Name */}
                                     <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
                                       {order.addons &&
-                                      order.addons.length > 0 ? (
+                                        order.addons.length > 0 ? (
                                         order.addons.map(
                                           (addon, addonIndex) => (
                                             <div
@@ -738,7 +746,7 @@ useEffect(() => {
                                     {/* Excludes Column: Just Name */}
                                     <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
                                       {order.excludes &&
-                                      order.excludes.length > 0 ? (
+                                        order.excludes.length > 0 ? (
                                         order.excludes.map(
                                           (exclude, excludeIndex) => (
                                             <div
@@ -774,7 +782,7 @@ useEffect(() => {
                                     {/* Variations Column: Name and Type */}
                                     <td className="px-2 py-1 whitespace-normal">
                                       {order.variations &&
-                                      order.variations.length > 0 ? (
+                                        order.variations.length > 0 ? (
                                         order.variations.map(
                                           (variation, varIndex) => (
                                             <div
@@ -787,7 +795,7 @@ useEffect(() => {
                                               <div className="text-xs text-gray-500">
                                                 Type:{" "}
                                                 {variation.options &&
-                                                variation.options.length > 0 ? (
+                                                  variation.options.length > 0 ? (
                                                   variation.options.map(
                                                     (option, optIndex) => (
                                                       <span
@@ -796,8 +804,8 @@ useEffect(() => {
                                                       >
                                                         {option.name}
                                                         {optIndex <
-                                                        variation.options
-                                                          .length -
+                                                          variation.options
+                                                            .length -
                                                           1
                                                           ? ", "
                                                           : ""}
@@ -1122,64 +1130,64 @@ useEffect(() => {
                   detailsData.order_status === "confirmed" ||
                   detailsData.order_status === "processing" ||
                   detailsData.order_status === "out_for_delivery") && (
-                  <div className="w-full bg-white rounded-xl shadow-md p-4 mt-4">
-                    <h3 className="text-lg font-TextFontSemiBold">
-                      Food Preparation Time
-                    </h3>
-                    <div className="flex items-center">
-                      <FaClock className="mr-2 text-gray-500" />
-                      {preparationTime ? (
-                        <>
-                          <span
-                            className={
-                              olderHours +
+                    <div className="w-full bg-white rounded-xl shadow-md p-4 mt-4">
+                      <h3 className="text-lg font-TextFontSemiBold">
+                        Food Preparation Time
+                      </h3>
+                      <div className="flex items-center">
+                        <FaClock className="mr-2 text-gray-500" />
+                        {preparationTime ? (
+                          <>
+                            <span
+                              className={
+                                olderHours +
+                                  preparationTime.hours -
+                                  initialTime.currentHour <=
+                                  0 ||
+                                  olderDay +
+                                  preparationTime.days -
+                                  initialTime.currentDay <=
+                                  0
+                                  ? "text-red-500"
+                                  : "text-cyan-400"
+                              }
+                            >
+                              {olderHours +
                                 preparationTime.hours -
                                 initialTime.currentHour <=
-                                0 ||
-                              olderDay +
-                                preparationTime.days -
-                                initialTime.currentDay <=
-                                0
-                                ? "text-red-500"
-                                : "text-cyan-400"
-                            }
-                          >
-                            {olderHours +
-                              preparationTime.hours -
-                              initialTime.currentHour <=
-                            0 ? (
-                              <>
-                                {olderDay +
-                                  preparationTime.days -
-                                  initialTime.currentDay}
-                                d{" "}
-                                {initialTime.currentHour -
-                                  (olderHours + preparationTime.hours)}
-                                h{" "}
-                                {olderMinutes +
-                                  preparationTime.minutes -
-                                  initialTime.currentMinute}
-                                m {preparationTime.seconds}s Over
-                              </>
-                            ) : (
-                              <>
-                                {initialTime.currentDay - olderDay}d{" "}
-                                {preparationTime.hours}h{" "}
-                                {olderMinutes +
-                                  preparationTime.minutes -
-                                  initialTime.currentMinute}
-                                m {preparationTime.seconds}s Left
-                              </>
-                            )}
+                                0 ? (
+                                <>
+                                  {olderDay +
+                                    preparationTime.days -
+                                    initialTime.currentDay}
+                                  d{" "}
+                                  {initialTime.currentHour -
+                                    (olderHours + preparationTime.hours)}
+                                  h{" "}
+                                  {olderMinutes +
+                                    preparationTime.minutes -
+                                    initialTime.currentMinute}
+                                  m {preparationTime.seconds}s Over
+                                </>
+                              ) : (
+                                <>
+                                  {initialTime.currentDay - olderDay}d{" "}
+                                  {preparationTime.hours}h{" "}
+                                  {olderMinutes +
+                                    preparationTime.minutes -
+                                    initialTime.currentMinute}
+                                  m {preparationTime.seconds}s Left
+                                </>
+                              )}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-gray-400">
+                            Preparing time not available
                           </span>
-                        </>
-                      ) : (
-                        <span className="text-gray-400">
-                          Preparing time not available
-                        </span>
-                      )}
-                    </div>
-                    {/* <span>preparationTime.hours: {preparationTime?.hours}</span>
+                        )}
+                      </div>
+                      {/* <span>preparationTime.hours: {preparationTime?.hours}</span>
                                                                <br />
                                                                <span>olderHours: {olderHours}</span>
                                                                <br />
@@ -1190,8 +1198,8 @@ useEffect(() => {
                                                                <span>olderMinutes: {olderMinutes}</span>
                                                                <br />
                                                                <span>currentMinute: {initialTime?.currentMinute}</span> */}
-                  </div>
-                )}
+                    </div>
+                  )}
 
                 {detailsData.delivery_id !== null && (
                   <div className="w-full bg-white rounded-xl shadow-md p-4 mt-2">
