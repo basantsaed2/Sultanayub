@@ -373,7 +373,7 @@ const LinksSidebar = () => {
         className={`
           ${isActive && hideSide ? "max-h-[100rem]" : "max-h-0"}
           overflow-hidden flex items-start justify-end w-full
-          transition-all duration-700
+          transition-all duration-700 mt-2
         `}
       >
         <ul className="list-disc w-full pl-2 flex flex-col gap-y-2">

@@ -175,7 +175,7 @@ const ProcessingOrdersPage = () => {
                         {/* Branch */}
                         <td className="px-4 py-2 text-center text-sm lg:text-base">
                           <span className="text-cyan-500 bg-cyan-200 rounded-md px-2 py-1">
-                            {order.branch?.name || '-'}
+                            {order.branch?.name || "-"} / {order.branch?.zone?.zone || "-"}
                           </span>
                         </td>
 
