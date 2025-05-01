@@ -21,9 +21,7 @@ const InvoiceOrderPage = () => {
     if (dataInvoiceOrder && dataInvoiceOrder.order) {
       setInvoiceData(dataInvoiceOrder.order)
     }
-
     console.log('dataInvoiceOrder', dataInvoiceOrder); // Refetch data when the component mounts
-    console.log('invoiceData', invoiceData); // Refetch data when the component mounts
   }, [dataInvoiceOrder]);
   useEffect(() => {
     console.log('orderId', orderId); // Refetch data when the component mounts
@@ -42,7 +40,7 @@ const InvoiceOrderPage = () => {
         <div className="p-6 w-2/4 mx-auto text-black font-sans mb-20">
           {/* Header */}
           <div className="text-center mb-4">
-            <h1 className="text-lg font-TextFontSemiBold">{user.name}</h1>
+            <h1 className="text-lg font-TextFontSemiBold">{invoiceData?.user.name}</h1>
             <p className="text-sm">
               {invoiceData?.branch?.name || '-'}
               {invoiceData?.branch?.address || '-'}

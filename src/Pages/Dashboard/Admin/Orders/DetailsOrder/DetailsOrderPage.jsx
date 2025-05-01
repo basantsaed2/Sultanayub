@@ -386,16 +386,27 @@ const DetailsOrderPage = () => {
                             </div>
                             <p className="text-sm text-gray-700 mt-1">
                               <span className="font-TextFontSemiBold">
-                                Branch:
+                                Zone:
                               </span>{" "}
-                              {detailsData?.branch?.address || ""}
+                              {detailsData?.branch?.zone?.zone || ""}
                             </p>
                             <p className="text-sm text-gray-700 mt-1">
                               <span className="font-TextFontSemiBold">
-                                Order Date & Time:
+                                Branch:
                               </span>{" "}
-                              {detailsData?.order_date || ""} /{" "}
+                              {detailsData?.branch?.name || ""}
+                            </p>
+                            <p className="text-sm text-gray-700 mt-1">
+                              <span className="font-TextFontSemiBold">
+                              Order Time:
+                              </span>{" "}
                               {detailsData?.date || ""}
+                            </p>
+                            <p className="text-sm text-gray-700 mt-1">
+                              <span className="font-TextFontSemiBold">
+                              Order Date:
+                              </span>{" "}
+                              {detailsData?.order_date || ""}
                             </p>
                           </div>
                         </div>
@@ -497,7 +508,7 @@ const DetailsOrderPage = () => {
                                     )}
                                   </>
                                 ) : (
-                                  <span className="text-mainColor font-TextFontMedium ml-2 underline">
+                                  <span className="text-md text-gray-800 font-TextFontMedium ml-2 underline">
                                     No Recipt
                                   </span>
                                 )}
@@ -506,163 +517,6 @@ const DetailsOrderPage = () => {
                           </div>
                         </div>
                       </div>
-
-                      {/* Items Table */}
-                      {/* {(detailsData?.order_details || []).map((item, index) => (
-                                                                      <div className='border-b-2 border-gray-500 mt-4' key={`${item.product_id}-${index}`} >
-                                                                             <div className="text-center mb-2">
-                                                                                    <strong>Product Num({index + 1})</strong>
-                                                                             </div>
-                                                                             <table className="w-full sm:min-w-0 border-b-2">
-                                                                                    <thead>
-                                                                                           <tr className="bg-gray-100">
-                                                                                                  <th className="border p-2">QTY</th>
-                                                                                                  <th className="border p-2">DESC</th>
-                                                                                                  <th className="border p-2">Price</th>
-                                                                                                  <th className="border p-2">Count</th>
-                                                                                           </tr>
-                                                                                    </thead>
-                                                                                    <tbody>
-                                                                                           {item.product.map((itemProduct, indexProduct) => (
-                                                                                                  <tr key={`product - ${itemProduct.id} - ${indexProduct}`} className='border-b-2'>
-                                                                                                         <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{indexProduct + 1}</td>
-                                                                                                         <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{itemProduct.product.name}</td>
-                                                                                                         <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{itemProduct.product.price}</td>
-                                                                                                         <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{itemProduct.count}</td>
-                                                                                                  </tr>
-                                                                                           ))}
-                                                                                    </tbody>
-
-                                                                             </table>
-
-                                                                             <div className="text-center mb-2">
-                                                                                    <strong>Addons Num({index + 1})</strong>
-                                                                             </div>
-                                                                             <table className="w-full sm:min-w-0 border-b-2">
-                                                                                    <thead>
-                                                                                           <tr className="bg-gray-100">
-                                                                                                  <th className="border p-2">QTY</th>
-                                                                                                  <th className="border p-2">DESC</th>
-                                                                                                  <th className="border p-2">Price</th>
-                                                                                                  <th className="border p-2">Count</th>
-                                                                                           </tr>
-                                                                                    </thead>
-                                                                                    <tbody>
-                                                                                           {item.addons.map((itemAddons, indexAddons) => (
-                                                                                                  <tr key={`${itemAddons.addon.id}-${index}-${indexAddons}`} className='border-b-2'>
-                                                                                                         <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{indexAddons + 1}</td>
-                                                                                                         <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{itemAddons.addon.name}</td>
-                                                                                                         <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{itemAddons.addon.price}</td>
-                                                                                                         <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{itemAddons.count}</td>
-                                                                                                  </tr>
-                                                                                           ))}
-                                                                                    </tbody>
-
-                                                                             </table>
-
-                                                                             <div className="text-center mb-2">
-                                                                                    <strong>Excludes Num({index + 1})</strong>
-                                                                             </div>
-                                                                             <table className="w-full sm:min-w-0 border-b-2">
-                                                                                    <thead>
-                                                                                           <tr className="bg-gray-100">
-                                                                                                  <th className="border p-2">QTY</th>
-                                                                                                  <th className="border p-2">DESC</th>
-                                                                                           </tr>
-                                                                                    </thead>
-                                                                                    <tbody>
-                                                                                           {item.excludes.map((itemExclude, indexExclude) => (
-                                                                                                  <tr key={`${itemExclude.id}-${index}-${indexExclude}`} className='border-b-2'>
-                                                                                                         <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{indexExclude + 1}</td>
-                                                                                                         <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{itemExclude.name}</td>
-                                                                                                  </tr>
-                                                                                           ))}
-                                                                                    </tbody>
-
-                                                                             </table>
-
-                                                                             <div className="text-center mb-2">
-                                                                                    <strong>Extras Num({index + 1})</strong>
-                                                                             </div>
-                                                                             <table className="w-full sm:min-w-0 border-b-2">
-                                                                                    <thead>
-                                                                                           <tr className="bg-gray-100">
-                                                                                                  <th className="border p-2">QTY</th>
-                                                                                                  <th className="border p-2">DESC</th>
-                                                                                                  <th className="border p-2">Price</th>
-                                                                                           </tr>
-                                                                                    </thead>
-                                                                                    <tbody>
-                                                                                           {item.extras.map((itemExtra, indexExtra) => (
-                                                                                                  <tr key={`${itemExtra.id}-${index}-${indexExtra}`} className='border-b-2'>
-                                                                                                         <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{indexExtra + 1}</td>
-                                                                                                         <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{itemExtra.name}</td>
-                                                                                                         <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{itemExtra.price}</td>
-                                                                                                  </tr>
-                                                                                           ))}
-                                                                                    </tbody>
-
-                                                                             </table>
-
-                                                                             <div className="text-center mb-2">
-                                                                                    <strong>Variations Num({index + 1})</strong>
-                                                                             </div>
-                                                                             {item.variations.map((item, indexItem) => (
-                                                                                    <div key={`${item.variation.id}-${index}-${indexItem}`} className='border-b-2'>
-
-                                                                                           <div className="text-center mb-2">
-                                                                                                  <strong>Variation({indexItem + 1})</strong>
-                                                                                           </div>
-                                                                                           <table className="w-full sm:min-w-0 border-b-2">
-                                                                                                  <thead>
-                                                                                                         <tr className="bg-gray-100" >
-                                                                                                                <th className="border p-2">Name</th>
-                                                                                                                <th className="border p-2">Type</th>
-                                                                                                                <th className="border p-2">Max</th>
-                                                                                                                <th className="border p-2">Min</th>
-                                                                                                         </tr>
-                                                                                                  </thead>
-                                                                                                  <tbody>
-                                                                                                         <tr>
-                                                                                                                <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{item.variation.name || '-'}</td>
-                                                                                                                <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{item.variation.type || '-'}</td>
-                                                                                                                <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{item.variation.max || '0'}</td>
-                                                                                                                <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{item.variation.min || '0'}</td>
-                                                                                                         </tr>
-                                                                                                  </tbody>
-                                                                                           </table>
-
-                                                                                           {item.options.map((option, indexOption) => (
-                                                                                                  <div key={`${option.id}-${index}-${indexItem}-${indexOption}`}>
-
-                                                                                                         <div className="text-center mb-2">
-                                                                                                                <strong>Option({indexOption + 1})</strong>
-                                                                                                         </div>
-
-                                                                                                         <table className="w-full sm:min-w-0 border-b-2 mb-2">
-                                                                                                                <thead>
-                                                                                                                       <tr className="bg-gray-100">
-                                                                                                                              <th className="border p-2">QTY</th>
-                                                                                                                              <th className="border p-2">Name</th>
-                                                                                                                              <th className="border p-2">Price</th>
-                                                                                                                              <th className="border p-2">Points</th>
-                                                                                                                       </tr>
-                                                                                                                </thead>
-                                                                                                                <tbody>
-                                                                                                                       <tr>
-                                                                                                                              <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{indexOption + 1}</td>
-                                                                                                                              <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{option.name || '-'}</td>
-                                                                                                                              <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{option.price || '0'}</td>
-                                                                                                                              <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">{option.Points || '0'}</td>
-                                                                                                                       </tr>
-                                                                                                                </tbody>
-                                                                                                         </table>
-                                                                                                  </div>
-                                                                                           ))}
-                                                                                    </div>
-                                                                             ))}
-                                                                      </div>
-                                                               ))} */}
 
                       {(detailsData?.order_details || []).map(
                         (order, orderIndex) => (

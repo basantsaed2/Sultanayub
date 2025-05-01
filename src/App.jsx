@@ -14,9 +14,15 @@ import { useGet } from './Hooks/useGet';
 const App = () => {
   const auth = useAuth();
   const hideSide = auth.hideSidebar;
-
+  const [allCount, setAllCount] = useState(0);
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
-
+  const {
+      refetch: refetchCountOrders,
+      loading,
+      data: dataCountOrders,
+    } = useGet({
+      url: `${apiUrl}/admin/order/count`,
+    });
   const { refetch: refetchSong, loading: loadingSong, data: dataSong } = useGet({
     url: `${apiUrl}/admin/settings/notification_sound`,
   });
@@ -46,17 +52,6 @@ const App = () => {
 
   const handleClose = () => setIsOpen(false);
 
-  // Poll the notification endpoint every 8 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      console.log("Sending request to notification endpoint...");
-      const formData = new FormData();
-      formData.append('orders', ordersAll?.length || 0);
-      postData(formData);
-    }, 8000);
-
-    return () => clearInterval(interval); // Cleanup interval
-  }, [ordersAll, postData]);
 
   // Update `orderCounts` when a response is received
   useEffect(() => {
@@ -89,6 +84,39 @@ const App = () => {
   useEffect(() => {
     setIsOpen(newOrders?.count > 0);
   }, [newOrders]);
+
+   const counters = {
+      ordersAll: dataCountOrders?.orders || 0,
+      ordersPending: dataCountOrders?.pending || 0,
+      ordersConfirmed: dataCountOrders?.confirmed || 0,
+      ordersProcessing: dataCountOrders?.processing || 0,
+      ordersOutForDelivery: dataCountOrders?.out_for_delivery || 0,
+      ordersDelivered: dataCountOrders?.delivered || 0,
+      ordersReturned: dataCountOrders?.returned || 0,
+      ordersFailed: dataCountOrders?.faild_to_deliver || 0,
+      ordersCanceled: dataCountOrders?.canceled || 0,
+      ordersSchedule: dataCountOrders?.scheduled || 0,
+    };
+  
+    useEffect(() => {
+      if (dataCountOrders) {
+        setAllCount(dataCountOrders.orders);
+      }
+    }
+    , [dataCountOrders]);
+
+     // Poll the notification endpoint every 8 seconds
+  useEffect(() => {
+    if(!allCount) return; // Exit if ordersAll is not available
+    const interval = setInterval(() => {
+      console.log("Sending request to notification endpoint...");
+      const formData = new FormData();
+      formData.append('orders', allCount || 0);
+      postData(formData);
+    }, 8000);
+
+    return () => clearInterval(interval); // Cleanup interval
+  }, [ordersAll, postData]);
 
   return (
     <PrimeReactProvider>
