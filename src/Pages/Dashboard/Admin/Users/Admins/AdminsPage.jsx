@@ -75,7 +75,7 @@ const AdminsPage = ({ loadingAdmins, adminsData }) => {
     console.log('data admins', data)
   };
 
-  const headers = ['SL', 'Image', "Name", 'Role', 'Email', 'Phone', "Identity Image", "Identity Type", "Identity Number", 'Status', 'Action'];
+  const headers = ['SL', 'Image', "Name", 'Role', 'Email', 'Phone','Status', 'Action'];
 
   return (
     <div className="w-full pb-28 flex items-start justify-start overflow-x-scroll scrollSection">
@@ -126,36 +126,7 @@ const AdminsPage = ({ loadingAdmins, adminsData }) => {
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {admin?.phone || '-'}
                     </td>
-                    <td className="px-4 py-2 text-center text-sm lg:text-base">
-                      <div className="flex justify-center">
-                        <img src={admin.identity_image}
-                          className="bg-mainColor rounded-full min-w-14 min-h-14 max-w-14 max-h-14"
-                          alt="Photo"
-                        />
-                      </div>
-                    </td>
-                    <td className="px-4 py-2 text-center text-sm lg:text-base">
-                      <span
-                        className={`${admin?.identity_type === 'Passport'
-                          ? 'text-green-500 bg-green-100'
-                          : 'text-blue-500 bg-blue-100'
-                          } rounded-md px-2 py-1`}
-                      >
-                        {admin?.identity_type || '-'}
-                      </span>
-                    </td>
-
-                    <td className="px-4 py-2 text-center text-sm lg:text-base">
-                      <span
-                        className={`${admin?.identity_number
-                          ? 'text-red-500 bg-red-100'
-                          : 'text-gray-500 bg-gray-100'
-                          } rounded-md px-2 py-1`}
-                      >
-                        {admin?.identity_number || '-'}
-                      </span>
-                    </td>
-
+                    
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       <Switch
                         checked={admin.status}

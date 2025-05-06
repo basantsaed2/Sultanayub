@@ -51,10 +51,6 @@ const AddAdminSection = () => {
                      setAdminPhone(admin?.phone || '')
                      setAdminEmail(admin?.email || '')
                      setAdminPositionSelected(admin?.user_positions || '')
-                     setIdentityTypeSelected({ name: admin?.identity_type } || '')
-                     setIdentityNumber(admin?.identity_number || '')
-                     setIdentityImage(admin?.identity_image_link || '')
-                     setIdentityImageFile(admin?.identity_image_link || null)
                      setAdminImage(admin?.image_link || '')
                      setAdminImageFile(admin?.image_link || null)
                      setAdminStatus(admin?.status || 0)
@@ -111,10 +107,6 @@ const AddAdminSection = () => {
               formData.append('phone', adminPhone)
               formData.append('email', adminEmail)
               formData.append('password', adminPassword)
-
-              formData.append('identity_type', identityTypeSelected.name)
-              formData.append('identity_number', identityNumber)
-              formData.append('identity_image', identityImageFile)
               formData.append('image', adminImageFile)
 
               formData.append('user_position_id', adminPositionSelected.id)
@@ -196,39 +188,6 @@ const AddAdminSection = () => {
                                                         optionLabel="name"
                                                         placeholder='Select Position'
                                                         className="w-full text-xl text-secoundColor font-TextFontMedium"
-                                                 />
-                                          </div>
-                                          {/* Identity Type */}
-                                          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                                                 <span className="text-xl font-TextFontRegular text-thirdColor">Identity Type:</span>
-                                                 <Dropdown
-                                                        value={identityTypeSelected}
-                                                        onChange={(e) => setIdentityTypeSelected(e.value)}
-                                                        options={identityTypes}
-                                                        optionLabel="name"
-                                                        placeholder='Select Identity Type'
-                                                        className="w-full text-xl text-secoundColor font-TextFontMedium"
-                                                 />
-                                          </div>
-                                          {/* Identity Image */}
-                                          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                                                 <span className="text-xl font-TextFontRegular text-thirdColor">Identity Image:</span>
-                                                 <UploadInput
-                                                        value={identityImage}
-                                                        uploadFileRef={IdentityImageRef}
-                                                        placeholder="Identity Image"
-                                                        handleFileChange={handleIdentityImageChange}
-                                                        onChange={(e) => setIdentityImage(e.target.value)}
-                                                        onClick={() => handleIdentityImageClick(IdentityImageRef)}
-                                                 />
-                                          </div>
-                                          {/* Identity Number */}
-                                          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                                                 <span className="text-xl font-TextFontRegular text-thirdColor">Identity Number:</span>
-                                                 <NumberInput
-                                                        value={identityNumber}
-                                                        onChange={(e) => setIdentityNumber(e.target.value)}
-                                                        placeholder="Identity Number"
                                                  />
                                           </div>
 

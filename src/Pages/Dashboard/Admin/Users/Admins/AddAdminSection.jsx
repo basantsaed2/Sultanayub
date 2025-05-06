@@ -76,14 +76,6 @@ const AddAdminSection = ({ update, setUpdate, dataPositions }) => {
               // setAdminPositionState('');
               setAdminPositionSelected(null);
 
-              // se'Select Identity Type''Select Identity Type');
-              setIdentityTypeSelected(null);
-
-              setIdentityNumber('');
-
-              setIdentityImage('');
-              setIdentityImageFile(null);
-
               setAdminImage('');
               setAdminImageFile(null);
 
@@ -107,9 +99,6 @@ const AddAdminSection = ({ update, setUpdate, dataPositions }) => {
               formData.append('email', adminEmail)
               formData.append('password', adminPassword)
 
-              formData.append('identity_type', identityTypeSelected.name)
-              formData.append('identity_number', identityNumber)
-              formData.append('identity_image', identityImageFile)
               formData.append('image', adminImageFile)
 
               formData.append('user_position_id', adminPositionSelected.id)
@@ -183,50 +172,17 @@ const AddAdminSection = ({ update, setUpdate, dataPositions }) => {
                                           </div>
                                           {/* Admin Positions */}
                                           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                                                 <span className="text-xl font-TextFontRegular text-thirdColor">Positions:</span>
+                                                 <span className="text-xl font-TextFontRegular text-thirdColor">Roles:</span>
                                                  <Dropdown
                                                         value={adminPositionSelected}
                                                         onChange={(e) => setAdminPositionSelected(e.value)}
                                                         options={adminPositions}
                                                         optionLabel="name"
-                                                        placeholder='Select Position'
+                                                        placeholder='Select Role'
                                                         className="w-full text-xl text-secoundColor font-TextFontMedium"
                                                  />
                                           </div>
-                                          {/* Identity Type */}
-                                          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                                                 <span className="text-xl font-TextFontRegular text-thirdColor">Identity Type:</span>
-                                                 <Dropdown
-                                                        value={identityTypeSelected}
-                                                        onChange={(e) => setIdentityTypeSelected(e.value)}
-                                                        options={identityTypes}
-                                                        optionLabel="name"
-                                                        placeholder='Select Identity Type'
-                                                        className="w-full text-xl text-secoundColor font-TextFontMedium"
-                                                 />
-                                          </div>
-                                          {/* Identity Image */}
-                                          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                                                 <span className="text-xl font-TextFontRegular text-thirdColor">Identity Image:</span>
-                                                 <UploadInput
-                                                        value={identityImage}
-                                                        uploadFileRef={IdentityImageRef}
-                                                        placeholder="Identity Image"
-                                                        handleFileChange={handleIdentityImageChange}
-                                                        onChange={(e) => setIdentityImage(e.target.value)}
-                                                        onClick={() => handleIdentityImageClick(IdentityImageRef)}
-                                                 />
-                                          </div>
-                                          {/* Identity Number */}
-                                          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                                                 <span className="text-xl font-TextFontRegular text-thirdColor">Identity Number:</span>
-                                                 <NumberInput
-                                                        value={identityNumber}
-                                                        onChange={(e) => setIdentityNumber(e.target.value)}
-                                                        placeholder="Identity Number"
-                                                 />
-                                          </div>
-
+                                          
                                           {/* admin Status */}
                                           <div className="xl:w-[30%] flex items-center justify-start mt-4 gap-x-4 ">
                                                  <span className="text-xl font-TextFontRegular text-thirdColor">Active:</span>
