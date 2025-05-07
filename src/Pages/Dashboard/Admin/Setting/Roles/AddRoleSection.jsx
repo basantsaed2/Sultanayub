@@ -7,63 +7,126 @@ import {
   TextInput,
 } from "../../../../../Components/Components";
 import { usePost } from "../../../../../Hooks/usePostJson";
+import { useGet } from "../../../../../Hooks/useGet";
 import { useAuth } from "../../../../../Context/Auth";
-import { MultiSelect } from "primereact/multiselect";
-
-const AddRoleSection = ({ update, setUpdate, permissionRoles }) => {
+import { useNavigate } from "react-router-dom";
+const AddRoleSection = ({ update, setUpdate }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
-  const { postData, loadingPost } = usePost({
+  const { refetch: refetchRoles, loading: loadingRoles, data: dataRoles } = useGet({
+    url: `${apiUrl}/admin/admin_roles`
+  });
+  const { postData, loadingPost ,response} = usePost({
     url: `${apiUrl}/admin/admin_roles/add`,
   });
   const auth = useAuth();
-
-  const [roleName, setRoleName] = useState("");
+  const nevigate =useNavigate()
+  const [roleName, setRoleName] = useState('');
   const [permissionsData, setPermissionsData] = useState([]);
   const [selectedPermissions, setSelectedPermissions] = useState([]);
-  const [selectedActions, setSelectedActions] = useState({});
   const [roleStatus, setRoleStatus] = useState(0);
-  const [availableActions, setAvailableActions] = useState([]);
+
+  useEffect(() => {
+    refetchRoles();
+  }, [refetchRoles, update]);
+
+  useEffect(() => {
+    if (dataRoles && dataRoles.roles) {
+      console.log('dataRoles', dataRoles.roles)
+      const permissions = dataRoles.roles;
+      setPermissionsData(permissions);
+
+      // Initialize selected permissions state
+      const initialSelected = {};
+      Object.keys(permissions).forEach((category) => {
+        initialSelected[category] = [];
+      })
+      setSelectedPermissions(initialSelected)
+    }
+  }, [dataRoles]);
+
+  useEffect(() => {
+    if (!loadingPost && response){
+      nevigate(-1)
+    }
+  },[response])
+
+  const handleSelectAll = () => {
+    const allSelectedPermissions = {};
+    Object.keys(permissionsData).forEach((category) => {
+      allSelectedPermissions[category] = [...permissionsData[category]];
+    });
+    setSelectedPermissions(allSelectedPermissions);
+  };
+
+  // Deselect All Handler
+  const handleDeselectAll = () => {
+    const resetPermissions = {};
+    Object.keys(permissionsData).forEach((category) => {
+      resetPermissions[category] = [];
+    });
+    setSelectedPermissions(resetPermissions);
+  };
+
+  // Handle "Select All" Toggle for Each Category
+  const handleSelectAllCategory = (category) => {
+    if (selectedPermissions[category].length === permissionsData[category].length) {
+      // Deselect all in the category
+      setSelectedPermissions((prev) => ({
+        ...prev,
+        [category]: [],
+      }));
+    } else {
+      // Select all in the category
+      setSelectedPermissions((prev) => ({
+        ...prev,
+        [category]: [...permissionsData[category]],
+      }));
+    }
+  };
+
+  // Check if all permissions are selected in a category
+  const isAllSelectedInCategory = (category) =>
+    selectedPermissions[category]?.length === permissionsData[category]?.length;
+
+
+  // Toggle Select All/Deselect All based on current state
+  const toggleSelectAll = () => {
+    const isAllSelected = Object.values(selectedPermissions).every(
+      (permissions, index) => permissions.length === Object.values(permissionsData)[index]?.length
+    );
+
+    if (isAllSelected) {
+      handleDeselectAll();
+    } else {
+      handleSelectAll();
+    }
+  };
+
+  // Check if all permissions are selected
+  const areAllPermissionsSelected = Object.values(selectedPermissions).every(
+    (permissions, index) => permissions.length === Object.values(permissionsData)[index]?.length
+  );
+
+  // Toggle individual permission selection within a category
+  const handleTogglePermission = (category, permissionName) => {
+    setSelectedPermissions((prev) => {
+      const categoryPermissions = prev[category] || [];
+      return {
+        ...prev,
+        [category]: categoryPermissions.includes(permissionName)
+          ? categoryPermissions.filter((perm) => perm !== permissionName)
+          : [...categoryPermissions, permissionName],
+      };
+    });
+  };
 
   const handleRoleStatus = () => {
     setRoleStatus((prev) => (prev === 0 ? 1 : 0));
   };
 
-  useEffect(() => {
-    if (permissionRoles && typeof permissionRoles === "object") {
-      const formattedPermissions = Object.entries(permissionRoles).map(
-        ([name, actionsArray]) => ({
-          name,
-          actions: Array.isArray(actionsArray) ? actionsArray : actionsArray.actions || [],
-        })
-      );
-      setPermissionsData(formattedPermissions);
-    }
-  }, [permissionRoles]);
-
-  useEffect(() => {
-    const actions = selectedPermissions.flatMap((permission) => {
-      const found = permissionsData.find((p) => p.name === permission.name);
-      return found ? found.actions.map((act) => ({ permission: permission.name, name: act })) : [];
-    });
-    setAvailableActions(actions);
-  }, [selectedPermissions, permissionsData]);
-
-  useEffect(() => {
-    setSelectedActions((prev) => {
-      const updated = {};
-      selectedPermissions.forEach((permission) => {
-        if (prev[permission.name]) {
-          updated[permission.name] = prev[permission.name];
-        }
-      });
-      return updated;
-    });
-  }, [selectedPermissions]);
-
   const handleReset = () => {
     setRoleName("");
     setSelectedPermissions([]);
-    setSelectedActions({});
     setRoleStatus(0);
   };
 
@@ -75,7 +138,18 @@ const AddRoleSection = ({ update, setUpdate, permissionRoles }) => {
       return;
     }
   
-    if (selectedPermissions.length === 0) {
+    // Flatten selected permissions into an array of {category, permission} objects
+    const flattenedPermissions = [];
+    Object.entries(selectedPermissions).forEach(([category, permissions]) => {
+      permissions.forEach(permission => {
+        flattenedPermissions.push({
+          category,
+          permission
+        });
+      });
+    });
+  
+    if (flattenedPermissions.length === 0) {
       auth.toastError("Please select at least one permission.");
       return;
     }
@@ -84,133 +158,131 @@ const AddRoleSection = ({ update, setUpdate, permissionRoles }) => {
     formData.append("name", roleName.trim());
     formData.append("status", roleStatus);
   
-    selectedPermissions.forEach((permission, index) => {
-      formData.append(`roles[${index}][role]`, permission.name);
-  
-      // تأكد من أن الأفعال تكون موجودة للشخصية الحالية
-      const validActions = availableActions
-        .filter((actionObj) => actionObj.permission === permission.name)
-        .map((actionObj) => actionObj.name);
-  
-      const actions = (selectedActions[permission.name] || []).filter((act) =>
-        validActions.includes(act)
-      );
-  
-      // أضف الأفعال بشكل صحيح مع صيغة "action[]"
-      actions.forEach((action) => {
-        formData.append(`roles[${index}][action][]`, action);
-      });
+    // Add each permission with its actions
+    flattenedPermissions.forEach(({category, permission}, index) => {
+      formData.append(`roles[${index}][role]`, category); // Using permission name as role
+      formData.append(`roles[${index}][action][]`, permission);
+    
     });
   
     postData(formData, "Role Added Successfully");
-    handleReset();
-    setUpdate((prev) => !prev);
-  };
-  
-
-  const handleActionsChange = (e) => {
-    const updatedSelectedActions = {};
-
-    // Loop through the selected actions and group them by their permission
-    e.value.forEach((actionObj) => {
-      if (!updatedSelectedActions[actionObj.permission]) {
-        updatedSelectedActions[actionObj.permission] = [];
-      }
-      updatedSelectedActions[actionObj.permission].push(actionObj.name);
-    });
-
-    setSelectedActions(updatedSelectedActions);
   };
 
   return (
     <>
-      {loadingPost ? (
+      {loadingPost || loadingRoles ? (
         <div className="w-full h-56 flex justify-center items-center">
           <StaticLoader />
         </div>
       ) : (
-        <section>
-          <form onSubmit={handleRoleAdd}>
-            <div className="sm:py-3 lg:py-6">
-              <div className="w-full flex items-center justify-start gap-x-4">
-                {/* Role Name Input */}
-                <div className="w-[25%] flex flex-col gap-y-1">
-                  <span className="text-xl font-TextFontRegular text-thirdColor">
-                    Role Name:
-                  </span>
-                  <TextInput
-                    value={roleName}
-                    onChange={(e) => setRoleName(e.target.value)}
-                    placeholder="Enter Role Name"
-                  />
-                </div>
-
-                {/* Permissions MultiSelect */}
-                <div className="w-[25%] flex flex-col gap-y-1">
-                  <span className="text-xl font-TextFontRegular text-thirdColor">
-                    Permissions:
-                  </span>
-                  <MultiSelect
-                    value={selectedPermissions}
-                    onChange={(e) => setSelectedPermissions(e.value)}
-                    options={permissionsData}
-                    optionLabel="name"
-                    placeholder="Select Permissions"
-                    maxSelectedLabels={3}
-                    className="w-full text-xl text-secoundColor font-TextFontRegular shadow-md rounded-[20px] mt-2 px-3 py-1"
-                  />
-                </div>
-
-                {/* Actions MultiSelect */}
-                <div className="w-[25%] flex flex-col gap-y-1">
-                  <span className="text-xl font-TextFontRegular text-thirdColor">
-                    Actions:
-                  </span>
-                  <MultiSelect
-                    value={availableActions.filter((actionObj) => {
-                      const selected = selectedActions[actionObj.permission] || [];
-                      return selected.includes(actionObj.name);
-                    })}
-                    onChange={handleActionsChange}
-                    options={availableActions}
-                    optionLabel="name"
-                    placeholder="Select Actions"
-                    maxSelectedLabels={3}
-                    className="w-full text-xl text-secoundColor font-TextFontRegular shadow-md rounded-[20px] mt-2 px-3 py-1"
-                  />
-                </div>
-
-                {/* Role Status Switch */}
-                <div className="w-[25%] flex items-center gap-x-2 pt-10">
-                  <span className="text-xl font-TextFontRegular text-thirdColor">
-                    Active:
-                  </span>
-                  <Switch handleClick={handleRoleStatus} checked={roleStatus} />
-                </div>
+        <section className="bg-white rounded-xl shadow-lg p-6 mb-20">
+        <form onSubmit={handleRoleAdd} className="space-y-4">
+          <div className="space-y-4">
+            {/* Role Name Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+              <div className="lg:col-span-1 space-y-2">
+                <label htmlFor="role-name" className="block text-lg font-medium text-gray-700">
+                  Role Name:
+                </label>
+                <TextInput
+                  id="role-name"
+                  value={roleName}
+                  onChange={(e) => setRoleName(e.target.value)}
+                  placeholder="Enter Role Name"
+                  className="w-full"
+                />
+              </div>
+      
+              {/* Active Toggle */}
+              <div className="lg:col-span-1 flex items-center space-x-3 pt-8">
+                <span className="text-lg font-medium text-gray-700">Active:</span>
+                <Switch 
+                  handleClick={handleRoleStatus} 
+                  checked={roleStatus}
+                  srLabel="Toggle role active status"
+                />
               </div>
             </div>
-
-            {/* Buttons */}
-            <div className="w-[50%] m-auto flex justify-end gap-x-4 mt-4">
-              <StaticButton
-                text="Reset"
-                handleClick={handleReset}
-                bgColor="bg-transparent"
-                Color="text-mainColor"
-                border="border-2"
-                borderColor="border-mainColor"
-                rounded="rounded-full"
-                className="px-4 py-2 text-base"
-              />
-              <SubmitButton
-                text="Submit"
-                rounded="rounded-full"
-                handleClick={handleRoleAdd}
-                className="px-4 py-2 text-base"
-              />
+      
+            {/* Permissions Section */}
+            <div className="space-y-2">
+ 
+      
+              {/* Select All Button */}
+              <div className="flex items-center space-x-3 bg-blue-50 p-3 rounded-lg">
+                <input
+                  type="checkbox"
+                  id="select-all"
+                  onChange={toggleSelectAll}
+                  checked={areAllPermissionsSelected}
+                  className="h-5 w-5 rounded text-blue-600 focus:ring-blue-500"
+                />
+                <label htmlFor="select-all" className="text-lg font-semibold text-gray-800">
+                  Select All Permissions
+                </label>
+              </div>
+      
+              {/* Permissions Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                {Object.keys(permissionsData).map((category) => (
+                  <div key={category} className="border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+                    {/* Category Header */}
+                    <div className="flex items-center space-x-3 mb-4 pb-2 border-b border-gray-100">
+                      <input
+                        type="checkbox"
+                        id={`select-all-${category}`}
+                        onChange={() => handleSelectAllCategory(category)}
+                        checked={isAllSelectedInCategory(category)}
+                        className="h-5 w-5 rounded text-blue-600 focus:ring-blue-500"
+                      />
+                      <label 
+                        htmlFor={`select-all-${category}`} 
+                        className="text-xl font-semibold text-gray-800 capitalize"
+                      >
+                        {category.replace(/-/g, ' ')}
+                      </label>
+                    </div>
+                    
+                    {/* Permission Items */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {permissionsData[category].map((permission, index) => (
+                        <div key={index} className="flex items-center space-x-3">
+                          <input
+                            type="checkbox"
+                            id={`permission-${category}-${index}`}
+                            checked={selectedPermissions[category]?.includes(permission)}
+                            onChange={() => handleTogglePermission(category, permission)}
+                            className="h-5 w-5 rounded text-blue-600 focus:ring-blue-500"
+                          />
+                          <label 
+                            htmlFor={`permission-${category}-${index}`} 
+                            className="text-gray-700 font-medium"
+                          >
+                            {permission}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </form>
-        </section>
+          </div>
+      
+         <div className="w-full flex items-center justify-end gap-x-4" >
+                      <div className="">
+                        <StaticButton text={'Reset'} handleClick={handleReset} bgColor='bg-transparent' Color='text-mainColor' border={'border-2'} borderColor={'border-mainColor'} rounded='rounded-full' />
+                      </div>
+                      <div className="">
+                        <SubmitButton
+                          text={'Submit'}
+                          rounded='rounded-full'
+                          handleClick={handleRoleAdd}
+                        />
+                      </div>
+          </div>
+        </form>
+      </section>
       )}
     </>
   );

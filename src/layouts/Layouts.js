@@ -30,6 +30,7 @@ export { default as AddProductLayout } from "./Dashboard/ProductSetup/AddProduct
 // Setting -> Roles
 export { default as RolesLayout } from "./Dashboard/Setting/Roles/RolesLayout";
 export { default as EditRoleLayout } from "./Dashboard/Setting/Roles/EditRoleLayout";
+export { default as AddRoleLayout } from "./Dashboard/Setting/Roles/AddRoleLayout";
 // Setting -> Email
 export { default as EmailLayout } from "./Dashboard/Setting/Email/EmailLayout";
 export { default as EditEmailLayout } from "./Dashboard/Setting/Email/EditEmailLayout";

@@ -68,6 +68,7 @@ import {
   ProductVariationLayout,
   VariationOptionLayout,
   EmailLayout,
+  AddRoleLayout,
 } from "./layouts/Layouts";
 import ProtectedLogin from "./ProtectedData/ProtectedLogin";
 import NotFoundPage from "./Pages/NotFoundPage/NotFoundPage";
@@ -240,6 +241,10 @@ export const router = createBrowserRouter([
                   {
                     path: '',
                     element: <RolesLayout />,
+                  },
+                  {
+                    path: 'add',
+                    element: <AddRoleLayout />
                   },
                   {
                     path: "edit/:roleId",
