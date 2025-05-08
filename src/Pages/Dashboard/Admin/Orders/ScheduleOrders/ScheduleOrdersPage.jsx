@@ -4,7 +4,7 @@ import { LoaderLogin, SearchBar } from '../../../../../Components/Components';
 import { BiSolidShow } from 'react-icons/bi';
 import { FaFileInvoice } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { FaCopy } from "react-icons/fa";
+import { FaCopy , FaWhatsapp} from "react-icons/fa";
 import { useAuth } from "../../../../../Context/Auth"; // Make sure to import useAuth if required
 
 const ScheduleOrdersPage = () => {
@@ -166,14 +166,22 @@ const ScheduleOrdersPage = () => {
 
                                                                                            {/* User Information */}
                                                                                            <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
-                                                                                                  <div>{`${order.user?.f_name || 'N/A'} ${order.user?.l_name || '-'}`}</div>
+                                                                                                  <div>{`${order.user?.f_name || "N/A"} ${order.user?.l_name || "-"}`}</div>
                                                                                                   <div className="flex items-center justify-center gap-2">
-                                                                                                         <span>{order.user?.phone || 'No Phone'}</span>
-                                                                                                         {order.user?.phone && (
-                                                                                                                <FaCopy
-                                                                                                                       className="cursor-pointer text-mainColor hover:text-gray-700 transition duration-200"
-                                                                                                                       onClick={() => handleCopy(order.user?.phone)}
-                                                                                                                />
+                                                                                                         {order.user?.phone ? (
+                                                                                                                <>
+                                                                                                                       <FaWhatsapp className="w-5 h-5 text-green-600" />
+                                                                                                                       <a
+                                                                                                                              href={`https://wa.me/${order.user.phone.replace(/[^0-9]/g, '')}`}
+                                                                                                                              target="_blank"
+                                                                                                                              rel="noopener noreferrer"
+                                                                                                                              className="text-black hover:text-green-600 transition duration-200"
+                                                                                                                       >
+                                                                                                                              {order.user.phone}
+                                                                                                                       </a>
+                                                                                                                </>
+                                                                                                         ) : (
+                                                                                                                <span>No Phone</span>
                                                                                                          )}
                                                                                                   </div>
                                                                                            </td>

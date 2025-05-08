@@ -297,7 +297,7 @@ const InvoiceOrderPage = () => {
           {/* Footer */}
           <div className="text-center text-sm">
             <p>THANK YOU</p>
-            <p>copyright received {user.name} Food</p>
+            <p>copyright received {invoiceData.user.name} Food</p>
           </div>
 
         </div>
