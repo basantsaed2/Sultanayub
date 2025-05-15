@@ -5,7 +5,7 @@ import { TitlePage } from '../../../Components/Components'
 const DashboardLayout = () => {
        return (
               <>
-                     <TitlePage text={'Dashboard'} />
+                     {/* <TitlePage text={'Dashboard'} /> */}
                      <HomePage />
               </>
        )

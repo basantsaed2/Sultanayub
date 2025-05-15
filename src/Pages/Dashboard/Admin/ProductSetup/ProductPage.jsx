@@ -152,23 +152,10 @@ const ProductPage = () => {
   const headers = [
     "#",
     "Name",
-    "Image",
     "Price",
-    "Description",
+    "Image",
     "Category",
-    "Subcategory",
-    "Addons",
-    "Variations",
     "Discount",
-    "Tax",
-    "Excludes",
-    "Extra",
-    "Item Type",
-    "Number",
-    "Points",
-    "Stock Type",
-    "From",
-    "To",
     "Action",
   ];
   return (
@@ -222,11 +209,14 @@ const ProductPage = () => {
                           {(currentPage - 1) * productsPerPage + index + 1}
                         </td>
                         <td
-                onClick={() => handleProductClick(product.id)}
-                className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-blue-600 cursor-pointer hover:underline text-sm sm:text-base lg:text-lg xl:text-xl"
-              >
-                {product.name}
-              </td>
+                          onClick={() => handleProductClick(product.id)}
+                          className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-blue-600 cursor-pointer hover:underline text-sm sm:text-base lg:text-lg xl:text-xl"
+                        >
+                          {product.name}
+                        </td>
+                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                          {product?.price || "-"}
+                        </td>
                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 overflow-hidden">
                           <div className="flex justify-center">
                             <img
@@ -237,82 +227,12 @@ const ProductPage = () => {
                           </div>
                         </td>
                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                          {product?.price || "-"}
-                        </td>
-                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12  py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                          {/* <p className='h-4'>{product?.description || '-'}</p> */}
-                          <span
-                            className="text-mainColor text-xl border-b-2 border-mainColor font-TextFontSemiBold cursor-pointer"
-                            onClick={() =>
-                              handleOpenDescriptionView(product.id)
-                            }
-                          >
-                            View
-                          </span>
-                        </td>
-                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                          {product.category?.name || "-"}
-                        </td>
-                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                          {product.sub_category?.name || "-"}
-                        </td>
-                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                          <span
-                            className="text-mainColor text-xl border-b-2 border-mainColor font-TextFontSemiBold cursor-pointer"
-                            onClick={() => handleOpenAddonsView(product.id)}
-                          >
-                            View
-                          </span>
-                        </td>
-
-                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                          <span
-                            className="text-mainColor text-xl border-b-2 border-mainColor font-TextFontSemiBold cursor-pointer"
-                            onClick={() => handleOpenVariationsView(product.id)}
-                          >
-                            View
-                          </span>
+                          {product.category?.name ?product.category?.name : product.sub_category?.name}
                         </td>
                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                           {product.discount?.name || "-"}
                         </td>
-                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                          {product.tax?.name || "-"}
-                        </td>
-                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                          <span
-                            className="text-mainColor text-xl border-b-2 border-mainColor font-TextFontSemiBold cursor-pointer"
-                            onClick={() => handleOpenExcludesView(product.id)}
-                          >
-                            View
-                          </span>
-                        </td>
-                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                          <span
-                            className="text-mainColor text-xl border-b-2 border-mainColor font-TextFontSemiBold cursor-pointer"
-                            onClick={() => handleOpenExtraView(product.id)}
-                          >
-                            View
-                          </span>
-                        </td>
-                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                          {product?.item_type || "-"}
-                        </td>
-                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                          {product?.number || "-"}
-                        </td>
-                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                          {product?.points || "-"}
-                        </td>
-                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                          {product?.stock_type || "-"}
-                        </td>
-                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                          {product?.from || "-"}
-                        </td>
-                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                          {product?.to || "-"}
-                        </td>
+              
                         <td className="px-4 py-3 text-center">
                           <div className="flex items-center justify-center gap-2">
                             <Link to={`edit/${product.id}`}>
@@ -656,18 +576,18 @@ const ProductPage = () => {
                 )}
               </tbody>
               {showLayer && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="relative bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full h-[80vh] overflow-y-auto">
-            <button
-              onClick={closeLayer}
-              className="absolute top-3 right-3 text-red-600 text-xl font-bold"
-            >
-              ×
-            </button>
-            <ToggleItems id={selectedProductId} />
-          </div>
-        </div>
-      )}
+                <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
+                  <div className="relative bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full h-[80vh] overflow-y-auto">
+                    <button
+                      onClick={closeLayer}
+                      className="absolute top-3 right-3 text-red-600 text-xl font-bold"
+                    >
+                      ×
+                    </button>
+                    <ToggleItems id={selectedProductId} />
+                  </div>
+                </div>
+              )}
             </table>
 
             {filteredProducts.length > 0 && (
@@ -686,11 +606,10 @@ const ProductPage = () => {
                     <button
                       key={page}
                       onClick={() => handlePageChange(page)}
-                      className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${
-                        currentPage === page
-                          ? "bg-mainColor text-white"
-                          : " text-mainColor"
-                      }`}
+                      className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
+                        ? "bg-mainColor text-white"
+                        : " text-mainColor"
+                        }`}
                     >
                       {page}
                     </button>

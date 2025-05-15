@@ -5,7 +5,8 @@ import { OrdersComponent } from "../../../../Store/CreateSlices";
 import { useGet } from "../../../../Hooks/useGet";
 import Chart from "./Charts/Chart";
 import FooterCard from "./FooterHome/FooterCard";
-
+import { SelectDateRangeSection } from '../../../../Pages/Pages'
+import { useSelector } from 'react-redux';
 const HomePage = () => {
 
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -65,18 +66,64 @@ const HomePage = () => {
 
   }, [dataCharts, dataHome, order_statistics]);
 
+  // const counters = {
+  //   ordersAll: dataCountOrders?.orders || 0,
+  //   ordersPending: dataCountOrders?.pending || 0,
+  //   ordersConfirmed: dataCountOrders?.confirmed || 0,
+  //   ordersProcessing: dataCountOrders?.processing || 0,
+  //   ordersOutForDelivery: dataCountOrders?.out_for_delivery || 0,
+  //   ordersDelivered: dataCountOrders?.delivered || 0,
+  //   ordersReturned: dataCountOrders?.returned || 0,
+  //   ordersFailed: dataCountOrders?.faild_to_deliver || 0,
+  //   ordersCanceled: dataCountOrders?.canceled || 0,
+  //   ordersSchedule: dataCountOrders?.scheduled || 0,
+  // };
+
+  const ordersAllCount = useSelector(state => state.ordersAll.data);
+  const ordersAllCountLoading = useSelector(state => state.ordersAll.loading);
+  const ordersPendingCount = useSelector(state => state.ordersPending.data);
+  const ordersConfirmedCount = useSelector(state => state.ordersConfirmed.data);
+  const ordersProcessingCount = useSelector(state => state.ordersProcessing.data);
+  const ordersOutForDeliveryCount = useSelector(state => state.ordersOutForDelivery.data);
+  const ordersDeliveredCount = useSelector(state => state.ordersDelivered.data);
+  const ordersReturnedCount = useSelector(state => state.ordersReturned.data);
+  const ordersFailedCount = useSelector(state => state.ordersFailed.data);
+  const ordersCanceledCount = useSelector(state => state.ordersCanceled.data);
+  const ordersScheduleCount = useSelector(state => state.ordersSchedule.data);
+
+  const { refetch: refetchBranch, loading: loadingBranch, data: dataBranch } = useGet({
+         url: `${apiUrl}/admin/order/branches`
+  });
+
+  console.log('orderAllCount', ordersAllCount)
+  useEffect(() => {
+         refetchBranch(); // Refetch data when the component mounts
+  }, [refetchBranch]);
+
+  // const counters = {
+  //        ordersAll: ordersAllCount.length,
+  //        ordersPending: ordersPendingCount.length,
+  //        ordersConfirmed: ordersConfirmedCount.length,
+  //        ordersProcessing: ordersProcessingCount.length,
+  //        ordersOutForDelivery: ordersOutForDeliveryCount.length,
+  //        ordersDelivered: ordersDeliveredCount.length,
+  //        ordersReturned: ordersReturnedCount.length,
+  //        ordersFailed: ordersFailedCount.length,
+  //        ordersCanceled: ordersCanceledCount.length,
+  //        ordersSchedule: ordersScheduleCount.length,
+  // }
   const counters = {
-    ordersAll: dataCountOrders?.orders || 0,
-    ordersPending: dataCountOrders?.pending || 0,
-    ordersConfirmed: dataCountOrders?.confirmed || 0,
-    ordersProcessing: dataCountOrders?.processing || 0,
-    ordersOutForDelivery: dataCountOrders?.out_for_delivery || 0,
-    ordersDelivered: dataCountOrders?.delivered || 0,
-    ordersReturned: dataCountOrders?.returned || 0,
-    ordersFailed: dataCountOrders?.faild_to_deliver || 0,
-    ordersCanceled: dataCountOrders?.canceled || 0,
-    ordersSchedule: dataCountOrders?.scheduled || 0,
-  };
+  ordersAll: ordersAllCount.length,
+  ordersPending: ordersAllCount.filter(order => order.order_status === "pending").length,
+  ordersConfirmed: ordersAllCount.filter(order => order.order_status === "confirmed").length,
+  ordersProcessing: ordersAllCount.filter(order => order.order_status === "processing").length,
+  ordersOutForDelivery: ordersAllCount.filter(order => order.order_status === "out_for_delivery").length,
+  ordersDelivered: ordersAllCount.filter(order => order.order_status === "delivered").length,
+  ordersReturned: ordersAllCount.filter(order => order.order_status === "returned").length,
+  ordersFailed: ordersAllCount.filter(order => order.order_status === "failed_to_deliver").length,
+  ordersCanceled: ordersAllCount.filter(order => order.order_status === "canceled").length,
+  ordersSchedule: ordersAllCount.filter(order => order.order_status === "scheduled").length,
+}
 
   return (
     <>
@@ -91,7 +138,10 @@ const HomePage = () => {
         ) : (
           <>
             <div className="w-full flex flex-col gap-7 items-start justify-center pb-28">
+            <SelectDateRangeSection typPage={'all'} branchsData={dataBranch} />
+
               <CartsOrderSection ordersNum={counters} />
+
               <div className="w-full flex flex-col gap-7 items-start justify-center px-4">
                 <Chart
                   order_statistics={order_statistics}

@@ -13,6 +13,10 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { usePost } from "../../../../../Hooks/usePostJson";
 import { useChangeState } from "../../../../../Hooks/useChangeState";
 import { useAuth } from "../../../../../Context/Auth";
+import { useDispatch } from 'react-redux';
+import { removeCanceledOrder } from '../../../../../Store/CreateSlices';
+import { useSelector } from 'react-redux'; // Add this import
+import { FaFileInvoice, FaWhatsapp } from "react-icons/fa";
 
 const DetailsOrderPage = () => {
   const StatusRef = useRef(null);
@@ -29,7 +33,8 @@ const DetailsOrderPage = () => {
   const { postData, loadingPost, response } = usePost({
     url: `${apiUrl}/admin/order/delivery`,
   });
-  const { changeState, loadingChange, responseChange } = useChangeState(); const [detailsData, setDetailsData] = useState([]);
+  const { changeState, loadingChange, responseChange } = useChangeState();
+  const [detailsData, setDetailsData] = useState([]);
   const [orderStatus, setOrderStatus] = useState([]);
   const [deliveries, setDeliveries] = useState([]);
   const [deliveriesFilter, setDeliveriesFilter] = useState([]);
@@ -53,6 +58,19 @@ const DetailsOrderPage = () => {
   const [openDeliveries, setOpenDeliveries] = useState(null);
   // State to hold computed values
   const [permission, setPermission] = useState([]);
+  const dispatch = useDispatch();
+  const canceledOrders = useSelector((state) => state.canceledOrders); // Add this line
+
+  useEffect(() => {
+    // Only remove if the order exists in canceled orders
+    console.log("canceledOrders", orderId)
+    const orderExists = canceledOrders.orders.includes(orderId);
+    console.log("orderExists", orderExists)
+    if (orderExists) {
+      dispatch(removeCanceledOrder(orderId));
+    }
+    refetchDetailsOrder();
+  }, [orderId, location.pathname, dispatch, canceledOrders.orders]);
 
   useEffect(() => {
     const computedPermission = auth?.userState?.user_positions?.roles?.map((role) => role.role) || [];
@@ -369,43 +387,36 @@ const DetailsOrderPage = () => {
                               </h1>
                               <div className="sm:w-full lg:w-6/12 flex items-center justify-center gap-2">
                                 <Link
-                                  to={`/dashboard/orders/details/${Number(orderNumPath) - 1
-                                    }`}
+                                  to={`/dashboard/orders/details/${Number(orderNumPath) - 1}`}
                                   className="w-6/12 text-center text-sm md:text-md text-white bg-mainColor border-2 border-mainColor px-1 py-1 rounded-lg transition-all ease-in-out duration-300  hover:bg-white hover:text-mainColor"
                                 >
                                   {"<<"} Prev Order
                                 </Link>
                                 <Link
-                                  to={`/dashboard/orders/details/${Number(orderNumPath) + 1
-                                    }`}
+                                  to={`/dashboard/orders/details/${Number(orderNumPath) + 1}`}
                                   className="w-6/12 text-center text-sm md:text-md text-white bg-mainColor border-2 border-mainColor px-1 py-1 rounded-lg transition-all ease-in-out duration-300  hover:bg-white hover:text-mainColor"
                                 >
                                   Next Order {">>"}
                                 </Link>
                               </div>
                             </div>
+                            {
+                              detailsData?.address &&
+                              <p className="text-sm text-gray-700 mt-1">
+                                <span className="font-TextFontSemiBold">Zone:</span>{" "}
+                                {detailsData?.address?.zone?.zone || ""}
+                              </p>
+                            }
                             <p className="text-sm text-gray-700 mt-1">
-                              <span className="font-TextFontSemiBold">
-                                Zone:
-                              </span>{" "}
-                              {detailsData?.branch?.zone?.zone || ""}
-                            </p>
-                            <p className="text-sm text-gray-700 mt-1">
-                              <span className="font-TextFontSemiBold">
-                                Branch:
-                              </span>{" "}
+                              <span className="font-TextFontSemiBold">Branch:</span>{" "}
                               {detailsData?.branch?.name || ""}
                             </p>
                             <p className="text-sm text-gray-700 mt-1">
-                              <span className="font-TextFontSemiBold">
-                              Order Time:
-                              </span>{" "}
+                              <span className="font-TextFontSemiBold">Order Time:</span>{" "}
                               {detailsData?.date || ""}
                             </p>
                             <p className="text-sm text-gray-700 mt-1">
-                              <span className="font-TextFontSemiBold">
-                              Order Date:
-                              </span>{" "}
+                              <span className="font-TextFontSemiBold">Order Date:</span>{" "}
                               {detailsData?.order_date || ""}
                             </p>
                           </div>
@@ -415,21 +426,15 @@ const DetailsOrderPage = () => {
                         <div className="w-full flex sm:flex-col xl:flex-row justify-center items-start gap-4">
                           <div className="sm:w-full xl:w-6/12  bg-white p-2 shadow-md rounded-md">
                             <p className="text-md text-gray-800">
-                              <span className="font-TextFontSemiBold text-mainColor">
-                                Status:
-                              </span>{" "}
+                              <span className="font-TextFontSemiBold text-mainColor">Status:</span>{" "}
                               {detailsData?.order_status || ""}
                             </p>
                             <p className="text-md text-gray-800">
-                              <span className="font-TextFontSemiBold text-mainColor">
-                                Payment Method:
-                              </span>{" "}
+                              <span className="font-TextFontSemiBold text-mainColor">Payment Method:</span>{" "}
                               {detailsData?.payment_method?.name || ""}
                             </p>
                             <p className="text-md text-gray-800">
-                              <span className="font-TextFontSemiBold text-mainColor">
-                                Payment Status:
-                              </span>{" "}
+                              <span className="font-TextFontSemiBold text-mainColor">Payment Status:</span>{" "}
                               {detailsData?.status_payment || ""}
                               <span className="text-green-600 font-TextFontSemiBold ml-1">
                                 {detailsData?.payment_status || ""}
@@ -438,29 +443,21 @@ const DetailsOrderPage = () => {
                           </div>
                           <div className="sm:w-full xl:w-6/12   bg-white p-2 shadow-md rounded-md">
                             <p className="text-md text-gray-800">
-                              <span className="font-TextFontSemiBold text-mainColor">
-                                Order Type:
-                              </span>{" "}
+                              <span className="font-TextFontSemiBold text-mainColor">Order Type:</span>{" "}
                               {detailsData?.order_type || ""}
                             </p>
                             <p className="text-md text-gray-800">
-                              <span className="font-TextFontSemiBold text-mainColor">
-                                Order Note:
-                              </span>{" "}
+                              <span className="font-TextFontSemiBold text-mainColor">Order Note:</span>{" "}
                               {detailsData?.notes || "No Notes"}
                             </p>
                             {detailsData?.payment_method?.id !== 2 && (
                               <p className="text-md text-gray-800">
-                                <span className="font-TextFontSemiBold text-mainColor">
-                                  Order Recipt:
-                                </span>
+                                <span className="font-TextFontSemiBold text-mainColor">Order Recipt:</span>
                                 {detailsData?.receipt ? (
                                   <>
                                     <span
                                       className="text-mainColor font-TextFontMedium ml-2 underline cursor-pointer"
-                                      onClick={() =>
-                                        handleOpenReceipt(detailsData.id)
-                                      }
+                                      onClick={() => handleOpenReceipt(detailsData.id)}
                                     >
                                       Receipt
                                     </span>
@@ -475,23 +472,17 @@ const DetailsOrderPage = () => {
                                         <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                                           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
                                             <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-4xl">
-                                              {/* Permissions List */}
-                                              {/* <div className="w-full flex flex-col items-start justify-center gap-4 my-4 px-4 sm:p-6 sm:pb-4">
-                                                                                                                                     sdf
-                                                                                                                                     </div> */}
-                                              <div className="w-full flex justify-center items-center p-5  ">
+                                              <div className="w-full flex justify-center items-center p-5">
                                                 <img
                                                   src={
                                                     detailsData?.receipt
                                                       ? `data:image/jpeg;base64,${detailsData?.receipt}`
                                                       : ""
                                                   }
-                                                  className=" max-h-[80vh] object-center object-contain shadow-md rounded-2xl"
+                                                  className="max-h-[80vh] object-center object-contain shadow-md rounded-2xl"
                                                   alt="Receipt"
                                                 />
                                               </div>
-
-                                              {/* Dialog Footer */}
                                               <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-x-3">
                                                 <button
                                                   type="button"
@@ -518,197 +509,149 @@ const DetailsOrderPage = () => {
                         </div>
                       </div>
 
-                      {(detailsData?.order_details || []).map(
-                        (order, orderIndex) => (
-                          <div
-                            key={`order-${orderIndex}`}
-                            className="bg-white shadow-lg rounded-lg p-2 my-3 border border-gray-200"
-                          >
-                            {/* Order Header */}
-                            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                              Order #{orderIndex + 1}
-                            </h2>
+                      {/* Combined Orders Table */}
+                      <div className="bg-white shadow-lg rounded-lg p-2 my-3 border border-gray-200">
+                        {/* Table Header */}
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Order Items</h2>
 
-                            {/* Table wrapped in a horizontal scroll container */}
-                            <div className="overflow-x-auto ">
-                              <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gradient-to-r from-[#9E090F] to-[#D1191C] text-white">
-                                  <tr>
-                                    <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-gray-300">
-                                      Products
-                                    </th>
-                                    <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-gray-300">
-                                      Addons
-                                    </th>
-                                    <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-gray-300">
-                                      Excludes
-                                    </th>
-                                    {/* <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider border-gray-300">
-              Extras
-            </th> */}
-                                    <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider">
-                                      Variations
-                                    </th>
-                                  </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                  <tr className="hover:bg-gray-50">
-                                    {/* Products Column: Name, Price, and Quantity */}
-                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                      {order.product.map((prod, prodIndex) => (
-                                        <div
-                                          key={`prod-${prodIndex}`}
-                                          className="mb-3"
-                                        >
+                        {/* Table wrapped in a horizontal scroll container */}
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gradient-to-r from-[#9E090F] to-[#D1191C] text-white">
+                              <tr>
+                                <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-gray-300">
+                                  Order #
+                                </th>
+                                <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-gray-300">
+                                  Products
+                                </th>
+                                <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-gray-300">
+                                  Addons
+                                </th>
+                                <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-gray-300">
+                                  Excludes
+                                </th>
+                                <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider">
+                                  Variations
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                              {(detailsData?.order_details || []).map((order, orderIndex) => (
+                                <tr key={`order-${orderIndex}`} className="hover:bg-gray-50">
+                                  {/* Order Number Column */}
+                                  <td className="px-2 py-1 whitespace-normal border-r border-gray-300 font-semibold">
+                                    {orderIndex + 1}
+                                  </td>
+
+                                  {/* Products Column: Name, Price, and Quantity */}
+                                  <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
+                                    {order.product.map((prod, prodIndex) => (
+                                      <div key={`prod-${prodIndex}`} className="mb-3">
+                                        <div className="font-semibold text-gray-800">
+                                          {prod.product.name}
+                                        </div>
+                                        <div className="text-sm text-gray-600">
+                                          Price: {prod.product.price}
+                                        </div>
+                                        <div className="text-sm text-gray-600">
+                                          Qty: {prod.count}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </td>
+
+                                  {/* Addons Column: Just Name */}
+                                  <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
+                                    {order.addons && order.addons.length > 0 ? (
+                                      order.addons.map((addon, addonIndex) => (
+                                        <div key={`addon-${addonIndex}`} className="mb-3">
                                           <div className="font-semibold text-gray-800">
-                                            {prod.product.name}
+                                            {addon.addon.name}
                                           </div>
-                                          <div className="text-sm text-gray-600">
-                                            Price: {prod.product.price}
+                                          <div className="text-sm text-gray-500">
+                                            Price: {addon.addon.price}
                                           </div>
-                                          <div className="text-sm text-gray-600">
-                                            Qty: {prod.count}
+                                          <div className="text-sm text-gray-500">
+                                            Count: {addon.count || 0}
                                           </div>
                                         </div>
-                                      ))}
-                                    </td>
+                                      ))
+                                    ) : (
+                                      <span className="text-gray-500">-</span>
+                                    )}
+                                  </td>
 
-                                    {/* Addons Column: Just Name */}
-                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                      {order.addons &&
-                                        order.addons.length > 0 ? (
-                                        order.addons.map(
-                                          (addon, addonIndex) => (
-                                            <div
-                                              key={`addon-${addonIndex}`}
-                                              className="mb-3"
-                                            >
-                                              <div className="font-semibold text-gray-800">
-                                                {addon.addon.name}
-                                              </div>
-                                              <div className="text-sm text-gray-500">
-                                                Count: {addon.count || 0}
-                                              </div>
-                                            </div>
-                                          )
-                                        )
-                                      ) : (
-                                        <span className="text-gray-500">-</span>
-                                      )}
-                                    </td>
+                                  {/* Excludes Column: Just Name */}
+                                  <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
+                                    {order.excludes && order.excludes.length > 0 ? (
+                                      order.excludes.map((exclude, excludeIndex) => (
+                                        <div key={`exclude-${excludeIndex}`} className="mb-3">
+                                          <div className="font-semibold text-gray-800">
+                                            {exclude.name}
+                                          </div>
+                                        </div>
+                                      ))
+                                    ) : (
+                                      <span className="text-gray-500">-</span>
+                                    )}
+                                  </td>
 
-                                    {/* Excludes Column: Just Name */}
-                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                      {order.excludes &&
-                                        order.excludes.length > 0 ? (
-                                        order.excludes.map(
-                                          (exclude, excludeIndex) => (
-                                            <div
-                                              key={`exclude-${excludeIndex}`}
-                                              className="mb-3"
-                                            >
-                                              <div className="font-semibold text-gray-800">
-                                                {exclude.name}
-                                              </div>
-                                            </div>
-                                          )
-                                        )
-                                      ) : (
-                                        <span className="text-gray-500">-</span>
-                                      )}
-                                    </td>
-
-                                    {/* Extras Column: Just Name */}
-                                    {/* <td className="px-6 py-4 whitespace-normal border-r border-gray-300">
-              {order.extras && order.extras.length > 0 ? (
-                order.extras.map((extra, extraIndex) => (
-                  <div key={`extra-${extraIndex}`} className="mb-3">
-                    <div className="font-semibold text-gray-800">
-                      {extra.name}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <span className="text-gray-500">-</span>
-              )}
-            </td> */}
-
-                                    {/* Variations Column: Name and Type */}
-                                    <td className="px-2 py-1 whitespace-normal">
-                                      {order.variations &&
-                                        order.variations.length > 0 ? (
-                                        order.variations.map(
-                                          (variation, varIndex) => (
-                                            <div
-                                              key={`variation-${varIndex}`}
-                                              className="mb-3"
-                                            >
-                                              <div className="font-semibold text-gray-800">
-                                                {variation.variation?.name}
-                                              </div>
-                                              <div className="text-xs text-gray-500">
-                                                Type:{" "}
-                                                {variation.options &&
-                                                  variation.options.length > 0 ? (
-                                                  variation.options.map(
-                                                    (option, optIndex) => (
-                                                      <span
-                                                        key={`option-${optIndex}`}
-                                                        className="mr-1"
-                                                      >
-                                                        {option.name}
-                                                        {optIndex <
-                                                          variation.options
-                                                            .length -
-                                                          1
-                                                          ? ", "
-                                                          : ""}
-                                                      </span>
-                                                    )
-                                                  )
-                                                ) : (
-                                                  <span>-</span>
-                                                )}
-                                              </div>
-                                            </div>
-                                          )
-                                        )
-                                      ) : (
-                                        <span className="text-gray-500">-</span>
-                                      )}
-                                    </td>
-                                  </tr>
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                        )
-                      )}
+                                  {/* Variations Column: Name and Type */}
+                                  <td className="px-2 py-1 whitespace-normal">
+                                    {order.variations && order.variations.length > 0 ? (
+                                      order.variations.map((variation, varIndex) => (
+                                        <div key={`variation-${varIndex}`} className="mb-3">
+                                          <div className="font-semibold text-gray-800">
+                                            {variation.variation?.name}
+                                          </div>
+                                          <div className="text-xs text-gray-500">
+                                            Type:{" "}
+                                            {variation.options && variation.options.length > 0 ? (
+                                              variation.options.map((option, optIndex) => (
+                                                <span key={`option-${optIndex}`} className="mr-1">
+                                                  {option.name}
+                                                  {optIndex < variation.options.length - 1 ? ", " : ""}
+                                                </span>
+                                              ))
+                                            ) : (
+                                              <span>-</span>
+                                            )}
+                                          </div>
+                                        </div>
+                                      ))
+                                    ) : (
+                                      <span className="text-gray-500">-</span>
+                                    )}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
 
                       {/* Order Summary */}
                       <div className="my-2 flex flex-col gap-y-1 p-2">
                         <p className="w-full flex items-center justify-between">
-                          {(detailsData?.order_details || []).forEach(
-                            (orderDetail) => {
-                              // Sum extras prices
-                              orderDetail.extras.forEach((extraItem) => {
-                                totalItemPrice += extraItem.price;
-                              });
+                          {(detailsData?.order_details || []).forEach((orderDetail) => {
+                            // Sum extras prices
+                            orderDetail.extras.forEach((extraItem) => {
+                              totalItemPrice += extraItem.price;
+                            });
 
-                              // Sum product prices (price * count)
-                              orderDetail.product.forEach((productItem) => {
-                                totalItemPrice +=
-                                  productItem.product.price * productItem.count;
-                              });
+                            // Sum product prices (price * count)
+                            orderDetail.product.forEach((productItem) => {
+                              totalItemPrice += productItem.product.price * productItem.count;
+                            });
 
-                              // Sum variations' options prices
-                              orderDetail.variations.forEach((variation) => {
-                                variation.options.forEach((optionItem) => {
-                                  totalItemPrice += optionItem.price;
-                                });
+                            // Sum variations' options prices
+                            orderDetail.variations.forEach((variation) => {
+                              variation.options.forEach((optionItem) => {
+                                totalItemPrice += optionItem.price;
                               });
-                            }
-                          )}
+                            });
+                          })}
                           {/* Display total items price */}
                           Items Price:<span>{totalItemPrice}</span>
                         </p>
@@ -717,30 +660,22 @@ const DetailsOrderPage = () => {
                           Tax / VAT:<span>{detailsData?.total_tax || 0}</span>
                         </p>
                         <p className="w-full flex items-center justify-between">
-                          {(detailsData?.order_details || []).forEach(
-                            (orderDetail) => {
-                              orderDetail.addons.forEach((addonItem) => {
-                                // Add the price of each addon to the total
-                                totalAddonPrice +=
-                                  addonItem.addon.price * addonItem.count;
-                              });
-                            }
-                          )}
+                          {(detailsData?.order_details || []).forEach((orderDetail) => {
+                            orderDetail.addons.forEach((addonItem) => {
+                              // Add the price of each addon to the total
+                              totalAddonPrice += addonItem.addon.price * addonItem.count;
+                            });
+                          })}
 
                           <span>Addons Price:</span>
                           <span>{totalAddonPrice}</span>
                         </p>
                         <p className="w-full flex items-center justify-between">
                           Subtotal:
-                          <span>
-                            {detailsData?.amount +
-                              detailsData?.total_tax +
-                              totalAddonPrice}
-                          </span>
+                          <span>{totalItemPrice + totalAddonPrice}</span>
                         </p>
                         <p className="w-full flex items-center justify-between">
-                          Extra Discount:{" "}
-                          <span>{detailsData?.total_discount || 0}</span>
+                          Extra Discount: <span>{detailsData?.total_discount || 0}</span>
                         </p>
                         <p className="w-full flex items-center justify-between">
                           Coupon Discount:
@@ -761,14 +696,208 @@ const DetailsOrderPage = () => {
 
               {/* Right Section */}
               <div className="sm:w-full lg:w-4/12">
+
+                <div className="w-full bg-white rounded-xl shadow-md p-4">
+                  <div className="flex items-center gap-x-2 text-lg font-TextFontSemiBold">
+                    <span>
+                      <FaUser className="text-mainColor" />
+                    </span>
+                    Customer Information
+                  </div>
+                  <p className="text-sm">
+                    Name: {detailsData?.user?.f_name || "-"}{" "}
+                    {detailsData?.user?.l_name || "-"}
+                  </p>
+                  <p className="text-sm">
+                    Orders: {detailsData?.user?.count_orders || "-"}
+                  </p>
+                  <p className="text-sm flex items-center gap-2">
+                    Contact:
+                    {detailsData?.user?.phone && (
+                      <a
+                        href={`https://wa.me/${detailsData.user.phone.replace(/[^0-9]/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-black hover:text-green-600 transition duration-200"
+                      >
+                        <FaWhatsapp className="w-5 h-5 text-green-600" />
+                        {detailsData.user.phone}
+                      </a>
+                    )}
+                  </p>
+                  <p className="text-sm">
+                    Email: {detailsData?.user?.email || "-"}
+                  </p>
+
+                  {detailsData.order_type === "delivery" && (
+                    <>
+                      <p className="text-sm">
+                        Build Num: {detailsData?.address?.building_num || "-"}
+                      </p>
+                      <p className="text-sm">
+                        Floor: {detailsData?.address?.floor_num || "-"}
+                      </p>
+                      <p className="text-sm">
+                        House: {detailsData?.address?.apartment || "-"}
+                      </p>
+                      <p className="text-sm">
+                        Road: {detailsData?.address?.street || "-"}
+                      </p>
+                      <p className="text-sm pb-2 text-center">
+                        {detailsData?.address?.address || "-"}
+                      </p>
+                      {detailsData?.address?.additional_data ||
+                        ("" && (
+                          <p className="text-sm border-t-2 text-center pt-2">
+                            {detailsData?.address?.additional_data || "-"}
+                          </p>
+                        ))}
+                      {detailsData?.address?.map && (
+                        <p className="text-sm line-clamp-3">
+                          Location Map:
+                          <a
+                            href={detailsData?.address?.map}
+                            className="ml-1 text-mainColor font-TextFontMedium underline"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {detailsData?.address?.map?.length > 30
+                              ? `${detailsData?.address?.map?.slice(0, 30)}...`
+                              : detailsData?.address?.map}
+                          </a>
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
+
                 {/* Order Setup */}
-                <div className="w-full bg-white rounded-xl shadow-md p-4 m">
+                <div className="w-full bg-white rounded-xl shadow-md p-4 mt-4">
                   <div className="flex flex-col gap-y-2">
                     <span className="font-TextFontSemiBold">
                       Change Order Status
                     </span>
 
-                    <DropDown
+                    {/* Status buttons in flex-col layout */}
+                    <div className="flex flex-col gap-3">
+                      {/* Status Buttons Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {/* Pending */}
+                        <button
+                          onClick={() => handleSelectOrderStatus({ name: 'pending' })}
+                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${detailsData?.order_status === 'pending'
+                              ? 'bg-yellow-100 border-yellow-400 text-yellow-800'
+                              : 'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'
+                            }`}
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          Pending
+                        </button>
+
+                        {/* Accept/Processing */}
+                        <button
+                          onClick={() => handleSelectOrderStatus({ name: 'processing' })}
+                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${detailsData?.order_status === 'processing'
+                              ? 'bg-blue-100 border-blue-400 text-blue-800'
+                              : 'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'
+                            }`}
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          Accept
+                        </button>
+
+                        {/* Out for Delivery */}
+                        <button
+                          onClick={() => handleSelectOrderStatus({ name: 'out_for_delivery' })}
+                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${detailsData?.order_status === 'out_for_delivery'
+                              ? 'bg-indigo-100 border-indigo-400 text-indigo-800'
+                              : 'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'
+                            }`}
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                          </svg>
+                          Out for Delivery
+                        </button>
+
+                        {/* Delivered */}
+                        <button
+                          onClick={() => handleSelectOrderStatus({ name: 'delivered' })}
+                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${detailsData?.order_status === 'delivered'
+                              ? 'bg-green-100 border-green-400 text-green-800'
+                              : 'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'
+                            }`}
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          Delivered
+                        </button>
+
+                        {/* Canceled */}
+                        <button
+                          onClick={() => handleSelectOrderStatus({ name: 'canceled' })}
+                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${detailsData?.order_status === 'canceled'
+                              ? 'bg-red-100 border-red-400 text-red-800'
+                              : 'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'
+                            }`}
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                          Canceled
+                        </button>
+
+                        {/* Refund */}
+                        <button
+                          onClick={() => handleSelectOrderStatus({ name: 'refund' })}
+                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${detailsData?.order_status === 'refund'
+                              ? 'bg-pink-100 border-pink-400 text-pink-800'
+                              : 'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'
+                            }`}
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                          </svg>
+                          Refund
+                        </button>
+
+                        {/* Returned */}
+                        <button
+                          onClick={() => handleSelectOrderStatus({ name: 'returned' })}
+                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${detailsData?.order_status === 'returned'
+                              ? 'bg-purple-100 border-purple-400 text-purple-800'
+                              : 'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'
+                            }`}
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                          Returned
+                        </button>
+
+                        {/* Failed to Deliver */}
+                        <button
+                          onClick={() => handleSelectOrderStatus({ name: 'faild_to_deliver' })}
+                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${detailsData?.order_status === 'faild_to_deliver'
+                              ? 'bg-orange-100 border-orange-400 text-orange-800'
+                              : 'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'
+                            }`}
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                          </svg>
+                          Failed to Deliver
+                        </button>
+                      </div>
+                    </div>
+
+
+                    {/* <DropDown
                       ref={StatusRef}
                       handleOpen={handleOpenOrderStatus}
                       stateoption={orderStatusName}
@@ -778,7 +907,7 @@ const DetailsOrderPage = () => {
                         handleSelectOrderStatus(selectedOption)
                       } // Pass selected option
                       options={orderStatus}
-                    />
+                    /> */}
 
                     {openOrderNumber === detailsData?.id && (
                       <Dialog
@@ -884,24 +1013,6 @@ const DetailsOrderPage = () => {
                     </div>
                   )}
 
-                  <div className="mt-2">
-                    <label className="text-sm">Delivery Date & Time</label>
-                    <div className="flex gap-2 mt-2">
-                      <input
-                        type="date"
-                        className="w-1/2 p-2 border rounded-md"
-                        value={detailsData.order_date}
-                        readOnly
-                      />
-                      <input
-                        type="time"
-                        className="w-1/2 p-2 border rounded-md"
-                        value={detailsData.date}
-                        readOnly
-                      />
-                    </div>
-                  </div>
-
                   {detailsData.order_type === "delivery" &&
                     (detailsData.order_status === "processing" ||
                       detailsData.order_status === "out_for_delivery") && (
@@ -979,6 +1090,8 @@ const DetailsOrderPage = () => {
                     </Dialog>
                   )}
                 </div>
+
+
                 {/* Food Preparation Time */}
                 {(detailsData.order_status === "pending" ||
                   detailsData.order_status === "confirmed" ||
@@ -1079,102 +1192,6 @@ const DetailsOrderPage = () => {
                   </div>
                 )}
 
-                {/* Delivery Information */}
-                {detailsData.order_type === "delivery" && (
-                  <div className="w-full bg-white rounded-xl shadow-md p-4 mt-2">
-                    <div className="flex items-center gap-x-2 text-lg font-TextFontSemiBold">
-                      <span>
-                        <FaUser className="text-mainColor" />
-                      </span>
-                      Delivery Information
-                    </div>
-                    <p className="text-sm">
-                      Name: {detailsData?.user?.f_name || "-"}{" "}
-                      {detailsData?.user?.l_name || "-"}
-                    </p>
-                    <p className="text-sm">
-                      Contact: {detailsData?.user?.phone || "-"}
-                    </p>
-                    <p className="text-sm">
-                      Build Num: {detailsData?.address?.building_num || "-"}
-                    </p>
-                    <p className="text-sm">
-                      Floor: {detailsData?.address?.floor_num || "-"}
-                    </p>
-                    <p className="text-sm">
-                      House: {detailsData?.address?.apartment || "-"}
-                    </p>
-                    <p className="text-sm">
-                      Road: {detailsData?.address?.street || "-"}
-                    </p>
-                    <p className="text-sm pb-2 text-center">
-                      {detailsData?.address?.address || "-"}
-                    </p>
-                    {detailsData?.address?.additional_data ||
-                      ("" && (
-                        <p className="text-sm border-t-2 text-center pt-2">
-                          {detailsData?.address?.additional_data || "-"}
-                        </p>
-                      ))}
-                    {detailsData?.address?.map && (
-                      <p className="text-sm line-clamp-3">
-                        Location Map:
-                        <a
-                          href={detailsData?.address?.map}
-                          className="ml-1 text-mainColor font-TextFontMedium underline"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {detailsData?.address?.map?.length > 30
-                            ? `${detailsData?.address?.map?.slice(0, 30)}...`
-                            : detailsData?.address?.map}
-                        </a>
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                <div className="w-full bg-white rounded-xl shadow-md p-4 mt-2">
-                  <div className="flex items-center gap-x-2 text-lg font-TextFontSemiBold">
-                    <span>
-                      <FaUser className="text-mainColor" />
-                    </span>
-                    Customer Information
-                  </div>
-                  <p className="text-sm">
-                    Name: {detailsData?.user?.f_name || "-"}{" "}
-                    {detailsData?.user?.l_name || "-"}
-                  </p>
-                  <p className="text-sm">
-                    Orders: {detailsData?.user?.count_orders || "-"}
-                  </p>
-                  <p className="text-sm">
-                    Contact: {detailsData?.user?.phone || "-"}
-                  </p>
-                  <p className="text-sm">
-                    Email: {detailsData?.user?.email || "-"}
-                  </p>
-                </div>
-
-                {/* Branch Information */}
-                <div className="w-full bg-white rounded-xl shadow-md p-4 mt-2">
-                  <h3 className="text-lg font-TextFontSemiBold">
-                    Branch Information
-                  </h3>
-                  <p className="text-sm">
-                    Branch: {detailsData?.branch?.address || "-"}
-                  </p>
-                  <p className="text-sm">
-                    Orders Served: {detailsData?.branch?.count_orders || "-"}
-                  </p>
-                  <p className="text-sm">
-                    Contact: {detailsData?.branch?.phone || "-"}
-                  </p>
-                  <p className="text-sm">
-                    Email: {detailsData?.branch?.email || "-"}
-                  </p>
-                  {/* <p className="text-sm">Location: Miami 45</p> */}
-                </div>
               </div>
             </div>
           )}

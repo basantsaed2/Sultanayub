@@ -1,97 +1,106 @@
 import React, { useEffect, useState } from 'react';
-import { AddButton, DateInput, LoaderLogin, StaticButton, SubmitButton, TimeInput, TitleSection } from '../../../../Components/Components';
+import { LoaderLogin, NumberInput, StaticButton, SubmitButton, TimeInput, TitleSection } from '../../../../Components/Components';
 import { useGet } from '../../../../Hooks/useGet';
 import { usePost } from '../../../../Hooks/usePostJson';
-import { Dropdown } from 'primereact/dropdown';
+import { MultiSelect } from 'primereact/multiselect';
 
 const RestaurantTimeSlotPage = ({ refetch }) => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const [allClosestTime, setAllClosestTime] = useState([{ closingTimeAm: '', closingTimePm: '' }]);
+    const [timeData, setTimeData] = useState({
+        from: '',
+        hours: ''
+    });
     const { refetch: refetchTimeSlot, loading: loadingTime, data: dataSlot } = useGet({
         url: `${apiUrl}/admin/settings/business_setup/time_slot`
     });
     const { postData, loadingPost, response } = usePost({ url: `${apiUrl}/admin/settings/business_setup/time_slot/add` });
 
-    const [timeSlot, setTimeSlot] = useState({ daily: [], custom: [] });
-    const [day, setDay] = useState('');
     const [optionName, setOptionName] = useState('daily');
-    const [selectDay, setSelectDay] = useState('');
-    const [stateDay, setStateDay] = useState('Select Day');
+    const [selectedDays, setSelectedDays] = useState([]);
     const [days, setDays] = useState([]);
 
     useEffect(() => {
         refetchTimeSlot();
     }, [refetchTimeSlot]);
 
-    useEffect(() => {
-        if (dataSlot) {
-            const { time_slot } = dataSlot;
-            const setting = JSON.parse(time_slot.setting);
-            setDays(dataSlot.days);
-            setTimeSlot({
-                daily: setting.daily || [],
-                custom: setting.custom || [],
+useEffect(() => {
+    if (dataSlot) {
+        // Transform days array of strings into array of objects
+        const formattedDays = dataSlot.days?.map(day => ({ name: day })) || [];
+        setDays(formattedDays);
+        
+        // Set the default time data if available
+        if (dataSlot.resturant_time?.resturant_time) {
+            setTimeData({
+                from: dataSlot.resturant_time.resturant_time.from,
+                hours: dataSlot.resturant_time.resturant_time.hours
             });
-            setDay(setting.custom || '');
-            setStateDay(setting.custom[0])
-            setAllClosestTime(
-                (setting.daily || []).map(item => ({
-                    closingTimeAm: item.from || '',
-                    closingTimePm: item.to || '',
-                }))
-            );
         }
-        // console.log("days", dataSlot.days);
-        console.log("data fetch slot", dataSlot);
-    }, [dataSlot]);
 
-    const preparePostData = () => {
-        const formattedDaily = allClosestTime
-            .filter(time => time.closingTimeAm && time.closingTimePm)
-            .map(time => ({
-                from: time.closingTimeAm,
-                to: time.closingTimePm,
-            }));
+        // Set the selected custom days if they exist
+        if (dataSlot.resturant_time?.custom?.length > 0) {
+            const customDays = dataSlot.resturant_time.custom.map(day => ({ name: day }));
+            setSelectedDays(customDays);
+            // If there are custom days, switch to customize mode
+            setOptionName('customize');
+        }
+        
+        console.log("Formatted days:", formattedDays);
+        console.log("Restaurant time data:", {
+            openingTime: dataSlot.resturant_time?.resturant_time?.from,
+            workingHours: dataSlot.resturant_time?.resturant_time?.hours,
+            customDays: dataSlot.resturant_time?.custom || []
+        });
+    }
+}, [dataSlot]);
 
-        // Prepare custom times
-        const formattedCustom = selectDay ? [selectDay] : timeSlot.custom;
-
-        return { daily: formattedDaily, custom: formattedCustom };
+    // Function to format time to HH:MM:SS
+    const formatTimeToHHMMSS = (time) => {
+        if (!time) return '';
+        // If time is in HH:MM format, append :00
+        if (/^\d{2}:\d{2}$/.test(time)) {
+            return `${time}:00`;
+        }
+        // If already in HH:MM:SS format, return as is
+        if (/^\d{2}:\d{2}:\d{2}$/.test(time)) {
+            return time;
+        }
+        // Handle other cases (invalid formats)
+        return time;
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const formData = preparePostData();
-        postData(formData, 'Time Slot Added Successfully');
-        console.log('Submitted Data:', formData);
-    };
+        // Format the time before sending
+        const formattedTime = formatTimeToHHMMSS(timeData.from);
 
-    const handleAddMore = () => {
-        setAllClosestTime([...allClosestTime, { closingTimeAm: '', closingTimePm: '' }]);
+        let postDataObj;
+
+        if (optionName === 'daily') {
+            postDataObj = {
+                resturant_time: {
+                    from: formattedTime,
+                    hours: timeData.hours
+                }
+            };
+        } else {
+            postDataObj = {
+                custom: selectedDays.map(day => day.name),
+                resturant_time: {
+                    from: formattedTime,
+                    hours: timeData.hours
+                }
+            };
+        }
+
+        console.log('Submitting Data:', postDataObj);
+        postData(postDataObj, 'Time Slot Added Successfully');
     };
 
     const handleReset = () => {
-        setAllClosestTime([{ closingTimeAm: '', closingTimePm: '' }]);
-        setOptionName('');
-        setDay('');
-        setSelectDay('');
-        setStateDay('Select Day');
-    };
-
-    // Handle day selection in dropdown
-    const handleSelectDay = (e) => {
-        const selectedDay = e.value; // The selected day will be an object, but we need only its name
-        setSelectDay(selectedDay);
-
-
-        // Add the selected day to the custom array if it's not already there
-        setTimeSlot((prevState) => ({
-            ...prevState,
-            custom: selectedDay.name, // Only store the selected day in the custom array
-        }));
-
-        setStateDay(selectedDay ? selectedDay.name : 'Select Day');
-
+        setTimeData({ from: '', hours: '' });
+        setOptionName('daily');
+        setSelectedDays([]);
     };
 
     return (
@@ -102,7 +111,7 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
                 </div>
             ) : (
                 <form className="w-full flex sm:flex-col lg:flex-row flex-wrap items-start justify-start gap-4" onSubmit={handleSubmit}>
-                    <TitleSection text={'Restaurant Closing Schedules'} />
+                    <TitleSection text={'Restaurant Operating Hours'} />
 
                     <div className="w-full flex gap-8 mt-4">
                         <span
@@ -119,58 +128,45 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
                         </span>
                     </div>
 
-                    {optionName === 'daily' && (
-                        <>
-                            {allClosestTime.map((time, index) => (
-                                <div key={index} className="w-full flex flex-wrap items-center gap-8 mt-3">
-                                    <div className="sm:w-full lg:w-[35%] flex sm:flex-col xl:flex-row items-center gap-2">
-                                        <span className="w-9/12 text-xl text-thirdColor">Closing Time Am:</span>
-                                        <TimeInput
-                                            value={time.closingTimeAm}
-                                            onChange={(e) => {
-                                                const newTime = [...allClosestTime];
-                                                newTime[index].closingTimeAm = e.target.value;
-                                                setAllClosestTime(newTime);
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="sm:w-full lg:w-[35%] flex sm:flex-col xl:flex-row items-center gap-2">
-                                        <span className="w-9/12 text-xl text-thirdColor">Closing Time Pm:</span>
-                                        <TimeInput
-                                            value={time.closingTimePm}
-                                            onChange={(e) => {
-                                                const newTime = [...allClosestTime];
-                                                newTime[index].closingTimePm = e.target.value;
-                                                setAllClosestTime(newTime);
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-                            <div className="mt-6">
-                                <AddButton
-                                    Text={'Add More'}
-                                    BgColor="mainColor"
-                                    Color="white"
-                                    iconColor="white"
-                                    rounded="rounded-full"
-                                    handleClick={handleAddMore}
-                                />
-                            </div>
-                        </>
-                    )}
+                    <div className="w-full flex flex-wrap items-center gap-8 mt-3">
+                        <div className="sm:w-full lg:w-[35%] flex sm:flex-col xl:flex-row items-center gap-2">
+                            <span className="w-9/12 text-xl text-thirdColor">Opening Time:</span>
+                            <TimeInput
+                                value={timeData.from}
+                                onChange={(e) => {
+                                    setTimeData({
+                                        ...timeData,
+                                        from: e.target.value
+                                    });
+                                }}
+                            />
+                        </div>
+                        <div className="sm:w-full lg:w-[35%] flex sm:flex-col xl:flex-row items-center gap-2">
+                            <span className="w-9/12 text-xl text-thirdColor">Number Of Hours:</span>
+                            <NumberInput
+                                value={timeData.hours}
+                                onChange={(e) => {
+                                    setTimeData({
+                                        ...timeData,
+                                        hours: e.target.value
+                                    });
+                                }}
+                                placeholder={"Enter number of hours"}
+                            />
+                        </div>
+                    </div>
 
                     {optionName === 'customize' && (
-                        <div className="sm:w-full lg:w-[30%] flex flex-col items-start gap-y-1 mt-3">
-                            <span className="text-xl text-thirdColor">Day:</span>
-                            <Dropdown
-                                value={selectDay}
-                                onChange={handleSelectDay}
+                        <div className="sm:w-full lg:w-[60%] flex flex-col items-start gap-y-1 mt-3">
+                            <span className="text-xl text-thirdColor">Select Days:</span>
+                            <MultiSelect
+                                value={selectedDays}
+                                onChange={(e) => setSelectedDays(e.value)}
                                 options={days}
                                 optionLabel="name"
-                                placeholder={stateDay || "Select Day"}
+                                placeholder="Select Days"
                                 filter
-                                className="w-full md:w-14rem"
+                                className="w-full"
                             />
                         </div>
                     )}
