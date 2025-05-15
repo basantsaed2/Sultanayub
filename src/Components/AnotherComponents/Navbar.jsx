@@ -131,7 +131,7 @@ const Navbar = () => {
                                                         </button>
 
                                                         {notificationOpen && (
-                                                               <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-1 z-50">
+                                                               <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-1 z-30">
                                                                       {canceledOrders.orders.length === 0 ? (
                                                                              <div className="px-4 py-2 text-gray-700">No waiting orders</div>
                                                                       ) : (
