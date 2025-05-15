@@ -6,11 +6,11 @@ import { CiGlobe } from 'react-icons/ci';
 import { IoBagHandleOutline } from 'react-icons/io5';
 import { IoIosArrowDown, IoMdNotificationsOutline } from 'react-icons/io';
 import RedLogo from '../../Assets/Images/RedLogo.jsx';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { removeCategory, removeUser } from '../../Store/CreateSlices.jsx';
-
-
+import { useSelector } from 'react-redux';
+import { removeCanceledOrder } from '../../Store/CreateSlices';
 
 const Navbar = () => {
        const auth = useAuth()
@@ -46,11 +46,11 @@ const Navbar = () => {
               setOpen(!open);
        };
 
-       const handleClickOutside = (event) => {
-              if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                     setOpen(false);
-              }
-       };
+       // const handleClickOutside = (event) => {
+       //        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+       //               setOpen(false);
+       //        }
+       // };
 
        useEffect(() => {
               document.addEventListener('mousedown', handleClickOutside);
@@ -67,6 +67,26 @@ const Navbar = () => {
        }
 
 
+
+
+       const notificationRef = useRef(null);
+
+       const [notificationOpen, setNotificationOpen] = useState(false);
+
+       const handleClickOutside = (event) => {
+              if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                     setOpen(false);
+              }
+              if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+                     setNotificationOpen(false);
+              }
+       };
+
+       const canceledOrders = useSelector((state) => state.canceledOrders);
+
+       const handleRemoveOrder = (orderId) => {
+              dispatch(removeCanceledOrder(orderId));
+       };
 
        return (
               <>
@@ -87,35 +107,66 @@ const Navbar = () => {
                                    <div className="sm:w-10/12">
                                           <span className='w-full text-2xl text-left text-mainColor font-TextFontSemiBold'>Hello, {auth?.userState?.name || ""}</span>
                                    </div>
+
                             </div>
                             {/* <div className='sm:hidden lg:flex w-5/12'>
                                    <SearchBar bgColor="bg-mainBgColor" pr='4' />
-                            </div>
-                            <div className='sm:hidden xl:flex w-2/12  items-center justify-center gap-x-10'>
-                                   <div className="w-4/12 relative" ref={dropdownRef}>
-                                          <button className='flex items-center gap-1 justify-between text-2xl' onClick={handleClickOpen}>
-                                                 {selectedOption === 'EN' ? <CiGlobe className='text-mainColor text-2xl' /> : <CiGlobe className='text-mainColor 2xl' />} <span className='flex items-center text-mainColor font-TextFontMedium'>{selectedOption}<IoIosArrowDown className={`${open ? "rotate-180" : "rotate-0"} mt-1 ml-1 transition-all duration-300`} /></span>
+                            </div> */}
 
-                                          </button>
-                                          <div className={`${open ? "block" : "hidden"} absolute w-28 top-14 -left-3.5 bg-white rounded-xl border-2 overflow-hidden`}>
-                                                 <div className='flex items-center py-1  gap-1 justify-center text-xl font-TextFontMedium text-mainColor hover:cursor-pointer hover:bg-mainColor hover:text-white transition-all duration-300	' onClick={() => handleOptionClick('AR')}>
-                                                        <CiGlobe /> AR
-                                                 </div>
-                                                 <div className='flex items-center py-1  gap-1 justify-center text-xl font-TextFontMedium text-mainColor hover:cursor-pointer hover:bg-mainColor hover:text-white transition-all duration-300	' onClick={() => handleOptionClick('EN')}>
-                                                        <CiGlobe /> EN
+                            <div className="flex gap-5">
+                                   <div className='flex w-2/12  items-center justify-center gap-x-10'>
+                                          <div className="relative" ref={notificationRef}>
+                                                 <div className="relative" ref={notificationRef}>
+                                                        <button
+                                                               type="button"
+                                                               onClick={() => setNotificationOpen(!notificationOpen)}
+                                                               className="relative"
+                                                        >
+                                                               <IoMdNotificationsOutline className="text-mainColor text-3xl" />
+                                                               {canceledOrders.count > 0 && (
+                                                                      <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                                                             {canceledOrders.count}
+                                                                      </span>
+                                                               )}
+                                                        </button>
+
+                                                        {notificationOpen && (
+                                                               <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-1 z-50">
+                                                                      {canceledOrders.orders.length === 0 ? (
+                                                                             <div className="px-4 py-2 text-gray-700">No waiting orders</div>
+                                                                      ) : (
+                                                                             <>
+                                                                                    <div className="px-4 py-2 font-semibold border-b">Waiting Orders</div>
+                                                                                    {canceledOrders.orders.map(orderId => (
+                                                                                           <div key={orderId} className="px-4 py-2 hover:bg-gray-100 flex justify-between items-center">
+                                                                                                  <Link
+                                                                                                         to={`/dashboard/orders/details/${orderId}`}
+                                                                                                         onClick={() => {
+                                                                                                                setNotificationOpen(false); // Close dropdown when clicking
+                                                                                                                dispatch(removeCanceledOrder(orderId)); // Remove immediately
+                                                                                                         }}
+                                                                                                         className="flex-1 text-left"
+                                                                                                  >
+                                                                                                         Order #{orderId}
+                                                                                                  </Link>
+                                                                                                  <button
+                                                                                                         onClick={(e) => {
+                                                                                                                e.stopPropagation();
+                                                                                                                handleRemoveOrder(orderId);
+                                                                                                         }}
+                                                                                                         className="text-red-600 hover:text-red-800 ml-2"
+                                                                                                  >
+                                                                                                         ×
+                                                                                                  </button>
+                                                                                           </div>
+                                                                                    ))}
+                                                                             </>
+                                                                      )}
+                                                               </div>
+                                                        )}
                                                  </div>
                                           </div>
                                    </div>
-                                   <div className="flex items-center justify-between gap-x-5">
-                                          <button type='button'>
-                                                 <IoBagHandleOutline className='text-mainColor text-3xl' />
-                                          </button>
-                                          <button type='button'>
-                                                 <IoMdNotificationsOutline className='text-mainColor text-3xl' />
-                                          </button>
-                                   </div>
-                            </div> */}
-                            <div className="">
                                    <StaticButton type='button' text={'Logout'} handleClick={handleLogout} />
                             </div>
                      </nav >
