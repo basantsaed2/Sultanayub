@@ -221,29 +221,130 @@ const DetailsOrderPage = () => {
 
   const handleOpenOptionOrderStatus = () => setIsOpenOrderStatus(false);
 
-  const handleSelectOrderStatus = (selectedOption) => {
-    console.log("selectedOption", selectedOption);
-    const hasOrderPermission = auth.userState.user_positions.roles?.some(
-      (perm) => perm.role === "Order"
-    );
-    console.log("hasOrderPermission", hasOrderPermission);
-    const hasValidAction = auth.userState.user_positions.roles?.some(
-      (action) => action.action === "all" || action.action === "back_status"
+  // const handleSelectOrderStatus = (selectedOption) => {
+  //   console.log("selectedOption", selectedOption);
+  //   const hasOrderPermission = auth.userState.user_positions.roles?.some(
+  //     (perm) => perm.role === "Order"
+  //   );
+  //   console.log("hasOrderPermission", hasOrderPermission);
+  //   const hasValidAction = auth.userState.user_positions.roles?.some(
+  //     (action) => action.action === "all" || action.action === "back_status"
+  //   );
+
+  //   if (hasOrderPermission && hasValidAction) {
+  //     if (selectedOption.name === 'canceled') {
+  //       setShowReason(true)
+  //       setOrderStatusName(selectedOption.name);
+  //     } else {
+  //       setShowReason(false);
+  //       setOrderStatusName(selectedOption.name);
+  //       handleChangeStaus(detailsData.id, '', selectedOption.name, '');
+  //     }
+  //   } else {
+  //     auth.toastError("You don't have permission to change the order status");
+  //   }
+  // };
+
+const handleSelectOrderStatus = (selectedOption) => {
+  console.log("selectedOption", selectedOption);
+  
+  // Check if user has Order role
+  const hasOrderRole = auth.userState.user_positions.roles?.some(
+    (role) => role.role === "Order"
+  );
+
+  // Define the normal order flow progression
+  const statusFlow = ['pending', 'processing', 'out_for_delivery', 'delivered'];
+  
+  const currentStatus = detailsData?.order_status;
+  const targetStatus = selectedOption.name;
+
+  // Check if this is a backward transition
+  const currentIndex = statusFlow.indexOf(currentStatus);
+  const targetIndex = statusFlow.indexOf(targetStatus);
+  const isBackwardTransition = currentIndex >= 0 && targetIndex >= 0 && targetIndex < currentIndex;
+
+  // Define status transition rules and required permissions
+  const statusPermissions = {
+    // Basic status changes (require 'status' action)
+    pending: { 
+      forwardActions: ['all', 'status'],
+      backwardActions: ['all', 'back_status'] 
+    },
+    processing: { 
+      forwardActions: ['all', 'status'],
+      backwardActions: ['all', 'back_status']
+    },
+    out_for_delivery: { 
+      forwardActions: ['all', 'status'],
+      backwardActions: ['all', 'back_status']
+    },
+    delivered: {
+      actions: ['all', 'back_status'], // Can't go forward from delivered
+      allowedFrom: ['out_for_delivery']
+    },
+    canceled: {
+      actions: ['all', 'back_status'],
+      allowedFrom: ['pending', 'processing', 'out_for_delivery'],
+      requiresReason: true
+    },
+    // Admin-only status changes
+    refund: { actions: ['all'] },
+    returned: { actions: ['all'] },
+    faild_to_deliver: { actions: ['all'] }
+  };
+
+  // Check if the transition is allowed
+  let hasPermission = false;
+  if (hasOrderRole && statusPermissions[targetStatus]) {
+    // Determine required actions based on transition direction
+    let requiredActions;
+    if (isBackwardTransition) {
+      requiredActions = statusPermissions[targetStatus]?.backwardActions || ['all', 'back_status'];
+    } else {
+      // For forward transitions, use forwardActions if defined, otherwise default to status
+      requiredActions = statusPermissions[targetStatus]?.forwardActions || ['all', 'status'];
+    }
+
+    // Check if user has required action permissions
+    const hasActionPermission = auth.userState.user_positions.roles?.some(
+      (role) => role.role === "Order" && 
+        requiredActions.some(action => 
+          role.action === 'all' || role.action.includes(action)
+        )
     );
 
-    if (hasOrderPermission && hasValidAction) {
-      if (selectedOption.name === 'canceled') {
-        setShowReason(true)
-        setOrderStatusName(selectedOption.name);
-      } else {
-        setShowReason(false);
-        setOrderStatusName(selectedOption.name);
-        handleChangeStaus(detailsData.id, '', selectedOption.name, '');
-      }
+    // Check if transition from current status is allowed
+    const isTransitionAllowed = !statusPermissions[targetStatus].allowedFrom || 
+      statusPermissions[targetStatus].allowedFrom.includes(currentStatus);
+
+    hasPermission = hasActionPermission && isTransitionAllowed;
+  }
+
+  if (hasPermission) {
+    if (statusPermissions[targetStatus]?.requiresReason) {
+      setShowReason(true);
+      setOrderStatusName(targetStatus);
     } else {
-      auth.toastError("You don't have permission to change the order status");
+      setShowReason(false);
+      handleChangeStaus(detailsData.id, '', targetStatus, '');
     }
-  };
+  } else {
+    let errorMessage = "You don't have permission to change the order status";
+    
+    // if (!hasOrderRole) {
+    //   errorMessage = "You don't have Order role permissions";
+    // } else if (isBackwardTransition) {
+    //   errorMessage = "You need 'back_status' permission to move to a previous status";
+    // } else if (!statusPermissions[targetStatus]) {
+    //   errorMessage = "Invalid status transition";
+    // } else if (!isTransitionAllowed) {
+    //   errorMessage = `Cannot change status from ${currentStatus} to ${targetStatus}`;
+    // }
+
+    auth.toastError(errorMessage);
+  }
+};
 
 
   const handleOrderNumber = (id) => {
