@@ -42,6 +42,9 @@ export { default as AutomaticPaymentLayout } from "./Dashboard/Setting/Automatic
 // Setting -> Cities
 export { default as CitiesLayout } from "./Dashboard/Setting/Cities/CitiesLayout";
 export { default as EditCityLayout } from "./Dashboard/Setting/Cities/EditCityLayout";
+// Setting -> Schedule Time
+export { default as ScheduleTimeLayout } from "./Dashboard/Setting/ScheduleTime/ScheduleTimeLayout";
+export { default as EditScheduleTimeLayout } from "./Dashboard/Setting/ScheduleTime/EditScheduleTimeLayout";
 // Setting -> Branches
 export { default as BranchesLayout } from "./Dashboard/Setting/Branches/BranchesLayout";
 export { default as EditBranchLayout } from "./Dashboard/Setting/Branches/EditBranchLayout";

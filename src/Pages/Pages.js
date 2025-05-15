@@ -41,6 +41,10 @@ export { default as AutomaticPaymentPage } from "./Dashboard/Admin/Setting/Autom
 export { default as CitiesPage } from "./Dashboard/Admin/Setting/Cities/CitiesPage";
 export { default as AddCitySection } from "./Dashboard/Admin/Setting/Cities/addCitySection";
 export { default as EditCityPage } from "./Dashboard/Admin/Setting/Cities/EditCityPage";
+// Setting -> ScheduleTime
+export { default as ScheduleTimePage } from "./Dashboard/Admin/Setting/ScheduleTime/ScheduleTimePage";
+export { default as AddScheduleTimeSection } from "./Dashboard/Admin/Setting/ScheduleTime/AddScheduleTimeSection";
+export { default as EditScheduleTimePage } from "./Dashboard/Admin/Setting/ScheduleTime/EditScheduleTimePage";
 // Setting -> Branches
 export { default as BranchesPage } from "./Dashboard/Admin/Setting/Branches/BranchesPage";
 export { default as AddBranchSection } from "./Dashboard/Admin/Setting/Branches/addBranchSection";

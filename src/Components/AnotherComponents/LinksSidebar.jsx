@@ -135,6 +135,7 @@ const routes = [
       { name: "Zones", path: "/dashboard/setting/zones" },
       { name: "Order Type", path: "/dashboard/setting/order_type" },
       { name: "Restaurant Time", path: "/dashboard/setting/resturant_time" },
+      { name: "Schedule Time", path: "/dashboard/setting/schedule_time" },
       { name: "Cancel Time", path: "/dashboard/setting/cancel_time" },
       { name: "Delivery Time", path: "/dashboard/setting/delivery_time" },
       { name: "Sound", path: "/dashboard/setting/sound" },

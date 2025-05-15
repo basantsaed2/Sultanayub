@@ -69,6 +69,8 @@ import {
   VariationOptionLayout,
   EmailLayout,
   AddRoleLayout,
+  ScheduleTimeLayout,
+  EditScheduleTimeLayout,
 } from "./layouts/Layouts";
 import ProtectedLogin from "./ProtectedData/ProtectedLogin";
 import NotFoundPage from "./Pages/NotFoundPage/NotFoundPage";
@@ -306,6 +308,19 @@ export const router = createBrowserRouter([
                   {
                     path: 'edit/:cityId',
                     element: <EditCityLayout />,
+                  }
+                ]
+              },
+               {
+                path: 'schedule_time',
+                children: [
+                  {
+                    path: '',
+                    element: <ScheduleTimeLayout />,
+                  },
+                  {
+                    path: 'edit/:scheduleId',
+                    element: <EditScheduleTimeLayout />,
                   }
                 ]
               },
