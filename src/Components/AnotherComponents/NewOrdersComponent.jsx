@@ -109,7 +109,7 @@ const NewOrdersComponent = ({ isOpen, onClose }) => {
                                                         onClick={() => handleCancelOrder(newOrders?.id)}
                                                         className="mt-3 inline-flex justify-center rounded-md bg-red-600 px-6 py-3 text-xl font-TextFontMedium text-white shadow-sm hover:bg-red-700 sm:mt-0 sm:w-auto"
                                                  >
-                                                        Cancel
+                                                        Close
                                                  </button>
                                                  <Link
                                                         to={`/dashboard/orders/details/${newOrders?.id}`}
