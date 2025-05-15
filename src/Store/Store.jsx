@@ -3,6 +3,7 @@ import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { userReducer, categoryReducer, ordersAllReducer, ordersPendingReducer, ordersConfirmedReducer, ordersProcessingReducer, ordersOutForDeliveryReducer, ordersDeliveredReducer, ordersReturnedReducer, ordersFailedReducer, ordersCanceledReducer, ordersScheduleReducer, newOrdersReducer, soundNotificationReducer } from "./CreateSlices";
 import { combineReducers } from 'redux';
+import { canceledOrdersReducer } from "./CreateSlices";
 
 // All reducers
 const reducers = combineReducers({
@@ -20,13 +21,16 @@ const reducers = combineReducers({
        ordersCanceled: ordersCanceledReducer,
        ordersSchedule: ordersScheduleReducer,
        userSultanAyub: userReducer,  // Add user reducer here
+
+       canceledOrders: canceledOrdersReducer,
+
 });
 
 // Persist configuration
 const persistConfig = {
        key: 'root',
        storage,
-       whitelist: ['userSultanAyub'], // Only persist 'user' state, exclude others
+  whitelist: ['userSultanAyub', 'canceledOrders'], // Add canceledOrders to persisted state
 };
 
 const persistedReducer = persistReducer(persistConfig, reducers);

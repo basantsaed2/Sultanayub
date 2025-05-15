@@ -271,6 +271,34 @@ const ordersScheduleSlice = createSlice({
        },
 });
 
+// Add this with your other initial states
+const initialCanceledOrdersState = {
+  orders: [], // Array of order IDs
+  count: 0,   // Total count for badge
+};
+
+// Add this with your other slices
+const canceledOrdersSlice = createSlice({
+  name: "canceledOrders",
+  initialState: initialCanceledOrdersState,
+  reducers: {
+    addCanceledOrder: (state, action) => {
+      if (!state.orders.includes(action.payload)) {
+        state.orders.push(action.payload);
+        state.count = state.orders.length;
+      }
+    },
+    removeCanceledOrder: (state, action) => {
+      state.orders = state.orders.filter(id => id !== action.payload);
+      state.count = state.orders.length;
+    },
+    clearCanceledOrders: (state) => {
+      state.orders = [];
+      state.count = 0;
+    },
+  },
+});
+
 
 // Fetch and dispatch orders
 export const OrdersComponent = () => {
@@ -375,3 +403,8 @@ export const ordersReturnedReducer = ordersReturnedSlice.reducer;
 export const ordersFailedReducer = ordersFailedSlice.reducer;
 export const ordersCanceledReducer = ordersCanceledSlice.reducer;
 export const ordersScheduleReducer = ordersScheduleSlice.reducer;
+
+
+// Add to your exports
+export const { addCanceledOrder, removeCanceledOrder, clearCanceledOrders } = canceledOrdersSlice.actions;
+export const canceledOrdersReducer = canceledOrdersSlice.reducer;

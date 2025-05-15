@@ -42,6 +42,10 @@ const App = () => {
     refetchSong();
   }, [refetchSong]);
 
+   useEffect(() => {
+    refetchCountOrders();
+  }, [refetchCountOrders]);
+
   // Update song source when API data is received
   useEffect(() => {
     if (dataSong && dataSong.notification_sound) {
@@ -116,7 +120,12 @@ const App = () => {
     }, 8000);
 
     return () => clearInterval(interval); // Cleanup interval
-  }, [ordersAll, postData]);
+  }, [ordersAll, postData,loading,dataCountOrders]);
+
+   useEffect(() => {
+    if(loadingPost && response) return; // Exit if ordersAll is not available
+      refetchCountOrders();
+  }, [response]);
 
   return (
     <PrimeReactProvider>
