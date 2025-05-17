@@ -12,12 +12,12 @@ const CartsOrderSection = ({ ordersNum }) => {
           title={'Pending'}
           count={ordersNum.ordersPending || 0}
         />
-        <Cart
+        {/* <Cart
           route={'/dashboard/orders/confirmed'}
           icon={<ConfirmedIcon />}
           title={'Confirmed'}
           count={ordersNum.ordersConfirmed || 0}
-        />
+        /> */}
         <Cart
           route={'/dashboard/orders/processing'}
           icon={<ProcessingIcon />}

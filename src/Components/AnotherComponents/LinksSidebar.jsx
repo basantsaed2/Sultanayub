@@ -41,7 +41,7 @@ const routes = [
     subRoutes: [
       { name: "All", path: "/dashboard/orders/all", countKey: "ordersAll" },
       { name: "Pending", path: "/dashboard/orders/pending", countKey: "ordersPending" },
-      { name: "Confirmed", path: "/dashboard/orders/confirmed", countKey: "ordersConfirmed" },
+      // { name: "Confirmed", path: "/dashboard/orders/confirmed", countKey: "ordersConfirmed" },
       { name: "Processing", path: "/dashboard/orders/processing", countKey: "ordersProcessing" },
       { name: "OutForDelivery", path: "/dashboard/orders/out_for_delivery", countKey: "ordersOutForDelivery" },
       { name: "Delivered", path: "/dashboard/orders/delivered", countKey: "ordersDelivered" },

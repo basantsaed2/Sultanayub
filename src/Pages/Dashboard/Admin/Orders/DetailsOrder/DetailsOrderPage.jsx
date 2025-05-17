@@ -38,6 +38,10 @@ const DetailsOrderPage = () => {
   const [orderStatus, setOrderStatus] = useState([]);
   const [deliveries, setDeliveries] = useState([]);
   const [deliveriesFilter, setDeliveriesFilter] = useState([]);
+  const [showRefundConfirm, setShowRefundConfirm] = useState(false);
+  const [showRefundModal, setShowRefundModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+
 
   const [showReason, setShowReason] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
@@ -245,106 +249,98 @@ const DetailsOrderPage = () => {
   //   }
   // };
 
-const handleSelectOrderStatus = (selectedOption) => {
-  console.log("selectedOption", selectedOption);
-  
-  // Check if user has Order role
-  const hasOrderRole = auth.userState.user_positions.roles?.some(
-    (role) => role.role === "Order"
-  );
+  const handleSelectOrderStatus = (selectedOption) => {
+    console.log("selectedOption", selectedOption);
 
-  // Define the normal order flow progression
-  const statusFlow = ['pending', 'processing', 'out_for_delivery', 'delivered'];
-  
-  const currentStatus = detailsData?.order_status;
-  const targetStatus = selectedOption.name;
-
-  // Check if this is a backward transition
-  const currentIndex = statusFlow.indexOf(currentStatus);
-  const targetIndex = statusFlow.indexOf(targetStatus);
-  const isBackwardTransition = currentIndex >= 0 && targetIndex >= 0 && targetIndex < currentIndex;
-
-  // Define status transition rules and required permissions
-  const statusPermissions = {
-    // Basic status changes (require 'status' action)
-    pending: { 
-      forwardActions: ['all', 'status'],
-      backwardActions: ['all', 'back_status'] 
-    },
-    processing: { 
-      forwardActions: ['all', 'status'],
-      backwardActions: ['all', 'back_status']
-    },
-    out_for_delivery: { 
-      forwardActions: ['all', 'status'],
-      backwardActions: ['all', 'back_status']
-    },
-    delivered: {
-      actions: ['all', 'back_status'], // Can't go forward from delivered
-      allowedFrom: ['out_for_delivery']
-    },
-    canceled: {
-      actions: ['all', 'back_status'],
-      allowedFrom: ['pending', 'processing', 'out_for_delivery'],
-      requiresReason: true
-    },
-    // Admin-only status changes
-    refund: { actions: ['all'] },
-    returned: { actions: ['all'] },
-    faild_to_deliver: { actions: ['all'] }
-  };
-
-  // Check if the transition is allowed
-  let hasPermission = false;
-  if (hasOrderRole && statusPermissions[targetStatus]) {
-    // Determine required actions based on transition direction
-    let requiredActions;
-    if (isBackwardTransition) {
-      requiredActions = statusPermissions[targetStatus]?.backwardActions || ['all', 'back_status'];
-    } else {
-      // For forward transitions, use forwardActions if defined, otherwise default to status
-      requiredActions = statusPermissions[targetStatus]?.forwardActions || ['all', 'status'];
-    }
-
-    // Check if user has required action permissions
-    const hasActionPermission = auth.userState.user_positions.roles?.some(
-      (role) => role.role === "Order" && 
-        requiredActions.some(action => 
-          role.action === 'all' || role.action.includes(action)
-        )
+    // Check if user has Order role
+    const hasOrderRole = auth.userState.user_positions.roles?.some(
+      (role) => role.role === "Order"
     );
 
-    // Check if transition from current status is allowed
-    const isTransitionAllowed = !statusPermissions[targetStatus].allowedFrom || 
-      statusPermissions[targetStatus].allowedFrom.includes(currentStatus);
+    // Define the normal order flow progression
+    const statusFlow = ['pending', 'processing', 'out_for_delivery', 'delivered'];
 
-    hasPermission = hasActionPermission && isTransitionAllowed;
-  }
+    const currentStatus = detailsData?.order_status;
+    const targetStatus = selectedOption.name;
 
-  if (hasPermission) {
-    if (statusPermissions[targetStatus]?.requiresReason) {
-      setShowReason(true);
-      setOrderStatusName(targetStatus);
-    } else {
-      setShowReason(false);
-      handleChangeStaus(detailsData.id, '', targetStatus, '');
+    // Check if this is a backward transition
+    const currentIndex = statusFlow.indexOf(currentStatus);
+    const targetIndex = statusFlow.indexOf(targetStatus);
+    const isBackwardTransition = currentIndex >= 0 && targetIndex >= 0 && targetIndex < currentIndex;
+
+    // Define status transition rules and required permissions
+    const statusPermissions = {
+      // Basic status changes (require 'status' action)
+      pending: {
+        forwardActions: ['all', 'status'],
+        backwardActions: ['all', 'back_status']
+      },
+      processing: {
+        forwardActions: ['all', 'status'],
+        backwardActions: ['all', 'back_status']
+      },
+      out_for_delivery: {
+        forwardActions: ['all', 'status'],
+        backwardActions: ['all', 'back_status']
+      },
+      delivered: {
+        actions: ['all', 'back_status'], // Can't go forward from delivered
+        allowedFrom: ['out_for_delivery']
+      },
+      canceled: {
+        actions: ['all', 'back_status'],
+        allowedFrom: ['pending', 'processing', 'out_for_delivery'],
+        requiresReason: true
+      },
+      // Admin-only status changes
+      refund: { actions: ['all'] },
+      returned: { actions: ['all'] },
+      faild_to_deliver: { actions: ['all'] }
+    };
+
+    // Check if the transition is allowed
+    let hasPermission = false;
+    if (hasOrderRole && statusPermissions[targetStatus]) {
+      // Determine required actions based on transition direction
+      let requiredActions;
+      if (isBackwardTransition) {
+        requiredActions = statusPermissions[targetStatus]?.backwardActions || ['all', 'back_status'];
+      } else {
+        // For forward transitions, use forwardActions if defined, otherwise default to status
+        requiredActions = statusPermissions[targetStatus]?.forwardActions || ['all', 'status'];
+      }
+
+      // Check if user has required action permissions
+      const hasActionPermission = auth.userState.user_positions.roles?.some(
+        (role) => role.role === "Order" &&
+          requiredActions.some(action =>
+            role.action === 'all' || role.action.includes(action)
+          )
+      );
+
+      // Check if transition from current status is allowed
+      const isTransitionAllowed = !statusPermissions[targetStatus].allowedFrom ||
+        statusPermissions[targetStatus].allowedFrom.includes(currentStatus);
+
+      hasPermission = hasActionPermission && isTransitionAllowed;
     }
-  } else {
-    let errorMessage = "You don't have permission to change the order status";
-    
-    // if (!hasOrderRole) {
-    //   errorMessage = "You don't have Order role permissions";
-    // } else if (isBackwardTransition) {
-    //   errorMessage = "You need 'back_status' permission to move to a previous status";
-    // } else if (!statusPermissions[targetStatus]) {
-    //   errorMessage = "Invalid status transition";
-    // } else if (!isTransitionAllowed) {
-    //   errorMessage = `Cannot change status from ${currentStatus} to ${targetStatus}`;
-    // }
 
-    auth.toastError(errorMessage);
-  }
-};
+    if (hasPermission) {
+      if (statusPermissions[targetStatus]?.requiresReason) {
+        setShowCancelModal(true);
+        setOrderStatusName(targetStatus);
+      }
+      else if (targetStatus === 'refund') {
+        setShowRefundModal(true);
+      } else {
+        // setShowReason(false);
+        handleChangeStaus(detailsData.id, '', targetStatus, '');
+      }
+    } else {
+      let errorMessage = "You don't have permission to change the order status";
+      auth.toastError(errorMessage);
+    }
+  };
 
 
   const handleOrderNumber = (id) => {
@@ -872,326 +868,274 @@ const handleSelectOrderStatus = (selectedOption) => {
                   )}
                 </div>
 
-                {/* Order Setup */}
                 <div className="w-full bg-white rounded-xl shadow-md p-4 mt-4">
                   <div className="flex flex-col gap-y-2">
-                    <span className="font-TextFontSemiBold">
+                    <span className="font-TextFontSemiBold text-lg">
                       Change Order Status
                     </span>
 
-                    {/* Status buttons in flex-col layout */}
                     <div className="flex flex-col gap-3">
-                      {/* Status Buttons Grid */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {/* Pending */}
-                        <button
-                          onClick={() => handleSelectOrderStatus({ name: 'pending' })}
-                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${detailsData?.order_status === 'pending'
-                              ? 'bg-yellow-100 border-yellow-400 text-yellow-800'
-                              : 'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'
-                            }`}
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          Pending
-                        </button>
+                        {/* Define status order for comparison */}
+                        {(() => {
+                          const statusOrder = [
+                            'pending',
+                            'processing',
+                            'out_for_delivery',
+                            'delivered', 'canceled', 'refund', 'returned', 'faild_to_deliver'
+                          ];
 
-                        {/* Accept/Processing */}
-                        <button
-                          onClick={() => handleSelectOrderStatus({ name: 'processing' })}
-                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${detailsData?.order_status === 'processing'
-                              ? 'bg-blue-100 border-blue-400 text-blue-800'
-                              : 'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'
-                            }`}
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Accept
-                        </button>
+                          const currentStatus = detailsData?.order_status;
+                          const currentIndex = statusOrder.indexOf(currentStatus);
 
-                        {/* Out for Delivery */}
-                        <button
-                          onClick={() => handleSelectOrderStatus({ name: 'out_for_delivery' })}
-                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${detailsData?.order_status === 'out_for_delivery'
-                              ? 'bg-indigo-100 border-indigo-400 text-indigo-800'
-                              : 'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'
-                            }`}
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                          </svg>
-                          Out for Delivery
-                        </button>
+                          return [
+                            { name: 'pending', label: 'Pending', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
+                            { name: 'processing', label: 'Processing', icon: 'M5 13l4 4L19 7' },
+                            { name: 'out_for_delivery', label: 'Out for Delivery', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
+                            { name: 'delivered', label: 'Delivered', icon: 'M5 13l4 4L19 7' },
+                            { name: 'canceled', label: 'Canceled', icon: 'M6 18L18 6M6 6l12 12' },
+                            { name: 'refund', label: 'Refund', icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
+                            { name: 'returned', label: 'Returned', icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15' },
+                            { name: 'faild_to_deliver', label: 'Failed to Deliver', icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z' }
+                          ].map((status) => {
+                            const statusIndex = statusOrder.indexOf(status.name);
+                            const isCurrent = currentStatus === status.name;
+                            const isPrevious = statusIndex !== -1 && currentIndex > statusIndex;
+                            const isNext = statusIndex !== -1 && currentIndex < statusIndex;
 
-                        {/* Delivered */}
-                        <button
-                          onClick={() => handleSelectOrderStatus({ name: 'delivered' })}
-                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${detailsData?.order_status === 'delivered'
-                              ? 'bg-green-100 border-green-400 text-green-800'
-                              : 'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'
-                            }`}
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Delivered
-                        </button>
+                            return (
+                              <button
+                                key={status.name}
+                                onClick={() => handleSelectOrderStatus({ name: status.name })}
+                                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all relative
+                  ${isCurrent ? 'bg-blue-100 border-blue-500 text-blue-900 shadow-md' :
+                                    isPrevious ? 'bg-green-50 border-green-300 text-green-800' :
+                                      isNext ? 'bg-gray-100 border-gray-300 text-gray-600' :
+                                        'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'}
+                `}
+                              >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={status.icon} />
+                                </svg>
+                                {status.label}
 
-                        {/* Canceled */}
-                        <button
-                          onClick={() => handleSelectOrderStatus({ name: 'canceled' })}
-                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${detailsData?.order_status === 'canceled'
-                              ? 'bg-red-100 border-red-400 text-red-800'
-                              : 'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'
-                            }`}
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                          Canceled
-                        </button>
+                                {/* Checkmark for completed statuses */}
+                                {isPrevious && (
+                                  <span className="absolute top-2 right-2 text-green-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                  </span>
+                                )}
 
-                        {/* Refund */}
-                        <button
-                          onClick={() => handleSelectOrderStatus({ name: 'refund' })}
-                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${detailsData?.order_status === 'refund'
-                              ? 'bg-pink-100 border-pink-400 text-pink-800'
-                              : 'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'
-                            }`}
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                          </svg>
-                          Refund
-                        </button>
-
-                        {/* Returned */}
-                        <button
-                          onClick={() => handleSelectOrderStatus({ name: 'returned' })}
-                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${detailsData?.order_status === 'returned'
-                              ? 'bg-purple-100 border-purple-400 text-purple-800'
-                              : 'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'
-                            }`}
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                          </svg>
-                          Returned
-                        </button>
-
-                        {/* Failed to Deliver */}
-                        <button
-                          onClick={() => handleSelectOrderStatus({ name: 'faild_to_deliver' })}
-                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all ${detailsData?.order_status === 'faild_to_deliver'
-                              ? 'bg-orange-100 border-orange-400 text-orange-800'
-                              : 'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'
-                            }`}
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                          </svg>
-                          Failed to Deliver
-                        </button>
+                                {/* Current status indicator */}
+                                {isCurrent && (
+                                  <span className="absolute top-0 right-0 -mt-1 -mr-1 flex h-3 w-3">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                                  </span>
+                                )}
+                              </button>
+                            );
+                          });
+                        })()}
                       </div>
                     </div>
 
+                    {/* Reason Input Modal */}
+                    {showReason && (
+                      <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <label className="block text-gray-700 text-sm font-medium mb-2">
+                          Enter Cancel Reason:
+                        </label>
+                        <input
+                          type="text"
+                          value={cancelReason}
+                          onChange={(e) => setCancelReason(e.target.value)}
+                          placeholder="Enter reason for cancellation"
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-mainColor"
+                        />
+                        <div className="flex gap-2 mt-3">
+                          <button
+                            onClick={() => {
+                              setShowReason(false);
+                              setCancelReason("");
+                            }}
+                            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (!cancelReason.trim()) {
+                                auth.toastError("Please enter a cancellation reason");
+                                return;
+                              }
+                              handleChangeStaus(
+                                detailsData.id,
+                                "",
+                                orderStatusName, // Use the stored status name
+                                cancelReason
+                              );
+                              setCancelReason("");
+                            }}
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                          >
+                            Confirm Cancellation
+                          </button>
+                        </div>
+                      </div>
+                    )}
 
-                    {/* <DropDown
-                      ref={StatusRef}
-                      handleOpen={handleOpenOrderStatus}
-                      stateoption={orderStatusName}
-                      openMenu={isOpenOrderStatus}
-                      handleOpenOption={handleOpenOptionOrderStatus}
-                      onSelectOption={(selectedOption) =>
-                        handleSelectOrderStatus(selectedOption)
-                      } // Pass selected option
-                      options={orderStatus}
-                    /> */}
-
-                    {openOrderNumber === detailsData?.id && (
-                      <Dialog
-                        open={true}
-                        onClose={handleCloseOrderNumber}
-                        className="relative z-10"
-                      >
-                        <DialogBackdrop className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-                        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                            <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-4xl">
-                              {/* Permissions List */}
-                              <div className="w-full flex flex-col items-start justify-center gap-4 my-4 px-4 sm:p-6 sm:pb-4">
-                                <span>Order Number:</span>
-                                {/* <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center"> */}
-                                <TextInput
-                                  value={orderNumber} // Access category_name property
-                                  onChange={(e) =>
-                                    setOrderNumber(e.target.value)
-                                  }
-                                  placeholder="Order Number"
-                                />
-                                {/* </div> */}
-                              </div>
-
-                              {/* Dialog Footer */}
-                              <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-x-3">
-                                <button
-                                  type="button"
-                                  onClick={handleCloseOrderNumber}
-                                  className="inline-flex w-full justify-center rounded-md bg-white border-2 px-6 py-3 text-sm font-TextFontMedium text-mainColor sm:mt-0 sm:w-auto"
-                                >
-                                  Close
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    handleOrderNumber(detailsData.id)
-                                  }
-                                  className="inline-flex w-full justify-center rounded-md bg-mainColor px-6 py-3 text-sm font-TextFontMedium text-white sm:mt-0 sm:w-auto"
-                                >
-                                  Change Status
-                                </button>
-                              </div>
-                            </DialogPanel>
+                    {/* Show existing cancellation reasons if they exist */}
+                    {detailsData.order_status === "canceled" && (
+                      <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+                        {detailsData.admin_cancel_reason && (
+                          <div className="mb-3">
+                            <p className="font-medium text-gray-800">Admin Cancellation Reason:</p>
+                            <p className="text-gray-600">{detailsData.admin_cancel_reason}</p>
                           </div>
-                        </div>
-                      </Dialog>
-                    )}
-                  </div>
-
-                  {showReason && (
-                    <div className="mt-4">
-                      <label className="block text-gray-700 text-sm font-medium">
-                        Enter Cancel Reason:
-                      </label>
-                      <input
-                        type="text"
-                        value={cancelReason}
-                        onChange={(e) => setCancelReason(e.target.value)}
-                        placeholder="Enter reason"
-                        className="w-full border-2 rounded-2xl outline-none px-2 py-2 shadow text-2xl text-thirdColor"
-                      />
-                      <button
-                        onClick={() =>
-                          handleChangeStaus(
-                            detailsData.id,
-                            "",
-                            "canceled",
-                            cancelReason
-                          )
-                        }
-                        className="mt-2 px-4 py-3 rounded-md bg-mainColor text-white text-sm"
-                      >
-                        Confirm Cancellation
-                      </button>
-                    </div>
-                  )}
-
-                  {detailsData.order_status === "canceled" && (
-                    <div className="mt-4 p-2 border-2 rounded-2xl bg-gray-100 text-gray-800">
-                      {/* <span className="font-TextFontSemiBold">Cancellation Details:</span> */}
-                      {detailsData.admin_cancel_reason ? (
-                        <p className="text-lg">
-                          <strong>Rejection Admin Reason:</strong>{" "}
-                          {detailsData.admin_cancel_reason}
-                        </p>
-                      ) : null}
-                      {detailsData.customer_cancel_reason ? (
-                        <p className="text-lg">
-                          <strong>Rejection Customer Reason:</strong>{" "}
-                          {detailsData.customer_cancel_reason}
-                        </p>
-                      ) : null}
-
-                      {/* If all reasons are missing, show "No reason provided" */}
-                      {!detailsData.customer_cancel_reason &&
-                        !detailsData.admin_cancel_reason && (
-                          <p className="mt-2 text-lg text-gray-600">
-                            No reason provided
-                          </p>
                         )}
-                    </div>
-                  )}
-
-                  {detailsData.order_type === "delivery" &&
-                    (detailsData.order_status === "processing" ||
-                      detailsData.order_status === "out_for_delivery") && (
-                      <button
-                        className="w-full bg-mainColor text-white py-2 rounded-md mt-4"
-                        onClick={() => handleOpenDeliviers(detailsData.id)}
-                      >
-                        Assign Delivery Man
-                      </button>
+                        {detailsData.customer_cancel_reason && (
+                          <div>
+                            <p className="font-medium text-gray-800">Customer Cancellation Reason:</p>
+                            <p className="text-gray-600">{detailsData.customer_cancel_reason}</p>
+                          </div>
+                        )}
+                      </div>
                     )}
+                    {/* Cancel Reason Modal */}
+                    <Dialog open={showCancelModal} onClose={() => setShowCancelModal(false)} className="relative z-50">
+                      <DialogBackdrop className="fixed inset-0 bg-black bg-opacity-30" />
+                      <div className="fixed inset-0 flex items-center justify-center p-4">
+                        <DialogPanel className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+                          <div className="mb-4">
+                            <h3 className="text-lg font-medium text-gray-900">Cancel Order</h3>
+                            <p className="mt-1 text-sm text-gray-500">
+                              Please provide a reason for cancellation
+                            </p>
+                          </div>
 
-                  {openDeliveries === detailsData.id && (
-                    <Dialog
-                      open={true}
-                      onClose={handleCloseDeliveries}
-                      className="relative z-10"
-                    >
-                      <DialogBackdrop className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-                      <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                        <div className="flex min-h-full items-end justify-center  text-center sm:items-center sm:p-0">
-                          <DialogPanel className="relative sm:w-full sm:max-w-2xl  pt-4 transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all ">
-                            <div className="mb-2 px-2">
-                              <SearchBar
-                                placeholder="Search Delivery"
-                                value={searchDelivery}
-                                handleChange={handleChangeDeliveries}
-                              />
-                            </div>
-                            <div className="px-4 flex flex-col gap-3 max-h-64 overflow-x-scroll scrollPage">
-                              {deliveriesFilter.length === 0 ? (
-                                <div className="text-center font-TextFontMedium text-mainColor">
-                                  Not Found Delivery
-                                </div>
-                              ) : (
-                                deliveriesFilter.map((delivery) => (
-                                  <div
-                                    className="border-2 flex items-center justify-between border-gray-400 p-2 rounded-2xl"
-                                    key={`${delivery.id}-${detailsData.id}`}
-                                  >
-                                    <span className="font-TextFontRegular text-xl">
-                                      {delivery?.f_name || "-"}{" "}
-                                      {delivery?.l_name || "-"}
-                                    </span>
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        handleAssignDelivery(
-                                          delivery.id,
-                                          detailsData.id,
-                                          detailsData.order_number
-                                        )
-                                      }
-                                      className="mt-3 inline-flex w-full justify-center rounded-md bg-mainColor px-6 py-3 text-sm font-TextFontMedium text-white shadow-sm sm:mt-0 sm:w-auto hover:bg-mainColor-dark focus:outline-none"
-                                    >
-                                      Assign
-                                    </button>
-                                  </div>
-                                ))
-                              )}
-                            </div>
+                          <textarea
+                            value={cancelReason}
+                            onChange={(e) => setCancelReason(e.target.value)}
+                            placeholder="Enter cancellation reason..."
+                            className="w-full rounded-md border border-gray-300 p-2 focus:border-mainColor focus:ring-mainColor"
+                            rows={3}
+                          />
 
-                            {/* Dialog Footer */}
-                            <div className="px-4 py-3 sm:flex sm:flex-row-reverse">
-                              <button
-                                type="button"
-                                onClick={handleCloseDeliveries}
-                                className="mt-3 inline-flex w-full justify-center rounded-md bg-mainColor px-6 py-3 text-sm font-TextFontMedium text-white shadow-sm sm:mt-0 sm:w-auto hover:bg-mainColor-dark focus:outline-none"
-                              >
-                                Close
-                              </button>
-                            </div>
-                          </DialogPanel>
-                        </div>
+                          <div className="mt-4 flex justify-end space-x-3">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowCancelModal(false);
+                                setCancelReason("");
+                              }}
+                              className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (!cancelReason.trim()) {
+                                  auth.toastError("Please enter a cancellation reason");
+                                  return;
+                                }
+                                handleChangeStaus(detailsData.id, "", orderStatusName, cancelReason);
+                                setShowCancelModal(false);
+                                setCancelReason("");
+                              }}
+                              className="rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                            >
+                              Confirm Cancellation
+                            </button>
+                          </div>
+                        </DialogPanel>
                       </div>
                     </Dialog>
-                  )}
+
+                    {/* Refund Confirmation Modal */}
+                    <Dialog open={showRefundModal} onClose={() => setShowRefundModal(false)} className="relative z-50">
+                      <DialogBackdrop className="fixed inset-0 bg-black bg-opacity-30" />
+                      <div className="fixed inset-0 flex items-center justify-center p-4">
+                        <DialogPanel className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+                          <div className="mb-4">
+                            <h3 className="text-lg font-medium text-gray-900">Confirm Refund</h3>
+                            <p className="mt-1 text-sm text-gray-500">
+                              Are you sure you want to refund this order?
+                            </p>
+                          </div>
+
+                          <div className="mt-4 flex justify-end space-x-3">
+                            <button
+                              type="button"
+                              onClick={() => setShowRefundModal(false)}
+                              className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                            >
+                              No, Cancel
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                handleChangeStaus(detailsData.id, "", "refund", "");
+                                setShowRefundModal(false);
+                              }}
+                              className="rounded-md border border-transparent bg-mainColor px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                              Yes, Refund
+                            </button>
+                          </div>
+                        </DialogPanel>
+                      </div>
+                    </Dialog>
+                    {/* Rest of your dialog and other components... */}
+                  </div>
                 </div>
 
+                <div className="order-status-history p-4 bg-white rounded-lg shadow-sm mt-4">
+                  <h3 className="history-title text-lg font-semibold text-gray-800 mb-4">Order Status History</h3>
+                  <div className="timeline space-y-4">
+                    {dataDetailsOrder.log_order.map((log, index) => (
+                      <div key={log.id} className={`timeline-item relative pl-6 ${index === 0 ? 'first-item' : ''}`}>
+                        {/* Timeline marker */}
+                        <div className="timeline-marker absolute left-0 top-2 w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow"></div>
+
+                        {/* Timeline content */}
+                        <div className="timeline-content bg-gray-50 p-3 rounded-lg">
+                          <div className="status-change flex items-center gap-2 mb-1">
+                            <span className="from-status px-2 py-1 bg-gray-200 text-gray-700 rounded text-sm">
+                              {log.from_status.replace(/_/g, ' ')}
+                            </span>
+                            <span className="arrow text-gray-400">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                              </svg>
+                            </span>
+                            <span className={`to-status px-2 py-1 rounded text-sm ${log.to_status === 'completed' ? 'bg-green-100 text-green-800' :
+                              log.to_status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                'bg-red-100 text-red-800'
+                              }`}>
+                              {log.to_status.replace(/_/g, ' ')}
+                            </span>
+                          </div>
+
+                          <div className="meta-info flex justify-between items-center text-xs text-gray-500">
+                            <span className="changed-by">Changed by: <span className="font-medium">{log.admin.name}</span></span>
+                            <span className="change-date">
+                              {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Timeline connector (except for last item) */}
+                        {index !== dataDetailsOrder.log_order.length - 1 && (
+                          <div className="timeline-connector absolute left-[5px] top-5 bottom-0 w-px bg-gray-300"></div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
                 {/* Food Preparation Time */}
                 {(detailsData.order_status === "pending" ||
