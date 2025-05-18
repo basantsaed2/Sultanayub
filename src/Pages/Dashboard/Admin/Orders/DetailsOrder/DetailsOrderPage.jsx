@@ -249,99 +249,119 @@ const DetailsOrderPage = () => {
   //   }
   // };
 
+  // const handleSelectOrderStatus = (selectedOption) => {
+  //   console.log("selectedOption", selectedOption);
+
+  //   // Check if user has Order role
+  //   const hasOrderRole = auth.userState.user_positions.roles?.some(
+  //     (role) => role.role === "Order"
+  //   );
+
+  //   // Define the normal order flow progression
+  //   const statusFlow = ['pending', 'processing', 'out_for_delivery', 'delivered','cancel','refund','returned','faild_to_deliver'];
+
+  //   const currentStatus = detailsData?.order_status;
+  //   const targetStatus = selectedOption.name;
+
+  //   // Check if this is a backward transition
+  //   const currentIndex = statusFlow.indexOf(currentStatus);
+  //   const targetIndex = statusFlow.indexOf(targetStatus);
+  //   const isBackwardTransition = currentIndex >= 0 && targetIndex >= 0 && targetIndex < currentIndex;
+
+  //   // Define status transition rules and required permissions
+  //   const statusPermissions = {
+  //     // Basic status changes (require 'status' action)
+  //     pending: {
+  //       forwardActions: ['all', 'status'],
+  //       backwardActions: ['all', 'back_status']
+  //     },
+  //     processing: {
+  //       forwardActions: ['all', 'status'],
+  //       backwardActions: ['all', 'back_status']
+  //     },
+  //     out_for_delivery: {
+  //       forwardActions: ['all', 'status'],
+  //       backwardActions: ['all', 'back_status']
+  //     },
+  //     delivered: {
+  //       actions: ['all', 'back_status'], // Can't go forward from delivered
+  //       allowedFrom: ['out_for_delivery']
+  //     },
+  //     canceled: {
+  //       actions: ['all', 'back_status'],
+  //       allowedFrom: ['pending', 'processing', 'out_for_delivery'],
+  //       requiresReason: true
+  //     },
+  //     // Admin-only status changes
+  //     refund: { actions: ['all'] },
+  //     returned: { actions: ['all'] },
+  //     faild_to_deliver: { actions: ['all'] }
+  //   };
+
+  //   // Check if the transition is allowed
+  //   let hasPermission = false;
+  //   if (hasOrderRole && statusPermissions[targetStatus]) {
+  //     // Determine required actions based on transition direction
+  //     let requiredActions;
+  //     if (isBackwardTransition) {
+  //       requiredActions = statusPermissions[targetStatus]?.backwardActions || ['all', 'back_status'];
+  //     } else {
+  //       // For forward transitions, use forwardActions if defined, otherwise default to status
+  //       requiredActions = statusPermissions[targetStatus]?.forwardActions || ['all', 'status'];
+  //     }
+
+  //     // Check if user has required action permissions
+  //     const hasActionPermission = auth.userState.user_positions.roles?.some(
+  //       (role) => role.role === "Order" &&
+  //         requiredActions.some(action =>
+  //           role.action === 'all' || role.action.includes(action)
+  //         )
+  //     );
+
+  //     // Check if transition from current status is allowed
+  //     const isTransitionAllowed = !statusPermissions[targetStatus].allowedFrom ||
+  //       statusPermissions[targetStatus].allowedFrom.includes(currentStatus);
+
+  //     hasPermission = hasActionPermission && isTransitionAllowed;
+  //   }
+
+  //   if (hasPermission) {
+  //     if (statusPermissions[targetStatus]?.requiresReason) {
+  //       setShowCancelModal(true);
+  //       setOrderStatusName(targetStatus);
+  //     }
+  //     else if (targetStatus === 'refund') {
+  //       setShowRefundModal(true);
+  //     } else {
+  //       // setShowReason(false);
+  //       handleChangeStaus(detailsData.id, '', targetStatus, '');
+  //     }
+  //   } else {
+  //     let errorMessage = "You don't have permission to change the order status";
+  //     auth.toastError(errorMessage);
+  //   }
+  // };
+
   const handleSelectOrderStatus = (selectedOption) => {
     console.log("selectedOption", selectedOption);
 
-    // Check if user has Order role
-    const hasOrderRole = auth.userState.user_positions.roles?.some(
-      (role) => role.role === "Order"
-    );
-
-    // Define the normal order flow progression
-    const statusFlow = ['pending', 'processing', 'out_for_delivery', 'delivered'];
-
-    const currentStatus = detailsData?.order_status;
     const targetStatus = selectedOption.name;
 
-    // Check if this is a backward transition
-    const currentIndex = statusFlow.indexOf(currentStatus);
-    const targetIndex = statusFlow.indexOf(targetStatus);
-    const isBackwardTransition = currentIndex >= 0 && targetIndex >= 0 && targetIndex < currentIndex;
-
-    // Define status transition rules and required permissions
+    // Define status transition rules
     const statusPermissions = {
-      // Basic status changes (require 'status' action)
-      pending: {
-        forwardActions: ['all', 'status'],
-        backwardActions: ['all', 'back_status']
-      },
-      processing: {
-        forwardActions: ['all', 'status'],
-        backwardActions: ['all', 'back_status']
-      },
-      out_for_delivery: {
-        forwardActions: ['all', 'status'],
-        backwardActions: ['all', 'back_status']
-      },
-      delivered: {
-        actions: ['all', 'back_status'], // Can't go forward from delivered
-        allowedFrom: ['out_for_delivery']
-      },
-      canceled: {
-        actions: ['all', 'back_status'],
-        allowedFrom: ['pending', 'processing', 'out_for_delivery'],
-        requiresReason: true
-      },
-      // Admin-only status changes
-      refund: { actions: ['all'] },
-      returned: { actions: ['all'] },
-      faild_to_deliver: { actions: ['all'] }
+      canceled: { requiresReason: true },
+      refund: {},
     };
 
-    // Check if the transition is allowed
-    let hasPermission = false;
-    if (hasOrderRole && statusPermissions[targetStatus]) {
-      // Determine required actions based on transition direction
-      let requiredActions;
-      if (isBackwardTransition) {
-        requiredActions = statusPermissions[targetStatus]?.backwardActions || ['all', 'back_status'];
-      } else {
-        // For forward transitions, use forwardActions if defined, otherwise default to status
-        requiredActions = statusPermissions[targetStatus]?.forwardActions || ['all', 'status'];
-      }
-
-      // Check if user has required action permissions
-      const hasActionPermission = auth.userState.user_positions.roles?.some(
-        (role) => role.role === "Order" &&
-          requiredActions.some(action =>
-            role.action === 'all' || role.action.includes(action)
-          )
-      );
-
-      // Check if transition from current status is allowed
-      const isTransitionAllowed = !statusPermissions[targetStatus].allowedFrom ||
-        statusPermissions[targetStatus].allowedFrom.includes(currentStatus);
-
-      hasPermission = hasActionPermission && isTransitionAllowed;
-    }
-
-    if (hasPermission) {
-      if (statusPermissions[targetStatus]?.requiresReason) {
-        setShowCancelModal(true);
-        setOrderStatusName(targetStatus);
-      }
-      else if (targetStatus === 'refund') {
-        setShowRefundModal(true);
-      } else {
-        // setShowReason(false);
-        handleChangeStaus(detailsData.id, '', targetStatus, '');
-      }
+    if (statusPermissions[targetStatus]?.requiresReason) {
+      setShowCancelModal(true);
+      setOrderStatusName(targetStatus);
+    } else if (targetStatus === 'refund') {
+      setShowRefundModal(true);
     } else {
-      let errorMessage = "You don't have permission to change the order status";
-      auth.toastError(errorMessage);
+      handleChangeStaus(detailsData.id, '', targetStatus, '');
     }
   };
-
 
   const handleOrderNumber = (id) => {
     if (!orderNumber) {
@@ -882,13 +902,18 @@ const DetailsOrderPage = () => {
                             'pending',
                             'processing',
                             'out_for_delivery',
-                            'delivered', 'canceled', 'refund', 'returned', 'faild_to_deliver'
+                            'delivered',
+                            'canceled',
+                            'refund',
+                            'returned',
+                            'faild_to_deliver'
                           ];
 
                           const currentStatus = detailsData?.order_status;
                           const currentIndex = statusOrder.indexOf(currentStatus);
 
-                          return [
+                          // Define all possible statuses
+                          const allStatuses = [
                             { name: 'pending', label: 'Pending', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
                             { name: 'processing', label: 'Processing', icon: 'M5 13l4 4L19 7' },
                             { name: 'out_for_delivery', label: 'Out for Delivery', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
@@ -897,7 +922,21 @@ const DetailsOrderPage = () => {
                             { name: 'refund', label: 'Refund', icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
                             { name: 'returned', label: 'Returned', icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15' },
                             { name: 'faild_to_deliver', label: 'Failed to Deliver', icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z' }
-                          ].map((status) => {
+                          ];
+
+                          // Filter statuses based on current status
+                          const filteredStatuses = allStatuses.filter(status => {
+                            if (currentStatus === 'delivered') {
+                              // Exclude 'canceled' and 'returned' when status is 'delivered'
+                              return !['canceled', 'returned'].includes(status.name);
+                            } else if (currentStatus === 'canceled') {
+                              // Exclude 'delivered', 'faild_to_deliver', and 'returned' when status is 'canceled'
+                              return !['delivered', 'faild_to_deliver', 'returned'].includes(status.name);
+                            }
+                            return true; // Include all statuses for other cases
+                          });
+
+                          return filteredStatuses.map((status) => {
                             const statusIndex = statusOrder.indexOf(status.name);
                             const isCurrent = currentStatus === status.name;
                             const isPrevious = statusIndex !== -1 && currentIndex > statusIndex;
@@ -974,7 +1013,7 @@ const DetailsOrderPage = () => {
                               handleChangeStaus(
                                 detailsData.id,
                                 "",
-                                orderStatusName, // Use the stored status name
+                                orderStatusName,
                                 cancelReason
                               );
                               setCancelReason("");
@@ -1089,7 +1128,6 @@ const DetailsOrderPage = () => {
                         </DialogPanel>
                       </div>
                     </Dialog>
-                    {/* Rest of your dialog and other components... */}
                   </div>
                 </div>
 

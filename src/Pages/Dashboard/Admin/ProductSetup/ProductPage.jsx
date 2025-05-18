@@ -149,43 +149,44 @@ const ProductPage = () => {
     setSelectedProductId(null);
   };
 
-  const tableContainerRef = useRef(null);
-  const tableRef = useRef(null);
-  const [showScrollHint, setShowScrollHint] = useState(false);
+       const tableContainerRef = useRef(null);
+       const tableRef = useRef(null);
+       const [showScrollHint, setShowScrollHint] = useState(false);
 
-  useEffect(() => {
-    const checkScroll = () => {
-      if (tableRef.current && tableContainerRef.current) {
-        const tableWidth = tableRef.current.scrollWidth;
-        const containerWidth = tableContainerRef.current.clientWidth;
-        const hasScroll = tableWidth > containerWidth;
-        setShowScrollHint(hasScroll);
-      }
-    };
+       useEffect(() => {
+              const checkScroll = () => {
+                     if (tableRef.current && tableContainerRef.current) {
+                            const tableWidth = tableRef.current.scrollWidth;
+                            const containerWidth = tableContainerRef.current.clientWidth;
+                            const hasScroll = tableWidth >= containerWidth;
+                            setShowScrollHint(hasScroll);
+                     }
+              };
 
-    checkScroll();
-    const timeoutId = setTimeout(checkScroll, 500);
-    const resizeObserver = new ResizeObserver(checkScroll);
+              checkScroll();
+              const timeoutId = setTimeout(checkScroll, 500);
+              const resizeObserver = new ResizeObserver(checkScroll);
 
-    if (tableContainerRef.current) {
-      resizeObserver.observe(tableContainerRef.current);
-    }
+              if (tableContainerRef.current) {
+                     resizeObserver.observe(tableContainerRef.current);
+              }
 
-    return () => {
-      clearTimeout(timeoutId);
-      resizeObserver.disconnect();
-    };
-  }, [filteredProducts, currentPage]);
+              return () => {
+                     clearTimeout(timeoutId);
+                     resizeObserver.disconnect();
+              };
+       }, [filteredProducts, currentPage]);
 
-  const scrollTable = (direction) => {
-    if (tableContainerRef.current) {
-      const scrollAmount = 300;
-      tableContainerRef.current.scrollBy({
-        left: direction === 'right' ? scrollAmount : -scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
+       const scrollTable = (direction) => {
+              if (tableContainerRef.current) {
+                     const scrollAmount = 300;
+                     tableContainerRef.current.scrollBy({
+                            left: direction === 'right' ? scrollAmount : -scrollAmount,
+                            behavior: 'smooth'
+                     });
+              }
+       };
+
 
   const headers = [
     "#",
@@ -198,7 +199,7 @@ const ProductPage = () => {
   ];
   return (
     <>
-      <div className="w-full flex flex-col gap-y-3">
+      <div className="w-full flex flex-col gap-y-3 relative">
         {/* Search Order */}
         <div className="sm:w-full lg:w-[70%] xl:w-[30%] mt-4">
           <SearchBar
@@ -276,12 +277,12 @@ const ProductPage = () => {
                   </tr>
                 </thead>
 
-                <tbody className="w-full">
+                <tbody>
                   {filteredProducts.length === 0 ? (
                     <tr>
                       <td
                         colSpan={12}
-                        className="text-center text-xl text-mainColor font-TextFontMedium  "
+                        className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base"
                       >
                         Not find products
                       </td>
@@ -292,20 +293,20 @@ const ProductPage = () => {
                         product,
                         index // Example with two rows
                       ) => (
-                        <tr className="w-full border-b-2" key={index}>
-                          <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                        <tr className="border-b-2" key={index}>
+                          <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
                             {(currentPage - 1) * productsPerPage + index + 1}
                           </td>
                           <td
                             onClick={() => handleProductClick(product.id)}
-                            className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-blue-600 cursor-pointer hover:underline text-sm sm:text-base lg:text-lg xl:text-xl"
+                            className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base"
                           >
                             {product.name}
                           </td>
-                          <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                          <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
                             {product?.price || "-"}
                           </td>
-                          <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 overflow-hidden">
+                          <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
                             <div className="flex justify-center">
                               <img
                                 src={product.image_link}
@@ -314,10 +315,10 @@ const ProductPage = () => {
                               />
                             </div>
                           </td>
-                          <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                          <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
                             {product.category?.name ? product.category?.name : product.sub_category?.name}
                           </td>
-                          <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                          <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
                             {product.discount?.name || "-"}
                           </td>
 
