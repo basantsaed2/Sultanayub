@@ -27,42 +27,46 @@ export const useChangeState = () => {
         auth.toastSuccess(name);
         return true; // Return true on success
       }
-    } 
+    }
     // catch (error) {
     //   auth.toastError(error.message);
     //   console.error('Error changing state:', error);
     //   return false; // Return false on error
     // } 
-     catch (error) {
-                     console.error('Error post JSON:', error);
-                   
-                     // Check if the error response contains 'errors' or just a message
-                     if (error?.response?.data?.errors) {
-                       // Check if errors are an object (field-based errors)
-                       if (typeof error.response.data.errors === 'object') {
-                         Object.entries(error.response.data.errors).forEach(([field, messages]) => {
-                           // If messages is an array, loop through them
-                           if (Array.isArray(messages)) {
-                             messages.forEach(message => {
-                               auth.toastError(message); // Display the error messages
-                             });
-                           } else {
-                             // If it's not an array, display the message directly
-                             auth.toastError(messages);
-                           }
-                         });
-                       } else {
-                         // If errors is not an object, assume it's just a message
-                         auth.toastError(error.response.data.errors);
-                       }
-                     } else if (error?.response?.data?.message) {
-                       // If there's a general message outside of the 'errors' object
-                       auth.toastError(error.response.data.message); // Display the general error message
-                     } else {
-                       // If no specific error messages are found, just display a fallback message
-                       auth.toastError('An unknown error occurred.');
-                     }
-                   }
+    catch (error) {
+      console.error('Error post JSON:', error);
+
+      if (error?.response?.data?.errors === "You can't change status") {
+        throw error; // Let the component handle this specific error
+      }
+
+      // Check if the error response contains 'errors' or just a message
+      if (error?.response?.data?.errors) {
+        // Check if errors are an object (field-based errors)
+        if (typeof error.response.data.errors === 'object') {
+          Object.entries(error.response.data.errors).forEach(([field, messages]) => {
+            // If messages is an array, loop through them
+            if (Array.isArray(messages)) {
+              messages.forEach(message => {
+                auth.toastError(message); // Display the error messages
+              });
+            } else {
+              // If it's not an array, display the message directly
+              auth.toastError(messages);
+            }
+          });
+        } else {
+          // If errors is not an object, assume it's just a message
+          auth.toastError(error.response.data.errors);
+        }
+      } else if (error?.response?.data?.message) {
+        // If there's a general message outside of the 'errors' object
+        auth.toastError(error.response.data.message); // Display the general error message
+      } else {
+        // If no specific error messages are found, just display a fallback message
+        auth.toastError('An unknown error occurred.');
+      }
+    }
     finally {
       setLoadingChange(false);
     }

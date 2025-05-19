@@ -17,12 +17,12 @@ const App = () => {
   const [allCount, setAllCount] = useState(0);
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const {
-      refetch: refetchCountOrders,
-      loading,
-      data: dataCountOrders,
-    } = useGet({
-      url: `${apiUrl}/admin/order/count`,
-    });
+    refetch: refetchCountOrders,
+    loading,
+    data: dataCountOrders,
+  } = useGet({
+    url: `${apiUrl}/admin/order/count`,
+  });
   const { refetch: refetchSong, loading: loadingSong, data: dataSong } = useGet({
     url: `${apiUrl}/admin/settings/notification_sound`,
   });
@@ -42,7 +42,7 @@ const App = () => {
     refetchSong();
   }, [refetchSong]);
 
-   useEffect(() => {
+  useEffect(() => {
     refetchCountOrders();
   }, [refetchCountOrders]);
 
@@ -89,29 +89,30 @@ const App = () => {
     setIsOpen(newOrders?.count > 0);
   }, [newOrders]);
 
-   const counters = {
-      ordersAll: dataCountOrders?.orders || 0,
-      ordersPending: dataCountOrders?.pending || 0,
-      ordersConfirmed: dataCountOrders?.confirmed || 0,
-      ordersProcessing: dataCountOrders?.processing || 0,
-      ordersOutForDelivery: dataCountOrders?.out_for_delivery || 0,
-      ordersDelivered: dataCountOrders?.delivered || 0,
-      ordersReturned: dataCountOrders?.returned || 0,
-      ordersFailed: dataCountOrders?.faild_to_deliver || 0,
-      ordersCanceled: dataCountOrders?.canceled || 0,
-      ordersSchedule: dataCountOrders?.scheduled || 0,
-    };
-  
-    useEffect(() => {
-      if (dataCountOrders) {
-        setAllCount(dataCountOrders.orders);
-      }
+  const counters = {
+    ordersAll: dataCountOrders?.orders || 0,
+    ordersPending: dataCountOrders?.pending || 0,
+    ordersConfirmed: dataCountOrders?.confirmed || 0,
+    ordersProcessing: dataCountOrders?.processing || 0,
+    ordersOutForDelivery: dataCountOrders?.out_for_delivery || 0,
+    ordersDelivered: dataCountOrders?.delivered || 0,
+    ordersReturned: dataCountOrders?.returned || 0,
+    ordersFailed: dataCountOrders?.faild_to_deliver || 0,
+    ordersCanceled: dataCountOrders?.canceled || 0,
+    ordersSchedule: dataCountOrders?.scheduled || 0,
+    ordersRefund: dataCountOrders?.refund || 0,
+  };
+
+  useEffect(() => {
+    if (dataCountOrders) {
+      setAllCount(dataCountOrders.orders);
     }
+  }
     , [dataCountOrders]);
 
-     // Poll the notification endpoint every 8 seconds
+  // Poll the notification endpoint every 8 seconds
   useEffect(() => {
-    if(!allCount) return; // Exit if ordersAll is not available
+    if (!allCount) return; // Exit if ordersAll is not available
     const interval = setInterval(() => {
       console.log("Sending request to notification endpoint...");
       const formData = new FormData();
@@ -120,11 +121,11 @@ const App = () => {
     }, 8000);
 
     return () => clearInterval(interval); // Cleanup interval
-  }, [ordersAll, postData,loading,dataCountOrders]);
+  }, [ordersAll, postData, loading, dataCountOrders]);
 
-   useEffect(() => {
-    if(loadingPost && response) return; // Exit if ordersAll is not available
-      refetchCountOrders();
+  useEffect(() => {
+    if (loadingPost && response) return; // Exit if ordersAll is not available
+    refetchCountOrders();
   }, [response]);
 
   return (

@@ -87,6 +87,7 @@ const HomePage = () => {
   const ordersOutForDeliveryCount = useSelector(state => state.ordersOutForDelivery.data);
   const ordersDeliveredCount = useSelector(state => state.ordersDelivered.data);
   const ordersReturnedCount = useSelector(state => state.ordersReturned.data);
+  const ordersRefundCount = useSelector(state => state.ordersRefund.data);
   const ordersFailedCount = useSelector(state => state.ordersFailed.data);
   const ordersCanceledCount = useSelector(state => state.ordersCanceled.data);
   const ordersScheduleCount = useSelector(state => state.ordersSchedule.data);
@@ -120,6 +121,7 @@ const HomePage = () => {
   ordersOutForDelivery: ordersAllCount.filter(order => order.order_status === "out_for_delivery").length,
   ordersDelivered: ordersAllCount.filter(order => order.order_status === "delivered").length,
   ordersReturned: ordersAllCount.filter(order => order.order_status === "returned").length,
+  ordersRefund: ordersAllCount.filter(order => order.order_status === "refund").length,
   ordersFailed: ordersAllCount.filter(order => order.order_status === "failed_to_deliver").length,
   ordersCanceled: ordersAllCount.filter(order => order.order_status === "canceled").length,
   ordersSchedule: ordersAllCount.filter(order => order.order_status === "scheduled").length,

@@ -41,6 +41,10 @@ const initialOrdersReturnedState = {
        data: [],
        loading: false,
 };
+const initialOrdersRefundState = {
+       data: [],
+       loading: false,
+};
 const initialOrdersFailedState = {
        data: [],
        loading: false,
@@ -222,6 +226,22 @@ const ordersReturnedSlice = createSlice({
               },
        },
 });
+// ordersRefund slice
+const ordersRefundSlice = createSlice({
+       name: "ordersRefund",
+       initialState: initialOrdersRefundState,
+       reducers: {
+              setOrdersRefund: (state, action) => {
+                     console.log("Setting Orders Refund:", action.payload);
+                     state.data = action.payload; // Update orders data
+                     state.loading = false; // Set loading to false when data is set
+              },
+              setLoading: (state, action) => {
+                     console.log("Setting Loading ordersRefund State:", action.payload);
+                     state.loading = action.payload; // Update loading state
+              },
+       },
+});
 // ordersFailed slice
 const ordersFailedSlice = createSlice({
        name: "ordersFailed",
@@ -273,30 +293,30 @@ const ordersScheduleSlice = createSlice({
 
 // Add this with your other initial states
 const initialCanceledOrdersState = {
-  orders: [], // Array of order IDs
-  count: 0,   // Total count for badge
+       orders: [], // Array of order IDs
+       count: 0,   // Total count for badge
 };
 
 // Add this with your other slices
 const canceledOrdersSlice = createSlice({
-  name: "canceledOrders",
-  initialState: initialCanceledOrdersState,
-  reducers: {
-    addCanceledOrder: (state, action) => {
-      if (!state.orders.includes(action.payload)) {
-        state.orders.push(action.payload);
-        state.count = state.orders.length;
-      }
-    },
-    removeCanceledOrder: (state, action) => {
-      state.orders = state.orders.filter(id => id !== action.payload);
-      state.count = state.orders.length;
-    },
-    clearCanceledOrders: (state) => {
-      state.orders = [];
-      state.count = 0;
-    },
-  },
+       name: "canceledOrders",
+       initialState: initialCanceledOrdersState,
+       reducers: {
+              addCanceledOrder: (state, action) => {
+                     if (!state.orders.includes(action.payload)) {
+                            state.orders.push(action.payload);
+                            state.count = state.orders.length;
+                     }
+              },
+              removeCanceledOrder: (state, action) => {
+                     state.orders = state.orders.filter(id => id !== action.payload);
+                     state.count = state.orders.length;
+              },
+              clearCanceledOrders: (state) => {
+                     state.orders = [];
+                     state.count = 0;
+              },
+       },
 });
 
 
@@ -318,6 +338,7 @@ export const OrdersComponent = () => {
               dispatch(ordersOutForDeliverySlice.actions.setLoading(loading));
               dispatch(ordersDeliveredSlice.actions.setLoading(loading));
               dispatch(ordersReturnedSlice.actions.setLoading(loading));
+              dispatch(ordersRefundSlice.actions.setLoading(loading));
               dispatch(ordersFailedSlice.actions.setLoading(loading));
               dispatch(ordersCanceledSlice.actions.setLoading(loading));
               dispatch(ordersScheduleSlice.actions.setLoading(loading));
@@ -336,6 +357,7 @@ export const OrdersComponent = () => {
                      dispatch(ordersOutForDeliverySlice.actions.setOrdersOutForDelivery(dataOrders.out_for_delivery));
                      dispatch(ordersDeliveredSlice.actions.setOrdersDelivered(dataOrders.delivered));
                      dispatch(ordersReturnedSlice.actions.setOrdersReturned(dataOrders.returned));
+                     dispatch(ordersRefundSlice.actions.setOrdersRefund(dataOrders.refund));
                      dispatch(ordersFailedSlice.actions.setOrdersFailed(dataOrders.faild_to_deliver));
                      dispatch(ordersCanceledSlice.actions.setOrdersCanceled(dataOrders.canceled));
                      dispatch(ordersScheduleSlice.actions.setOrdersSchedule(dataOrders.scheduled));
@@ -383,6 +405,7 @@ export const { setOrdersProcessing } = ordersProcessingSlice.actions;
 export const { setOrdersOutForDelivery } = ordersOutForDeliverySlice.actions;
 export const { setOrdersDelivered } = ordersDeliveredSlice.actions;
 export const { setOrdersReturned } = ordersReturnedSlice.actions;
+export const { setOrdersRefund } = ordersRefundSlice.actions;
 export const { setOrdersFailed } = ordersFailedSlice.actions;
 export const { setOrdersCanceled } = ordersCanceledSlice.actions;
 export const { setOrdersSchedule } = ordersScheduleSlice.actions;
@@ -400,6 +423,7 @@ export const ordersProcessingReducer = ordersProcessingSlice.reducer;
 export const ordersOutForDeliveryReducer = ordersOutForDeliverySlice.reducer;
 export const ordersDeliveredReducer = ordersDeliveredSlice.reducer;
 export const ordersReturnedReducer = ordersReturnedSlice.reducer;
+export const ordersRefundReducer = ordersRefundSlice.reducer;
 export const ordersFailedReducer = ordersFailedSlice.reducer;
 export const ordersCanceledReducer = ordersCanceledSlice.reducer;
 export const ordersScheduleReducer = ordersScheduleSlice.reducer;

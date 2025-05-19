@@ -55,6 +55,9 @@ const DetailsOrderPage = () => {
 
   const [orderNumber, setOrderNumber] = useState("");
 
+
+  const [showStatusModal, setShowStatusModal] = useState(false);
+
   const auth = useAuth();
 
   const [openReceipt, setOpenReceipt] = useState(null);
@@ -227,30 +230,6 @@ const DetailsOrderPage = () => {
 
   // const handleSelectOrderStatus = (selectedOption) => {
   //   console.log("selectedOption", selectedOption);
-  //   const hasOrderPermission = auth.userState.user_positions.roles?.some(
-  //     (perm) => perm.role === "Order"
-  //   );
-  //   console.log("hasOrderPermission", hasOrderPermission);
-  //   const hasValidAction = auth.userState.user_positions.roles?.some(
-  //     (action) => action.action === "all" || action.action === "back_status"
-  //   );
-
-  //   if (hasOrderPermission && hasValidAction) {
-  //     if (selectedOption.name === 'canceled') {
-  //       setShowReason(true)
-  //       setOrderStatusName(selectedOption.name);
-  //     } else {
-  //       setShowReason(false);
-  //       setOrderStatusName(selectedOption.name);
-  //       handleChangeStaus(detailsData.id, '', selectedOption.name, '');
-  //     }
-  //   } else {
-  //     auth.toastError("You don't have permission to change the order status");
-  //   }
-  // };
-
-  // const handleSelectOrderStatus = (selectedOption) => {
-  //   console.log("selectedOption", selectedOption);
 
   //   // Check if user has Order role
   //   const hasOrderRole = auth.userState.user_positions.roles?.some(
@@ -397,6 +376,9 @@ const DetailsOrderPage = () => {
       }
     } catch (error) {
       console.error("Error changing status:", error);
+      if (error?.response?.data?.errors === "You can't change status") {
+        setShowStatusModal(true);
+      }
     }
   };
 
@@ -915,7 +897,7 @@ const DetailsOrderPage = () => {
                           // Define all possible statuses
                           const allStatuses = [
                             { name: 'pending', label: 'Pending', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
-                            { name: 'processing', label: 'Processing', icon: 'M5 13l4 4L19 7' },
+                            { name: 'processing', label: 'Accept', icon: 'M5 13l4 4L19 7' },
                             { name: 'out_for_delivery', label: 'Out for Delivery', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
                             { name: 'delivered', label: 'Delivered', icon: 'M5 13l4 4L19 7' },
                             { name: 'canceled', label: 'Canceled', icon: 'M6 18L18 6M6 6l12 12' },
@@ -932,6 +914,8 @@ const DetailsOrderPage = () => {
                             } else if (currentStatus === 'canceled') {
                               // Exclude 'delivered', 'faild_to_deliver', and 'returned' when status is 'canceled'
                               return !['delivered', 'faild_to_deliver', 'returned'].includes(status.name);
+                            } else if (currentStatus !== 'pending') {
+                              return !['pending'].includes(status.name);
                             }
                             return true; // Include all statuses for other cases
                           });
@@ -1276,6 +1260,73 @@ const DetailsOrderPage = () => {
                 )}
 
               </div>
+
+              {/* Processing Order Modal */}
+              {showStatusModal && (
+                <div className="fixed inset-0 z-50 overflow-y-auto">
+                  <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    {/* Background overlay */}
+                    <div
+                      className="fixed inset-0 transition-opacity"
+                      aria-hidden="true"
+                      onClick={() => setShowStatusModal(false)}
+                    >
+                      <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+                    </div>
+
+                    {/* Modal container */}
+                    <span
+                      className="hidden sm:inline-block sm:align-middle sm:h-screen"
+                      aria-hidden="true"
+                    >
+                      &#8203;
+                    </span>
+
+                    {/* Modal content */}
+                    <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                      <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div className="sm:flex sm:items-start">
+                          <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <svg
+                              className="h-6 w-6 text-red-600"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                              />
+                            </svg>
+                          </div>
+                          <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 className="text-lg leading-6 font-medium text-gray-900">
+                              Order in Use by Another Person
+                            </h3>
+                            <div className="mt-2">
+                              <p className="text-sm text-gray-500">
+                                Someone else is currently working on this order. Please wait until they finish before proceeding to avoid conflicts or duplication.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button
+                          type="button"
+                          onClick={() => setShowStatusModal(false)}
+                          className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-mainColor text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm"
+                        >
+                          Ok
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
             </div>
           )}
         </>

@@ -1,14 +1,17 @@
 import { useEffect, useState, useRef } from "react";
-import { LoaderLogin, SearchBar } from "../../../../../Components/Components";
-import { useSelector } from "react-redux";
-import { BiSolidShow } from "react-icons/bi";
-import { Link } from "react-router-dom";
-import { FaFileInvoice, FaWhatsapp } from "react-icons/fa";
+import { useSelector } from 'react-redux';
+import { LoaderLogin, SearchBar } from '../../../../../Components/Components';
+import { BiSolidShow } from 'react-icons/bi';
+import { FaFileInvoice } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { FaCopy, FaWhatsapp } from "react-icons/fa";
+import { useAuth } from "../../../../../Context/Auth"; // Make sure to import useAuth if required
 
-const AllOrdersPage = () => {
+const RefundOrdersPage = () => {
+  const auth = useAuth();
 
-  const ordersAll = useSelector((state) => state.ordersAll);
-  const [textSearch, setTextSearch] = useState("");
+  const ordersRefund = useSelector((state) => state.ordersRefund);
+  const [textSearch, setTextSearch] = useState('');
   const [filteredOrders, setFilteredOrders] = useState([]);
 
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
@@ -29,51 +32,39 @@ const AllOrdersPage = () => {
   };
 
   useEffect(() => {
-    if (Array.isArray(ordersAll.data)) {
-      setFilteredOrders(ordersAll.data);
-      console.log("ordersAll", ordersAll.data);
+    if (Array.isArray(ordersRefund.data)) {
+      setFilteredOrders(ordersRefund.data)
+      console.log('ordersRefund', ordersRefund.data);
     } else {
-      console.log("ordersAll data is not an array or is undefined");
+      console.log('ordersRefund data is not an array or is undefined');
     }
-  }, [ordersAll.data]);
+  }, [ordersRefund.data]);
 
   const handleFilterData = (e) => {
     const text = e.target.value.trim();
     setTextSearch(text);
 
-    if (!ordersAll?.data || !Array.isArray(ordersAll.data)) {
-      console.error("Invalid orders data:", ordersAll.data);
+    if (!ordersRefund?.data || !Array.isArray(ordersRefund.data)) {
+      console.error('Invalid orders data:', ordersRefund.data);
       return;
     }
 
-    if (text === "") {
-      setFilteredOrders(ordersAll.data); // Reset if input is empty
+    if (text === '') {
+      setFilteredOrders(ordersRefund.data); // Reset if input is empty
     } else {
-      console.log("Filtering for text:", text);
+      console.log('Filtering for text:', text);
 
-      const filter = ordersAll.data.filter(
-        (order) =>
-          order.id.toString().startsWith(text) || // Matches if order.id starts with the text
-          (order.order_status || "-")
-            .toLowerCase()
-            .startsWith(text.toLowerCase()) // Matches if order_status starts with the text
+      const filter = ordersRefund.data.filter((order) =>
+        order.id.toString().startsWith(text) || // Matches if order.id starts with the text
+        (order.order_status || '-').toLowerCase().startsWith(text.toLowerCase()) // Matches if order_status starts with the text
       );
 
-      setFilteredOrders(filter); // Update state
-      console.log("Filtered orders:", filter); // Debugging
-    }
-  };
-  {/**
-         const handleCopy = (phone) => {
-    if (!phone) return;
 
-    navigator.clipboard
-      .writeText(phone)
-      .then(() => {
-        auth.toastSuccess("Phone number copied!"); // Use auth.toastSuccess()
-      })
-      .catch((err) => console.error("Failed to copy:", err));
-  }; */}
+      setFilteredOrders(filter); // Update state
+      console.log('Filtered orders:', filter); // Debugging
+    }
+
+  };
 
   const tableContainerRef = useRef(null);
   const tableRef = useRef(null);
@@ -114,21 +105,21 @@ const AllOrdersPage = () => {
   };
 
   const headers = [
-    "SL",
-    "Order ID",
-    "Delivery Date",
-    "Customer Info",
-    "Branch",
-    "Total Price",
-    "Order Status",
+    'SL',
+    'Order ID',
+    'Delivery Date',
+    'Customer Info',
+    'Branch',
+    "Total Amount",
+    'Order Status',
     "Operations Status",
     "Operations Admin",
-    "Order Type",
-    "Actions",
+    'Order Type',
+    'Actions'
   ];
   return (
     <>
-      <div className="w-full flex flex-col gap-y-3">
+      <div className="w-full flex flex-col gap-y-3 relative">
         {/* Search Order */}
         <div className="sm:w-full lg:w-[70%] xl:w-[30%] mt-4">
           <SearchBar
@@ -140,7 +131,7 @@ const AllOrdersPage = () => {
 
         {/* Scroll Controls */}
         {showScrollHint && (
-          <div className="sticky top-0 z-10 bg-white py-2 flex justify-between items-center shadow-sm mb-2">
+          <div className="sticky top-0 z-20 bg-white py-2 flex justify-between items-center shadow-sm mb-2">
             <button
               onClick={() => scrollTable('left')}
               className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition"
@@ -183,12 +174,12 @@ const AllOrdersPage = () => {
           </div>
         )}
 
-        {/* Table Container - Simplified structure */}
+        {/* Table Container */}
         <div
           className="w-full pb-28 overflow-x-auto relative"
           ref={tableContainerRef}
         >
-          {ordersAll.loading ? (
+          {ordersRefund.loading ? (
             <LoaderLogin />
           ) : (
             <>
@@ -205,7 +196,6 @@ const AllOrdersPage = () => {
                     ))}
                   </tr>
                 </thead>
-
                 {/* Table Body */}
                 <tbody>
                   {filteredOrders.length === 0 ? (
@@ -222,9 +212,7 @@ const AllOrdersPage = () => {
                       <tr key={index} className="border-b">
                         {/* Row Index */}
                         <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
-                          {(currentPage - 1) * filteredOrdersPerPage +
-                            index +
-                            1}
+                          {(currentPage - 1) * filteredOrdersPerPage + index + 1}
                         </td>
 
                         {/* Order ID */}
@@ -240,18 +228,15 @@ const AllOrdersPage = () => {
                         {/* Order Date */}
                         <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
                           {order?.created_at
-                            ? new Date(order.created_at).toLocaleDateString(
-                              "en-US",
-                              {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                hour12: true,
-                              }
-                            )
-                            : "-"}
+                            ? new Date(order.created_at).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              hour12: true,
+                            })
+                            : ''}
                         </td>
 
                         {/* User Information */}
@@ -275,7 +260,6 @@ const AllOrdersPage = () => {
                             )}
                           </div>
                         </td>
-
                         {/* Branch */}
                         <td className="px-4 py-2 text-center text-sm lg:text-base">
                           <span className="text-cyan-500 bg-cyan-200 rounded-md px-2 py-1">
@@ -291,19 +275,19 @@ const AllOrdersPage = () => {
                         {/* Order Status */}
                         <td className="px-4 py-2 text-center">
                           <span
-                            className={`rounded-md px-2 py-1 text-sm ${order?.order_status === "pending"
-                              ? "bg-amber-200 text-amber-500"
-                              : order?.order_status === "confirmed"
-                                ? "bg-green-200 text-green-500"
-                                : order?.order_status === "canceled"
-                                  ? "bg-red-200 text-red-500"
-                                  : "bg-gray-200 text-gray-500"
+                            className={`rounded-md px-2 py-1 text-sm ${order?.order_status === 'pending'
+                              ? 'bg-amber-200 text-amber-500'
+                              : order?.order_status === 'confirmed'
+                                ? 'bg-green-200 text-green-500'
+                                : order?.order_status === 'canceled'
+                                  ? 'bg-red-200 text-red-500'
+                                  : 'bg-gray-200 text-gray-500'
                               }`}
                           >
-                            {order?.order_status || "-"}
+                            {order?.order_status || '-'}
                           </span>
                         </td>
-        
+
                         {/* Status Operations */}
                         <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
                           {order.operation_status || "-"}
@@ -316,14 +300,14 @@ const AllOrdersPage = () => {
                         {/* Order Type */}
                         <td className="px-4 py-2 text-center">
                           <span
-                            className={`rounded-md px-2 py-1 text-sm ${order?.order_type === "delivery"
-                              ? "bg-green-300 text-green-500"
-                              : order?.order_type === "pickup"
-                                ? "bg-blue-300 text-blue-500"
-                                : "bg-gray-200 text-gray-500"
+                            className={`rounded-md px-2 py-1 text-sm ${order?.order_type === 'delivery'
+                              ? 'bg-green-300 text-green-500'
+                              : order?.order_type === 'pickup'
+                                ? 'bg-blue-300 text-blue-500'
+                                : 'bg-gray-200 text-gray-500'
                               }`}
                           >
-                            {order?.order_type || "-"}
+                            {order?.order_type || '-'}
                           </span>
                         </td>
 
@@ -354,9 +338,11 @@ const AllOrdersPage = () => {
             </>
           )}
         </div>
-      </div>
-    </>
-  );
-};
 
-export default AllOrdersPage;
+      </div>
+
+    </>
+  )
+}
+
+export default RefundOrdersPage;

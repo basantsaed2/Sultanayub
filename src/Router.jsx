@@ -71,6 +71,7 @@ import {
   AddRoleLayout,
   ScheduleTimeLayout,
   EditScheduleTimeLayout,
+  RefundOrdersLayout,
 } from "./layouts/Layouts";
 import ProtectedLogin from "./ProtectedData/ProtectedLogin";
 import NotFoundPage from "./Pages/NotFoundPage/NotFoundPage";
@@ -91,7 +92,7 @@ const OrderLayout = () => {
     <Outlet />
   );
 };
-const AppBranchCategoryLayout= () => {
+const AppBranchCategoryLayout = () => {
   return (
     <Outlet />
   );
@@ -121,13 +122,13 @@ export const router = createBrowserRouter([
       }
     ]
   },
-{/** 
+  {/** 
     {
     path: "/product/:id",
     element: <ToggleItems />
   },
   */},
-    /* Dashboard or main app routes after login */
+  /* Dashboard or main app routes after login */
   {
     path: "/dashboard",
     element: <ProtectedLogin />,
@@ -212,7 +213,7 @@ export const router = createBrowserRouter([
               {
                 path: 'branch_category/:branchId',
                 element: <AppBranchCategoryLayout />,
-                children:[
+                children: [
                   {
                     path: '',
                     element: <BranchCategoryLayout />,
@@ -251,7 +252,7 @@ export const router = createBrowserRouter([
                   {
                     path: "edit/:roleId",
                     element: <EditRolePage />
-                  }                ]
+                  }]
               },
               {
                 path: 'payment_method',
@@ -311,7 +312,7 @@ export const router = createBrowserRouter([
                   }
                 ]
               },
-               {
+              {
                 path: 'schedule_time',
                 children: [
                   {
@@ -583,7 +584,7 @@ export const router = createBrowserRouter([
               {
                 path: "edit/:emailId",
                 element: <EditEmailPage />
-              }                ]
+              }]
           },
 
           {
@@ -618,6 +619,10 @@ export const router = createBrowserRouter([
               {
                 path: 'returned',
                 element: <ReturnedOrdersLayout />
+              },
+              {
+                path: 'refund',
+                element: <RefundOrdersLayout />
               },
               {
                 path: 'failed',

@@ -137,3 +137,5 @@ export { default as FailedOrdersLayout } from "./Dashboard/Orders/FailedOrders/F
 export { default as CanceledOrdersLayout } from "./Dashboard/Orders/CanceledOrders/CanceledOrdersLayout";
 // Orders -> Schedule Orders
 export { default as ScheduleOrdersLayout } from "./Dashboard/Orders/ScheduleOrders/ScheduleOrdersLayout";
+// Orders -> Schedule Orders
+export { default as RefundOrdersLayout } from "./Dashboard/Orders/RefundOrders/RefundOrdersLayout";

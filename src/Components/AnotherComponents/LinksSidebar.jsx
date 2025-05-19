@@ -41,14 +41,15 @@ const routes = [
     subRoutes: [
       { name: "All", path: "/dashboard/orders/all", countKey: "ordersAll" },
       { name: "Pending", path: "/dashboard/orders/pending", countKey: "ordersPending" },
-      // { name: "Confirmed", path: "/dashboard/orders/confirmed", countKey: "ordersConfirmed" },
+      { name: "Accept", path: "/dashboard/orders/confirmed", countKey: "ordersConfirmed" },
       { name: "Processing", path: "/dashboard/orders/processing", countKey: "ordersProcessing" },
       { name: "OutForDelivery", path: "/dashboard/orders/out_for_delivery", countKey: "ordersOutForDelivery" },
       { name: "Delivered", path: "/dashboard/orders/delivered", countKey: "ordersDelivered" },
       { name: "Returned", path: "/dashboard/orders/returned", countKey: "ordersReturned" },
+      { name: "Refund", path: "/dashboard/orders/refund", countKey: "ordersRefund" },
       { name: "Failed", path: "/dashboard/orders/failed", countKey: "ordersFailed" },
       { name: "Canceled", path: "/dashboard/orders/canceled", countKey: "ordersCanceled" },
-      { name: "Schedule", path: "/dashboard/orders/schedule", countKey: "ordersSchedule" },
+      // { name: "Schedule", path: "/dashboard/orders/schedule", countKey: "ordersSchedule" },
       { name: "Log", path: "/dashboard/orders/log" },
     ],
     redirectTo: "/dashboard/orders/all",
@@ -214,6 +215,7 @@ const LinksSidebar = () => {
   const ordersOutForDeliveryCount = useSelector((state) => state.ordersOutForDelivery.data);
   const ordersDeliveredCount = useSelector((state) => state.ordersDelivered.data);
   const ordersReturnedCount = useSelector((state) => state.ordersReturned?.data || 0);
+  const ordersRefundCount = useSelector((state) => state.ordersRefund?.data || 0);
   const ordersFailedCount = useSelector((state) => state.ordersFailed?.data || 0);
   const ordersCanceledCount = useSelector((state) => state.ordersCanceled?.data || 0);
   const ordersScheduleCount = useSelector((state) => state.ordersSchedule?.data || 0);
@@ -227,6 +229,7 @@ const LinksSidebar = () => {
       ordersOutForDelivery: ordersOutForDeliveryCount.length,
       ordersDelivered: ordersDeliveredCount.length,
       ordersReturned: ordersReturnedCount.length,
+      ordersRefund: ordersRefundCount.length,
       ordersFailed: ordersFailedCount.length,
       ordersCanceled: ordersCanceledCount.length,
       ordersSchedule: ordersScheduleCount.length,
@@ -239,6 +242,7 @@ const LinksSidebar = () => {
       ordersOutForDeliveryCount,
       ordersDeliveredCount,
       ordersReturnedCount,
+      ordersRefundCount,
       ordersFailedCount,
       ordersCanceledCount,
       ordersScheduleCount,
@@ -339,9 +343,8 @@ const LinksSidebar = () => {
       >
         <div className="flex items-center gap-x-2">
           <Icon
-            className={`${
-              isActive || isHovered ? "text-[#9E090F]" : "text-[#fff]"
-            } text-2xl ${route.name === "Delivery Man" ? "text-3xl" : ""}`}
+            className={`${isActive || isHovered ? "text-[#9E090F]" : "text-[#fff]"
+              } text-2xl ${route.name === "Delivery Man" ? "text-3xl" : ""}`}
           />
           <span
             className={`

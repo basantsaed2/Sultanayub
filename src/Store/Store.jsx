@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import { userReducer, categoryReducer, ordersAllReducer, ordersPendingReducer, ordersConfirmedReducer, ordersProcessingReducer, ordersOutForDeliveryReducer, ordersDeliveredReducer, ordersReturnedReducer, ordersFailedReducer, ordersCanceledReducer, ordersScheduleReducer, newOrdersReducer, soundNotificationReducer } from "./CreateSlices";
+import { userReducer, categoryReducer, ordersAllReducer, ordersPendingReducer, ordersConfirmedReducer, ordersProcessingReducer, ordersOutForDeliveryReducer, ordersDeliveredReducer, ordersReturnedReducer, ordersRefundReducer, ordersFailedReducer, ordersCanceledReducer, ordersScheduleReducer, newOrdersReducer, soundNotificationReducer } from "./CreateSlices";
 import { combineReducers } from 'redux';
 import { canceledOrdersReducer } from "./CreateSlices";
 
@@ -17,6 +17,7 @@ const reducers = combineReducers({
        ordersOutForDelivery: ordersOutForDeliveryReducer,
        ordersDelivered: ordersDeliveredReducer,
        ordersReturned: ordersReturnedReducer,
+       ordersRefund: ordersRefundReducer,
        ordersFailed: ordersFailedReducer,
        ordersCanceled: ordersCanceledReducer,
        ordersSchedule: ordersScheduleReducer,
@@ -30,7 +31,7 @@ const reducers = combineReducers({
 const persistConfig = {
        key: 'root',
        storage,
-  whitelist: ['userSultanAyub', 'canceledOrders'], // Add canceledOrders to persisted state
+       whitelist: ['userSultanAyub', 'canceledOrders'], // Add canceledOrders to persisted state
 };
 
 const persistedReducer = persistReducer(persistConfig, reducers);

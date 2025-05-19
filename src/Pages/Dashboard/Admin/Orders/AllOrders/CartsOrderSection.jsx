@@ -1,5 +1,6 @@
 import { Cart } from '../../../../../Components/Components'
-import { CanceledIcon, ConfirmedIcon, DeliveredIcon, FailedToDeliverIcon, OutForDeliveryIcon, PendingIcon, ProcessingIcon, ReturnedIcon } from '../../../../../Assets/Icons/AllIcons'
+import { CanceledIcon, ConfirmedIcon, DeliveredIcon, FailedToDeliverIcon, OutForDeliveryIcon, PendingIcon, ReturnedIcon ,ProcessingIcon } from '../../../../../Assets/Icons/AllIcons'
+import { RiRefund2Line } from "react-icons/ri";
 
 const CartsOrderSection = ({ ordersNum }) => {
   console.log('ordersNum', ordersNum)
@@ -12,12 +13,12 @@ const CartsOrderSection = ({ ordersNum }) => {
           title={'Pending'}
           count={ordersNum.ordersPending || 0}
         />
-        {/* <Cart
+        <Cart
           route={'/dashboard/orders/confirmed'}
           icon={<ConfirmedIcon />}
-          title={'Confirmed'}
+          title={'Accept'}
           count={ordersNum.ordersConfirmed || 0}
-        /> */}
+        />
         <Cart
           route={'/dashboard/orders/processing'}
           icon={<ProcessingIcon />}
@@ -47,6 +48,12 @@ const CartsOrderSection = ({ ordersNum }) => {
           icon={<ReturnedIcon />}
           title={'Returned'}
           count={ordersNum.ordersReturned || 0}
+        />
+        <Cart
+          route={'/dashboard/orders/refund'}
+          icon={<RiRefund2Line  className='text-mainColor text-4xl'/>}
+          title={'Refund'}
+          count={ordersNum.ordersRefund || 0}
         />
         <Cart
           route={'/dashboard/orders/failed_to_deliver'}
