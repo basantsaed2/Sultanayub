@@ -64,6 +64,7 @@ const Navbar = () => {
               dispatch(removeUser())
               dispatch(removeCategory())
               navigate("/", { replace: true });
+              localStorage.removeItem("token"); // تخزين التوكن بعد تسجيل الدخول
        }
 
 
