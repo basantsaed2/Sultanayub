@@ -899,7 +899,7 @@ const DetailsOrderPage = () => {
                           const allStatuses = [
                             { name: 'pending', label: 'Pending', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
                             { name: 'Accept', label: 'processing', icon: 'M5 13l4 4L19 7' },
-                            { name: 'Processing', label: 'processing', icon: 'M5 13l4 4L19 7' },
+                            { name: 'Processing', label: 'confirm', icon: 'M5 13l4 4L19 7' },
                             { name: 'out_for_delivery', label: 'Out for Delivery', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
                             { name: 'delivered', label: 'Delivered', icon: 'M5 13l4 4L19 7' },
                             { name: 'canceled', label: 'Canceled', icon: 'M6 18L18 6M6 6l12 12' },
