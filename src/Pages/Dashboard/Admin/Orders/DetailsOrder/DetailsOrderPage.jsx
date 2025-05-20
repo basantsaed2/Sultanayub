@@ -631,7 +631,7 @@ const DetailsOrderPage = () => {
                                   Excludes
                                 </th>
                                 <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider">
-                                  Variations
+                                  Extra
                                 </th>
                               </tr>
                             </thead>
