@@ -898,7 +898,7 @@ const DetailsOrderPage = () => {
                             // 'returned',
                             // 'faild_to_deliver'
                           ];
-
+// ccccccccc
                           const currentStatus = detailsData?.order_status;
                           const currentIndex = statusOrder.indexOf(currentStatus);
 

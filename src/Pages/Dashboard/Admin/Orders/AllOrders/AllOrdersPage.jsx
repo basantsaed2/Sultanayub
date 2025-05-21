@@ -56,8 +56,8 @@ const AllOrdersPage = () => {
           order.id.toString().startsWith(text) || // Matches if order.id starts with the text
           (order.user?.name || "-")
             .toLowerCase()
-            .includes(text.toLowerCase()) || 
-             (order.user?.phone || "-")
+            .includes(text.toLowerCase()) ||
+          (order.user?.phone || "-")
             .toLowerCase()
             .includes(text.toLowerCase())
       );
@@ -303,10 +303,13 @@ const AllOrdersPage = () => {
                                   : "bg-gray-200 text-gray-500"
                               }`}
                           >
-                            {order?.order_status || "-"}
-                          </span>
+                            {
+                              order?.order_status === "processing" ? "Accepted" :
+                                order?.order_status === "confirmed" ? "Processing" :
+                                  order?.order_status || "-"
+                            }                          </span>
                         </td>
-        
+
                         {/* Status Operations */}
                         <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
                           {order.operation_status || "-"}

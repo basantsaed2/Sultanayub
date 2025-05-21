@@ -11,7 +11,7 @@ import { useAuth } from "../../../../../Context/Auth"; // Make sure to import us
 const ConfirmedOrdersPage = () => {
   const auth = useAuth();
 
-  const ordersConfirmed = useSelector((state) => state.ordersConfirmed);
+  const ordersConfirmed = useSelector((state) => state.ordersProcessing);
   const [textSearch, setTextSearch] = useState('');
   const [filteredOrders, setFilteredOrders] = useState([]);
 
@@ -291,7 +291,7 @@ const ConfirmedOrdersPage = () => {
                                   : 'bg-gray-200 text-gray-500'
                               }`}
                           >
-                            {order?.order_status || '-'}
+                            {order?.order_status === "processing"? "Accept" : '-'}
                           </span>
                         </td>
 
