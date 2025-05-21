@@ -520,7 +520,7 @@ const DetailsOrderPage = () => {
                             </p>
                             <p className="text-sm text-gray-700 mt-1">
                               <span className="font-TextFontSemiBold">Schedule:</span>{" "}
-                              {detailsData?.schedule || "-"}
+                              {detailsData?.schedule?.name || "-"}
                             </p>
                           </div>
                         </div>
@@ -536,23 +536,22 @@ const DetailsOrderPage = () => {
                               <span className="font-TextFontSemiBold text-mainColor">Payment Method:</span>{" "}
                               {detailsData?.payment_method?.name || ""}
                             </p>
+                             <p className="text-md text-gray-800">
+                              <span className="font-TextFontSemiBold text-mainColor">Payment Status:</span>{" "}
+                              {detailsData?.status_payment || ""}
+                            </p>
+                          </div>
+                          <div className="sm:w-full xl:w-6/12   bg-white p-2 shadow-md rounded-md">
                             <p className="text-md text-gray-800">
                               <span className="font-TextFontSemiBold text-mainColor">Order Type:</span>{" "}
-                              <span
+<span
                                 className={`px-2 py-1 rounded-full text-md ${detailsData?.order_type === "take_away"
                                   ? "text-green-700 bg-green-100" // Green text with light green bg
                                   : "text-blue-700 bg-blue-100" // Adjust for delivery (blue as example)
                                   }`}
                               >
                                 {detailsData?.order_type || ""}
-                              </span>
-                            </p>
-                          </div>
-                          <div className="sm:w-full xl:w-6/12   bg-white p-2 shadow-md rounded-md">
-                            <p className="text-md text-gray-800">
-                              <span className="font-TextFontSemiBold text-mainColor">Order Type:</span>{" "}
-                              {detailsData?.order_type || ""}
-                            </p>
+                              </span>                            </p>
                             <p className="text-md text-gray-800">
                               <span className="font-TextFontSemiBold text-mainColor">Order Note:</span>{" "}
                               {detailsData?.notes || "No Notes"}
