@@ -518,6 +518,10 @@ const DetailsOrderPage = () => {
                               <span className="font-TextFontSemiBold">Order Date:</span>{" "}
                               {detailsData?.order_date || ""}
                             </p>
+                            <p className="text-sm text-gray-700 mt-1">
+                              <span className="font-TextFontSemiBold">Schedule:</span>{" "}
+                              {detailsData?.schedule || "-"}
+                            </p>
                           </div>
                         </div>
 
@@ -533,24 +537,21 @@ const DetailsOrderPage = () => {
                               {detailsData?.payment_method?.name || ""}
                             </p>
                             <p className="text-md text-gray-800">
-                              <span className="font-TextFontSemiBold text-mainColor">Payment Status:</span>{" "}
-                              {detailsData?.status_payment || ""}
-                              <span className="text-green-600 font-TextFontSemiBold ml-1">
-                                {detailsData?.payment_status || ""}
+                              <span className="font-TextFontSemiBold text-mainColor">Order Type:</span>{" "}
+                              <span
+                                className={`px-2 py-1 rounded-full text-md ${detailsData?.order_type === "take_away"
+                                  ? "text-green-700 bg-green-100" // Green text with light green bg
+                                  : "text-blue-700 bg-blue-100" // Adjust for delivery (blue as example)
+                                  }`}
+                              >
+                                {detailsData?.order_type || ""}
                               </span>
                             </p>
                           </div>
                           <div className="sm:w-full xl:w-6/12   bg-white p-2 shadow-md rounded-md">
                             <p className="text-md text-gray-800">
                               <span className="font-TextFontSemiBold text-mainColor">Order Type:</span>{" "}
-                              <span
-                                className={`px-2 py-1 rounded-full text-md ${detailsData?.order_type === "take_away"
-                                    ? "text-green-700 bg-green-100" // Green text with light green bg
-                                    : "text-blue-700 bg-blue-100" // Adjust for delivery (blue as example)
-                                  }`}
-                              >
-                                {detailsData?.order_type || ""}
-                              </span>
+                              {detailsData?.order_type || ""}
                             </p>
                             <p className="text-md text-gray-800">
                               <span className="font-TextFontSemiBold text-mainColor">Order Note:</span>{" "}
@@ -893,10 +894,10 @@ const DetailsOrderPage = () => {
                             'confirmed',
                             'out_for_delivery',
                             'delivered',
-                            'canceled',
-                            'refund',
-                            'returned',
-                            'faild_to_deliver'
+                            // 'canceled',
+                            // 'refund',
+                            // 'returned',
+                            // 'faild_to_deliver'
                           ];
 
                           const currentStatus = detailsData?.order_status;
@@ -909,22 +910,24 @@ const DetailsOrderPage = () => {
                             { name: 'confirmed', label: 'Processing', icon: 'M5 13l4 4L19 7' },
                             { name: 'out_for_delivery', label: 'Out for Delivery', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
                             { name: 'delivered', label: 'Delivered', icon: 'M5 13l4 4L19 7' },
+                            { name: 'faild_to_deliver', label: 'Failed to Deliver', icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z' },
+                            { name: 'returned', label: 'Returned', icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15' },
                             { name: 'canceled', label: 'Canceled', icon: 'M6 18L18 6M6 6l12 12' },
                             { name: 'refund', label: 'Refund', icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
-                            { name: 'returned', label: 'Returned', icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15' },
-                            { name: 'faild_to_deliver', label: 'Failed to Deliver', icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z' }
                           ];
 
                           // Filter statuses based on current status
                           const filteredStatuses = allStatuses.filter(status => {
                             if (currentStatus === 'delivered') {
                               // Exclude 'canceled' and 'returned' when status is 'delivered'
-                              return !['canceled','faild_to_deliver'].includes(status.name);
+                              return !['canceled'].includes(status.name);
                             } else if (currentStatus === 'canceled') {
                               // Exclude 'delivered', 'faild_to_deliver', and 'returned' when status is 'canceled'
                               return !['delivered', 'faild_to_deliver', 'returned'].includes(status.name);
-                            } else if (currentStatus !== 'pending') {
-                              return !['pending'].includes(status.name);
+                            }
+                            else if (currentStatus === 'refund') {
+                              // Exclude 'delivered', 'faild_to_deliver', and 'returned' when status is 'canceled'
+                              return !['canceled'].includes(status.name);
                             }
                             return true; // Include all statuses for other cases
                           });
@@ -935,16 +938,41 @@ const DetailsOrderPage = () => {
                             const isPrevious = statusIndex !== -1 && currentIndex > statusIndex;
                             const isNext = statusIndex !== -1 && currentIndex < statusIndex;
 
+                            const isCancel = status.name === 'canceled';
+                            const isReturn = status.name === 'returned';
+                            const isFailed = status.name === 'faild_to_deliver';
+
+                            // Determine if button should be disabled
+                            let isDisabled = false;
+
+                            // For normal flow statuses
+                            if (statusOrder.includes(status.name)) {
+                              // Enable if exactly one step forward or backward (except pending)
+                              isDisabled = !(
+                                (statusIndex === currentIndex + 1) ||
+                                (statusIndex === currentIndex - 1 && status.name !== 'pending')
+                              );
+                            }
+                            // For returned status
+                            else if (isReturn) {
+                              isDisabled = !['out_for_delivery', 'delivered'].includes(currentStatus);
+                            }
+                            // For failed delivery status
+                            else if (isFailed) {
+                              isDisabled = currentStatus !== 'out_for_delivery';
+                            }
+
                             return (
                               <button
                                 key={status.name}
-                                onClick={() => handleSelectOrderStatus({ name: status.name })}
+                                onClick={() => !isDisabled && handleSelectOrderStatus({ name: status.name })}
+                                disabled={isDisabled}
                                 className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all relative
-                  ${isCurrent ? 'bg-blue-100 border-blue-500 text-blue-900 shadow-md' :
+              ${isCurrent ? 'bg-blue-100 border-blue-500 text-blue-900 shadow-md' :
                                     isPrevious ? 'bg-green-50 border-green-300 text-green-800' :
-                                      isNext ? 'bg-gray-100 border-gray-300 text-gray-600' :
+                                      isDisabled ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed' :
                                         'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'}
-                `}
+            `}
                               >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={status.icon} />
@@ -969,6 +997,8 @@ const DetailsOrderPage = () => {
                                 )}
                               </button>
                             );
+
+
                           });
                         })()}
                       </div>
@@ -1136,18 +1166,20 @@ const DetailsOrderPage = () => {
                         <div className="timeline-content bg-gray-50 p-3 rounded-lg">
                           <div className="status-change flex items-center gap-2 mb-1">
                             <span className="from-status px-2 py-1 bg-gray-200 text-gray-700 rounded text-sm">
-                              {log.from_status.replace(/_/g, ' ')}
+                              {log.from_status === "processing" ? "Accepted" :
+                                log.from_status === "confirmed" ? "Processing" :
+                                  log.from_status.replace(/_/g, ' ')}
                             </span>
                             <span className="arrow text-gray-400">
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
                               </svg>
                             </span>
-                            <span className={`to-status px-2 py-1 rounded text-sm ${log.to_status === 'completed' ? 'bg-green-100 text-green-800' :
-                              log.to_status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                                'bg-red-100 text-red-800'
-                              }`}>
-                              {log.to_status.replace(/_/g, ' ')}
+
+                            <span className="from-status px-2 py-1 bg-gray-200 text-gray-700 rounded text-sm">
+                              {log.to_status === "processing" ? "Accepted" :
+                                log.to_status === "confirmed" ? "Processing" :
+                                  log.to_status.replace(/_/g, ' ')}
                             </span>
                           </div>
 

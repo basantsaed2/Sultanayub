@@ -54,9 +54,12 @@ const AllOrdersPage = () => {
       const filter = ordersAll.data.filter(
         (order) =>
           order.id.toString().startsWith(text) || // Matches if order.id starts with the text
-          (order.order_status || "-")
+          (order.user?.name || "-")
             .toLowerCase()
-            .startsWith(text.toLowerCase()) // Matches if order_status starts with the text
+            .includes(text.toLowerCase()) || 
+             (order.user?.phone || "-")
+            .toLowerCase()
+            .includes(text.toLowerCase())
       );
 
       setFilteredOrders(filter); // Update state
@@ -132,7 +135,7 @@ const AllOrdersPage = () => {
         {/* Search Order */}
         <div className="sm:w-full lg:w-[70%] xl:w-[30%] mt-4">
           <SearchBar
-            placeholder="Search by Order ID, Order Status"
+            placeholder="Search by Order ID, User Name,Phone"
             value={textSearch}
             handleChange={handleFilterData}
           />

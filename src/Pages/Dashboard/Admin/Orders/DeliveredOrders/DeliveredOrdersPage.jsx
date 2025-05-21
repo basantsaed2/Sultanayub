@@ -44,26 +44,30 @@ const DeliveredOrdersPage = () => {
     const text = e.target.value.trim();
     setTextSearch(text);
 
-    if (!ordersDelivered?.data || !Array.isArray(ordersDelivered.data)) {
-      console.error('Invalid orders data:', ordersDelivered.data);
+    if (!ordersAll?.data || !Array.isArray(ordersAll.data)) {
+      console.error("Invalid orders data:", ordersAll.data);
       return;
     }
 
-    if (text === '') {
-      setFilteredOrders(ordersDelivered.data); // Reset if input is empty
+    if (text === "") {
+      setFilteredOrders(ordersAll.data); // Reset if input is empty
     } else {
-      console.log('Filtering for text:', text);
+      console.log("Filtering for text:", text);
 
-      const filter = ordersDelivered.data.filter((order) =>
-        order.id.toString().startsWith(text) || // Matches if order.id starts with the text
-        (order.order_status || '-').toLowerCase().startsWith(text.toLowerCase()) // Matches if order_status starts with the text
+      const filter = ordersAll.data.filter(
+        (order) =>
+          order.id.toString().startsWith(text) || // Matches if order.id starts with the text
+          (order.user?.name || "-")
+            .toLowerCase()
+            .includes(text.toLowerCase()) || 
+             (order.user?.phone || "-")
+            .toLowerCase()
+            .includes(text.toLowerCase())
       );
 
-
       setFilteredOrders(filter); // Update state
-      console.log('Filtered orders:', filter); // Debugging
+      console.log("Filtered orders:", filter); // Debugging
     }
-
   };
 
   const tableContainerRef = useRef(null);
@@ -123,7 +127,7 @@ const DeliveredOrdersPage = () => {
         {/* Search Order */}
         <div className="sm:w-full lg:w-[70%] xl:w-[30%] mt-4">
           <SearchBar
-            placeholder="Search by Order ID, Order Status"
+            placeholder="Search by Order ID, User Name,Phone"
             value={textSearch}
             handleChange={handleFilterData}
           />

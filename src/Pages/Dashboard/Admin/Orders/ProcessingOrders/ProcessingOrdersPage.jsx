@@ -41,24 +41,33 @@ const ProcessingOrdersPage = () => {
   }, [ordersProcessing.data]);
 
   const handleFilterData = (e) => {
-    let text = e.target.value;
+    const text = e.target.value.trim();
     setTextSearch(text);
 
-
-    if (text == '') {
-      setFilteredOrders(ordersProcessing.data)
-    } else {
-
-      const filter = ordersProcessing.data.filter((order) =>
-        order.id === Number(text) ||
-        order.order_status.toLowerCase().includes(text.toLowerCase())
-      )
-      setFilteredOrders(filter);
-      console.log('filter', filter)
+    if (!ordersAll?.data || !Array.isArray(ordersAll.data)) {
+      console.error("Invalid orders data:", ordersAll.data);
+      return;
     }
 
+    if (text === "") {
+      setFilteredOrders(ordersAll.data); // Reset if input is empty
+    } else {
+      console.log("Filtering for text:", text);
 
-    console.log('text', text)
+      const filter = ordersAll.data.filter(
+        (order) =>
+          order.id.toString().startsWith(text) || // Matches if order.id starts with the text
+          (order.user?.name || "-")
+            .toLowerCase()
+            .includes(text.toLowerCase()) || 
+             (order.user?.phone || "-")
+            .toLowerCase()
+            .includes(text.toLowerCase())
+      );
+
+      setFilteredOrders(filter); // Update state
+      console.log("Filtered orders:", filter); // Debugging
+    }
   };
 
   const tableContainerRef = useRef(null);
@@ -118,7 +127,7 @@ const ProcessingOrdersPage = () => {
         {/* Search Order */}
         <div className="sm:w-full lg:w-[70%] xl:w-[30%] mt-4">
           <SearchBar
-            placeholder="Search by Order ID, Order Status"
+            placeholder="Search by Order ID, User Name,Phone"
             value={textSearch}
             handleChange={handleFilterData}
           />
