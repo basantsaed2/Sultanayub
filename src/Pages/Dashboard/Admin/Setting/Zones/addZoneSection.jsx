@@ -4,10 +4,11 @@ import { usePost } from '../../../../../Hooks/usePostJson';
 import { useAuth } from '../../../../../Context/Auth';
 import { useGet } from '../../../../../Hooks/useGet';
 
-
-
 const AddZoneSection = ({ update, setUpdate }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const { refetch: refetchTranslation, loading: loadingTranslation, data: dataTranslation } = useGet({
+    url: `${apiUrl}/admin/translation`
+  });
   const { refetch: refetchCities, loading: loadingCities, data: dataCities } = useGet({
     url: `${apiUrl}/admin/settings/city`
   });
@@ -19,12 +20,15 @@ const AddZoneSection = ({ update, setUpdate }) => {
   const dropDownCities = useRef();
   const dropDownBranches = useRef();
   const auth = useAuth();
+  const [taps, setTaps] = useState([])
+  const [currentTap, setCurrentTap] = useState(0);
+
 
   const [cities, setCities] = useState([])
   const [branches, setBranches] = useState([])
   const [filterBranches, setFilterBranches] = useState([])
 
-  const [zoneName, setZoneName] = useState('');
+  const [zoneName, setZoneName] = useState([]);
   const [zonePrice, setZonePrice] = useState('');
 
   const [stateCity, setStateCity] = useState('Select City');
@@ -39,9 +43,17 @@ const AddZoneSection = ({ update, setUpdate }) => {
 
 
   useEffect(() => {
+    refetchTranslation(); // Refetch data when the component mounts
     refetchCities(); // Refetch data when the component mounts
     refetchBranches(); // Refetch data when the component mounts
-  }, [refetchCities, refetchBranches]);
+  }, [refetchCities, refetchBranches, refetchTranslation]);
+
+
+  useEffect(() => {
+    if (dataTranslation) {
+      setTaps(dataTranslation.translation);
+    }
+  }, [dataTranslation]);
 
 
   useEffect(() => {
@@ -56,8 +68,9 @@ const AddZoneSection = ({ update, setUpdate }) => {
     console.log('Branches', branches)
   }, [dataCities, dataBranches]);
 
-
-
+  const handleTap = (index) => {
+    setCurrentTap(index)
+  }
 
   const handleOpenCities = () => {
     setIsOpenCity(!isOpenCity)
@@ -103,7 +116,28 @@ const AddZoneSection = ({ update, setUpdate }) => {
   }, [response])
 
   const handleReset = () => {
-    setZoneName('')
+    setCurrentTap(0)
+    setZoneName([])
+    zoneName.map((name, index) => {
+      setZoneName(prev => {
+        const updatedNames = [...prev];
+
+        // Ensure the array is long enough
+        if (updatedNames.length <= index) {
+          updatedNames.length = index + 1; // Resize array
+        }
+
+        // Create or update the object at the current index
+        updatedNames[index] = {
+          ...updatedNames[index], // Retain existing properties if any
+          'tranlation_id': '', // Use the ID from tap
+          'zone_name': '', // Use the captured string value
+          'tranlation_name': '', // Use tap.name for tranlation_name
+        };
+
+        return updatedNames;
+      });
+    })
     setZonePrice('')
     setStateCity('Select City')
     setCityId('')
@@ -139,10 +173,11 @@ const AddZoneSection = ({ update, setUpdate }) => {
   const handleZoneAdd = (e) => {
     e.preventDefault();
 
-    if (!zoneName) {
-      auth.toastError('Please Enter Zone Name')
+    if (zoneName.length === 0) {
+      auth.toastError('please Enter Zone Names')
       return;
     }
+
     if (!zonePrice) {
       auth.toastError('Please Enter Zone Price')
       return;
@@ -158,15 +193,17 @@ const AddZoneSection = ({ update, setUpdate }) => {
 
 
     const formData = new FormData();
+    zoneName.forEach((name, index) => {
+      // Corrected the typo and added translation_id and translation_name
+      formData.append(`zone_names[${index}][tranlation_id]`, name.tranlation_id);
+      formData.append(`zone_names[${index}][zone_name]`, name.zone_name);
+      formData.append(`zone_names[${index}][tranlation_name]`, name.tranlation_name);
+    });
 
-
-    formData.append('zone', zoneName)
     formData.append('city_id', cityId)
     formData.append('branch_id', branchId)
     formData.append('price', zonePrice)
     formData.append('status', activeZone)
-
-
 
     postData(formData, 'Zone Added Success');
 
@@ -182,69 +219,109 @@ const AddZoneSection = ({ update, setUpdate }) => {
       ) : (
         <section>
           <form onSubmit={handleZoneAdd}>
+            {/* Taps */}
+            <div className="w-full flex items-center justify-start py-2 gap-x-6">
+              {taps.map((tap, index) => (
+                <span
+                  key={tap.id}
+                  onClick={() => handleTap(index)}
+                  className={`${currentTap === index ? 'text-mainColor border-b-4 border-mainColor' : 'text-thirdColor'}  pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
+                >
+                  {tap.name}
+                </span>
+
+              ))}
+            </div>
             {/* Content*/}
             <div className="sm:py-3 lg:py-6">
-              <div
-                className="w-full flex sm:flex-col lg:flex-row flex-wrap items-center justify-start gap-4">
-                {/* Zone Name */}
-                <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                  <span className="text-xl font-TextFontRegular text-thirdColor">Zone Name:</span>
-                  <TextInput
-                    value={zoneName}
-                    onChange={(e) => setZoneName(e.target.value)}
-                    placeholder="Zone Name"
-                  />
-                </div>
-                {/* Zone Price */}
-                <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                  <span className="text-xl font-TextFontRegular text-thirdColor">Zone Price:</span>
-                  <NumberInput
-                    value={zonePrice}
-                    onChange={(e) => setZonePrice(e.target.value)}
-                    placeholder="Zone Price"
-                  />
-                </div>
-                {/* Cities */}
-                <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                  <span className="text-xl font-TextFontRegular text-thirdColor">City:</span>
-                  <DropDown
-                    ref={dropDownCities}
-                    handleOpen={handleOpenCities}
-                    stateoption={stateCity}
-                    openMenu={isOpenCity}
-                    handleOpenOption={handleOpenOptionCities}
-                    onSelectOption={handleSelectCity}
-                    options={cities}
-                    border={false}
-                  />
-                </div>
-                {/* Branches */}
-                <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                  <span className="text-xl font-TextFontRegular text-thirdColor">Branch:</span>
-                  <DropDown
-                    ref={dropDownBranches}
-                    handleOpen={handleOpenBranches}
-                    stateoption={stateBranch}
-                    openMenu={isOpenBranch}
-                    handleOpenOption={handleOpenOptionBranches}
-                    onSelectOption={handleSelectBranch}
-                    options={filterBranches}
-                    border={false}
-                  />
-                </div>
+              {taps.map((tap, index) => (
+                currentTap === index && (
+                  <div
+                    className="w-full flex sm:flex-col lg:flex-row flex-wrap items-center justify-start gap-4"
+                    key={tap.id}
+                  >
+                    {/* Zone Name */}
+                    <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                      <span className="text-xl font-TextFontRegular text-thirdColor">Name {tap.name}:</span>
+                      <TextInput
+                        value={zoneName[index]?.zone_name} // Access zone_names property
+                        onChange={(e) => {
+                          const inputValue = e.target.value; // Ensure this is a string
+                          setZoneName(prev => {
+                            const updatedNames = [...prev];
 
-                <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3 pt-10">
-                  <span className="text-xl font-TextFontRegular text-thirdColor">Active:</span>
-                  <Switch handleClick={handleStatusZone} checked={activeZone} />
-                </div>
+                            // Ensure the array is long enough
+                            if (updatedNames.length <= index) {
+                              updatedNames.length = index + 1; // Resize array
+                            }
 
-              </div>
+                            // Create or update the object at the current index
+                            updatedNames[index] = {
+                              ...updatedNames[index], // Retain existing properties if any
+                              'tranlation_id': tap.id, // Use the ID from tap
+                              'zone_name': inputValue, // Use the captured string value
+                              'tranlation_name': tap.name || 'Default Name', // Use tap.name for tranlation_name
+                            };
 
+                            return updatedNames;
+                          });
+                        }}
+                        placeholder="Zone Name"
+                      />
+                    </div>
 
+                    {/* Conditional Rendering for First Tab Only */}
+                    {currentTap === 0 && (
+                      <>
+                        {/* Zone Price */}
+                        < div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                          <span className="text-xl font-TextFontRegular text-thirdColor">Zone Price:</span>
+                          <NumberInput
+                            value={zonePrice}
+                            onChange={(e) => setZonePrice(e.target.value)}
+                            placeholder="Zone Price"
+                          />
+                        </div>
+                        {/* Cities */}
+                        < div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1" >
+                          <span className="text-xl font-TextFontRegular text-thirdColor">City:</span>
+                          <DropDown
+                            ref={dropDownCities}
+                            handleOpen={handleOpenCities}
+                            stateoption={stateCity}
+                            openMenu={isOpenCity}
+                            handleOpenOption={handleOpenOptionCities}
+                            onSelectOption={handleSelectCity}
+                            options={cities}
+                            border={false}
+                          />
+                        </div>
+                        {/* Branches */}
+                        <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                          <span className="text-xl font-TextFontRegular text-thirdColor">Branch:</span>
+                          <DropDown
+                            ref={dropDownBranches}
+                            handleOpen={handleOpenBranches}
+                            stateoption={stateBranch}
+                            openMenu={isOpenBranch}
+                            handleOpenOption={handleOpenOptionBranches}
+                            onSelectOption={handleSelectBranch}
+                            options={filterBranches}
+                            border={false}
+                          />
+                        </div>
+                        <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3 pt-10">
+                          <span className="text-xl font-TextFontRegular text-thirdColor">Active:</span>
+                          <Switch handleClick={handleStatusZone} checked={activeZone} />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )
+              ))}
             </div>
-
             {/* Buttons*/}
-            <div className="w-full flex items-center justify-end gap-x-4">
+            < div className="w-full flex items-center justify-end gap-x-4 mt-5" >
               <div className="">
                 <StaticButton text={'Reset'} handleClick={handleReset} bgColor='bg-transparent' Color='text-mainColor' border={'border-2'} borderColor={'border-mainColor'} rounded='rounded-full' />
               </div>
@@ -256,9 +333,9 @@ const AddZoneSection = ({ update, setUpdate }) => {
                 />
               </div>
 
-            </div>
-          </form>
-        </section>
+            </div >
+          </form >
+        </section >
       )}
     </>
   )
