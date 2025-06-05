@@ -539,10 +539,16 @@ const DetailsOrderPage = () => {
                             {
                               detailsData?.payment_method?.name === "Visa Master Card" &&
                               (
+                                <>
                                 <p className="text-md text-gray-800">
                                   <span className="font-TextFontSemiBold text-mainColor">Payment Status:</span>{" "}
                                   {detailsData?.status_payment || ""}
                                 </p>
+                                <p className="text-md text-gray-800">
+                                  <span className="font-TextFontSemiBold text-mainColor">Transaction ID:</span>{" "}
+                                  {detailsData?.transaction_id || ""}
+                                </p>
+                                </>
                               )
                             }
                           </div>
