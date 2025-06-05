@@ -3,18 +3,21 @@ import { TitlePage, TitleSection } from '../../../../Components/Components'
 import { AddRoleSection, RolesPage } from '../../../../Pages/Pages'
 import AddButton from '../../../../Components/Buttons/AddButton'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next';
 
 const RolesLayout = () => {
   const [update, setUpdate] = useState(false)
+             const { t, i18n } = useTranslation();
+  
   return (
     <>
-      <div className='flex flex-col md:flex-row justify-between items-center'>
+      <div className='flex flex-col items-center justify-between md:flex-row'>
         <div className='w-full md:w-1/2'>
-          <TitlePage text={'Roles Table'} />
+          <TitlePage text={t('RolesTable')} />
         </div>
-        <div className='w-full md:w-1/2 flex justify-end py-4'>
+        <div className='flex justify-end w-full py-4 md:w-1/2'>
           <Link to='add'>
-            <AddButton Text='Add New Role' />
+            <AddButton Text={t("AddNewRole")} />
           </Link>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { removeUser, setUser } from '../Store/CreateSlices';
+import { useTranslation } from 'react-i18next';
 
 // Create a context
 const AuthContext = createContext(null);
@@ -16,6 +17,7 @@ export const ContextProvider = ({ children }) => {
 
   const dispatch = useDispatch();
   const userStore = useSelector(state => state.userSultanAyub);
+           const { t, i18n } = useTranslation();
 
   const [userState, setUserState] = useState(() => {
     const userData = userStore ? userStore : null;
@@ -32,7 +34,7 @@ export const ContextProvider = ({ children }) => {
 
   const login = (userData) => {
     setUserState(userData);
-    toast.success(`Welcome ${userData.name}`);
+    toast.success(`${t("Welcome")} ${userData.name}`);
   };
 
   const logout = () => {

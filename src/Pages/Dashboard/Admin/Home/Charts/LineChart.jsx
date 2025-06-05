@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
+import { useTranslation } from "react-i18next";
 
 const LineChart = ({ title, data }) => {
   const [selectedMonth, setSelectedMonth] = useState('All');
+  const {t}=useTranslation();
 
   // Extract labels (months) and values dynamically from props
   const labels = Object.keys(data);
@@ -77,14 +79,14 @@ const LineChart = ({ title, data }) => {
 
   return (
     <div className="p-2 bg-white rounded-lg">
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex items-center justify-between mb-2">
         <h2 className="text-lg font-TextFontSemiBold text-[#991b1b]">{title}</h2>
         <select
           className="bg-transparent text-[#991b1b] rounded px-3 py-2 text-sm font-TextFontSemiBold"
           value={selectedMonth}
           onChange={(e) => setSelectedMonth(e.target.value)}
         >
-          <option value="All">All Months</option>
+          <option value="All">{t("AllMonths")} </option>
           {labels.map((month) => (
             <option key={month} value={month}>
               {month}

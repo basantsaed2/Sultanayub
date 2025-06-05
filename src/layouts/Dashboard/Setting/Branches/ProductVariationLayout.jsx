@@ -1,15 +1,18 @@
-import React, { useState } from 'react'
-import { TitlePage, TitleSection } from '../../../../Components/Components'
-import { ProductVariationPage } from '../../../../Pages/Pages'
+import React, { useState } from "react";
+import { TitlePage, TitleSection } from "../../../../Components/Components";
+import { ProductVariationPage } from "../../../../Pages/Pages";
+import { useTranslation } from "react-i18next";
 
 const ProductVariationLayout = () => {
-       const [update, setUpdate] = useState(false)
-       return (
-              <>
-                     <TitlePage text={'Products Variation'} />
-                     <ProductVariationPage refetch={update} />
-              </>
-       )
-}
+  const { t, i18n } = useTranslation();
+
+  const [update, setUpdate] = useState(false);
+  return (
+    <>
+      <TitlePage text={t("ProductsVariation")} />
+      <ProductVariationPage refetch={update} />
+    </>
+  );
+};
 
 export default ProductVariationLayout;

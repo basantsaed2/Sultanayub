@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useGet } from '../../../Hooks/useGet';
 import { TitlePage, TitleSection } from '../../../Components/Components';
 import { AddDealSection, DealsPage } from '../../../Pages/Pages';
+import { useTranslation } from 'react-i18next';
 
 const DealsLayout = () => {
        const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -10,6 +11,7 @@ const DealsLayout = () => {
        });
 
        const [refetch, setRefetch] = useState(false)
+           const { t, i18n } = useTranslation();
 
        const [deals, setDeals] = useState([]);
 
@@ -28,14 +30,15 @@ const DealsLayout = () => {
        }, [dataDeals]); // Only run this effect when `data` changes
 
 
-       return (
+      return (
               <>
-                     <TitlePage text={'Add Deal'} />
+                     <TitlePage text={t('AddDeal')} />
                      <AddDealSection refetch={refetch} setRefetch={setRefetch} />
-                     <TitleSection text={'Deals Table'} />
+                     <TitleSection text={t('DealsTable')} />
                      <DealsPage data={deals} setDeals={setDeals} loading={loadingDeals} />
               </>
        )
 }
+
 
 export default DealsLayout

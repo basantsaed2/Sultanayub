@@ -7,9 +7,11 @@ import { FaFileInvoice } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { FaCopy, FaWhatsapp } from "react-icons/fa";
 import { useAuth } from "../../../../../Context/Auth"; // Make sure to import useAuth if required
+import { useTranslation } from "react-i18next";
 
 const ConfirmedOrdersPage = () => {
   const auth = useAuth();
+ const {  t,i18n } = useTranslation();
 
   const ordersConfirmed = useSelector((state) => state.ordersProcessing);
   const [textSearch, setTextSearch] = useState('');
@@ -111,26 +113,23 @@ const ConfirmedOrdersPage = () => {
   };
 
   const headers = [
-    'SL',
-    'Order ID',
-    'Delivery Date',
-    'Customer Info',
-    'Branch',
-    "Total Price",
-    "Payment Method",
-    'Order Status',
-    "Operations Status",
-    "Operations Admin",
-    'Order Type',
-    'Actions'
-  ];
+  t('sl'),
+  t('orderId'),
+  t('deliveryDate'),
+  t('customerInfo'),
+  t('branch'),
+  t('totalPrice'),
+  t('orderStatus'),
+  t('orderType'),
+  t('actions'),
+];
   return (
     <>
-      <div className="w-full flex flex-col gap-y-3 relative">
+      <div className="relative flex flex-col w-full gap-y-3">
         {/* Search Order */}
         <div className="sm:w-full lg:w-[70%] xl:w-[30%] mt-4">
           <SearchBar
-            placeholder="Search by Order ID, User Name,Phone"
+            placeholder={t("SearchOrderStatus")}
             value={textSearch}
             handleChange={handleFilterData}
           />
@@ -138,10 +137,10 @@ const ConfirmedOrdersPage = () => {
 
         {/* Scroll Controls */}
         {showScrollHint && (
-          <div className="sticky top-0 z-20 bg-white py-2 flex justify-between items-center shadow-sm mb-2">
+          <div className="sticky top-0 z-20 flex items-center justify-between py-2 mb-2 bg-white shadow-sm">
             <button
               onClick={() => scrollTable('left')}
-              className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition"
+              className="p-2 transition bg-gray-100 rounded-full hover:bg-gray-200"
               aria-label="Scroll left"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -152,7 +151,7 @@ const ConfirmedOrdersPage = () => {
             {filteredOrders.length > 0 && (
               <div className="flex flex-wrap items-center justify-center gap-x-4">
                 {currentPage !== 1 && (
-                  <button type='button' className='text-lg px-4 py-2 rounded-xl bg-mainColor text-white font-TextFontMedium' onClick={() => setCurrentPage(currentPage - 1)}>Prev</button>
+                  <button type='button' className='px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium' onClick={() => setCurrentPage(currentPage - 1)}>Prev</button>
                 )}
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                   <button
@@ -164,14 +163,14 @@ const ConfirmedOrdersPage = () => {
                   </button>
                 ))}
                 {totalPages !== currentPage && (
-                  <button type='button' className='text-lg px-4 py-2 rounded-xl bg-mainColor text-white font-TextFontMedium' onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
+                  <button type='button' className='px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium' onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
                 )}
               </div>
             )}
 
             <button
               onClick={() => scrollTable('right')}
-              className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition"
+              className="p-2 transition bg-gray-100 rounded-full hover:bg-gray-200"
               aria-label="Scroll right"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -183,7 +182,7 @@ const ConfirmedOrdersPage = () => {
 
         {/* Table Container */}
         <div
-          className="w-full pb-28 overflow-x-auto relative"
+          className="relative w-full overflow-x-auto pb-28"
           ref={tableContainerRef}
         >
           {ordersConfirmed.loading ? (
@@ -191,7 +190,7 @@ const ConfirmedOrdersPage = () => {
           ) : (
             <>
               <table className="w-full min-w-[1200px]" ref={tableRef}>
-                <thead className="sticky top-0 bg-white z-10">
+                <thead className="sticky top-0 z-10 bg-white">
                   <tr className="border-b-2">
                     {headers.map((name, index) => (
                       <th
@@ -210,31 +209,31 @@ const ConfirmedOrdersPage = () => {
                     <tr>
                       <td
                         colSpan={headers.length}
-                        className="py-4 text-center text-mainColor text-lg font-TextFontMedium"
+                        className="py-4 text-lg text-center text-mainColor font-TextFontMedium"
                       >
-                        No orders found
+                          {t("Noordersfound")}
                       </td>
                     </tr>
                   ) : (
                     currentFilteredOrders.map((order, index) => (
                       <tr key={index} className="border-b">
                         {/* Row Index */}
-                        <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
+                        <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {(currentPage - 1) * filteredOrdersPerPage + index + 1}
                         </td>
 
                         {/* Order ID */}
-                        <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
+                        <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           <Link
                             to={`/dashboard/orders/details/${order.id}`}
-                            className="text-secoundColor underline hover:text-mainColor text-xl font-TextFontMedium transition ease-in-out duration-200"
+                            className="text-xl underline transition duration-200 ease-in-out text-secoundColor hover:text-mainColor font-TextFontMedium"
                           >
                             {order.id}
                           </Link>
                         </td>
 
                         {/* Order Date */}
-                        <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
+                        <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order?.created_at
                             ? new Date(order.created_at).toLocaleDateString('en-US', {
                               year: 'numeric',
@@ -248,7 +247,7 @@ const ConfirmedOrdersPage = () => {
                         </td>
 
                         {/* User Information */}
-                        <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
+                        <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           <div>{`${order.user?.f_name || "N/A"} ${order.user?.l_name || "-"}`}</div>
                           <div className="flex items-center justify-center gap-2">
                             {order.user?.phone ? (
@@ -258,30 +257,30 @@ const ConfirmedOrdersPage = () => {
                                   href={`https://wa.me/${order.user.phone.replace(/[^0-9]/g, '')}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-black hover:text-green-600 transition duration-200"
+                                  className="text-black transition duration-200 hover:text-green-600"
                                 >
                                   {order.user.phone}
                                 </a>
                               </>
                             ) : (
-                              <span>No Phone</span>
+                                <span>{t("NoPhone")}</span>
                             )}
                           </div>
                         </td>
                         {/* Branch */}
-                        <td className="px-4 py-2 text-center text-sm lg:text-base">
-                          <span className="text-cyan-500 bg-cyan-200 rounded-md px-2 py-1">
+                        <td className="px-4 py-2 text-sm text-center lg:text-base">
+                          <span className="px-2 py-1 rounded-md text-cyan-500 bg-cyan-200">
                             {order.branch?.name || "-"} / {order.address?.zone.zone || "-"}
                           </span>
                         </td>
 
                         {/* Order Amount */}
-                        <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
+                        <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order?.amount || 0}
                         </td>
 
                           {/* Order Payment */}
-                        <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
+                        <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order?.payment_method?.name || 0}
                         </td>
 
@@ -302,11 +301,11 @@ const ConfirmedOrdersPage = () => {
                         </td>
 
                         {/* Status Operations */}
-                        <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
+                        <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order.operation_status || "-"}
                         </td>
                         {/* Admin Operations */}
-                        <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
+                        <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order.admin?.name || "-"}
                         </td>
 
@@ -330,14 +329,14 @@ const ConfirmedOrdersPage = () => {
                             <Link
                               to={`/dashboard/orders/details/${order.id}`}
                               aria-label="View Details"
-                              className="border-mainColor border-2 p-2 rounded-md "
+                              className="p-2 border-2 rounded-md border-mainColor "
                             >
                               <BiSolidShow className="text-xl text-mainColor" />
                             </Link>
                             <Link
                               to={`/dashboard/orders/invoice/${order.id}`}
                               aria-label="View Invoice"
-                              className="border-green-400 border-2 p-2 rounded-md "
+                              className="p-2 border-2 border-green-400 rounded-md "
                             >
                               <FaFileInvoice className="text-xl text-green-400" />
                             </Link>

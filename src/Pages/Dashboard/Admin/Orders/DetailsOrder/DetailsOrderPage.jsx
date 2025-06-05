@@ -13,10 +13,11 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { usePost } from "../../../../../Hooks/usePostJson";
 import { useChangeState } from "../../../../../Hooks/useChangeState";
 import { useAuth } from "../../../../../Context/Auth";
-import { useDispatch } from 'react-redux';
-import { removeCanceledOrder } from '../../../../../Store/CreateSlices';
-import { useSelector } from 'react-redux'; // Add this import
+import { useDispatch } from "react-redux";
+import { removeCanceledOrder } from "../../../../../Store/CreateSlices";
+import { useSelector } from "react-redux"; // Add this import
 import { FaFileInvoice, FaWhatsapp } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 const DetailsOrderPage = () => {
   const StatusRef = useRef(null);
@@ -33,6 +34,8 @@ const DetailsOrderPage = () => {
   const { postData, loadingPost, response } = usePost({
     url: `${apiUrl}/admin/order/delivery`,
   });
+  const { t, i18n } = useTranslation();
+
   const { changeState, loadingChange, responseChange } = useChangeState();
   const [detailsData, setDetailsData] = useState([]);
   const [orderStatus, setOrderStatus] = useState([]);
@@ -41,7 +44,6 @@ const DetailsOrderPage = () => {
   const [showRefundConfirm, setShowRefundConfirm] = useState(false);
   const [showRefundModal, setShowRefundModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
-
 
   const [showReason, setShowReason] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
@@ -54,7 +56,6 @@ const DetailsOrderPage = () => {
   const [preparationTime, setPreparationTime] = useState({});
 
   const [orderNumber, setOrderNumber] = useState("");
-
 
   const [showStatusModal, setShowStatusModal] = useState(false);
 
@@ -70,9 +71,9 @@ const DetailsOrderPage = () => {
 
   useEffect(() => {
     // Only remove if the order exists in canceled orders
-    console.log("canceledOrders", orderId)
+    console.log("canceledOrders", orderId);
     const orderExists = canceledOrders.orders.includes(orderId);
-    console.log("orderExists", orderExists)
+    console.log("orderExists", orderExists);
     if (orderExists) {
       dispatch(removeCanceledOrder(orderId));
     }
@@ -80,15 +81,16 @@ const DetailsOrderPage = () => {
   }, [orderId, location.pathname, dispatch, canceledOrders.orders]);
 
   useEffect(() => {
-    const computedPermission = auth?.userState?.user_positions?.roles?.map((role) => role.role) || [];
-    const ACTIONS = auth?.userState?.user_positions?.roles?.map((role) => role.action) || [];
+    const computedPermission =
+      auth?.userState?.user_positions?.roles?.map((role) => role.role) || [];
+    const ACTIONS =
+      auth?.userState?.user_positions?.roles?.map((role) => role.action) || [];
     setPermission(computedPermission);
 
     // Log the computed values
     auth.userState.user_positions.roles.forEach((role, index) => {
       console.log(`Role #${index + 1}: ${role.role} | Actions: ${role.action}`);
     });
-
   }, [auth?.userState?.user_positions?.roles]);
   useEffect(() => {
     refetchDetailsOrder();
@@ -175,7 +177,7 @@ const DetailsOrderPage = () => {
     formData.append("order_id", orderID);
     formData.append("order_number", deliveryNumber);
 
-    postData(formData, "Delivery has Assigned");
+    postData(formData, t("Delivery has Assigned"));
   };
   useEffect(() => {
     if (response && response.status === 200) {
@@ -221,10 +223,11 @@ const DetailsOrderPage = () => {
     if (hasOrderPermission && hasValidAction) {
       setIsOpenOrderStatus(!isOpenOrderStatus);
     } else {
-      auth.toastError("You don't have permission to change the order status");
+      auth.toastError(
+        t("You don't have permission to change the order status")
+      );
     }
   };
-
 
   const handleOpenOptionOrderStatus = () => setIsOpenOrderStatus(false);
 
@@ -335,16 +338,16 @@ const DetailsOrderPage = () => {
     if (statusPermissions[targetStatus]?.requiresReason) {
       setShowCancelModal(true);
       setOrderStatusName(targetStatus);
-    } else if (targetStatus === 'refund') {
+    } else if (targetStatus === "refund") {
       setShowRefundModal(true);
     } else {
-      handleChangeStaus(detailsData.id, '', targetStatus, '');
+      handleChangeStaus(detailsData.id, "", targetStatus, "");
     }
   };
 
   const handleOrderNumber = (id) => {
     if (!orderNumber) {
-      auth.toastError("please set your order Number");
+      auth.toastError(t("please set your order Number"));
       return;
     }
 
@@ -462,10 +465,10 @@ const DetailsOrderPage = () => {
               <LoaderLogin />
             </div>
           ) : (
-            <div className="w-full flex sm:flex-col lg:flex-row items-start justify-between gap-3 mb-24">
+            <div className="flex items-start justify-between w-full gap-3 mb-24 sm:flex-col lg:flex-row">
               {/* Left Section */}
               <div className="sm:w-full lg:w-8/12">
-                <div className="w-full bg-white rounded-xl shadow-md p-2 ">
+                <div className="w-full p-2 bg-white shadow-md rounded-xl ">
                   {detailsData.length === 0 ? (
                     <div>
                       <LoaderLogin />
@@ -473,104 +476,131 @@ const DetailsOrderPage = () => {
                   ) : (
                     <div className="w-full">
                       {/* Header */}
-                      <div className="w-full px-2 md:px-4 lg:px-4 py-4 shadow rounded-lg">
+                      <div className="w-full px-2 py-4 rounded-lg shadow md:px-4 lg:px-4">
                         {/* Header */}
-                        <div className="flex flex-col justify-between items-start border-b border-gray-300 pb-2">
+                        <div className="flex flex-col items-start justify-between pb-2 border-b border-gray-300">
                           <div className="w-full">
-                            <div className="w-full flex flex-wrap items-center justify-between">
-                              <h1 className="text-2xl font-TextFontMedium text-gray-800">
-                                Order{" "}
+                            <div className="flex flex-wrap items-center justify-between w-full">
+                              <h1 className="text-2xl text-gray-800 font-TextFontMedium">
+                                {t("Order")}{" "}
                                 <span className="text-mainColor">
                                   #{detailsData?.id || ""}
                                 </span>
                               </h1>
-                              <div className="sm:w-full lg:w-6/12 flex items-center justify-center gap-2">
+                              <div className="flex items-center justify-center gap-2 sm:w-full lg:w-6/12">
                                 <Link
-                                  to={`/dashboard/orders/details/${Number(orderNumPath) - 1}`}
-                                  className="w-6/12 text-center text-sm md:text-md text-white bg-mainColor border-2 border-mainColor px-1 py-1 rounded-lg transition-all ease-in-out duration-300  hover:bg-white hover:text-mainColor"
+                                  to={`/dashboard/orders/details/${
+                                    Number(orderNumPath) - 1
+                                  }`}
+                                  className="w-6/12 px-1 py-1 text-sm text-center text-white transition-all duration-300 ease-in-out border-2 rounded-lg md:text-md bg-mainColor border-mainColor hover:bg-white hover:text-mainColor"
                                 >
-                                  {"<<"} Prev Order
+                                  {"<<"} {t("PrevOrder")}
                                 </Link>
                                 <Link
-                                  to={`/dashboard/orders/details/${Number(orderNumPath) + 1}`}
-                                  className="w-6/12 text-center text-sm md:text-md text-white bg-mainColor border-2 border-mainColor px-1 py-1 rounded-lg transition-all ease-in-out duration-300  hover:bg-white hover:text-mainColor"
+                                  to={`/dashboard/orders/details/${
+                                    Number(orderNumPath) + 1
+                                  }`}
+                                  className="w-6/12 px-1 py-1 text-sm text-center text-white transition-all duration-300 ease-in-out border-2 rounded-lg md:text-md bg-mainColor border-mainColor hover:bg-white hover:text-mainColor"
                                 >
-                                  Next Order {">>"}
+                                  {t("NextOrder")} {">>"}
                                 </Link>
                               </div>
                             </div>
-                            {
-                              detailsData?.address &&
-                              <p className="text-sm text-gray-700 mt-1">
-                                <span className="font-TextFontSemiBold">Zone:</span>{" "}
+                            {detailsData?.address && (
+                              <p className="mt-1 text-sm text-gray-700">
+                                <span className="font-TextFontSemiBold">
+                                  {t("Zone")}:
+                                </span>{" "}
                                 {detailsData?.address?.zone?.zone || ""}
                               </p>
-                            }
-                            <p className="text-sm text-gray-700 mt-1">
-                              <span className="font-TextFontSemiBold">Branch:</span>{" "}
+                            )}
+                            <p className="mt-1 text-sm text-gray-700">
+                              <span className="font-TextFontSemiBold">
+                                {t("Branch")}:
+                              </span>{" "}
                               {detailsData?.branch?.name || ""}
                             </p>
-                            <p className="text-sm text-gray-700 mt-1">
-                              <span className="font-TextFontSemiBold">Order Time:</span>{" "}
+                            <p className="mt-1 text-sm text-gray-700">
+                              <span className="font-TextFontSemiBold">
+                                {t("OrderTime")}:
+                              </span>{" "}
                               {detailsData?.date || ""}
                             </p>
-                            <p className="text-sm text-gray-700 mt-1">
-                              <span className="font-TextFontSemiBold">Order Date:</span>{" "}
+                            <p className="mt-1 text-sm text-gray-700">
+                              <span className="font-TextFontSemiBold">
+                                {t("OrderDate")}:
+                              </span>{" "}
                               {detailsData?.order_date || ""}
                             </p>
-                            <p className="text-sm text-gray-700 mt-1">
-                              <span className="font-TextFontSemiBold">Schedule:</span>{" "}
+                            <p className="mt-1 text-sm text-gray-700">
+                              <span className="font-TextFontSemiBold">
+                                {t("Schedule")}:
+                              </span>{" "}
                               {detailsData?.schedule?.name || "-"}
                             </p>
                           </div>
                         </div>
 
                         {/* Order Information */}
-                        <div className="w-full flex sm:flex-col xl:flex-row justify-center items-start gap-4">
-                          <div className="sm:w-full xl:w-6/12  bg-white p-2 shadow-md rounded-md">
-                            <p className="text-md text-gray-800">
-                              <span className="font-TextFontSemiBold text-mainColor">Status:</span>{" "}
+                        <div className="flex items-start justify-center w-full gap-4 sm:flex-col xl:flex-row">
+                          <div className="p-2 bg-white rounded-md shadow-md sm:w-full xl:w-6/12">
+                            <p className="text-gray-800 text-md">
+                              <span className="font-TextFontSemiBold text-mainColor">
+                                {t("Status")}:
+                              </span>{" "}
                               {detailsData?.order_status || ""}
                             </p>
-                            <p className="text-md text-gray-800">
-                              <span className="font-TextFontSemiBold text-mainColor">Payment Method:</span>{" "}
+                            <p className="text-gray-800 text-md">
+                              <span className="font-TextFontSemiBold text-mainColor">
+                                {t("PaymentMethod")}:
+                              </span>{" "}
                               {detailsData?.payment_method?.name || ""}
                             </p>
-                            {
-                              detailsData?.payment_method?.name === "Visa Master Card" &&
-                              (
-                                <p className="text-md text-gray-800">
-                                  <span className="font-TextFontSemiBold text-mainColor">Payment Status:</span>{" "}
-                                  {detailsData?.status_payment || ""}
-                                </p>
-                              )
-                            }
+                            {detailsData?.payment_method?.name ===
+                              "Visa Master Card" && (
+                              <p className="text-gray-800 text-md">
+                                <span className="font-TextFontSemiBold text-mainColor">
+                                  {t("PaymentStatus")}:
+                                </span>{" "}
+                                {detailsData?.status_payment || ""}
+                              </p>
+                            )}
                           </div>
-                          <div className="sm:w-full xl:w-6/12   bg-white p-2 shadow-md rounded-md">
-                            <p className="text-md text-gray-800">
-                              <span className="font-TextFontSemiBold text-mainColor">Order Type:</span>{" "}
+                          <div className="p-2 bg-white rounded-md shadow-md sm:w-full xl:w-6/12">
+                            <p className="text-gray-800 text-md">
+                              <span className="font-TextFontSemiBold text-mainColor">
+                                {t("OrderType")}:
+                              </span>{" "}
                               <span
-                                className={`px-2 py-1 rounded-full text-md ${detailsData?.order_type === "take_away"
-                                  ? "text-green-700 bg-green-100" // Green text with light green bg
-                                  : "text-blue-700 bg-blue-100" // Adjust for delivery (blue as example)
-                                  }`}
+                                className={`px-2 py-1 rounded-full text-md ${
+                                  detailsData?.order_type === "take_away"
+                                    ? "text-green-700 bg-green-100" // Green text with light green bg
+                                    : "text-blue-700 bg-blue-100" // Adjust for delivery (blue as example)
+                                }`}
                               >
                                 {detailsData?.order_type || ""}
-                              </span>                            </p>
-                            <p className="text-md text-gray-800">
-                              <span className="font-TextFontSemiBold text-mainColor">Order Note:</span>{" "}
+                              </span>{" "}
+                            </p>
+                            <p className="text-gray-800 text-md">
+                              <span className="font-TextFontSemiBold text-mainColor">
+                                {t("OrderNote")}:
+                              </span>{" "}
                               {detailsData?.notes || "No Notes"}
                             </p>
                             {detailsData?.payment_method?.id !== 2 && (
-                              <p className="text-md text-gray-800">
-                                <span className="font-TextFontSemiBold text-mainColor">Order Recipt:</span>
+                              <p className="text-gray-800 text-md">
+                                <span className="font-TextFontSemiBold text-mainColor">
+                                  {t("OrderRecipt")}:
+                                </span>
                                 {detailsData?.receipt ? (
                                   <>
                                     <span
-                                      className="text-mainColor font-TextFontMedium ml-2 underline cursor-pointer"
-                                      onClick={() => handleOpenReceipt(detailsData.id)}
+                                      className="ml-2 underline cursor-pointer text-mainColor font-TextFontMedium"
+                                      onClick={() =>
+                                        handleOpenReceipt(detailsData.id)
+                                      }
                                     >
-                                      Receipt
+                                      {t("Receipt")}
                                     </span>
 
                                     {openReceipt === detailsData.id && (
@@ -579,11 +609,11 @@ const DetailsOrderPage = () => {
                                         onClose={handleCloseReceipt}
                                         className="relative z-10"
                                       >
-                                        <DialogBackdrop className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+                                        <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
                                         <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                                          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                                            <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-4xl">
-                                              <div className="w-full flex justify-center items-center p-5">
+                                          <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                                            <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-4xl">
+                                              <div className="flex items-center justify-center w-full p-5">
                                                 <img
                                                   src={
                                                     detailsData?.receipt
@@ -598,9 +628,9 @@ const DetailsOrderPage = () => {
                                                 <button
                                                   type="button"
                                                   onClick={handleCloseReceipt}
-                                                  className="inline-flex w-full justify-center rounded-md bg-mainColor px-6 py-3 text-sm font-TextFontMedium text-white sm:mt-0 sm:w-auto"
+                                                  className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md bg-mainColor font-TextFontMedium sm:mt-0 sm:w-auto"
                                                 >
-                                                  Close
+                                                  {t("Close")}
                                                 </button>
                                               </div>
                                             </DialogPanel>
@@ -610,8 +640,8 @@ const DetailsOrderPage = () => {
                                     )}
                                   </>
                                 ) : (
-                                  <span className="text-md text-gray-800 font-TextFontMedium ml-2 underline">
-                                    No Recipt
+                                  <span className="ml-2 text-gray-800 underline text-md font-TextFontMedium">
+                                    {t("NoRecipt")}
                                   </span>
                                 )}
                               </p>
@@ -621,187 +651,258 @@ const DetailsOrderPage = () => {
                       </div>
 
                       {/* Combined Orders Table */}
-                      <div className="bg-white shadow-lg rounded-lg p-2 my-3 border border-gray-200">
+                      <div className="p-2 my-3 bg-white border border-gray-200 rounded-lg shadow-lg">
                         {/* Table Header */}
-                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Order Items</h2>
+                        <h2 className="mb-2 text-2xl font-bold text-gray-800">
+                          {t("Order Items")}
+                        </h2>
 
                         {/* Table wrapped in a horizontal scroll container */}
                         <div className="overflow-x-auto">
                           <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gradient-to-r from-[#9E090F] to-[#D1191C] text-white">
                               <tr>
-                                <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-gray-300">
-                                  Order #
+                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
+                                  {t("Order")} #
                                 </th>
-                                <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-gray-300">
-                                  Products
+                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
+                                  {t("Products")}
                                 </th>
-                                <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-gray-300">
-                                  Addons
+                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
+                                  {t("Addons")}
                                 </th>
-                                <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-gray-300">
-                                  Excludes
+                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
+                                  {t("Excludes")}
                                 </th>
-                                <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider border-gray-300">
-                                  Extra
+                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
+                                  {t("Extra")}
                                 </th>
-                                <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider">
-                                  Notes
+                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase">
+                                  {t("Notes")}
                                 </th>
                               </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                              {(detailsData?.order_details || []).map((order, orderIndex) => (
-                                <tr key={`order-${orderIndex}`} className="hover:bg-gray-50">
-                                  {/* Order Number Column */}
-                                  <td className="px-2 py-1 whitespace-normal border-r border-gray-300 font-semibold">
-                                    {orderIndex + 1}
-                                  </td>
+                              {(detailsData?.order_details || []).map(
+                                (order, orderIndex) => (
+                                  <tr
+                                    key={`order-${orderIndex}`}
+                                    className="hover:bg-gray-50"
+                                  >
+                                    {/* Order Number Column */}
+                                    <td className="px-2 py-1 font-semibold whitespace-normal border-r border-gray-300">
+                                      {orderIndex + 1}
+                                    </td>
 
-                                  {/* Products Column: Name, Price, Quantity */}
-                                  <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                    {order.product.map((prod, prodIndex) => (
-                                      <div key={`prod-${prodIndex}`} className="mb-3">
-                                        <div className="font-semibold text-gray-800">{prod.product.name}</div>
-                                        <div className="text-sm text-gray-600">Price: {prod.product.price}</div>
-                                        <div className="text-sm text-gray-600">Qty: {prod.count}</div>
-                                      </div>
-                                    ))}
-                                  </td>
-
-                                  {/* Addons Column: Name, Price, Count */}
-                                  <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                    {order.addons && order.addons.length > 0 ? (
-                                      order.addons.map((addon, addonIndex) => (
-                                        <div key={`addon-${addonIndex}`} className="mb-3">
-                                          <div className="font-semibold text-gray-800">{addon.addon.name}</div>
-                                          <div className="text-sm text-gray-500">Price: {addon.addon.price}</div>
-                                          <div className="text-sm text-gray-500">Count: {addon.count || 0}</div>
-                                        </div>
-                                      ))
-                                    ) : (
-                                      <span className="text-gray-500">-</span>
-                                    )}
-                                  </td>
-
-                                  {/* Excludes Column: Name */}
-                                  <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                    {order.excludes && order.excludes.length > 0 ? (
-                                      order.excludes.map((exclude, excludeIndex) => (
-                                        <div key={`exclude-${excludeIndex}`} className="mb-3">
-                                          <div className="font-semibold text-gray-800">{exclude.name}</div>
-                                        </div>
-                                      ))
-                                    ) : (
-                                      <span className="text-gray-500">-</span>
-                                    )}
-                                  </td>
-
-                                  {/* Variations Column: Name and Type */}
-                                  <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                    {order.variations && order.variations.length > 0 ? (
-                                      order.variations.map((variation, varIndex) => (
-                                        <div key={`variation-${varIndex}`} className="mb-3">
-                                          <div className="font-semibold text-gray-800">{variation.variation?.name}</div>
-                                          <div className="text-xs text-gray-500">
-                                            Type:{' '}
-                                            {variation.options && variation.options.length > 0 ? (
-                                              variation.options.map((option, optIndex) => (
-                                                <span key={`option-${optIndex}`} className="mr-1">
-                                                  {option.name}
-                                                  {optIndex < variation.options.length - 1 ? ', ' : ''}
-                                                </span>
-                                              ))
-                                            ) : (
-                                              <span>-</span>
-                                            )}
+                                    {/* Products Column: Name, Price, Quantity */}
+                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
+                                      {order.product.map((prod, prodIndex) => (
+                                        <div
+                                          key={`prod-${prodIndex}`}
+                                          className="mb-3"
+                                        >
+                                          <div className="font-semibold text-gray-800">
+                                            {prod.product.name}
+                                          </div>
+                                          <div className="text-sm text-gray-600">
+                                            {t("Price")}: {prod.product.price}
+                                          </div>
+                                          <div className="text-sm text-gray-600">
+                                            {t("Qty")}: {prod.count}
                                           </div>
                                         </div>
-                                      ))
-                                    ) : (
-                                      <span className="text-gray-500">-</span>
-                                    )}
-                                  </td>
+                                      ))}
+                                    </td>
 
-                                  {/* Notes Column: Styled Card for Product Notes */}
-                                  <td className="px-2 py-1 whitespace-normal">
-                                    {order.product.map((prod, prodIndex) => (
-                                      <div key={`note-${prodIndex}`} className="mb-3">
-                                        {prod.notes ? (
-                                          <div className="relative bg-red-50 border-l-4 border-red-400 rounded-md p-2 text-sm text-gray-700 shadow-sm">
-                                            <div className="flex items-start">
-                                              <p className="line-clamp-3">{prod.notes}</p>
+                                    {/* Addons Column: Name, Price, Count */}
+                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
+                                      {order.addons &&
+                                      order.addons.length > 0 ? (
+                                        order.addons.map(
+                                          (addon, addonIndex) => (
+                                            <div
+                                              key={`addon-${addonIndex}`}
+                                              className="mb-3"
+                                            >
+                                              <div className="font-semibold text-gray-800">
+                                                {addon.addon.name}
+                                              </div>
+                                              <div className="text-sm text-gray-500">
+                                                {t("Price")}:{" "}
+                                                {addon.addon.price}
+                                              </div>
+                                              <div className="text-sm text-gray-500">
+                                                {t("Count")}: {addon.count || 0}
+                                              </div>
                                             </div>
-                                          </div>
-                                        ) : (
-                                          <span className="text-gray-500">No notes</span>
-                                        )}
-                                      </div>
-                                    ))}
-                                  </td>
-                                </tr>
-                              ))}
+                                          )
+                                        )
+                                      ) : (
+                                        <span className="text-gray-500">-</span>
+                                      )}
+                                    </td>
+
+                                    {/* Excludes Column: Name */}
+                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
+                                      {order.excludes &&
+                                      order.excludes.length > 0 ? (
+                                        order.excludes.map(
+                                          (exclude, excludeIndex) => (
+                                            <div
+                                              key={`exclude-${excludeIndex}`}
+                                              className="mb-3"
+                                            >
+                                              <div className="font-semibold text-gray-800">
+                                                {exclude.name}
+                                              </div>
+                                            </div>
+                                          )
+                                        )
+                                      ) : (
+                                        <span className="text-gray-500">-</span>
+                                      )}
+                                    </td>
+
+                                    {/* Variations Column: Name and Type */}
+                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
+                                      {order.variations &&
+                                      order.variations.length > 0 ? (
+                                        order.variations.map(
+                                          (variation, varIndex) => (
+                                            <div
+                                              key={`variation-${varIndex}`}
+                                              className="mb-3"
+                                            >
+                                              <div className="font-semibold text-gray-800">
+                                                {variation.variation?.name}
+                                              </div>
+                                              <div className="text-xs text-gray-500">
+                                                {t("Type")}:{" "}
+                                                {variation.options &&
+                                                variation.options.length > 0 ? (
+                                                  variation.options.map(
+                                                    (option, optIndex) => (
+                                                      <span
+                                                        key={`option-${optIndex}`}
+                                                        className="mr-1"
+                                                      >
+                                                        {option.name}
+                                                        {optIndex <
+                                                        variation.options
+                                                          .length -
+                                                          1
+                                                          ? ", "
+                                                          : ""}
+                                                      </span>
+                                                    )
+                                                  )
+                                                ) : (
+                                                  <span>-</span>
+                                                )}
+                                              </div>
+                                            </div>
+                                          )
+                                        )
+                                      ) : (
+                                        <span className="text-gray-500">-</span>
+                                      )}
+                                    </td>
+
+                                    {/* Notes Column: Styled Card for Product Notes */}
+                                    <td className="px-2 py-1 whitespace-normal">
+                                      {order.product.map((prod, prodIndex) => (
+                                        <div
+                                          key={`note-${prodIndex}`}
+                                          className="mb-3"
+                                        >
+                                          {prod.notes ? (
+                                            <div className="relative p-2 text-sm text-gray-700 border-l-4 border-red-400 rounded-md shadow-sm bg-red-50">
+                                              <div className="flex items-start">
+                                                <p className="line-clamp-3">
+                                                  {prod.notes}
+                                                </p>
+                                              </div>
+                                            </div>
+                                          ) : (
+                                            <span className="text-gray-500">
+                                              {t("No notes")}
+                                            </span>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </td>
+                                  </tr>
+                                )
+                              )}
                             </tbody>
                           </table>
                         </div>
                       </div>
 
                       {/* Order Summary */}
-                      <div className="my-2 flex flex-col gap-y-1 p-2">
-                        <p className="w-full flex items-center justify-between">
-                          {(detailsData?.order_details || []).forEach((orderDetail) => {
-                            // Sum extras prices
-                            orderDetail.extras.forEach((extraItem) => {
-                              totalItemPrice += extraItem.price;
-                            });
+                      <div className="flex flex-col p-2 my-2 gap-y-1">
+                        <p className="flex items-center justify-between w-full">
+                          {(detailsData?.order_details || []).forEach(
+                            (orderDetail) => {
+                              // Sum extras prices
+                              orderDetail.extras.forEach((extraItem) => {
+                                totalItemPrice += extraItem.price;
+                              });
 
-                            // Sum product prices (price * count)
-                            orderDetail.product.forEach((productItem) => {
-                              totalItemPrice += productItem.product.price * productItem.count;
-                            });
+                              // Sum product prices (price * count)
+                              orderDetail.product.forEach((productItem) => {
+                                totalItemPrice +=
+                                  productItem.product.price * productItem.count;
+                              });
 
-                            // Sum variations' options prices
-                            // orderDetail.variations.forEach((variation) => {
-                            //   variation.options.forEach((optionItem) => {
-                            //     totalItemPrice += optionItem.price;
-                            //   });
-                            // });
-                          })}
+                              // Sum variations' options prices
+                              // orderDetail.variations.forEach((variation) => {
+                              //   variation.options.forEach((optionItem) => {
+                              //     totalItemPrice += optionItem.price;
+                              //   });
+                              // });
+                            }
+                          )}
                           {/* Display total items price */}
-                          Items Price:<span>{totalItemPrice}</span>
+                          {t("ItemsPrice")}:<span>{totalItemPrice}</span>
                         </p>
 
-                        <p className="w-full flex items-center justify-between">
-                          Tax / VAT:<span>{detailsData?.total_tax || 0}</span>
+                        <p className="flex items-center justify-between w-full">
+                          {t("Tax/VAT")}:
+                          <span>{detailsData?.total_tax || 0}</span>
                         </p>
-                        <p className="w-full flex items-center justify-between">
-                          {(detailsData?.order_details || []).forEach((orderDetail) => {
-                            orderDetail.addons.forEach((addonItem) => {
-                              // Add the price of each addon to the total
-                              totalAddonPrice += addonItem.addon.price * addonItem.count;
-                            });
-                          })}
+                        <p className="flex items-center justify-between w-full">
+                          {(detailsData?.order_details || []).forEach(
+                            (orderDetail) => {
+                              orderDetail.addons.forEach((addonItem) => {
+                                // Add the price of each addon to the total
+                                totalAddonPrice +=
+                                  addonItem.addon.price * addonItem.count;
+                              });
+                            }
+                          )}
 
-                          <span>Addons Price:</span>
+                          <span>{t("AddonsPrice")}:</span>
                           <span>{totalAddonPrice}</span>
                         </p>
-                        <p className="w-full flex items-center justify-between">
-                          Subtotal:
+                        <p className="flex items-center justify-between w-full">
+                          {t("Subtotal")}:
                           <span>{totalItemPrice + totalAddonPrice}</span>
                         </p>
-                        <p className="w-full flex items-center justify-between">
-                          Extra Discount: <span>{detailsData?.total_discount || 0}</span>
+                        <p className="flex items-center justify-between w-full">
+                          {t("ExtraDiscount")}:{" "}
+                          <span>{detailsData?.total_discount || 0}</span>
                         </p>
-                        <p className="w-full flex items-center justify-between">
-                          Coupon Discount:
+                        <p className="flex items-center justify-between w-full">
+                          {t("CouponDiscount")}:
                           <span> {detailsData?.coupon_discount || 0}</span>
                         </p>
-                        <p className="w-full flex items-center justify-between">
-                          Delivery Fee:
+                        <p className="flex items-center justify-between w-full">
+                          {t("DeliveryFee")}:
                           <span> {detailsData?.address?.zone?.price || 0}</span>
                         </p>
-                        <p className="w-full flex items-center justify-between font-TextFontSemiBold text-lg">
-                          Total:<span>{detailsData?.amount}</span>
+                        <p className="flex items-center justify-between w-full text-lg font-TextFontSemiBold">
+                          {t("Total")}:<span>{detailsData?.amount}</span>
                         </p>
                       </div>
                     </div>
@@ -811,29 +912,31 @@ const DetailsOrderPage = () => {
 
               {/* Right Section */}
               <div className="sm:w-full lg:w-4/12">
-
-                <div className="w-full bg-white rounded-xl shadow-md p-4">
-                  <div className="flex items-center gap-x-2 text-lg font-TextFontSemiBold">
+                <div className="w-full p-4 bg-white shadow-md rounded-xl">
+                  <div className="flex items-center text-lg gap-x-2 font-TextFontSemiBold">
                     <span>
                       <FaUser className="text-mainColor" />
                     </span>
-                    Customer Information
+                    {t("Customer Information")}
                   </div>
                   <p className="text-sm">
-                    Name: {detailsData?.user?.f_name || "-"}{" "}
+                    {t("Name")}: {detailsData?.user?.f_name || "-"}{" "}
                     {detailsData?.user?.l_name || "-"}
                   </p>
                   <p className="text-sm">
-                    Orders: {detailsData?.user?.count_orders || "-"}
+                    {t("Orders")}: {detailsData?.user?.count_orders || "-"}
                   </p>
-                  <p className="text-sm flex items-center gap-2">
-                    Contact:
+                  <p className="flex items-center gap-2 text-sm">
+                    {t("Contact")}:
                     {detailsData?.user?.phone && (
                       <a
-                        href={`https://wa.me/${detailsData.user.phone.replace(/[^0-9]/g, '')}`}
+                        href={`https://wa.me/${detailsData.user.phone.replace(
+                          /[^0-9]/g,
+                          ""
+                        )}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-black hover:text-green-600 transition duration-200"
+                        className="flex items-center gap-1 text-black transition duration-200 hover:text-green-600"
                       >
                         <FaWhatsapp className="w-5 h-5 text-green-600" />
                         {detailsData.user.phone}
@@ -841,38 +944,39 @@ const DetailsOrderPage = () => {
                     )}
                   </p>
                   <p className="text-sm">
-                    Email: {detailsData?.user?.email || "-"}
+                    {t("Email")}: {detailsData?.user?.email || "-"}
                   </p>
 
                   {detailsData.order_type === "delivery" && (
                     <>
                       <p className="text-sm">
-                        Build Num: {detailsData?.address?.building_num || "-"}
+                        {t("BuildNum")}:{" "}
+                        {detailsData?.address?.building_num || "-"}
                       </p>
                       <p className="text-sm">
-                        Floor: {detailsData?.address?.floor_num || "-"}
+                        {t("Floor")}: {detailsData?.address?.floor_num || "-"}
                       </p>
                       <p className="text-sm">
-                        House: {detailsData?.address?.apartment || "-"}
+                        {t("House")}: {detailsData?.address?.apartment || "-"}
                       </p>
                       <p className="text-sm">
-                        Road: {detailsData?.address?.street || "-"}
+                        {t("Road")}: {detailsData?.address?.street || "-"}
                       </p>
-                      <p className="text-sm pb-2 text-center">
+                      <p className="pb-2 text-sm text-center">
                         {detailsData?.address?.address || "-"}
                       </p>
                       {detailsData?.address?.additional_data ||
                         ("" && (
-                          <p className="text-sm border-t-2 text-center pt-2">
+                          <p className="pt-2 text-sm text-center border-t-2">
                             {detailsData?.address?.additional_data || "-"}
                           </p>
                         ))}
                       {detailsData?.address?.map && (
                         <p className="text-sm line-clamp-3">
-                          Location Map:
+                          {t("LocationMap")}:
                           <a
                             href={detailsData?.address?.map}
-                            className="ml-1 text-mainColor font-TextFontMedium underline"
+                            className="ml-1 underline text-mainColor font-TextFontMedium"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -886,22 +990,22 @@ const DetailsOrderPage = () => {
                   )}
                 </div>
 
-                <div className="w-full bg-white rounded-xl shadow-md p-4 mt-4">
+                <div className="w-full p-4 mt-4 bg-white shadow-md rounded-xl">
                   <div className="flex flex-col gap-y-2">
-                    <span className="font-TextFontSemiBold text-lg">
-                      Change Order Status
+                    <span className="text-lg font-TextFontSemiBold">
+                      {t("Change Order Status")}
                     </span>
 
                     <div className="flex flex-col gap-3">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         {/* Define status order for comparison */}
                         {(() => {
                           const statusOrder = [
-                            'pending',
-                            'processing',
-                            'confirmed',
-                            'out_for_delivery',
-                            'delivered',
+                            "pending",
+                            "processing",
+                            "confirmed",
+                            "out_for_delivery",
+                            "delivered",
                             // 'canceled',
                             // 'refund',
                             // 'returned',
@@ -909,46 +1013,92 @@ const DetailsOrderPage = () => {
                           ];
                           // ccccccccc
                           const currentStatus = detailsData?.order_status;
-                          const currentIndex = statusOrder.indexOf(currentStatus);
+                          const currentIndex =
+                            statusOrder.indexOf(currentStatus);
 
                           // Define all possible statuses
                           const allStatuses = [
-                            { name: 'pending', label: 'Pending', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
-                            { name: 'processing', label: 'Accept', icon: 'M5 13l4 4L19 7' },
-                            { name: 'confirmed', label: 'Processing', icon: 'M5 13l4 4L19 7' },
-                            { name: 'out_for_delivery', label: 'Out for Delivery', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
-                            { name: 'delivered', label: 'Delivered', icon: 'M5 13l4 4L19 7' },
-                            { name: 'faild_to_deliver', label: 'Failed to Deliver', icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z' },
-                            { name: 'returned', label: 'Returned', icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15' },
-                            { name: 'canceled', label: 'Canceled', icon: 'M6 18L18 6M6 6l12 12' },
-                            { name: 'refund', label: 'Refund', icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
+                            {
+                              name: "pending",
+                              label: "Pending",
+                              icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
+                            },
+                            {
+                              name: "processing",
+                              label: "Accept",
+                              icon: "M5 13l4 4L19 7",
+                            },
+                            {
+                              name: "confirmed",
+                              label: "Processing",
+                              icon: "M5 13l4 4L19 7",
+                            },
+                            {
+                              name: "out_for_delivery",
+                              label: "Out for Delivery",
+                              icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
+                            },
+                            {
+                              name: "delivered",
+                              label: "Delivered",
+                              icon: "M5 13l4 4L19 7",
+                            },
+                            {
+                              name: "faild_to_deliver",
+                              label: "Failed to Deliver",
+                              icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z",
+                            },
+                            {
+                              name: "returned",
+                              label: "Returned",
+                              icon: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15",
+                            },
+                            {
+                              name: "canceled",
+                              label: "Canceled",
+                              icon: "M6 18L18 6M6 6l12 12",
+                            },
+                            {
+                              name: "refund",
+                              label: "Refund",
+                              icon: "M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z",
+                            },
                           ];
 
                           // Filter statuses based on current status
-                          const filteredStatuses = allStatuses.filter(status => {
-                            if (currentStatus === 'delivered') {
-                              // Exclude 'canceled' and 'returned' when status is 'delivered'
-                              return !['canceled'].includes(status.name);
-                            } else if (currentStatus === 'canceled') {
-                              // Exclude 'delivered', 'faild_to_deliver', and 'returned' when status is 'canceled'
-                              return !['delivered', 'faild_to_deliver', 'returned'].includes(status.name);
+                          const filteredStatuses = allStatuses.filter(
+                            (status) => {
+                              if (currentStatus === "delivered") {
+                                // Exclude 'canceled' and 'returned' when status is 'delivered'
+                                return !["canceled"].includes(status.name);
+                              } else if (currentStatus === "canceled") {
+                                // Exclude 'delivered', 'faild_to_deliver', and 'returned' when status is 'canceled'
+                                return ![
+                                  "delivered",
+                                  "faild_to_deliver",
+                                  "returned",
+                                ].includes(status.name);
+                              } else if (currentStatus === "refund") {
+                                // Exclude 'delivered', 'faild_to_deliver', and 'returned' when status is 'canceled'
+                                return !["canceled"].includes(status.name);
+                              }
+                              return true; // Include all statuses for other cases
                             }
-                            else if (currentStatus === 'refund') {
-                              // Exclude 'delivered', 'faild_to_deliver', and 'returned' when status is 'canceled'
-                              return !['canceled'].includes(status.name);
-                            }
-                            return true; // Include all statuses for other cases
-                          });
+                          );
 
                           return filteredStatuses.map((status) => {
-                            const statusIndex = statusOrder.indexOf(status.name);
+                            const statusIndex = statusOrder.indexOf(
+                              status.name
+                            );
                             const isCurrent = currentStatus === status.name;
-                            const isPrevious = statusIndex !== -1 && currentIndex > statusIndex;
-                            const isNext = statusIndex !== -1 && currentIndex < statusIndex;
+                            const isPrevious =
+                              statusIndex !== -1 && currentIndex > statusIndex;
+                            const isNext =
+                              statusIndex !== -1 && currentIndex < statusIndex;
 
-                            const isCancel = status.name === 'canceled';
-                            const isReturn = status.name === 'returned';
-                            const isFailed = status.name === 'faild_to_deliver';
+                            const isCancel = status.name === "canceled";
+                            const isReturn = status.name === "returned";
+                            const isFailed = status.name === "faild_to_deliver";
 
                             // Determine if button should be disabled
                             let isDisabled = false;
@@ -957,56 +1107,85 @@ const DetailsOrderPage = () => {
                             if (statusOrder.includes(status.name)) {
                               // Enable if exactly one step forward or backward (except pending)
                               isDisabled = !(
-                                (statusIndex === currentIndex + 1) ||
-                                (statusIndex === currentIndex - 1 && status.name !== 'pending')
+                                statusIndex === currentIndex + 1 ||
+                                (statusIndex === currentIndex - 1 &&
+                                  status.name !== "pending")
                               );
                             }
                             // For returned status
                             else if (isReturn) {
-                              isDisabled = !['out_for_delivery', 'delivered'].includes(currentStatus);
+                              isDisabled = ![
+                                "out_for_delivery",
+                                "delivered",
+                              ].includes(currentStatus);
                             }
                             // For failed delivery status
                             else if (isFailed) {
-                              isDisabled = currentStatus !== 'out_for_delivery';
+                              isDisabled = currentStatus !== "out_for_delivery";
                             }
 
                             return (
                               <button
                                 key={status.name}
-                                onClick={() => !isDisabled && handleSelectOrderStatus({ name: status.name })}
+                                onClick={() =>
+                                  !isDisabled &&
+                                  handleSelectOrderStatus({ name: status.name })
+                                }
                                 disabled={isDisabled}
                                 className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all relative
-              ${isCurrent ? 'bg-blue-100 border-blue-500 text-blue-900 shadow-md' :
-                                    isPrevious ? 'bg-green-50 border-green-300 text-green-800' :
-                                      isDisabled ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed' :
-                                        'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'}
+              ${
+                isCurrent
+                  ? "bg-blue-100 border-blue-500 text-blue-900 shadow-md"
+                  : isPrevious
+                  ? "bg-green-50 border-green-300 text-green-800"
+                  : isDisabled
+                  ? "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-white border-gray-200 hover:bg-gray-50 text-gray-700"
+              }
             `}
                               >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={status.icon} />
+                                <svg
+                                  className="w-5 h-5"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d={status.icon}
+                                  />
                                 </svg>
                                 {status.label}
 
                                 {/* Checkmark for completed statuses */}
                                 {isPrevious && (
-                                  <span className="absolute top-2 right-2 text-green-500">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                  <span className="absolute text-green-500 top-2 right-2">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="w-4 h-4"
+                                      viewBox="0 0 20 20"
+                                      fill="currentColor"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clipRule="evenodd"
+                                      />
                                     </svg>
                                   </span>
                                 )}
 
                                 {/* Current status indicator */}
                                 {isCurrent && (
-                                  <span className="absolute top-0 right-0 -mt-1 -mr-1 flex h-3 w-3">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                                  <span className="absolute top-0 right-0 flex w-3 h-3 -mt-1 -mr-1">
+                                    <span className="absolute inline-flex w-full h-full bg-blue-400 rounded-full opacity-75 animate-ping"></span>
+                                    <span className="relative inline-flex w-3 h-3 bg-blue-500 rounded-full"></span>
                                   </span>
                                 )}
                               </button>
                             );
-
-
                           });
                         })()}
                       </div>
@@ -1014,16 +1193,16 @@ const DetailsOrderPage = () => {
 
                     {/* Reason Input Modal */}
                     {showReason && (
-                      <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <label className="block text-gray-700 text-sm font-medium mb-2">
-                          Enter Cancel Reason:
+                      <div className="p-4 mt-4 border border-gray-200 rounded-lg bg-gray-50">
+                        <label className="block mb-2 text-sm font-medium text-gray-700">
+                          {t("Enter Cancel Reason")}:
                         </label>
                         <input
                           type="text"
                           value={cancelReason}
                           onChange={(e) => setCancelReason(e.target.value)}
                           placeholder="Enter reason for cancellation"
-                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-mainColor"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainColor"
                         />
                         <div className="flex gap-2 mt-3">
                           <button
@@ -1031,14 +1210,16 @@ const DetailsOrderPage = () => {
                               setShowReason(false);
                               setCancelReason("");
                             }}
-                            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
+                            className="px-4 py-2 text-gray-800 transition bg-gray-200 rounded-lg hover:bg-gray-300"
                           >
-                            Cancel
+                            {t("Cancel")}
                           </button>
                           <button
                             onClick={() => {
                               if (!cancelReason.trim()) {
-                                auth.toastError("Please enter a cancellation reason");
+                                auth.toastError(
+                                  t("Please enter a cancellation reason")
+                                );
                                 return;
                               }
                               handleChangeStaus(
@@ -1049,9 +1230,9 @@ const DetailsOrderPage = () => {
                               );
                               setCancelReason("");
                             }}
-                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                            className="px-4 py-2 text-white transition bg-red-600 rounded-lg hover:bg-red-700"
                           >
-                            Confirm Cancellation
+                            {t("Confirm Cancellation")}
                           </button>
                         </div>
                       </div>
@@ -1059,66 +1240,86 @@ const DetailsOrderPage = () => {
 
                     {/* Show existing cancellation reasons if they exist */}
                     {detailsData.order_status === "canceled" && (
-                      <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+                      <div className="p-4 mt-4 bg-gray-100 rounded-lg">
                         {detailsData.admin_cancel_reason && (
                           <div className="mb-3">
-                            <p className="font-medium text-gray-800">Admin Cancellation Reason:</p>
-                            <p className="text-gray-600">{detailsData.admin_cancel_reason}</p>
+                            <p className="font-medium text-gray-800">
+                              {t("Admin Cancellation Reason")}:
+                            </p>
+                            <p className="text-gray-600">
+                              {detailsData.admin_cancel_reason}
+                            </p>
                           </div>
                         )}
                         {detailsData.customer_cancel_reason && (
                           <div>
-                            <p className="font-medium text-gray-800">Customer Cancellation Reason:</p>
-                            <p className="text-gray-600">{detailsData.customer_cancel_reason}</p>
+                            <p className="font-medium text-gray-800">
+                              {t("Customer Cancellation Reason")}:
+                            </p>
+                            <p className="text-gray-600">
+                              {detailsData.customer_cancel_reason}
+                            </p>
                           </div>
                         )}
                       </div>
                     )}
                     {/* Cancel Reason Modal */}
-                    <Dialog open={showCancelModal} onClose={() => setShowCancelModal(false)} className="relative z-50">
+                    <Dialog
+                      open={showCancelModal}
+                      onClose={() => setShowCancelModal(false)}
+                      className="relative z-50"
+                    >
                       <DialogBackdrop className="fixed inset-0 bg-black bg-opacity-30" />
                       <div className="fixed inset-0 flex items-center justify-center p-4">
-                        <DialogPanel className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+                        <DialogPanel className="w-full max-w-md p-6 bg-white shadow-xl rounded-xl">
                           <div className="mb-4">
-                            <h3 className="text-lg font-medium text-gray-900">Cancel Order</h3>
+                            <h3 className="text-lg font-medium text-gray-900">
+                              {t("Cancel Order")}
+                            </h3>
                             <p className="mt-1 text-sm text-gray-500">
-                              Please provide a reason for cancellation
-                            </p>
+{t("Confirm Cancellation")}                            </p>
                           </div>
 
                           <textarea
                             value={cancelReason}
                             onChange={(e) => setCancelReason(e.target.value)}
                             placeholder="Enter cancellation reason..."
-                            className="w-full rounded-md border border-gray-300 p-2 focus:border-mainColor focus:ring-mainColor"
+                            className="w-full p-2 border border-gray-300 rounded-md focus:border-mainColor focus:ring-mainColor"
                             rows={3}
                           />
 
-                          <div className="mt-4 flex justify-end space-x-3">
+                          <div className="flex justify-end mt-4 space-x-3">
                             <button
                               type="button"
                               onClick={() => {
                                 setShowCancelModal(false);
                                 setCancelReason("");
                               }}
-                              className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                              className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
                             >
-                              Cancel
+                              {t("Cancel")}
                             </button>
                             <button
                               type="button"
                               onClick={() => {
                                 if (!cancelReason.trim()) {
-                                  auth.toastError("Please enter a cancellation reason");
+                                  auth.toastError(
+                                    t("Please enter a cancellation reason")
+                                  );
                                   return;
                                 }
-                                handleChangeStaus(detailsData.id, "", orderStatusName, cancelReason);
+                                handleChangeStaus(
+                                  detailsData.id,
+                                  "",
+                                  orderStatusName,
+                                  cancelReason
+                                );
                                 setShowCancelModal(false);
                                 setCancelReason("");
                               }}
-                              className="rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                              className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
                             >
-                              Confirm Cancellation
+                              {t("Confirm Cancellation")}
                             </button>
                           </div>
                         </DialogPanel>
@@ -1126,34 +1327,45 @@ const DetailsOrderPage = () => {
                     </Dialog>
 
                     {/* Refund Confirmation Modal */}
-                    <Dialog open={showRefundModal} onClose={() => setShowRefundModal(false)} className="relative z-50">
+                    <Dialog
+                      open={showRefundModal}
+                      onClose={() => setShowRefundModal(false)}
+                      className="relative z-50"
+                    >
                       <DialogBackdrop className="fixed inset-0 bg-black bg-opacity-30" />
                       <div className="fixed inset-0 flex items-center justify-center p-4">
-                        <DialogPanel className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+                        <DialogPanel className="w-full max-w-md p-6 bg-white shadow-xl rounded-xl">
                           <div className="mb-4">
-                            <h3 className="text-lg font-medium text-gray-900">Confirm Refund</h3>
+                            <h3 className="text-lg font-medium text-gray-900">
+                              {t("Confirm Refund")}
+                            </h3>
                             <p className="mt-1 text-sm text-gray-500">
-                              Are you sure you want to refund this order?
+                              {t('Are you sure you want to refund this order?')}
                             </p>
                           </div>
 
-                          <div className="mt-4 flex justify-end space-x-3">
+                          <div className="flex justify-end mt-4 space-x-3">
                             <button
                               type="button"
                               onClick={() => setShowRefundModal(false)}
-                              className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                              className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
                             >
-                              No, Cancel
+                             {t("No, Cancel")}
                             </button>
                             <button
                               type="button"
                               onClick={() => {
-                                handleChangeStaus(detailsData.id, "", "refund", "");
+                                handleChangeStaus(
+                                  detailsData.id,
+                                  "",
+                                  "refund",
+                                  ""
+                                );
                                 setShowRefundModal(false);
                               }}
-                              className="rounded-md border border-transparent bg-mainColor px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md bg-mainColor hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
-                              Yes, Refund
+                             {t("Yes, Refund")}
                             </button>
                           </div>
                         </DialogPanel>
@@ -1162,39 +1374,69 @@ const DetailsOrderPage = () => {
                   </div>
                 </div>
 
-                <div className="order-status-history p-4 bg-white rounded-lg shadow-sm mt-4">
-                  <h3 className="history-title text-lg font-semibold text-gray-800 mb-4">Order Status History</h3>
-                  <div className="timeline space-y-4">
+                <div className="p-4 mt-4 bg-white rounded-lg shadow-sm order-status-history">
+                  <h3 className="mb-4 text-lg font-semibold text-gray-800 history-title">
+                    {t("Order Status History")}
+                  </h3>
+                  <div className="space-y-4 timeline">
                     {dataDetailsOrder.log_order.map((log, index) => (
-                      <div key={log.id} className={`timeline-item relative pl-6 ${index === 0 ? 'first-item' : ''}`}>
+                      <div
+                        key={log.id}
+                        className={`timeline-item relative pl-6 ${
+                          index === 0 ? "first-item" : ""
+                        }`}
+                      >
                         {/* Timeline marker */}
-                        <div className="timeline-marker absolute left-0 top-2 w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow"></div>
+                        <div className="absolute left-0 w-3 h-3 bg-blue-500 border-2 border-white rounded-full shadow timeline-marker top-2"></div>
 
                         {/* Timeline content */}
-                        <div className="timeline-content bg-gray-50 p-3 rounded-lg">
-                          <div className="status-change flex items-center gap-2 mb-1">
-                            <span className="from-status px-2 py-1 bg-gray-200 text-gray-700 rounded text-sm">
-                              {log.from_status === "processing" ? "Accepted" :
-                                log.from_status === "confirmed" ? "Processing" :
-                                  log.from_status.replace(/_/g, ' ')}
+                        <div className="p-3 rounded-lg timeline-content bg-gray-50">
+                          <div className="flex items-center gap-2 mb-1 status-change">
+                            <span className="px-2 py-1 text-sm text-gray-700 bg-gray-200 rounded from-status">
+                              {log.from_status === "processing"
+                                ? "Accepted"
+                                : log.from_status === "confirmed"
+                                ? "Processing"
+                                : log.from_status.replace(/_/g, " ")}
                             </span>
-                            <span className="arrow text-gray-400">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                            <span className="text-gray-400 arrow">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="w-4 h-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M13 5l7 7-7 7M5 5l7 7-7 7"
+                                />
                               </svg>
                             </span>
 
-                            <span className="from-status px-2 py-1 bg-gray-200 text-gray-700 rounded text-sm">
-                              {log.to_status === "processing" ? "Accepted" :
-                                log.to_status === "confirmed" ? "Processing" :
-                                  log.to_status.replace(/_/g, ' ')}
+                            <span className="px-2 py-1 text-sm text-gray-700 bg-gray-200 rounded from-status">
+                              {log.to_status === "processing"
+                                ? "Accepted"
+                                : log.to_status === "confirmed"
+                                ? "Processing"
+                                : log.to_status.replace(/_/g, " ")}
                             </span>
                           </div>
 
-                          <div className="meta-info flex justify-between items-center text-xs text-gray-500">
-                            <span className="changed-by">Changed by: <span className="font-medium">{log.admin.name}</span></span>
+                          <div className="flex items-center justify-between text-xs text-gray-500 meta-info">
+                            <span className="changed-by">
+                             {t("Changed by")}:{" "}
+                              <span className="font-medium">
+                                {log.admin.name}
+                              </span>
+                            </span>
                             <span className="change-date">
-                              {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              {new Date(log.created_at).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
                             </span>
                           </div>
                         </div>
@@ -1213,64 +1455,64 @@ const DetailsOrderPage = () => {
                   detailsData.order_status === "confirmed" ||
                   detailsData.order_status === "processing" ||
                   detailsData.order_status === "out_for_delivery") && (
-                    <div className="w-full bg-white rounded-xl shadow-md p-4 mt-4">
-                      <h3 className="text-lg font-TextFontSemiBold">
-                        Food Preparation Time
-                      </h3>
-                      <div className="flex items-center">
-                        <FaClock className="mr-2 text-gray-500" />
-                        {preparationTime ? (
-                          <>
-                            <span
-                              className={
-                                olderHours +
-                                  preparationTime.hours -
-                                  initialTime.currentHour <=
-                                  0 ||
-                                  olderDay +
-                                  preparationTime.days -
-                                  initialTime.currentDay <=
-                                  0
-                                  ? "text-red-500"
-                                  : "text-cyan-400"
-                              }
-                            >
-                              {olderHours +
+                  <div className="w-full p-4 mt-4 bg-white shadow-md rounded-xl">
+                    <h3 className="text-lg font-TextFontSemiBold">
+                      {t("Food Preparation Time")}
+                    </h3>
+                    <div className="flex items-center">
+                      <FaClock className="mr-2 text-gray-500" />
+                      {preparationTime ? (
+                        <>
+                          <span
+                            className={
+                              olderHours +
                                 preparationTime.hours -
                                 initialTime.currentHour <=
-                                0 ? (
-                                <>
-                                  {olderDay +
-                                    preparationTime.days -
-                                    initialTime.currentDay}
-                                  d{" "}
-                                  {initialTime.currentHour -
-                                    (olderHours + preparationTime.hours)}
-                                  h{" "}
-                                  {olderMinutes +
-                                    preparationTime.minutes -
-                                    initialTime.currentMinute}
-                                  m {preparationTime.seconds}s Over
-                                </>
-                              ) : (
-                                <>
-                                  {initialTime.currentDay - olderDay}d{" "}
-                                  {preparationTime.hours}h{" "}
-                                  {olderMinutes +
-                                    preparationTime.minutes -
-                                    initialTime.currentMinute}
-                                  m {preparationTime.seconds}s Left
-                                </>
-                              )}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="text-gray-400">
-                            Preparing time not available
+                                0 ||
+                              olderDay +
+                                preparationTime.days -
+                                initialTime.currentDay <=
+                                0
+                                ? "text-red-500"
+                                : "text-cyan-400"
+                            }
+                          >
+                            {olderHours +
+                              preparationTime.hours -
+                              initialTime.currentHour <=
+                            0 ? (
+                              <>
+                                {olderDay +
+                                  preparationTime.days -
+                                  initialTime.currentDay}
+                                d{" "}
+                                {initialTime.currentHour -
+                                  (olderHours + preparationTime.hours)}
+                                h{" "}
+                                {olderMinutes +
+                                  preparationTime.minutes -
+                                  initialTime.currentMinute}
+                                m {preparationTime.seconds}s Over
+                              </>
+                            ) : (
+                              <>
+                                {initialTime.currentDay - olderDay}d{" "}
+                                {preparationTime.hours}h{" "}
+                                {olderMinutes +
+                                  preparationTime.minutes -
+                                  initialTime.currentMinute}
+                                m {preparationTime.seconds}s Left
+                              </>
+                            )}
                           </span>
-                        )}
-                      </div>
-                      {/* <span>preparationTime.hours: {preparationTime?.hours}</span>
+                        </>
+                      ) : (
+                          <span className="text-gray-400">
+                            {t("Preparing time not available")}
+                          </span>
+                      )}
+                    </div>
+                    {/* <span>preparationTime.hours: {preparationTime?.hours}</span>
                                                                <br />
                                                                <span>olderHours: {olderHours}</span>
                                                                <br />
@@ -1281,39 +1523,38 @@ const DetailsOrderPage = () => {
                                                                <span>olderMinutes: {olderMinutes}</span>
                                                                <br />
                                                                <span>currentMinute: {initialTime?.currentMinute}</span> */}
-                    </div>
-                  )}
-
-                {detailsData.delivery_id !== null && (
-                  <div className="w-full bg-white rounded-xl shadow-md p-4 mt-2">
-                    <div className="flex items-center gap-x-2 text-lg font-TextFontSemiBold">
-                      <span>
-                        <FaUser className="text-mainColor" />
-                      </span>
-                      Delivery Man
-                    </div>
-                    <p className="text-sm">
-                      Name: {detailsData?.delivery?.f_name || "-"}{" "}
-                      {detailsData?.delivery?.l_name || "-"}
-                    </p>
-                    <p className="text-sm">
-                      Orders: {detailsData?.delivery?.count_orders || "-"}
-                    </p>
-                    <p className="text-sm">
-                      Contact: {detailsData?.delivery?.phone || "-"}
-                    </p>
-                    <p className="text-sm">
-                      Email: {detailsData?.delivery?.email || "-"}
-                    </p>
                   </div>
                 )}
 
+                {detailsData.delivery_id !== null && (
+                  <div className="w-full p-4 mt-2 bg-white shadow-md rounded-xl">
+                    <div className="flex items-center text-lg gap-x-2 font-TextFontSemiBold">
+                      <span>
+                        <FaUser className="text-mainColor" />
+                      </span>
+                      {t("DeliveryMan")}
+                    </div>
+                    <p className="text-sm">
+                      {t("Name")}: {detailsData?.delivery?.f_name || "-"}{" "}
+                      {detailsData?.delivery?.l_name || "-"}
+                    </p>
+                    <p className="text-sm">
+                      {t('Orders')}: {detailsData?.delivery?.count_orders || "-"}
+                    </p>
+                    <p className="text-sm">
+                      {t("Contact")}: {detailsData?.delivery?.phone || "-"}
+                    </p>
+                    <p className="text-sm">
+                      {t("Email")}: {detailsData?.delivery?.email || "-"}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Processing Order Modal */}
               {showStatusModal && (
                 <div className="fixed inset-0 z-50 overflow-y-auto">
-                  <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                  <div className="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
                     {/* Background overlay */}
                     <div
                       className="fixed inset-0 transition-opacity"
@@ -1332,12 +1573,12 @@ const DetailsOrderPage = () => {
                     </span>
 
                     {/* Modal content */}
-                    <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                      <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                      <div className="px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
                         <div className="sm:flex sm:items-start">
-                          <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                          <div className="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-red-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
                             <svg
-                              className="h-6 w-6 text-red-600"
+                              className="w-6 h-6 text-red-600"
                               fill="none"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
@@ -1351,31 +1592,30 @@ const DetailsOrderPage = () => {
                             </svg>
                           </div>
                           <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                            <h3 className="text-lg leading-6 font-medium text-gray-900">
-                              Order in Use by Another Person
+                            <h3 className="text-lg font-medium leading-6 text-gray-900">
+                              {t("Order in Use by Another Person")}
                             </h3>
                             <div className="mt-2">
                               <p className="text-sm text-gray-500">
-                                Someone else is currently working on this order. Please wait until they finish before proceeding to avoid conflicts or duplication.
+                               {t("Someone else is currently working on this order. Please wait until they finish before proceeding to avoid conflicts or duplication.")}
                               </p>
                             </div>
                           </div>
                         </div>
                       </div>
-                      <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                      <div className="px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:flex-row-reverse">
                         <button
                           type="button"
                           onClick={() => setShowStatusModal(false)}
-                          className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-mainColor text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm"
+                          className="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white border border-transparent rounded-md shadow-sm bg-mainColor hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm"
                         >
-                          Ok
+                          {t("Ok")}
                         </button>
                       </div>
                     </div>
                   </div>
                 </div>
               )}
-
             </div>
           )}
         </>

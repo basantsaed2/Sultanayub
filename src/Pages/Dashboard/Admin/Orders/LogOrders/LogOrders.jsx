@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 const LogOrders = () => {
   const [logData, setLogData] = useState([]);
@@ -7,6 +8,7 @@ const LogOrders = () => {
   const [orderId, setOrderId] = useState("");
   const [selectedAdmin, setSelectedAdmin] = useState(null);
   const [showAdminModal, setShowAdminModal] = useState(false);
+                 const {  t,i18n } = useTranslation();
 
   const headers = ["SL", "Admin Name", "Date", "From-Status", "To-Status"];
 
@@ -50,30 +52,31 @@ const LogOrders = () => {
 
   return (
     <div className="w-full py-6">
-      <div className="mb-6 max-w-md">
+      <div className="max-w-md mb-6">
         <form onSubmit={handleSearch} className="flex gap-2">
           <input
             type="text"
-            placeholder="Enter Order ID"
+            placeholder={t("EnterOrderID")}
             value={orderId}
             onChange={(e) => setOrderId(e.target.value)}
             className="flex-1 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-mainColor"
           />
           <button
-            type="submit"
-            className="px-4 py-2 bg-mainColor text-white rounded hover:bg-gray-700"
+            type=
+            className="px-4 py-2 text-white rounded bg-mainColor hover:bg-gray-700"
           >
-            Search
+                        {t("Search")}
+
           </button>
         </form>
       </div>
 
       <div className="w-full overflow-x-auto">
         {loading ? (
-          <p className="text-center text-lg text-gray-500">Loading...</p>
+          <p className="text-lg text-center text-gray-500">{t('Loading')}</p>
         ) : logData.length === 0 ? (
           <p className="text-center text-gray-500">
-            {orderId ? "No logs found for this order ID" : "Enter an order ID to search"}
+            {orderId ? t("NologsfoundforthisorderID") : t("EnteranorderIDtosearch")}
           </p>
         ) : (
           <table className="w-full border-collapse">
@@ -82,7 +85,7 @@ const LogOrders = () => {
                 {headers.map((name, index) => (
                   <th
                     key={index}
-                    className="px-4 py-2 text-mainColor text-center text-sm lg:text-base"
+                    className="px-4 py-2 text-sm text-center text-mainColor lg:text-base"
                   >
                     {name}
                   </th>
@@ -92,18 +95,18 @@ const LogOrders = () => {
             <tbody>
               {logData.map((log, index) => (
                 <tr key={log.id} className="border-b">
-                  <td className="text-center px-4 py-2">{index + 1}</td>
+                  <td className="px-4 py-2 text-center">{index + 1}</td>
                   <td 
-                    className="text-center px-4 py-2 cursor-pointer text-blue-500 hover:underline"
+                    className="px-4 py-2 text-center text-blue-500 cursor-pointer hover:underline"
                     onClick={() => handleAdminClick(log.admin)}
                   >
                     {log.admin?.name || "N/A"}
                   </td>
-                  <td className="text-center px-4 py-2">
+                  <td className="px-4 py-2 text-center">
                     {log.date ? new Date(log.date).toLocaleString() : "-"}
                   </td>
-                  <td className="text-center px-4 py-2">{log.from_status}</td>
-                  <td className="text-center px-4 py-2">{log.to_status}</td>
+                  <td className="px-4 py-2 text-center">{log.from_status}</td>
+                  <td className="px-4 py-2 text-center">{log.to_status}</td>
                 </tr>
               ))}
             </tbody>
@@ -113,10 +116,10 @@ const LogOrders = () => {
 
       {/* Admin Details Modal */}
       {showAdminModal && selectedAdmin && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">Admin Details</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-full max-w-md p-6 bg-white rounded-lg">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold">{t("AdminDetails")}</h3>
               <button 
                 onClick={closeAdminModal}
                 className="text-gray-500 hover:text-gray-700"
@@ -126,15 +129,15 @@ const LogOrders = () => {
             </div>
             
             <div className="space-y-3">
-              <p><span className="font-semibold">Name:</span> {selectedAdmin.name}</p>
-              <p><span className="font-semibold">Email:</span> {selectedAdmin.email}</p>
-              <p><span className="font-semibold">Phone:</span> {selectedAdmin.phone}</p>
-              <p><span className="font-semibold">Role:</span> {selectedAdmin.role}</p>
-              <p><span className="font-semibold">Status:</span> {selectedAdmin.status === 1 ? "Active" : "Inactive"}</p>
+                <p><span className="font-semibold">{t("Name")}:</span> {selectedAdmin.name}</p>
+              <p><span className="font-semibold">{t('Email')}:</span> {selectedAdmin.email}</p>
+              <p><span className="font-semibold">{t("Phone")}:</span> {selectedAdmin.phone}</p>
+              <p><span className="font-semibold">{t("Role")}:</span> {selectedAdmin.role}</p>
+              <p><span className="font-semibold">{t("Status")}:</span> {selectedAdmin.status === 1 ? t("Active") : t("Inactive")}</p>
               
               {selectedAdmin.image && (
                 <div>
-                  <span className="font-semibold">Image:</span>
+                  <span className="font-semibold">{t("Image")}:</span>
                   <img 
                     src={`${selectedAdmin.image_link}/${selectedAdmin.image}`} 
                     alt="Admin" 

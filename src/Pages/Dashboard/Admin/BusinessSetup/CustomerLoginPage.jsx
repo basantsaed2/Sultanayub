@@ -9,6 +9,7 @@ import {
 import { useGet } from "../../../../Hooks/useGet";
 import { usePost } from "../../../../Hooks/usePostJson";
 import { useAuth } from "../../../../Context/Auth";
+import { useTranslation } from 'react-i18next';
 
 const CustomerLoginPage = () => {
   const [manualLogin, setManualLogin] = useState(0);
@@ -16,6 +17,7 @@ const CustomerLoginPage = () => {
   const [emailVerification, setEmailVerification] = useState(0);
   const [phoneNumberVerification, setPhoneNumberVerification] = useState(0);
   const auth = useAuth()
+               const { t, i18n } = useTranslation();
 
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const {
@@ -93,7 +95,7 @@ const CustomerLoginPage = () => {
 
     // Error check for login method
     if (oTPLogin === 0 && manualLogin === 0) {
-      auth.toastError("Please select a login method.");
+      auth.toastError(t("Pleaseselectaloginmethod"));
       return;
     }
 
@@ -115,7 +117,7 @@ const CustomerLoginPage = () => {
     }
 
     // Post data with success message
-    postData(formData, "Branch Added Successfully");
+    postData(formData, t("Branch Added Successfully"));
     console.log("all data submit ", formData)
   };
 
@@ -124,25 +126,25 @@ const CustomerLoginPage = () => {
     <>
       {loadingLogin || loadingPost ? (
         <>
-          <div className="w-full h-56 flex justify-center items-center">
+          <div className="flex items-center justify-center w-full h-56">
             <LoaderLogin />
           </div>
         </>
       ) :
         <form
-          className="w-full flex sm:flex-col lg:flex-row flex-wrap items-start justify-start gap-4"
+          className="flex flex-wrap items-start justify-start w-full gap-4 sm:flex-col lg:flex-row"
           onSubmit={handleSubmit}
         >
           <div className="w-full">
             <TitleSection text={"Restaurant Closing Schedules"} />
             <p className="text-xl font-TextFontMedium text-secoundColor">
-              The option you select customer will have the to option to login
+              {t("Theoption")}
             </p>
           </div>
 
           <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-              Manual Login:
+              {t("ManualLogin")}:
             </span>
             <div>
               <Switch
@@ -153,7 +155,7 @@ const CustomerLoginPage = () => {
           </div>
           <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-              OTP Login:
+              {t("OTPLogin")}:
             </span>
             <div>
               <Switch checked={oTPLogin} handleClick={handleClickOTPLogin} />
@@ -162,14 +164,14 @@ const CustomerLoginPage = () => {
           {oTPLogin === 1 && (
             <>
               <div className="w-full">
-                <TitleSection text={"OTP Verification"} />
+                <TitleSection text={t("OTPVerification")} />
                 <p className="text-xl font-TextFontMedium text-secoundColor">
-                  The option you select will need to be verified by the customer
+               {t("Theoptionyou")}            
                 </p>
               </div>
               <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                  Email Verification:
+                  {t("EmailVerification")}:
                 </span>
                 <div>
                   <Switch
@@ -180,7 +182,7 @@ const CustomerLoginPage = () => {
               </div>
               <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                  Phone Number Verification:
+                  {t("PhoneNumberVerification")}:
                 </span>
                 <div>
                   <Switch
@@ -192,10 +194,10 @@ const CustomerLoginPage = () => {
             </>
           )}
           {/* Buttons */}
-          <div className="w-full flex items-center justify-end gap-x-4 ">
+          <div className="flex items-center justify-end w-full gap-x-4 ">
             <div className="">
               <StaticButton
-                text={"Reset"}
+                text={t("Reset")}
                 handleClick={handleReset}
                 bgColor="bg-transparent"
                 Color="text-mainColor"
@@ -206,7 +208,7 @@ const CustomerLoginPage = () => {
             </div>
             <div className="">
               <SubmitButton
-                text={"Submit"}
+                text={t("Submit")}
                 rounded="rounded-full"
                 handleClick={handleSubmit}
               />

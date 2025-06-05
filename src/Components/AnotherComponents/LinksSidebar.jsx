@@ -24,6 +24,7 @@ import { BiSolidDiscount, BiSolidOffer, BiSolidCoupon, BiSolidEnvelope } from "r
 import { HiReceiptTax } from "react-icons/hi";
 import { TbBorderAll, TbReportSearch } from "react-icons/tb";
 import { IoMdGitBranch } from "react-icons/io";
+import { useTranslation } from "react-i18next"; // استيراد useTranslation
 
 // Route configuration
 const routes = [
@@ -207,6 +208,10 @@ const LinksSidebar = () => {
   const location = useLocation();
   const pathName = location.pathname;
   const hideSide = auth.hideSidebar;
+    const { t } = useTranslation(); // تهيئة useTranslation هنا
+      const { i18n } = useTranslation();
+      const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
+
 
   // Orders count from Redux
   const ordersAllCount = useSelector((state) => state.ordersAll.data);
@@ -355,8 +360,7 @@ const LinksSidebar = () => {
               group-hover:text-mainColor
             `}
           >
-            {route.name}
-          </span>
+{t(route.name)}          </span>
         </div>
         {route.subRoutes && hideSide && (
           <IoIosArrowForward
@@ -381,7 +385,7 @@ const LinksSidebar = () => {
           transition-all duration-700 mt-2
         `}
       >
-        <ul className="list-disc w-full pl-2 flex flex-col gap-y-2">
+        <ul className="flex flex-col w-full pl-2 list-disc gap-y-2">
           {route.subRoutes.map((sub) => {
             // Skip sub-routes that require permissions the user doesn't have
             if (sub.permission && !permissions.includes(sub.permission)) {
@@ -402,9 +406,9 @@ const LinksSidebar = () => {
                     hover:bg-white transition-all duration-300 hover:text-mainColor
                   `}
                 >
-                  <span>{sub.name}</span>
+                  <span>{t(sub.name)}</span>
                   {sub.countKey && (
-                    <span className="bg-cyan-300 text-cyan-700 px-1 text-sm font-TextFontMedium rounded-2xl">
+                    <span className="px-1 text-sm bg-cyan-300 text-cyan-700 font-TextFontMedium rounded-2xl">
                       {lengths[sub.countKey] || 0}
                     </span>
                   )}
@@ -418,9 +422,9 @@ const LinksSidebar = () => {
   };
 
   return (
-    <div className="LinksSidebar w-full flex flex-col items-center justify-start gap-y-3">
+    <div className="flex flex-col items-center justify-start w-full LinksSidebar gap-y-3">
       {filteredRoutes.map((route) => (
-        <div key={route.name} className="w-full flex flex-col">
+        <div key={route.name} className="flex flex-col w-full">
           {renderLink(route)}
           {route.subRoutes && renderSubRoutes(route)}
         </div>

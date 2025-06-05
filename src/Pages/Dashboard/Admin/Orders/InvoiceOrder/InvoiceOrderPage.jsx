@@ -1,17 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { useGet } from '../../../../../Hooks/useGet';
-import { useParams } from 'react-router-dom';
-import { LoaderLogin } from '../../../../../Components/Components';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from "react";
+import { useGet } from "../../../../../Hooks/useGet";
+import { useParams } from "react-router-dom";
+import { LoaderLogin } from "../../../../../Components/Components";
+import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 const InvoiceOrderPage = () => {
-  const user = useSelector(state => state.user)
+  const user = useSelector((state) => state.user);
   const { orderId } = useParams();
+  const { t, i18n } = useTranslation();
 
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
-  const { refetch: refetchInvoiceOrder, loading: loadingInvoiceOrder, data: dataInvoiceOrder } = useGet({ url: `${apiUrl}/admin/order/invoice/${orderId}` });
+  const {
+    refetch: refetchInvoiceOrder,
+    loading: loadingInvoiceOrder,
+    data: dataInvoiceOrder,
+  } = useGet({ url: `${apiUrl}/admin/order/invoice/${orderId}` });
 
-  const [invoiceData, setInvoiceData] = useState([])
+  const [invoiceData, setInvoiceData] = useState([]);
 
   useEffect(() => {
     refetchInvoiceOrder(); // Refetch data when the component mounts
@@ -19,12 +25,12 @@ const InvoiceOrderPage = () => {
 
   useEffect(() => {
     if (dataInvoiceOrder && dataInvoiceOrder.order) {
-      setInvoiceData(dataInvoiceOrder.order)
+      setInvoiceData(dataInvoiceOrder.order);
     }
-    console.log('dataInvoiceOrder', dataInvoiceOrder); // Refetch data when the component mounts
+    console.log("dataInvoiceOrder", dataInvoiceOrder); // Refetch data when the component mounts
   }, [dataInvoiceOrder]);
   useEffect(() => {
-    console.log('orderId', orderId); // Refetch data when the component mounts
+    console.log("orderId", orderId); // Refetch data when the component mounts
   }, [orderId]);
 
   let totalAddonPrice = 0;
@@ -37,188 +43,230 @@ const InvoiceOrderPage = () => {
           <LoaderLogin />
         </div>
       ) : (
-        <div className="p-6 w-2/4 mx-auto text-black font-sans mb-20">
+        <div className="w-2/4 p-6 mx-auto mb-20 font-sans text-black">
           {/* Header */}
-          <div className="text-center mb-4">
-            <h1 className="text-lg font-TextFontSemiBold">{invoiceData?.user.name}</h1>
+          <div className="mb-4 text-center">
+            <h1 className="text-lg font-TextFontSemiBold">
+              {invoiceData?.user.name}
+            </h1>
             <p className="text-sm">
-              {invoiceData?.branch?.name || '-'}
-              {invoiceData?.branch?.address || '-'}
+              {invoiceData?.branch?.name || "-"}
+              {invoiceData?.branch?.address || "-"}
             </p>
             <p className="text-sm">
-              Phone : {invoiceData?.branch?.phone || '-'}
+              {t("Phone")} : {invoiceData?.branch?.phone || "-"}
             </p>
             <hr className="my-2" />
           </div>
 
           {/* Order Information */}
-          <div className="text-sm mb-4">
+          <div className="mb-4 text-sm">
             <p>
-              <strong>Order ID : </strong> {invoiceData.id} &nbsp;&nbsp;&nbsp;
-              <strong>Date: </strong> {invoiceData?.order_date || '-'}, {invoiceData?.date || '-'}
+              <strong>{t("OrderID")} : </strong> {invoiceData.id}{" "}
+              &nbsp;&nbsp;&nbsp;
+              <strong>{t("Date")}: </strong> {invoiceData?.order_date || "-"},{" "}
+              {invoiceData?.date || "-"}
             </p>
             <p>
-              <strong>Customer Name : </strong> {invoiceData?.user?.f_name || '-'} {invoiceData?.user?.l_name || '-'}
+               <strong>{t("CustomerName")} : </strong>{" "}
+              {invoiceData?.user?.f_name || "-"}{" "}
+              {invoiceData?.user?.l_name || "-"}
             </p>
             <p>
-              <strong>Phone : </strong> {invoiceData?.user?.phone || '-'}
+               <strong>{t("Phone")} : </strong> {invoiceData?.user?.phone || "-"}
             </p>
             <p>
-              <strong>Address : </strong>  {invoiceData?.address?.address || '-'}
+               <strong>{t("Address")} : </strong> {invoiceData?.address?.address || "-"}
             </p>
           </div>
 
           {/* Items Table */}
           {invoiceData.order_details.map((item, index) => (
-            <div className='border-b-2 border-gray-500' key={index} >
-              <div className="text-center mb-2">
+            <div className="border-b-2 border-gray-500" key={index}>
+              <div className="mb-2 text-center">
                 <strong>Product Num({index + 1})</strong>
               </div>
-              <table className="w-full text-sm border-collapse border-2 border-black mb-4">
+              <table className="w-full mb-4 text-sm border-2 border-collapse border-black">
                 <thead>
                   <tr>
-                    <th className="border border-black p-2">QTY</th>
-                    <th className="border border-black p-2">DESC</th>
-                    <th className="border border-black p-2">Price</th>
-                    <th className="border border-black p-2">Count</th>
+                    <th className="p-2 border border-black">{t("QTY")}</th>
+                    <th className="p-2 border border-black">{t("DESC")}</th>
+                    <th className="p-2 border border-black">{t("Price")}</th>
+                    <th className="p-2 border border-black">{t("Count")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {item.product.map((itemProduct, indexProduct) => (
                     <tr key={`product-${itemProduct.id}-${indexProduct}`}>
-                      <td className="border border-black p-2 text-center">{indexProduct + 1}</td>
-                      <td className="border border-black p-2 text-center">{itemProduct.product.name}</td>
-                      <td className="border border-black p-2 text-center">{itemProduct.product.price}</td>
-                      <td className="border border-black p-2 text-center">{itemProduct.count}</td>
+                      <td className="p-2 text-center border border-black">
+                        {indexProduct + 1}
+                      </td>
+                      <td className="p-2 text-center border border-black">
+                        {itemProduct.product.name}
+                      </td>
+                      <td className="p-2 text-center border border-black">
+                        {itemProduct.product.price}
+                      </td>
+                      <td className="p-2 text-center border border-black">
+                        {itemProduct.count}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
-
               </table>
 
-              <div className="text-center mb-2">
+              <div className="mb-2 text-center">
                 <strong>Addons Num({index + 1})</strong>
               </div>
-              <table className="w-full text-sm border-collapse border-2 border-black mb-4">
+              <table className="w-full mb-4 text-sm border-2 border-collapse border-black">
                 <thead>
                   <tr>
-                    <th className="border border-black p-2">QTY</th>
-                    <th className="border border-black p-2">DESC</th>
-                    <th className="border border-black p-2">Price</th>
-                    <th className="border border-black p-2">Count</th>
+                     <th className="p-2 border border-black">{t("QTY")}</th>
+                    <th className="p-2 border border-black">{t("DESC")}</th>
+                    <th className="p-2 border border-black">{t("Price")}</th>
+                    <th className="p-2 border border-black">{t("Count")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {item.addons.map((itemAddons, indexAddons) => (
                     <tr key={itemAddons.addon.id}>
-                      <td className="border border-black p-2 text-center">{indexAddons + 1}</td>
-                      <td className="border border-black p-2 text-center">{itemAddons.addon.name}</td>
-                      <td className="border border-black p-2 text-center">{itemAddons.addon.price}</td>
-                      <td className="border border-black p-2 text-center">{itemAddons.count}</td>
+                      <td className="p-2 text-center border border-black">
+                        {indexAddons + 1}
+                      </td>
+                      <td className="p-2 text-center border border-black">
+                        {itemAddons.addon.name}
+                      </td>
+                      <td className="p-2 text-center border border-black">
+                        {itemAddons.addon.price}
+                      </td>
+                      <td className="p-2 text-center border border-black">
+                        {itemAddons.count}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
-
               </table>
 
-              <div className="text-center mb-2">
+              <div className="mb-2 text-center">
                 <strong>Excludes Num({index + 1})</strong>
               </div>
-              <table className="w-full text-sm border-collapse border-2 border-black mb-4">
+              <table className="w-full mb-4 text-sm border-2 border-collapse border-black">
                 <thead>
                   <tr>
-                    <th className="border border-black p-2">QTY</th>
-                    <th className="border border-black p-2">DESC</th>
+                           <th className="p-2 border border-black">{t("QTY")}</th>
+                    <th className="p-2 border border-black">{t("DESC")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {item.excludes.map((itemExclude, indexExclude) => (
                     <tr key={itemExclude.id}>
-                      <td className="border border-black p-2 text-center">{indexExclude + 1}</td>
-                      <td className="border border-black p-2 text-center">{itemExclude.name}</td>
+                      <td className="p-2 text-center border border-black">
+                        {indexExclude + 1}
+                      </td>
+                      <td className="p-2 text-center border border-black">
+                        {itemExclude.name}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
-
               </table>
 
-              <div className="text-center mb-2">
+              <div className="mb-2 text-center">
                 <strong>Extras Num({index + 1})</strong>
               </div>
-              <table className="w-full text-sm border-collapse border-2 border-black mb-4">
+              <table className="w-full mb-4 text-sm border-2 border-collapse border-black">
                 <thead>
                   <tr>
-                    <th className="border border-black p-2">QTY</th>
-                    <th className="border border-black p-2">DESC</th>
-                    <th className="border border-black p-2">Price</th>
+                        <th className="p-2 border border-black">{t("QTY")}</th>
+                    <th className="p-2 border border-black">{t("DESC")}</th>
+                    <th className="p-2 border border-black">{t("Price")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {item.extras.map((itemExtra, indexExtra) => (
                     <tr key={itemExtra.id}>
-                      <td className="border border-black p-2 text-center">{indexExtra + 1}</td>
-                      <td className="border border-black p-2 text-center">{itemExtra.name}</td>
-                      <td className="border border-black p-2 text-center">{itemExtra.price}</td>
+                      <td className="p-2 text-center border border-black">
+                        {indexExtra + 1}
+                      </td>
+                      <td className="p-2 text-center border border-black">
+                        {itemExtra.name}
+                      </td>
+                      <td className="p-2 text-center border border-black">
+                        {itemExtra.price}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
-
               </table>
 
-              <div className="text-center mb-2">
+              <div className="mb-2 text-center">
                 <strong>Variations Num({index + 1})</strong>
               </div>
               {item.variations.map((item, indexItem) => (
                 <div key={item.variation.id}>
-
-                  <div className="text-center mb-2">
+                  <div className="mb-2 text-center">
                     <strong>Variation({indexItem + 1})</strong>
                   </div>
-                  <table className="w-full text-sm border-collapse border-2 border-black mb-4">
+                  <table className="w-full mb-4 text-sm border-2 border-collapse border-black">
                     <thead>
                       <tr>
-                        {/* <th className="border border-black p-2">QTY</th> */}
-                        <th className="border border-black p-2">Name</th>
-                        <th className="border border-black p-2">Type</th>
-                        <th className="border border-black p-2">Max</th>
-                        <th className="border border-black p-2">Min</th>
-                        {/* <th className="border border-black p-2">Point</th> */}
+                        {/* <th className="p-2 border border-black">QTY</th> */}
+                 <th className="p-2 border border-black">{t("Name")}</th>
+                        <th className="p-2 border border-black">{t("Type")}</th>
+                        <th className="p-2 border border-black">{t("Max")}</th>
+                        <th className="p-2 border border-black">{t("Min")}</th>
+                        {/* <th className="p-2 border border-black">Point</th> */}
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
-                        {/* <td className="border border-black p-2 text-center">{indexItem + 1}</td> */}
-                        <td className="border border-black p-2 text-center">{item.variation.name || '-'}</td>
-                        <td className="border border-black p-2 text-center">{item.variation.type || '-'}</td>
-                        <td className="border border-black p-2 text-center">{item.variation.max || '0'}</td>
-                        <td className="border border-black p-2 text-center">{item.variation.min || '0'}</td>
-                        {/* <td className="border border-black p-2 text-center">{item.variation.point || '0'}</td> */}
+                        {/* <td className="p-2 text-center border border-black">{indexItem + 1}</td> */}
+                        <td className="p-2 text-center border border-black">
+                          {item.variation.name || "-"}
+                        </td>
+                        <td className="p-2 text-center border border-black">
+                          {item.variation.type || "-"}
+                        </td>
+                        <td className="p-2 text-center border border-black">
+                          {item.variation.max || "0"}
+                        </td>
+                        <td className="p-2 text-center border border-black">
+                          {item.variation.min || "0"}
+                        </td>
+                        {/* <td className="p-2 text-center border border-black">{item.variation.point || '0'}</td> */}
                       </tr>
                     </tbody>
                   </table>
 
                   {item.options.map((option, indexOption) => (
                     <div key={option.id}>
-
-                      <div className="text-center mb-2">
+                      <div className="mb-2 text-center">
                         <strong>Option({indexOption + 1})</strong>
                       </div>
 
-                      <table className="w-full text-sm border-collapse border-2 border-black mb-4">
+                      <table className="w-full mb-4 text-sm border-2 border-collapse border-black">
                         <thead>
                           <tr>
-                            <th className="border border-black p-2">QTY</th>
-                            <th className="border border-black p-2">Name</th>
-                            <th className="border border-black p-2">Price</th>
-                            <th className="border border-black p-2">Points</th>
+                           <th className="p-2 border border-black">{t("QTY")}</th>
+                            <th className="p-2 border border-black">{t("Name")}</th>
+                            <th className="p-2 border border-black">{t("Price")}</th>
+                            <th className="p-2 border border-black">{t("Points")}</th>
                           </tr>
                         </thead>
                         <tbody>
                           <tr>
-                            <td className="border border-black p-2 text-center">{indexOption + 1}</td>
-                            <td className="border border-black p-2 text-center">{option.name || '-'}</td>
-                            <td className="border border-black p-2 text-center">{option.price || '0'}</td>
-                            <td className="border border-black p-2 text-center">{option.points || '0'}</td>
+                            <td className="p-2 text-center border border-black">
+                              {indexOption + 1}
+                            </td>
+                            <td className="p-2 text-center border border-black">
+                              {option.name || "-"}
+                            </td>
+                            <td className="p-2 text-center border border-black">
+                              {option.price || "0"}
+                            </td>
+                            <td className="p-2 text-center border border-black">
+                              {option.points || "0"}
+                            </td>
                           </tr>
                         </tbody>
                       </table>
@@ -230,7 +278,7 @@ const InvoiceOrderPage = () => {
           ))}
 
           {/* Summary */}
-          <div className="text-sm mb-4">
+          <div className="mb-4 text-sm">
             <p>
               {invoiceData.order_details.forEach((orderDetail) => {
                 // Sum extras prices
@@ -240,7 +288,8 @@ const InvoiceOrderPage = () => {
 
                 // Sum product prices (price * count)
                 orderDetail.product.forEach((productItem) => {
-                  totalItemPrice += productItem.product.price * productItem.count;
+                  totalItemPrice +=
+                    productItem.product.price * productItem.count;
                 });
 
                 // Sum variations' options prices
@@ -252,11 +301,11 @@ const InvoiceOrderPage = () => {
               })}
 
               {/* Display total items price */}
-              <strong>Items Price: </strong>
+              <strong>{t("ItemsPrice")}: </strong>
               {totalItemPrice}
             </p>
             <p>
-              <strong>Tax / VAT: </strong> {invoiceData?.total_tax || 0}
+              <strong>{t("Tax/VAT")}: </strong> {invoiceData?.total_tax || 0}
             </p>
             <div>
               {invoiceData.order_details.map((orderDetail, detailIndex) => (
@@ -273,33 +322,37 @@ const InvoiceOrderPage = () => {
 
               {/* Display the total addon price */}
               {/* <div> */}
-              <strong>Addons Price: </strong>{totalAddonPrice}
+              <strong>{t("Addons Price")}: </strong>{totalAddonPrice}
+              {totalAddonPrice}
               {/* </div> */}
             </div>
             <p>
-              <strong>Subtotal: </strong> {invoiceData?.amount + invoiceData?.total_tax + totalAddonPrice}
+              <strong>{t("Subtotal")}:: </strong>{" "}
+              {invoiceData?.amount + invoiceData?.total_tax + totalAddonPrice}
             </p>
             <p>
-              <strong>Extra Discount: </strong> {invoiceData?.total_discount || 0}
+              <strong>{t("ExtraDiscount")}: </strong>{" "}
+              {invoiceData?.total_discount || 0}
             </p>
             <p>
-              <strong>Coupon Discount: </strong> {invoiceData?.coupon_discount || 0}
+              <strong>{t("CouponDiscount")}: </strong>{" "}
+              {invoiceData?.coupon_discount || 0}
             </p>
             <p>
-              <strong>Delivery Fee: </strong>  {invoiceData?.address?.zone?.price || 0}
+             <strong>{t("DeliveryFee")}: </strong>{" "}
+              {invoiceData?.address?.zone?.price || 0}
             </p>
-            <p className="semibold text-lg">
-              <strong>Total: </strong>
+            <p className="text-lg semibold">
+              <strong>{t("Total")}: </strong>
               {invoiceData?.amount}
             </p>
           </div>
 
           {/* Footer */}
-          <div className="text-center text-sm">
-            <p>THANK YOU</p>
-            <p>copyright received {invoiceData.user.name} Food</p>
+          <div className="text-sm text-center">
+              <p>{t("THANKYOU")}</p>
+            <p>{t("copyrightreceived")} {invoiceData.user.name} {t("Food")}</p>
           </div>
-
         </div>
       )}
     </>

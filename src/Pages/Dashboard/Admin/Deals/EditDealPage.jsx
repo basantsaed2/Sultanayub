@@ -7,10 +7,12 @@ import { DeleteIcon } from '../../../../Assets/Icons/AllIcons';
 import { useGet } from '../../../../Hooks/useGet';
 import { usePost } from '../../../../Hooks/usePostJson';
 import { useAuth } from '../../../../Context/Auth';
+import { useTranslation } from 'react-i18next';
 
 
 const EditDealPage = () => {
   const { dealId } = useParams();
+  const { t, i18n } = useTranslation();
 
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const { refetch: refetchTranslation, loading: loadingTranslation, data: dataTranslation } = useGet({
@@ -30,8 +32,15 @@ const EditDealPage = () => {
   const [dealTitle, setDealTitle] = useState([]);
   const [dealDescription, setDealDescription] = useState([]);
 
-  const [days] = useState(['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']);
-
+const [days] = useState([
+  t('saturday'),
+  t('sunday'),
+  t('monday'),
+  t('tuesday'),
+  t('wednesday'),
+  t('thursday'),
+  t('friday'),
+]);
   const [times, setTimes] = useState([]);
 
   const [startDate, setStartDate] = useState('');
@@ -151,7 +160,7 @@ const EditDealPage = () => {
     e.preventDefault();
 
     if (dealTitle.length === 0) {
-      auth.toastError('please Enter Deal Title')
+      auth.toastError(t('please Enter Deal Title'))
       return;
     }
     // if (dealTitle.length !== taps.length) {
@@ -159,7 +168,7 @@ const EditDealPage = () => {
     //   return;
     // }
     if (dealDescription.length === 0) {
-      auth.toastError('please Enter Deal Description')
+      auth.toastError(t('please Enter Deal Description'))
       return;
     }
     // if (dealDescription.length !== taps.length) {
@@ -170,7 +179,7 @@ const EditDealPage = () => {
     if (daily === 0) {
 
       if (times.length === 0) {
-        auth.toastError('please Set Day')
+        auth.toastError(t('please Set Day'))
         return;
       }
     }
@@ -182,19 +191,19 @@ const EditDealPage = () => {
 
         // Check if 'day' is empty or falsy
         if (!time.day) {
-          auth.toastError('Please Select Day');
+          auth.toastError(t('Please Select Day'));
           return;  // Stop further validation after showing the error
         }
 
         // Optionally, you could add more validation checks for 'from' and 'to' times if needed
         if (!time.from || !time.to) {
-          auth.toastError('Please select both From and To times');
+          auth.toastError(t('Please select both From and To times'));
           return;
         }
 
         // Optional: Check if 'from' is later than 'to' (if that's a requirement)
         if (time.from > time.to) {
-          auth.toastError('From time cannot be later than To time');
+          auth.toastError(t('From time cannot be later than To time'));
           return;
         }
       }
@@ -202,19 +211,19 @@ const EditDealPage = () => {
 
 
     if (!startDate) {
-      auth.toastError('please Enter Start Date')
+      auth.toastError(t('please Enter Start Date'))
       return;
     }
     if (!endDate) {
-      auth.toastError('please Enter End Date')
+      auth.toastError(t('please Enter End Date'))
       return;
     }
     if (!imageFile) {
-      auth.toastError('please Set Deal Image')
+      auth.toastError(t('please Set Deal Image'))
       return;
     }
     if (!price) {
-      auth.toastError('please Enter Price')
+      auth.toastError(t('please Enter Price'))
       return;
     }
 
@@ -246,14 +255,14 @@ const EditDealPage = () => {
     formData.append('status', activeDeal);
 
 
-    postData(formData, 'Deal Edited Success');
+    postData(formData, t('Deal Edited Success'));
 
   };
   return (
     <>
       {loadingTranslation || loadingDeal || loadingPost ? (
         <>
-          <div className="w-full flex justify-center items-center">
+          <div className="flex items-center justify-center w-full">
             <LoaderLogin />
           </div>
         </>
@@ -261,7 +270,7 @@ const EditDealPage = () => {
         <section>
           <form onSubmit={handleDealEdit} className='mb-24'>
             {/* Taps */}
-            <div className="w-full flex items-center justify-start py-2 gap-x-6">
+            <div className="flex items-center justify-start w-full py-2 gap-x-6">
               {taps.map((tap, index) => (
                 <span
                   key={tap.id}
@@ -278,7 +287,7 @@ const EditDealPage = () => {
               {taps.map((tap, index) => (
                 currentTap === index && (
                   <div
-                    className="w-full flex sm:flex-col lg:flex-row flex-wrap items-center justify-start gap-4"
+                    className="flex flex-wrap items-center justify-start w-full gap-4 sm:flex-col lg:flex-row"
                     key={tap.id}
                   >
                     {/* Product Name Input */}
@@ -307,7 +316,7 @@ const EditDealPage = () => {
                             return updatedDealTitle;
                           });
                         }}
-                        placeholder="Deal Title"
+                        placeholder={t("DealTitle")}
                       />
                     </div>
 
@@ -337,7 +346,7 @@ const EditDealPage = () => {
                             return updatedDealDsetDealDescription;
                           });
                         }}
-                        placeholder="Deal Description"
+                        placeholder={t("DealDescription")}
                       />
                     </div>
                   </div>
@@ -348,9 +357,9 @@ const EditDealPage = () => {
             {daily === 0 && (
               <>
 
-                <div className="w-full flex flex-col">
+                <div className="flex flex-col w-full">
                   {times.map((time, index) => (
-                    <div key={index} className="w-full flex sm:flex-col lg:flex-row flex-wrap items-center justify-between border-b-4 pb-4">
+                    <div key={index} className="flex flex-wrap items-center justify-between w-full pb-4 border-b-4 sm:flex-col lg:flex-row">
                       {/* Days */}
                       <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                         <span className="text-xl font-TextFontRegular text-thirdColor">Day {index + 1}:</span>
@@ -359,7 +368,7 @@ const EditDealPage = () => {
                           onChange={(e) => handleTimeDay(index, e.value)}
                           options={days}
                           optionLabel="day"
-                          placeholder="Select a Day"
+                          placeholder={t("Select a Day")}
                           className="w-full md:w-14rem"
                         />
                       </div>
@@ -397,7 +406,7 @@ const EditDealPage = () => {
                       BgColor='mainColor'
                       Color='white'
                       iconColor='white'
-                      Text='Add Day'
+                      Text={t("AddDay")}
                       handleClick={handleAddDay}
                     />
                   </div>
@@ -406,7 +415,7 @@ const EditDealPage = () => {
             )}
 
 
-            <div className="w-full flex sm:flex-col lg:flex-row flex-wrap items-center justify-start gap-4">
+            <div className="flex flex-wrap items-center justify-start w-full gap-4 sm:flex-col lg:flex-row">
               <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">Start Date :</span>
                 <DateInput
@@ -431,7 +440,7 @@ const EditDealPage = () => {
                 <UploadInput
                   value={image}
                   uploadFileRef={ImageRef}
-                  placeholder="Deal Image"
+                  placeholder={t("DealImage")}
                   handleFileChange={handleImageChange}
                   onChange={(e) => setImage(e.target.value)}
                   onClick={() => handleImageClick(ImageRef)}
@@ -443,18 +452,18 @@ const EditDealPage = () => {
                 <NumberInput
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  placeholder="Price"
+                  placeholder={t("Price")} 
                 />
               </div>
 
 
               <div className="sm:w-full xl:w-[30%] flex items-start justify-start gap-x-1 pt-9">
-                <div className='w-2/4 flex items-center justify-start gap-x-3'>
-                  <span className="text-xl font-TextFontRegular text-thirdColor">Daily:</span>
+                <div className='flex items-center justify-start w-2/4 gap-x-3'>
+                  <span className="text-xl font-TextFontRegular text-thirdColor">{t("Daily")}:</span>
                   <Switch handleClick={handleDaily} checked={daily} />
                 </div>
-                <div className='w-2/4 flex items-center justify-start gap-x-3'>
-                  <span className="text-xl font-TextFontRegular text-thirdColor">Active:</span>
+                <div className='flex items-center justify-start w-2/4 gap-x-3'>
+                  <span className="text-xl font-TextFontRegular text-thirdColor">{t("Active")}:</span>
                   <Switch handleClick={handleActiveDeal} checked={activeDeal} />
                 </div>
               </div>
@@ -463,13 +472,13 @@ const EditDealPage = () => {
 
 
             {/* Buttons*/}
-            <div className="w-full flex items-center justify-end gap-x-4 mt-4">
+            <div className="flex items-center justify-end w-full mt-4 gap-x-4">
               <div className="">
-                <StaticButton text={'Cancel'} handleClick={handleCancel} bgColor='bg-transparent' Color='text-mainColor' border={'border-2'} borderColor={'border-mainColor'} rounded='rounded-full' />
+                <StaticButton text={t("Cancel")} handleClick={handleCancel} bgColor='bg-transparent' Color='text-mainColor' border={'border-2'} borderColor={'border-mainColor'} rounded='rounded-full' />
               </div>
               <div className="">
                 <SubmitButton
-                  text={'Edit'}
+                  text={t('Edit')}
                   rounded='rounded-full'
                   handleClick={handleDealEdit}
                 />

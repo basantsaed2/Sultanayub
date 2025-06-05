@@ -1,19 +1,25 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useGet } from '../../../../Hooks/useGet';
-import { useDelete } from '../../../../Hooks/useDelete';
-import { StaticLoader, Switch } from '../../../../Components/Components';
-import { DeleteIcon } from '../../../../Assets/Icons/AllIcons';
-import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react';
-import Warning from '../../../../Assets/Icons/AnotherIcons/WarningIcon';
-import { useChangeState } from '../../../../Hooks/useChangeState';
+import React, { useEffect, useRef, useState } from "react";
+import { useGet } from "../../../../Hooks/useGet";
+import { useDelete } from "../../../../Hooks/useDelete";
+import { StaticLoader, Switch } from "../../../../Components/Components";
+import { DeleteIcon } from "../../../../Assets/Icons/AllIcons";
+import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
+import Warning from "../../../../Assets/Icons/AnotherIcons/WarningIcon";
+import { useChangeState } from "../../../../Hooks/useChangeState";
+import { useTranslation } from "react-i18next";
 
 const LanguagesPage = ({ refetch, setUpdate }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
-  const { refetch: refetchLanguages, loading: loadingLanguages, data: dataLanguages } = useGet({
-    url: `${apiUrl}/admin/translation`
+  const {
+    refetch: refetchLanguages,
+    loading: loadingLanguages,
+    data: dataLanguages,
+  } = useGet({
+    url: `${apiUrl}/admin/translation`,
   });
   const { changeState, loadingChange, responseChange } = useChangeState();
   const { deleteData, loadingDelete, responseDelete } = useDelete();
+  const { t, i18n } = useTranslation();
 
   const [languages, setLanguages] = useState([]);
   const [openDelete, setOpenDelete] = useState(null);
@@ -35,12 +41,10 @@ const LanguagesPage = ({ refetch, setUpdate }) => {
     setCurrentPage(pageNumber);
   };
 
-
   // Fetch Languages when the component mounts or when refetch is called
   useEffect(() => {
     refetchLanguages();
   }, [refetchLanguages, refetch]); // Empty dependency array to only call refetch once on mount
-
 
   const handleOpenDelete = (item) => {
     setOpenDelete(item);
@@ -63,24 +67,23 @@ const LanguagesPage = ({ refetch, setUpdate }) => {
           language.id === id ? { ...language, status: status } : language
         )
       );
-      setUpdate(!refetch)
+      setUpdate(!refetch);
     }
   };
 
   // Delete Language
   const handleDelete = async (id, name) => {
-    const success = await deleteData(`${apiUrl}/admin/translation/delete/${id}`, `${name} Deleted Success.`);
+    const success = await deleteData(
+      `${apiUrl}/admin/translation/delete/${id}`,
+      `${name} Deleted Success.`
+    );
 
     if (success) {
       // Update Languages only if changeState succeeded
-      setLanguages(
-        languages.filter((language) =>
-          language.id !== id
-        )
-      );
-      setUpdate(!refetch)
+      setLanguages(languages.filter((language) => language.id !== id));
+      setUpdate(!refetch);
     }
-    console.log('Languages', languages)
+    console.log("Languages", languages);
   };
 
   // Update Languages when `data` changes
@@ -90,22 +93,24 @@ const LanguagesPage = ({ refetch, setUpdate }) => {
     }
   }, [dataLanguages]); // Only run this effect when `data` changes
 
-
-  const headers = ['SL', 'Name', 'Status', 'Action'];
+  const headers = [t("SL"), t("Name"), t("Status"), t("Action")];
 
   return (
-    <div className="w-full pb-28 flex items-start justify-start overflow-x-scroll scrollSection">
+    <div className="flex items-start justify-start w-full overflow-x-scroll pb-28 scrollSection">
       {loadingLanguages || loadingChange || loadingDelete ? (
-        <div className="w-full h-56 flex justify-center items-center">
+        <div className="flex items-center justify-center w-full h-56">
           <StaticLoader />
         </div>
       ) : (
-        <div className='w-full flex flex-col'>
-          <table className="w-full sm:min-w-0 block overflow-x-scroll scrollPage">
+        <div className="flex flex-col w-full">
+          <table className="block w-full overflow-x-scroll sm:min-w-0 scrollPage">
             <thead className="w-full">
               <tr className="w-full border-b-2">
                 {headers.map((name, index) => (
-                  <th className="min-w-[120px] sm:w-[8%] lg:w-[5%] text-mainColor text-center font-TextFontLight sm:text-sm lg:text-base xl:text-lg pb-3" key={index}>
+                  <th
+                    className="min-w-[120px] sm:w-[8%] lg:w-[5%] text-mainColor text-center font-TextFontLight sm:text-sm lg:text-base xl:text-lg pb-3"
+                    key={index}
+                  >
                     {name}
                   </th>
                 ))}
@@ -114,7 +119,12 @@ const LanguagesPage = ({ refetch, setUpdate }) => {
             <tbody className="w-full">
               {languages.length === 0 ? (
                 <tr>
-                  <td colSpan={12} className='text-center text-xl text-mainColor font-TextFontMedium  '>Not find languages</td>
+                  <td
+                    colSpan={12}
+                    className="text-xl text-center text-mainColor font-TextFontMedium "
+                  >
+                    Not find languages
+                  </td>
                 </tr>
               ) : (
                 currentLanguages.map((language, index) => (
@@ -123,13 +133,17 @@ const LanguagesPage = ({ refetch, setUpdate }) => {
                       {(currentPage - 1) * languagesPerPage + index + 1}
                     </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                      {language?.name || '-'}
+                      {language?.name || "-"}
                     </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       <Switch
                         checked={language.status === 1}
                         handleClick={() => {
-                          handleChangeActive(language.id, language.name, language.status === 1 ? 0 : 1);
+                          handleChangeActive(
+                            language.id,
+                            language.name,
+                            language.status === 1 ? 0 : 1
+                          );
                         }}
                       />
                     </td>
@@ -147,11 +161,11 @@ const LanguagesPage = ({ refetch, setUpdate }) => {
                             onClose={handleCloseDelete}
                             className="relative z-10"
                           >
-                            <DialogBackdrop className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+                            <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
                             <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                              <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                                <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                                  <div className="flex  flex-col items-center justify-center bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                              <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                                <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg">
+                                  <div className="flex flex-col items-center justify-center px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
                                     <Warning
                                       width="28"
                                       height="28"
@@ -159,22 +173,28 @@ const LanguagesPage = ({ refetch, setUpdate }) => {
                                     />
                                     <div className="flex items-center">
                                       <div className="mt-2 text-center">
-                                        You will delete {language.name}
+                                               {t("Youwilldelete")} {language.name}
                                       </div>
                                     </div>
                                   </div>
                                   <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                                    <button className="inline-flex w-full justify-center rounded-md bg-mainColor px-6 py-3 text-sm font-TextFontSemiBold text-white shadow-sm sm:ml-3 sm:w-auto" onClick={() => handleDelete(language.id, language.name)}>
-                                      Delete
+                                    <button
+                                      className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto"
+                                      onClick={() =>
+                                        handleDelete(language.id, language.name)
+                                      }
+                                    >
+                                      {t("Delete")}
                                     </button>
 
                                     <button
                                       type="button"
                                       data-autofocus
                                       onClick={handleCloseDelete}
-                                      className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-6 py-3 text-sm font-TextFontMedium text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
+                                      className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
                                     >
-                                      Cancel
+                                                                            {t("Cancel")}
+
                                     </button>
                                   </div>
                                 </DialogPanel>
@@ -191,21 +211,39 @@ const LanguagesPage = ({ refetch, setUpdate }) => {
           </table>
 
           {languages.length > 0 && (
-            <div className="my-6 flex flex-wrap items-center justify-center gap-x-4">
+            <div className="flex flex-wrap items-center justify-center my-6 gap-x-4">
               {currentPage !== 1 && (
-                <button type='button' className='text-lg px-4 py-2 rounded-xl bg-mainColor text-white font-TextFontMedium' onClick={() => setCurrentPage(currentPage - 1)}>Prev</button>
-              )}
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page ? 'bg-mainColor text-white' : ' text-mainColor'}`}
+                  type="button"
+                  className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
+                  onClick={() => setCurrentPage(currentPage - 1)}
                 >
-                  {page}
+                  {t("Prev")}
                 </button>
-              ))}
+              )}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${
+                      currentPage === page
+                        ? "bg-mainColor text-white"
+                        : " text-mainColor"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
               {totalPages !== currentPage && (
-                <button type='button' className='text-lg px-4 py-2 rounded-xl bg-mainColor text-white font-TextFontMedium' onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
+                <button
+                  type="button"
+                  className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                >
+                  {t("Next")}
+                </button>
               )}
             </div>
           )}

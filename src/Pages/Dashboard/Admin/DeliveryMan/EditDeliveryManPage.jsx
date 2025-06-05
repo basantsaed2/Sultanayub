@@ -4,6 +4,7 @@ import { usePost } from '../../../../Hooks/usePostJson';
 import { useAuth } from '../../../../Context/Auth';
 import { useGet } from '../../../../Hooks/useGet';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const EditDeliveryManPage = () => {
   const { deliveryManId } = useParams();
@@ -14,6 +15,7 @@ const EditDeliveryManPage = () => {
 
   const { refetch: refetchDeliveryMan, loading: loadingDeliveryMan, data: dataDeliveryMan } = useGet({ url: `${apiUrl}/admin/delivery/item/${deliveryManId}` });
   const { postData, loadingPost, response } = usePost({ url: `${apiUrl}/admin/delivery/update/${deliveryManId}` });
+  const { t, i18n } = useTranslation();
 
   const [branches, setBranches] = useState([]);
 
@@ -190,43 +192,43 @@ const EditDeliveryManPage = () => {
     e.preventDefault();
 
     if (!deliveryFname) {
-      auth.toastError('please Enter First Name')
+      auth.toastError(t('please Enter First Name'))
       return;
     }
     if (!deliveryLname) {
-      auth.toastError('please Enter Last Name')
+      auth.toastError(t('please Enter Last Name'))
       return;
     }
     if (!deliveryPhone) {
-      auth.toastError('please Enter The Phone')
+      auth.toastError(t('please Enter The Phone'))
       return;
     }
     if (!deliveryBranchId) {
-      auth.toastError('please Select Branch')
+      auth.toastError(t('please Select Branch'))
       return;
     }
     if (!deliveryImageFile) {
-      auth.toastError('please Enter Delivery Photo')
+      auth.toastError(t('please Enter Delivery Photo'))
       return;
     }
     if (!identityTypeName) {
-      auth.toastError('please Select Identity')
+      auth.toastError(t('please Select Identity'))
       return;
     }
     if (!identityImageFile) {
-      auth.toastError('please Enter Identity Photo')
+      auth.toastError(t('please Enter Identity Photo'))
       return;
     }
     if (!identityNumber) {
-      auth.toastError('please Enter Identity Number')
+      auth.toastError(t('please Enter Identity Number'))
       return;
     }
     if (!deliveryEmail) {
-      auth.toastError('please Enter The Email')
+      auth.toastError(t('please Enter The Email'))
       return;
     }
     if (!deliveryEmail.includes('@')) {
-      auth.toastError("please Enter '@' After The Email")
+      auth.toastError(t("please Enter '@' After The Email"))
       return;
     }
     // if (!deliveryPassword) {
@@ -250,52 +252,52 @@ const EditDeliveryManPage = () => {
     formData.append('phone_status', phoneStatus)
     formData.append('status', deliveryStatus)
 
-    postData(formData, 'Delivery Added Success');
+    postData(formData, t('Delivery Added Success'));
   }
 
 
   return (
     <>
       {loadingDeliveries || loadingPost ? (
-        <div className="w-full flex justify-center items-center">
+        <div className="flex items-center justify-center w-full">
           <LoaderLogin />
         </div>
       ) : (
         <>
           <form
-            className="w-full flex sm:flex-col lg:flex-row flex-wrap items-start justify-start gap-4"
+            className="flex flex-wrap items-start justify-start w-full gap-4 sm:flex-col lg:flex-row"
             onSubmit={handleDeliveryEdit}
           >
             {/* First Name */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-              <span className="text-xl font-TextFontRegular text-thirdColor">First Name:</span>
+              <span className="text-xl font-TextFontRegular text-thirdColor">{t("FirstName")}:</span>
               <TextInput
                 value={deliveryFname}
                 onChange={(e) => setDeliveryFname(e.target.value)}
-                placeholder="First Name"
+                placeholder={t("FirstName")}
               />
             </div>
             {/* Last Name */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-              <span className="text-xl font-TextFontRegular text-thirdColor">Last Name:</span>
+              <span className="text-xl font-TextFontRegular text-thirdColor">{t("LastName")}:</span>
               <TextInput
                 value={deliveryLname}
                 onChange={(e) => setDeliveryLname(e.target.value)}
-                placeholder="Last Name"
+                placeholder={t("LastName")}
               />
             </div>
             {/* Delivery Phone */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-              <span className="text-xl font-TextFontRegular text-thirdColor">Delivery Phone:</span>
+              <span className="text-xl font-TextFontRegular text-thirdColor">{t("DeliveryPhone")}:</span>
               <NumberInput
                 value={deliveryPhone}
                 onChange={(e) => setDeliveryPhone(e.target.value)}
-                placeholder="Delivery Phone"
+                placeholder={t("DeliveryPhone")}
               />
             </div>
             {/* Branches */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-              <span className="text-xl font-TextFontRegular text-thirdColor">Branches:</span>
+              <span className="text-xl font-TextFontRegular text-thirdColor">{t("Branches")}:</span>
               <DropDown
                 ref={BranchesRef}
                 handleOpen={handleOpenBranch}
@@ -309,11 +311,11 @@ const EditDeliveryManPage = () => {
             </div>
             {/* Delivery Image */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-              <span className="text-xl font-TextFontRegular text-thirdColor">Delivery Photo:</span>
+              <span className="text-xl font-TextFontRegular text-thirdColor">{t("DeliveryPhoto")}:</span>
               <UploadInput
                 value={deliveryImage}
                 uploadFileRef={DeliveryImageRef}
-                placeholder="Delivery Photo"
+                placeholder={t("DeliveryPhoto")}
                 handleFileChange={handleDeliveryImageChange}
                 onChange={(e) => setDeliveryImage(e.target.value)}
                 onClick={() => handleDeliveryImageClick(DeliveryImageRef)}
@@ -321,7 +323,7 @@ const EditDeliveryManPage = () => {
             </div>
             {/* Identity Type */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-              <span className="text-xl font-TextFontRegular text-thirdColor">Identity Type:</span>
+              <span className="text-xl font-TextFontRegular text-thirdColor">{t("IdentityType")}:</span>
               <DropDown
                 ref={IdentityTypeRef}
                 handleOpen={handleOpenIdentityType}
@@ -335,11 +337,11 @@ const EditDeliveryManPage = () => {
             </div>
             {/* Identity Image */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-              <span className="text-xl font-TextFontRegular text-thirdColor">Identity Photo:</span>
+              <span className="text-xl font-TextFontRegular text-thirdColor">{t("IdentityPhoto")}:</span>
               <UploadInput
                 value={identityImage}
                 uploadFileRef={IdentityImageRef}
-                placeholder="Identity Photo"
+                placeholder={t("IdentityPhoto")}
                 handleFileChange={handleIdentityImageChange}
                 onChange={(e) => setIdentityImage(e.target.value)}
                 onClick={() => handleIdentityImageClick(IdentityImageRef)}
@@ -347,57 +349,57 @@ const EditDeliveryManPage = () => {
             </div>
             {/* Identity Number */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-              <span className="text-xl font-TextFontRegular text-thirdColor">Identity Number:</span>
+              <span className="text-xl font-TextFontRegular text-thirdColor">{t("IdentityNumber")}:</span>
               <NumberInput
                 value={identityNumber}
                 onChange={(e) => setIdentityNumber(e.target.value)}
-                placeholder="Identity Number"
+                placeholder={t("IdentityNumber")}
               />
             </div>
             {/* Email */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-              <span className="text-xl font-TextFontRegular text-thirdColor">Email:</span>
+              <span className="text-xl font-TextFontRegular text-thirdColor">{t("Email")}:</span>
               <EmailInput
                 backgound='white'
                 value={deliveryEmail}
                 onChange={(e) => setDeliveryEmail(e.target.value)}
-                placeholder="Email"
+                placeholder={t("Email")}
               />
             </div>
             {/* Password */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-              <span className="text-xl font-TextFontRegular text-thirdColor">Password:</span>
+              <span className="text-xl font-TextFontRegular text-thirdColor">{t('Password')}:</span>
               <PasswordInput
                 backgound='white'
                 value={deliveryPassword}
                 onChange={(e) => setDeliveryPassword(e.target.value)}
-                placeholder="Password"
+                placeholder={t('Password')}
               />
             </div>
             {/* Chat Status */}
             <div className="xl:w-[30%] flex items-center justify-start gap-x-4 lg:pt-10">
-              <span className="text-xl font-TextFontRegular text-thirdColor">Chat Status:</span>
+              <span className="text-xl font-TextFontRegular text-thirdColor">{t("ChatStatus")}:</span>
               <Switch handleClick={handleChatStatus} checked={chatStatus} />
             </div>
             {/* Phone Status */}
             <div className="xl:w-[30%] flex items-center justify-start gap-x-4 lg:pt-10">
-              <span className="text-xl font-TextFontRegular text-thirdColor">Phone Status:</span>
+              <span className="text-xl font-TextFontRegular text-thirdColor">{t("PhoneStatus")} :</span>
               <Switch handleClick={handlePhoneStatus} checked={phoneStatus} />
             </div>
             {/* delivery Status */}
             <div className="xl:w-[30%] flex items-center justify-start gap-x-4 lg:pt-10">
-              <span className="text-xl font-TextFontRegular text-thirdColor">Delivery Status:</span>
+              <span className="text-xl font-TextFontRegular text-thirdColor">{t("DeliveryStatus")} :</span>
               <Switch handleClick={handleDeliveryStatus} checked={deliveryStatus} />
             </div>
 
             {/* Buttons */}
-            <div className="w-full flex items-center justify-end gap-x-4">
+            <div className="flex items-center justify-end w-full gap-x-4">
               <div className="">
-                <StaticButton text={'Cancel'} handleClick={handleCancel} bgColor='bg-transparent' Color='text-mainColor' border={'border-2'} borderColor={'border-mainColor'} rounded='rounded-full' />
+                <StaticButton text={t('Cancel')} handleClick={handleCancel} bgColor='bg-transparent' Color='text-mainColor' border={'border-2'} borderColor={'border-mainColor'} rounded='rounded-full' />
               </div>
               <div className="">
                 <SubmitButton
-                  text={'Edit'}
+                  text={t('Edit')}
                   rounded='rounded-full'
                   handleClick={handleDeliveryEdit}
                 />

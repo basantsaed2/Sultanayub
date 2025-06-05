@@ -1,64 +1,67 @@
 import { Cart } from '../../../../../Components/Components'
 import { CanceledIcon, ConfirmedIcon, DeliveredIcon, FailedToDeliverIcon, OutForDeliveryIcon, PendingIcon, ReturnedIcon ,ProcessingIcon } from '../../../../../Assets/Icons/AllIcons'
 import { RiRefund2Line } from "react-icons/ri";
+import { useTranslation } from "react-i18next";
 
 const CartsOrderSection = ({ ordersNum }) => {
+                       const {  t,i18n } = useTranslation();
+
   console.log('ordersNum', ordersNum)
   return (
     <>
-      <div className="w-full flex sm:flex-col lg:flex-row flex-wrap items-start justify-center gap-4 mt-4">
+      <div className="flex flex-wrap items-start justify-center w-full gap-4 mt-4 sm:flex-col lg:flex-row">
         <Cart
           route={'/dashboard/orders/pending'}
           icon={<PendingIcon />}
-          title={'Pending'}
+          title={t('Pending')}
           count={ordersNum.ordersPending || 0}
         />
         <Cart
           route={'/dashboard/orders/confirmed'}
           icon={<ConfirmedIcon />}
-          title={'Accept'}
+          title={t('Accept')}
           count={ordersNum.ordersConfirmed || 0}
         />
         <Cart
           route={'/dashboard/orders/processing'}
           icon={<ProcessingIcon />}
-          title={'Processing'}
+          title={t('Processing')}
           count={ordersNum.ordersProcessing || 0}
         />
         <Cart
           route={'/dashboard/orders/out_for_delivery'}
           icon={<OutForDeliveryIcon />}
-          title={'Out For Delivery'}
+          title={t('OutForDelivery')}
           count={ordersNum.OutForDelivery || 0}
         />
         <Cart
           route={'/dashboard/orders/delivered'}
           icon={<DeliveredIcon />}
-          title={'Delivered'}
+          title={t('Delivered')}
           count={ordersNum.ordersDelivered || 0}
         />
         <Cart
           route={'/dashboard/orders/canceled'}
           icon={<CanceledIcon />}
-          title={'Canceled'}
+          title={t('Canceled')}
           count={ordersNum.ordersCanceled || 0}
         />
         <Cart
           route={'/dashboard/orders/returned'}
           icon={<ReturnedIcon />}
-          title={'Returned'}
+          title={t('Returned')}
           count={ordersNum.ordersReturned || 0}
         />
         <Cart
           route={'/dashboard/orders/refund'}
-          icon={<RiRefund2Line  className='text-mainColor text-4xl'/>}
-          title={'Refund'}
+          icon={<RiRefund2Line  className='text-4xl text-mainColor'/>}
+          title={t('Refund')}
           count={ordersNum.ordersRefund || 0}
         />
         <Cart
           route={'/dashboard/orders/failed_to_deliver'}
           icon={<FailedToDeliverIcon />}
-          title={'Failed To Deliver'}
+          title={t('FailedToDeliver')}
           count={ordersNum.FailedToDeliver || 0}
         />
       </div>

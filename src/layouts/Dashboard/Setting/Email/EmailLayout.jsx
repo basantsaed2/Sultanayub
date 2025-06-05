@@ -3,9 +3,11 @@ import { TitlePage, TitleSection } from "../../../../Components/Components";
 import { useGet } from "../../../../Hooks/useGet";
 import EmailPage from "../../../../Pages/Dashboard/Admin/Setting/Email/EmailPage";
 import AddEmailSection from "../../../../Pages/Dashboard/Admin/Setting/Email/AddEmailSection";
+import { useTranslation } from 'react-i18next';
 
 const EmailLayout = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+           const { t, i18n } = useTranslation();
 
   const {
     data: emailsData,
@@ -34,9 +36,9 @@ const EmailLayout = () => {
 
   return (
     <>
-      <TitlePage text={"Add New Email"} />
+      <TitlePage text={t("AddNewEmail")} />
       <AddEmailSection update={update} setUpdate={setUpdate} />
-      <TitleSection text={"Emails Table"} />
+      <TitleSection text={t("EmailsTable")} />
       <EmailPage
         loadingEmails={loadingEmails}
         emails={emails}

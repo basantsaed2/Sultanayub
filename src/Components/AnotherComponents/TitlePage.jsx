@@ -1,9 +1,13 @@
+import { useTranslation } from 'react-i18next';
 
 const TitlePage = ({ text }) => {
+                 const {  i18n } = useTranslation();
+         const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
+
        return (
               <>
-                     <div className="w-full py-2">
-                            <span className="text-3xl font-TextFontMedium text-mainColor">{text}</span>
+           <div className={`${direction === 'rtl' ? 'text-right' : 'text-left'} w-full py-2`}>
+                            <span   className="text-3xl font-TextFontMedium text-mainColor">{text}</span>
                      </div>
               </>
        )

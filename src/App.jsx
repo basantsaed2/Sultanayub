@@ -10,8 +10,16 @@ import { setNewOrders, setSoundNotification } from './Store/CreateSlices';
 import { usePost } from './Hooks/usePostJson';
 import { useNavigate } from 'react-router-dom';
 import { useGet } from './Hooks/useGet';
+import { useTranslation } from 'react-i18next';
 
 const App = () => {
+   const { i18n } = useTranslation();
+useEffect(() => {
+    const dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.dir = dir;
+    document.documentElement.lang = i18n.language;
+  }, [i18n.language]);
+  const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
   const auth = useAuth();
   const hideSide = auth.hideSidebar;
   const [allCount, setAllCount] = useState(0);
@@ -136,21 +144,27 @@ const App = () => {
           onClose={handleClose}
         />
       )}
-      <div className="relative w-full flex h-screen overflow-hidden bg-secoundBgColor">
+      <div className="relative flex w-full h-screen overflow-hidden bg-secoundBgColor">
         {/* Sidebar */}
-        <div className={`${hideSide ? 'w-60' : 'w-16'} fixed left-0 z-10 duration-300 overflow-hidden`}>
+        <div className={`${hideSide ? 'w-60' : 'w-16'} ${direction === "ltr" ? 'left-0' : 'right-0'} fixed left-0 z-10 duration-300 overflow-hidden`}>
           <Sidebar />
         </div>
 
         {/* Main Content */}
-        <div className={`${hideSide ? 'pl-60' : 'pl-16'} w-full duration-300`}>
+        <div className={`
+        w-full duration-300
+        ${direction === "ltr"
+          ? (hideSide ? 'pl-60' : 'pl-16') // Padding-left لـ LTR
+          : (hideSide ? 'pr-60' : 'pr-16') // Padding-right لـ RTL
+        }
+      `}>
           {/* Navbar */}
           <div className="sticky top-0 z-10 bg-secoundBgColor">
             <Navbar />
           </div>
 
           {/* Main Content Area */}
-          <div className="relative w-full px-3 h-full overflow-y-scroll scrollPage">
+          <div className="relative w-full h-full px-3 overflow-y-scroll scrollPage">
             <Outlet />
           </div>
         </div>

@@ -2,12 +2,14 @@ import axios from "axios";
 import { useState } from "react";
 import { useAuth } from "../Context/Auth";
 import { useSelector } from "react-redux";
+import { useTranslation } from 'react-i18next';
 
 export const useChangeState = () => {
   const auth = useAuth();
   const user = useSelector(state => state.userSultanAyub)
   const [loadingChange, setLoadingChange] = useState(false);
   const [responseChange, setResponseChange] = useState(null);
+  const { t, i18n } = useTranslation();
 
   const changeState = async (url, name, data) => { // Accepting a single "data" object
     setLoadingChange(true);
@@ -64,7 +66,7 @@ export const useChangeState = () => {
         auth.toastError(error.response.data.message); // Display the general error message
       } else {
         // If no specific error messages are found, just display a fallback message
-        auth.toastError('An unknown error occurred.');
+        auth.toastError(t("Anunknownerroroccurred"));
       }
     }
     finally {

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { TitlePage, TitleSection } from '../../../Components/Components';
 import { AddOfferSection, OffersPage } from '../../../Pages/Pages';
 import { useGet } from '../../../Hooks/useGet';
+import { useTranslation } from 'react-i18next';
 
 const OffersLayout = () => {
        const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -10,6 +11,7 @@ const OffersLayout = () => {
        });
 
        const [refetch, setRefetch] = useState(false)
+           const { t, i18n } = useTranslation();
 
        const [offers, setOffers] = useState([]);
 
@@ -30,9 +32,9 @@ const OffersLayout = () => {
 
        return (
               <>
-                     <TitlePage text={'Add Offer'} />
+                       <TitlePage text={t('AddOffer')} />
                      <AddOfferSection refetch={refetch} setRefetch={setRefetch} />
-                     <TitleSection text={'Offers Table'} />
+                     <TitleSection text={t('OffersTable')} />
                      <OffersPage data={offers} setOffers={setOffers} loading={loadingOffers} />
               </>
        )

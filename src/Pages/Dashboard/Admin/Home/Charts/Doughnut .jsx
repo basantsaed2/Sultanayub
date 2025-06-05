@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
+import { useTranslation } from "react-i18next";
 
 // Register required Chart.js components
 Chart.register(ArcElement, Tooltip, Legend);
@@ -8,6 +9,7 @@ Chart.register(ArcElement, Tooltip, Legend);
 const DonutChart = ({ ordersData }) => {
    const [totalOrders, setTotalOrders] = useState(0);
    const totalOrdersRef = useRef(totalOrders);  
+  const {t}=useTranslation();
 
    useEffect(() => {
        if (ordersData) {
@@ -18,7 +20,8 @@ const DonutChart = ({ ordersData }) => {
    }, [ordersData]);
    
    const data = {
-       labels: ['Pending', 'Canceled', 'Ongoing', 'Returned', 'Delivered', 'Failed To Deliver'],
+ labels: [t('Pending'), t('Canceled'), t('Ongoing')
+        , t('Returned'), t('Delivered'), t('FailedToDeliver')],      
        datasets: [
            {
                data: [

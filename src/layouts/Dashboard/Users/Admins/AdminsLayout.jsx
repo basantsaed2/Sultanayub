@@ -2,8 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { TitlePage, TitleSection } from '../../../../Components/Components'
 import { AddAdminSection, AdminsPage } from '../../../../Pages/Pages'
 import { useGet } from '../../../../Hooks/useGet';
+import { useTranslation } from 'react-i18next';
 
 const AdminsLayout = () => {
+                    const { t, i18n } = useTranslation();
+       
        const apiUrl = import.meta.env.VITE_API_BASE_URL;
        const { refetch: refetchAdmins, loading: loadingAdmins, data: dataAdmins } = useGet({
               url: `${apiUrl}/admin/admin`
@@ -26,9 +29,9 @@ const AdminsLayout = () => {
        // useEffect(() => { console.log('dataAdmins', dataAdmins) }, [dataAdmins])
        return (
               <>
-                     <TitlePage text={'Add Admin'} />
+                     <TitlePage text={t('AddAdmin')} />
                      <AddAdminSection update={update} setUpdate={setUpdate} dataPositions={positions} />
-                     <TitleSection text={'Admins Table'} />
+                     <TitleSection text={t('AdminsTable')} />
                      <AdminsPage adminsData={admins} loadingAdmins={loadingAdmins} />
               </>
        )

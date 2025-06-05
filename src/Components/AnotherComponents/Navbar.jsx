@@ -122,13 +122,13 @@
 
 //        return (
 //               <>
-//                      <nav className="flex items-center justify-between py-1 px-4 gap-x-4 shadow-md">
-//                             <div className='sm:w-10/12 lg:w-6/12 xl:w-3/12 flex items-center justify-start sm:gap-x-4'>
+//                      <nav className="flex items-center justify-between px-4 py-1 shadow-md gap-x-4">
+//                             <div className='flex items-center justify-start sm:w-10/12 lg:w-6/12 xl:w-3/12 sm:gap-x-4'>
 
 //                                    <div className="relative z-10 w-14">
 
 //                                           {/* image profile */}
-//                                           {auth?.userState?.image ? (<img src={auth?.userState?.image} className='min-w-14 max-w-14 min-h-14  max-h-14 p-1 bg-white border-2 border-mainColor rounded-full object-cover object-center' alt="Profile" />)
+//                                           {auth?.userState?.image ? (<img src={auth?.userState?.image} className='object-cover object-center p-1 bg-white border-2 rounded-full min-w-14 max-w-14 min-h-14 max-h-14 border-mainColor' alt="Profile" />)
 //                                                  : (<RedLogo width={60} height={60} />)}
 //                                           <span
 //                                                  className={`absolute z-10 sm:right-0 lg:-right-0 ${isOnline ? 'bg-green-400' : 'bg-red-600'
@@ -141,12 +141,12 @@
 //                                    </div>
 
 //                             </div>
-//                             {/* <div className='sm:hidden lg:flex w-5/12'>
+//                             {/* <div className='w-5/12 sm:hidden lg:flex'>
 //                                    <SearchBar bgColor="bg-mainBgColor" pr='4' />
 //                             </div> */}
 
 //                             <div className="flex gap-5">
-//                                    <div className='flex w-2/12  items-center justify-center gap-x-10'>
+//                                    <div className='flex items-center justify-center w-2/12 gap-x-10'>
 //                                           <div className="relative" ref={notificationRef}>
 //                                                  <div className="relative" ref={notificationRef}>
 //                                                         <button
@@ -154,23 +154,23 @@
 //                                                                onClick={() => setNotificationOpen(!notificationOpen)}
 //                                                                className="relative"
 //                                                         >
-//                                                                <IoMdNotificationsOutline className="text-mainColor text-3xl" />
+//                                                                <IoMdNotificationsOutline className="text-3xl text-mainColor" />
 //                                                                {canceledOrders.count > 0 && (
-//                                                                       <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+//                                                                       <span className="absolute flex items-center justify-center w-5 h-5 text-xs text-white bg-red-600 rounded-full -top-2 -right-2">
 //                                                                              {canceledOrders.count}
 //                                                                       </span>
 //                                                                )}
 //                                                         </button>
 
 //                                                         {notificationOpen && (
-//                                                                <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-1 z-40 max-h-80 overflow-y-auto">
+//                                                                <div className="absolute right-0 z-40 w-64 py-1 mt-2 overflow-y-auto bg-white rounded-md shadow-lg max-h-80">
 //                                                                       {canceledOrders.orders.length === 0 ? (
 //                                                                              <div className="px-4 py-2 text-gray-700">{t('NoWaitingOrders')}</div>
 //                                                                       ) : (
 //                                                                              <>
 //                                                                                     <div className="px-4 py-2 font-semibold border-b">Waiting Orders</div>
 //                                                                                     {canceledOrders.orders.map(orderId => (
-//                                                                                            <div key={orderId} className="px-4 py-2 hover:bg-gray-100 flex justify-between items-center">
+//                                                                                            <div key={orderId} className="flex items-center justify-between px-4 py-2 hover:bg-gray-100">
 //                                                                                                   <Link
 //                                                                                                          to={`/dashboard/orders/details/${orderId}`}
 //                                                                                                          onClick={() => {
@@ -186,7 +186,7 @@
 //                                                                                                                 e.stopPropagation();
 //                                                                                                                 handleRemoveOrder(orderId);
 //                                                                                                          }}
-//                                                                                                          className="text-red-600 hover:text-red-800 ml-2"
+//                                                                                                          className="ml-2 text-red-600 hover:text-red-800"
 //                                                                                                          aria-label='Remove Order'
 //                                                                                                   >
 //                                                                                                          ×
@@ -221,8 +221,12 @@ import { removeCategory, removeUser } from '../../Store/CreateSlices.jsx';
 import { removeCanceledOrder } from '../../Store/CreateSlices';
 import { useChangeState } from '../../Hooks/useChangeState.jsx';
 import { useGet } from '../../Hooks/useGet.jsx';
+import "../../i18n.js";
+import { useTranslation } from "react-i18next";
+import { GrLanguage } from "react-icons/gr";
 
 const Navbar = () => {
+    const { t, i18n } = useTranslation();
   const auth = useAuth();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const dispatch = useDispatch();
@@ -238,6 +242,20 @@ const Navbar = () => {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [cancelationOpen, setCancelationOpen] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+//
+  const handleLanguage = () => {
+    const newLang = i18n.language === "ar" ? "en" : "ar";
+    i18n.changeLanguage(newLang);
+    localStorage.setItem("language", newLang);
+  };
+  
+
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("language");
+    if (savedLanguage) {
+      i18n.changeLanguage(savedLanguage); // تعيين اللغة المخزنة
+    }
+  }, [i18n]);
 
   // Get Cancellation Data
   const {
@@ -338,13 +356,13 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="flex items-center justify-between py-1 px-4 gap-x-4 shadow-md">
-        <div className="sm:w-10/12 lg:w-6/12 xl:w-3/12 flex items-center justify-start sm:gap-x-4">
+      <nav className="flex items-center justify-between px-4 py-1 shadow-md gap-x-4">
+        <div className="flex items-center justify-start sm:w-10/12 lg:w-6/12 xl:w-3/12 sm:gap-x-4">
           <div className="relative z-10 w-14">
             {auth?.userState?.image ? (
               <img
                 src={auth?.userState?.image}
-                className="min-w-14 max-w-14 min-h-14 max-h-14 p-1 bg-white border-2 border-mainColor rounded-full object-cover object-center"
+                className="object-cover object-center p-1 bg-white border-2 rounded-full min-w-14 max-w-14 min-h-14 max-h-14 border-mainColor"
                 alt="Profile"
               />
             ) : (
@@ -358,13 +376,26 @@ const Navbar = () => {
           </div>
           <div className="sm:w-10/12">
             <span className="w-full text-2xl text-left text-mainColor font-TextFontSemiBold">
-              Hello, {auth?.userState?.name || ""}
+               {t("Hello")}, {auth?.userState?.name || ""}
             </span>
+                <div className="flex items-center sm:w-11/12 text-mainColor ">
+            <i>
+              <GrLanguage />
+            </i>
+            <select
+              onChange={handleLanguage}
+              defaultValue={i18n.language}
+              className="flex items-center py-1 bg-transparent border border-white rounded text-mainColor"
+            >
+              <option value="en">EN</option>
+              <option value="ar">AR</option>
+            </select>
+          </div>
           </div>
         </div>
 
         <div className="flex gap-5">
-          <div className="flex w-2/12 items-center justify-center gap-x-3">
+          <div className="flex items-center justify-center w-2/12 gap-x-3">
             {/* Cancellation Status Dropdown */}
             <div className="relative" ref={cancelationDropdownRef}>
               <button
@@ -372,17 +403,17 @@ const Navbar = () => {
                 onClick={handleCancelationClickOpen}
                 className="relative flex items-center gap-x-2"
               >
-                <IoBagHandleOutline className="text-mainColor text-3xl" />
+                <IoBagHandleOutline className="text-3xl text-mainColor" />
                 {/* <span>Cancelation Orders</span> */}
                 {/* <IoIosArrowDown className="text-mainColor" /> */}
                 {cancelationStatuses.length > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute flex items-center justify-center w-5 h-5 text-xs text-white bg-red-600 rounded-full -top-2 -right-2">
                     {cancelationStatuses.length}
                   </span>
                 )}
               </button>
               {cancelationOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-1 z-40 max-h-80 overflow-y-auto">
+                <div className="absolute right-0 z-40 w-64 py-1 mt-2 overflow-y-auto bg-white rounded-md shadow-lg max-h-80">
                   {loadingCancelation ? (
                     <div className="px-4 py-2 text-gray-700">Loading...</div>
                   ) : cancelationStatuses.length === 0 ? (
@@ -393,7 +424,7 @@ const Navbar = () => {
                       {cancelationStatuses.map((status) => (
                         <div
                           key={status.id}
-                          className="px-4 py-2 hover:bg-gray-100 flex justify-between items-center"
+                          className="flex items-center justify-between px-4 py-2 hover:bg-gray-100"
                         ><Link
                             to={`/dashboard/orders/details/${status.id}`}
                             onClick={() => {() => setSelectedCancelId(status.id)}}
@@ -408,7 +439,7 @@ const Navbar = () => {
                           </Link>
                           <button
                             onClick={() => handleChangeStatus(status.id)}
-                            className="text-red-600 hover:text-red-800 ml-2"
+                            className="ml-2 text-red-600 hover:text-red-800"
                             aria-label="Remove Cancellation Order"
                           >
                             ×
@@ -428,15 +459,15 @@ const Navbar = () => {
                 onClick={() => setNotificationOpen(!notificationOpen)}
                 className="relative"
               >
-                <IoMdNotificationsOutline className="text-mainColor text-3xl" />
+                <IoMdNotificationsOutline className="text-3xl text-mainColor" />
                 {canceledOrders.count > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute flex items-center justify-center w-5 h-5 text-xs text-white bg-red-600 rounded-full -top-2 -right-2">
                     {canceledOrders.count}
                   </span>
                 )}
               </button>
               {notificationOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-1 z-40 max-h-80 overflow-y-auto">
+                <div className="absolute right-0 z-40 w-64 py-1 mt-2 overflow-y-auto bg-white rounded-md shadow-lg max-h-80">
                   {canceledOrders.orders.length === 0 ? (
                     <div className="px-4 py-2 text-gray-700">No Waiting Orders</div>
                   ) : (
@@ -445,7 +476,7 @@ const Navbar = () => {
                       {canceledOrders.orders.map((orderId) => (
                         <div
                           key={orderId}
-                          className="px-4 py-2 hover:bg-gray-100 flex justify-between items-center"
+                          className="flex items-center justify-between px-4 py-2 hover:bg-gray-100"
                         >
                           <Link
                             to={`/dashboard/orders/details/${orderId}`}
@@ -462,7 +493,7 @@ const Navbar = () => {
                               e.stopPropagation();
                               handleRemoveOrder(orderId);
                             }}
-                            className="text-red-600 hover:text-red-800 ml-2"
+                            className="ml-2 text-red-600 hover:text-red-800"
                             aria-label="Remove Order"
                           >
                             ×

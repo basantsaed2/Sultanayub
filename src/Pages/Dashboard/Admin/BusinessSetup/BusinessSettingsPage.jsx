@@ -14,6 +14,7 @@ import {
   UploadInput,
 } from "../../../../Components/Components";
 import { Dropdown } from "primereact/dropdown";
+import { useTranslation } from 'react-i18next';
 
 import moment from "moment-timezone";
 import { useGet } from "../../../../Hooks/useGet";
@@ -23,6 +24,7 @@ import { useAuth } from "../../../../Context/Auth";
 const BusinessSettingsPage = () => {
   const LogoRef = useRef();
   const IconRef = useRef();
+               const { t, i18n } = useTranslation();
 
   const auth = useAuth();
   const CountriesRef = useRef();
@@ -336,31 +338,31 @@ const BusinessSettingsPage = () => {
     // Validation for required fields
 
     if (!companyName) {
-      auth.toastError("Please enter companyName ");
+      auth.toastError(t("Please enter companyName"));
       return;
     }
     if (!companyPhone) {
-      auth.toastError("Please enter companyPhone");
+      auth.toastError(t("Please enter companyPhone"));
       return;
     }
     if (!companyEmail) {
-      auth.toastError("Please enter companyEmail ");
+      auth.toastError(t("Please enter companyEmail"));
       return;
     }
     if (!companyAddress) {
-      auth.toastError("Please enter companyAddress");
+      auth.toastError(t("Please enter companyAddress"));
     }
     if (!logo) {
-      auth.toastError("Please enter logo");
+      auth.toastError(t("Please enter logo"));
     }
     if (!icon) {
-      auth.toastError("Please enter icon");
+      auth.toastError(t("Please enter icon"));
     }
     if (!selectedTimeZone) {
-      auth.toastError("Please enter timeZone");
+      auth.toastError(t("Please enter timeZone"));
     }
     if (!timeFormat) {
-      auth.toastError("Please enter timeFormat");
+      auth.toastError(t("Please enter timeFormat"));
     }
 
     //      if (!currency) {
@@ -368,12 +370,12 @@ const BusinessSettingsPage = () => {
     //      }
 
     if (!companyCopyrightText) {
-      auth.toastError("Please enter companyCopyrightText");
+      auth.toastError(t("Please enter companyCopyrightText"));
     }
 
 
     if (leftCurrency === 0 && rightCurrency === 0) {
-      auth.toastError("Please enter either leftCurrency or rightCurrency");
+      auth.toastError(t("Please enter either leftCurrency or rightCurrency"));
     }
 
     // if (maintenanceMode === 0) {
@@ -382,7 +384,7 @@ const BusinessSettingsPage = () => {
     // }
     if (maintenanceMode !== 0) {
       if (allSystem === 0 && branchPanel === 0 && customerApp === 0 && webApp === 0 && deliverymanApp === 0) {
-        auth.toastError("Please select at least one system.");
+        auth.toastError(t("Please select at least one system"));
         return;
       }
     }
@@ -743,25 +745,25 @@ const BusinessSettingsPage = () => {
     <>
       {loadingCompany || loadingPost ? (
         <>
-          <div className="w-full h-56 flex justify-center items-center">
+          <div className="flex items-center justify-center w-full h-56">
             <LoaderLogin />
           </div>
         </>
       ) : (
         <form
-          className="w-full flex sm:flex-col lg:flex-row flex-wrap items-start justify-start gap-4"
+          className="flex flex-wrap items-start justify-start w-full gap-4 sm:flex-col lg:flex-row"
           onSubmit={handelAddCompany}
         >
           <div className="w-full">
             <TitleSection text={"System Maintenance"} />
             <p className="text-xl font-TextFontMedium text-secoundColor">
-              *By turning on maintenance mode Control your all system & function
+{t("By")}
             </p>
           </div>
           {/* Maintenance Mode */}
           <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-              Maintenance Mode:
+              {t("MaintenanceMode")}:
             </span>
             <div>
               <Switch
@@ -775,12 +777,12 @@ const BusinessSettingsPage = () => {
           {/* Company Name */}
           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-              Company Name:
+            {t("CompanyName")}:
             </span>
             <TextInput
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
-              placeholder="Company Name"
+              placeholder={t("CompanyName")}
             />
           </div>
           {/* Company Phone */}
@@ -795,14 +797,14 @@ const BusinessSettingsPage = () => {
             />
           </div>
           {/* Company Alternative Phone */}
-          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+               <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-              Company Alternative Phone:
+              {t("CompanyAlternativePhone")}:
             </span>
             <NumberInput
               value={companyAlternativePhone}
               onChange={(e) => setCompanyAlternativePhone(e.target.value)}
-              placeholder="Company Alternative Phone"
+              placeholder={t("CompanyAlternativePhone")}
             />
           </div>
           {/* Company WhatsApp Phone */}
@@ -819,33 +821,33 @@ const BusinessSettingsPage = () => {
           {/* Company Email */}
           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-              Company Email:
+              {t("CompanyEmail")}:
             </span>
             <EmailInput
               backgound="white"
               value={companyEmail}
               onChange={(e) => setCompanyEmail(e.target.value)}
-              placeholder="Company Email"
+              placeholder={t("CompanyEmail")}
             />
           </div>
           {/* Company Address */}
-          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+        <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-              Company Address:
+              {t("CompanyAddress")}:
             </span>
             <TextInput
               value={companyAddress}
               onChange={(e) => setCompanyAddress(e.target.value)}
-              placeholder="Company Address"
+              placeholder={t("CompanyAddress")}
             />
           </div>
           {/* Logo */}
-          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-            <span className="text-xl font-TextFontRegular text-thirdColor">Logo:</span>
+           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+            <span className="text-xl font-TextFontRegular text-thirdColor">{t("Logo")}:</span>
             <UploadInput
               value={logo}
               uploadFileRef={LogoRef}
-              placeholder="Logo"
+              placeholder={t("Logo")}
               handleFileChange={handleLogo}
               onChange={(e) => setLogo(e.target.value)}
               onClick={() => handleLogoClick(LogoRef)}
@@ -864,28 +866,38 @@ const BusinessSettingsPage = () => {
             />
           </div>
           {/* Company Android Link */}
-          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+        <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+            <span className="text-xl font-TextFontRegular text-thirdColor">{t("FavIcon")}:</span>
+            <UploadInput
+              value={icon}
+              uploadFileRef={IconRef}
+              placeholder={t("FavIcon")}
+              handleFileChange={handleIcon}
+              onChange={(e) => setIcon(e.target.value)}
+              onClick={() => handleIconClick(IconRef)}
+            />
+          </div>
+          {/* Company Ios Link */}
+           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-             App Android Link:
+             {t("AppAndroidLink")}:
             </span>
             <TextInput
               value={androidLink}
               onChange={(e) => setAndroidLink(e.target.value)}
-              placeholder="App Android Link"
+              placeholder={t("AppAndroidLink")}
             />
           </div>
-          {/* Company Ios Link */}
-          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-               App IOS Link:
+               {t("AppIOSLink")}:
             </span>
             <TextInput
               value={iosLink}
               onChange={(e) => setIosLink(e.target.value)}
-              placeholder="App IOS Link"
+              placeholder={t("AppIOSLink")}
             />
           </div>
-
           <div className="sm:w-full lg:w-[30%] flex items-center gap-2 mt-8 justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">Order Active : </span>
               <div>
@@ -916,7 +928,7 @@ const BusinessSettingsPage = () => {
               </div>
             </div>
 
-          <TitleSection text={"Business Information"} />
+          <TitleSection text={t("BusinessInformation")} />
 
           {/* Countries */}
           {/* <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
@@ -935,14 +947,14 @@ const BusinessSettingsPage = () => {
           {/* Countries 2 */}
           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-              Countries:
+              {t("Countries")}:
             </span>
             <Dropdown
               value={selectedCountry}
               onChange={(e) => setSelectedCountry(e.value)}
               options={countries}
               optionLabel="name"
-              placeholder="Select a Country"
+              placeholder={t("SelectaCountry")}
               filter
               className="w-full md:w-14rem"
             />
@@ -950,7 +962,7 @@ const BusinessSettingsPage = () => {
           {/* Time Zone */}
           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-              Time Zone:
+              {t("TimeZone")}:
             </span>
             <Dropdown
               value={selectedTimeZone}
@@ -965,7 +977,7 @@ const BusinessSettingsPage = () => {
           {/* Time Format */}
           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-              Time Format:
+              {t("TimeFormat")}:
             </span>
             <DropDown
               ref={TimeFormatRef}
@@ -981,7 +993,7 @@ const BusinessSettingsPage = () => {
           {/* Currency */}
           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-              Currency:
+              {t("Currency")}:
             </span>
             <DropDown
               ref={CurrencyRef}
@@ -995,14 +1007,14 @@ const BusinessSettingsPage = () => {
             />
           </div>
 
-          <div className="w-full flex sm:flex-col lg:flex-row flex-wrap items-center justify-start gap-4">
+          <div className="flex flex-wrap items-center justify-start w-full gap-4 sm:flex-col lg:flex-row">
             {/* Currency Position */}
             <span className="text-xl font-TextFontRegular text-thirdColor">
-              Currency Position:
+              {t('CurrencyPosition')}:
             </span>
             <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3">
               <span className="text-xl font-TextFontRegular text-thirdColor">
-                (E£) Left:
+                (E£)         {t("Left")}:
               </span>
               <div>
                 <Switch
@@ -1013,7 +1025,7 @@ const BusinessSettingsPage = () => {
             </div>
             <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3">
               <span className="text-xl font-TextFontRegular text-thirdColor">
-                (E£) Right:
+                (E£)             {t("Right")}:
               </span>
               <div>
                 <Switch
@@ -1027,28 +1039,28 @@ const BusinessSettingsPage = () => {
           {/* Company Copyright Text */}
           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-              Company Copyright Text:
+              {t("CompanyCopyrightText")}:
             </span>
             <TextInput
               value={companyCopyrightText}
               onChange={(e) => setCompanyCopyrightText(e.target.value)}
-              placeholder="Company Copyright Text"
+              placeholder={t("CompanyCopyrightText")}
             />
           </div>
 
           {maintenanceMode === 1 && (
             <>
               <div className="w-full">
-                <TitleSection text={"Select System"} />
+                <TitleSection text={t("Select System")} />
                 <p className="text-xl font-TextFontMedium text-secoundColor">
-                  Select the systems you want to temporarily deactivate for
-                  maintenance
+                                   {t("Selectthesystems")}
+
                 </p>
               </div>
               {/* All System */}
               <div className="sm:w-full xl:w-[20%] flex items-center justify-start gap-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                  All System:
+                  {t("AllSystem")}:
                 </span>
                 <div>
                   <Switch
@@ -1060,7 +1072,7 @@ const BusinessSettingsPage = () => {
               {/* Branch Panel */}
               <div className="sm:w-full xl:w-[20%] flex items-center justify-start gap-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                  Branch Panel:
+                  {t("BranchPanel")}:
                 </span>
                 <div>
                   <Switch
@@ -1072,7 +1084,7 @@ const BusinessSettingsPage = () => {
               {/* Customer App */}
               <div className="sm:w-full xl:w-[20%] flex items-center justify-start gap-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                  Customer App:
+              {t("CustomerApp")}:
                 </span>
                 <div>
                   <Switch
@@ -1084,7 +1096,7 @@ const BusinessSettingsPage = () => {
               {/* Web App */}
               <div className="sm:w-full xl:w-[20%] flex items-center justify-start gap-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                  Web App:
+                  {t("WebApp")}:
                 </span>
                 <div>
                   <Switch checked={webApp} handleClick={handleClickWebApp} />
@@ -1093,7 +1105,7 @@ const BusinessSettingsPage = () => {
               {/* Deliveryman App */}
               <div className="sm:w-full xl:w-[20%] flex items-center justify-start gap-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                  Deliveryman App:
+                  {t("DeliverymanApp")}:
                 </span>
                 <div>
                   <Switch
@@ -1104,16 +1116,15 @@ const BusinessSettingsPage = () => {
               </div>
 
               <div className="w-full">
-                <TitleSection text={"Maintenance Date & Time"} />
+                <TitleSection text={t("Maintenance Date & Time")} />
                 <p className="text-xl font-TextFontMedium text-secoundColor">
-                  Choose the maintenance mode duration for your selected system.
-                </p>
+{t("Choosethemaintenance")}                </p>
               </div>
 
               {/* For 24 Hours */}
               <div className="sm:w-full xl:w-[20%] flex items-center justify-start gap-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                  For 24 Hours:
+                  {t("For24Hours")}:
                 </span>
                 <div>
                   <Switch checked={forDay} handleClick={handleClickForDay} />
@@ -1122,7 +1133,7 @@ const BusinessSettingsPage = () => {
               {/*  For 1 Week */}
               <div className="sm:w-full xl:w-[20%] flex items-center justify-start gap-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                  For 1 Week:
+                  {t("For1Week")}:
                 </span>
                 <div>
                   <Switch checked={forWeek} handleClick={handleClickForWeek} />
@@ -1131,7 +1142,7 @@ const BusinessSettingsPage = () => {
               {/* Until I Change */}
               <div className="sm:w-full xl:w-[20%] flex items-center justify-start gap-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                  Until I Change:
+                  {t("UntilIChange")}:
                 </span>
                 <div>
                   <Switch
@@ -1143,7 +1154,7 @@ const BusinessSettingsPage = () => {
               {/* Customize */}
               <div className="sm:w-full xl:w-[20%] flex items-center justify-start gap-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                  Customize:
+                  {t("Customize")}:
                 </span>
                 <div>
                   <Switch
@@ -1158,8 +1169,7 @@ const BusinessSettingsPage = () => {
                   {/* Start Date */}
                   <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3">
                     <span className="text-xl font-TextFontRegular text-thirdColor">
-                      Start Date:
-                    </span>
+{t("StartDate")}:                    </span>
                     <div>
                       <DateInput
                         value={startDate}
@@ -1172,7 +1182,7 @@ const BusinessSettingsPage = () => {
                   {/* End Date */}
                   <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3">
                     <span className="text-xl font-TextFontRegular text-thirdColor">
-                      End Date:
+                      {t("EndDate")}:
                     </span>
                     <div>
                       <DateInput
@@ -1190,10 +1200,10 @@ const BusinessSettingsPage = () => {
           }
 
           {/* Buttons */}
-          <div className="w-full flex items-center justify-end gap-x-4 mb-32">
+          <div className="flex items-center justify-end w-full mb-32 gap-x-4">
             <div className="">
               <StaticButton
-                text={"Reset"}
+                text={t("Reset")}
                 handleClick={handleReset}
                 bgColor="bg-transparent"
                 Color="text-mainColor"
@@ -1204,7 +1214,7 @@ const BusinessSettingsPage = () => {
             </div>
             <div className="">
               <SubmitButton
-                text={"Submit"}
+                text={t("Submit")}
                 rounded="rounded-full"
                 handleClick={handelAddCompany}
               />

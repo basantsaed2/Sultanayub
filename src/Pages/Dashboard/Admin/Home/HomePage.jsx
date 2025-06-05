@@ -7,7 +7,10 @@ import Chart from "./Charts/Chart";
 import FooterCard from "./FooterHome/FooterCard";
 import { SelectDateRangeSection } from '../../../../Pages/Pages'
 import { useSelector } from 'react-redux';
+import { useTranslation } from "react-i18next";
+
 const HomePage = () => {
+                 const {  t,i18n } = useTranslation();
 
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const {
@@ -130,32 +133,32 @@ const HomePage = () => {
   return (
     <>
       <OrdersComponent />
-      <div className="w-full flex flex-col mb-0">
+      <div className="flex flex-col w-full mb-0">
         {loading && loadingChart ? (
           <>
-            <div className="w-full flex justify-center items-center">
+            <div className="flex items-center justify-center w-full">
               <LoaderLogin />
             </div>
           </>
         ) : (
           <>
-            <div className="w-full flex flex-col gap-7 items-start justify-center pb-28">
+            <div className="flex flex-col items-start justify-center w-full gap-7 pb-28">
             <SelectDateRangeSection typPage={'all'} branchsData={dataBranch} />
 
               <CartsOrderSection ordersNum={counters} />
 
-              <div className="w-full flex flex-col gap-7 items-start justify-center px-4">
+              <div className="flex flex-col items-start justify-center w-full px-4 gap-7">
                 <Chart
                   order_statistics={order_statistics}
                   earning_statistics={earning_statistics}
                   recent_orders={recent_orders}
                   orders={orders}
                 />
-                <div className="w-full flex items-center justify-between flex-wrap gap-5">
-                  <FooterCard title={"Top Selling Products"} link="/dashboard/setup_product/product" layout={"TopSelling"} topCustomers={topCustomers} topSelling={topSelling} offers={offers} />
+                <div className="flex flex-wrap items-center justify-between w-full gap-5">
+                  <FooterCard title={t("TopSellingProducts")} link="/dashboard/setup_product/product" layout={"TopSelling"} topCustomers={topCustomers} topSelling={topSelling} offers={offers} />
                   {/* <FooterCard title={"Most Rated Products"} link="/dashboard/setup_product/product" /> */}
-                  <FooterCard title={"Deals"} link="/dashboard/deals" layout={"Deals"} topCustomers={topCustomers} topSelling={topSelling} offers={offers} />
-                  <FooterCard title={"Top Customer"} link="/dashboard/users/customers" layout={"default"} topCustomers={topCustomers} topSelling={topSelling} offers={offers} />
+                  <FooterCard title={t("Deals")} link="/dashboard/deals" layout={"Deals"} topCustomers={topCustomers} topSelling={topSelling} offers={offers} />
+                  <FooterCard title={t("TopCustomer")} link="/dashboard/users/customers" layout={"default"} topCustomers={topCustomers} topSelling={topSelling} offers={offers} />
                 </div>
               </div>
             </div>

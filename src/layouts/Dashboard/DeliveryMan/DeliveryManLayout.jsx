@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { TitlePage, TitleSection } from '../../../Components/Components'
 import { AddDeliveryManSection, DeliveryManPage } from '../../../Pages/Pages'
 import { useGet } from '../../../Hooks/useGet';
+import { useTranslation } from 'react-i18next';
 
 
 const DeliveryManLayout = () => {
@@ -9,6 +10,7 @@ const DeliveryManLayout = () => {
        const { refetch: refetchDeliveries, loading: loadingDeliveries, data: dataDeliveries } = useGet({
               url: `${apiUrl}/admin/delivery`
        });
+           const { t, i18n } = useTranslation();
 
        const [refetch, setRefetch] = useState(false)
 
@@ -31,11 +33,12 @@ const DeliveryManLayout = () => {
        }, [dataDeliveries]); // Only run this effect when `data` changes
 
 
+     
        return (
               <>
-                     <TitlePage text={'Add Delivery'} />
+                     <TitlePage text={t('AddDelivery')} />
                      <AddDeliveryManSection data={branches} refetch={refetch} setRefetch={setRefetch} />
-                     <TitleSection text={'Deliveries Table'} />
+                     <TitleSection text={t('DeliveriesTable')} />
                      <DeliveryManPage data={deliveries} setDeliveries={setDeliveries} loading={loadingDeliveries} />
               </>
        )

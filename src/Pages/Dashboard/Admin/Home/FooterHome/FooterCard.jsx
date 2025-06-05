@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const FooterCard = ({
   title,
@@ -9,34 +10,36 @@ const FooterCard = ({
   topSelling,
   offers,
 }) => {
+  const {  t,i18n } = useTranslation();
   const FooterContent = () => {
+
     switch (layout) {
       case "TopSelling": {
         return (
           <div className="w-full h-[170px] flex flex-col gap-y-4 pb-2 overflow-y-scroll scrollDrop">
             {topSelling.length === 0 ? (
-              <div className="w-full h-4/5 text-center flex items-center justify-center font-TextFontMedium text-xl text-mainColor">
-                Not Top Selling Products Found
+              <div className="flex items-center justify-center w-full text-xl text-center h-4/5 font-TextFontMedium text-mainColor">
+                {t("NotTopSellingProductsFound")}
               </div>
             ) : (
               topSelling.map((order) => (
                 <div
                   key={order.id}
-                  className="flex items-center space-x-4 p-4 gap-3 rounded-xl shadow-md border-b-2 border-gray-300"
+                  className="flex items-center gap-3 p-4 space-x-4 border-b-2 border-gray-300 shadow-md rounded-xl"
                 >
                   <img
                     src={order.image_link}
                     loading="lazy"
                     alt="Product"
-                    className="w-20 h-25 rounded-xl object-cover object-center"
+                    className="object-cover object-center w-20 h-25 rounded-xl"
                   />
                   <div className="flex flex-col items-start w-full">
-                    <p className="font-TextFontMedium text-sm">{order.name}</p>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-sm font-TextFontMedium">{order.name}</p>
+                    <p className="mt-1 text-sm text-gray-500">
                       {order.description}
                     </p>
                     <p className="text-lg font-TextFontMedium text-mainColor">
-                      {order.price} EGP
+                      {order.price}  {t("EGP")}
                     </p>
                   </div>
                 </div>
@@ -49,12 +52,12 @@ const FooterCard = ({
         return (
           <div className="w-full h-[170px] flex flex-col gap-y-4 pb-2 overflow-y-scroll scrollDrop">
             {offers.length === 0 ? (
-              <div className="w-full h-4/5 text-center flex items-center justify-center font-TextFontMedium text-xl text-mainColor">
-                Not Deals Found
+              <div className="flex items-center justify-center w-full text-xl text-center h-4/5 font-TextFontMedium text-mainColor">
+                {t("NotDealsFound")}
               </div>
             ) : (
               offers.map((offer) => (
-                <div className="w-full flex flex-col gap-y-2 py-3 shadow-md rounded-2xl"
+                <div className="flex flex-col w-full py-3 shadow-md gap-y-2 rounded-2xl"
                   key={offer.id}>
                   <div className="flex justify-start w-full px-3">
                     <div className="w-3/12">
@@ -62,21 +65,20 @@ const FooterCard = ({
                         src={offer.image_link}
                         alt="Offer"
                         loading="lazy"
-                        className="w-20 h-20 rounded-full object-cover object-center"
+                        className="object-cover object-center w-20 h-20 rounded-full"
                       />
                     </div>
-                    <div className="w-8/12 flex flex-col items-center gap-y-2
-                    font-TextFontSemiBold text-4xl text-mainColor">
+                    <div className="flex flex-col items-center w-8/12 text-4xl gap-y-2 font-TextFontSemiBold text-mainColor">
                       <span>
                         {offer.title}
                       </span>
                       <span>
-                        {offer.price} EGP
+                        {offer.price} {t("EGP")}
                       </span>
                     </div>
                   </div>
                   <div className="w-full text-center">
-                    <p className="font-TextFontMedium text-gray-500">
+                    <p className="text-gray-500 font-TextFontMedium">
                       {offer.description}, {offer.title}
                     </p>
                   </div>
@@ -91,33 +93,33 @@ const FooterCard = ({
         return (
           <div className="w-full h-[170px] flex flex-col gap-y-4 px-2 pb-2 overflow-y-scroll scrollDrop">
             {Object.values(topCustomers).length === 0 ? (
-              <div className="w-full h-4/5 text-center flex items-center justify-center font-TextFontMedium text-xl text-mainColor">
-                Not Customers Found
+              <div className="flex items-center justify-center w-full text-xl text-center h-4/5 font-TextFontMedium text-mainColor">
+                {t("NotCustomersFound")}
               </div>
             ) : (
               Object.values(topCustomers).map((customer) => (
                 <div
                   key={customer.id}
-                  className="w-full flex items-center justify-between gap-x-4 p-4 gap-5 rounded-xl shadow-md border-b-2 border-gray-300 "
+                  className="flex items-center justify-between w-full gap-5 p-4 border-b-2 border-gray-300 shadow-md gap-x-4 rounded-xl "
                 >
-                  <div className="w-3/12 flex items-center justify-center">
+                  <div className="flex items-center justify-center w-3/12">
                     <img
                       src={customer.image_link}
                       loading="lazy"
                       alt="photo"
-                      className="w-16 h-16 rounded-full object-cover object-center"
+                      className="object-cover object-center w-16 h-16 rounded-full"
                     />
                   </div>
 
-                  <div className="w-5/12 flex flex-col items-center justify-center">
-                    <p className="font-TextFontMedium text-gray-500">{`${customer.name}`}</p>
+                  <div className="flex flex-col items-center justify-center w-5/12">
+                    <p className="text-gray-500 font-TextFontMedium">{`${customer.name}`}</p>
                     <p className="text-sm text-gray-500">{customer.phone}</p>
                   </div>
 
                   <span
-                    className="w-3/12 flex items-center justify-center text-mainColor"
+                    className="flex items-center justify-center w-3/12 text-mainColor"
                   >
-                    Order: {customer.orders_count}
+                     {t("Order")}: {customer.orders_count}
                   </span>
                 </div>
               ))
@@ -129,13 +131,13 @@ const FooterCard = ({
 
   return (
     <div className="sm:w-full  lg:w-[48%] xl:w-[32%] rounded-xl  bg-white py-3 px-4 border border-gray-300 shadow-lg">
-      <div className="flex justify-between items-center border-b-2 pb-1 mb-4">
+      <div className="flex items-center justify-between pb-1 mb-4 border-b-2">
         <h3 className="text-xl font-TextFontSemiBold text-mainColor">{title}</h3>
         <Link
           to={link}
-          className="text-sm text-mainColor underline font-TextFontMedium"
+          className="text-sm underline text-mainColor font-TextFontMedium"
         >
-          View All
+          {t("ViewAll")}
         </Link>
       </div>
       {FooterContent()}
