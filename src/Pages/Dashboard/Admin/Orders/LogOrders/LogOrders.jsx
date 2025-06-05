@@ -62,7 +62,7 @@ const LogOrders = () => {
             className="flex-1 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-mainColor"
           />
           <button
-            type=
+            type='submit'
             className="px-4 py-2 text-white rounded bg-mainColor hover:bg-gray-700"
           >
                         {t("Search")}
