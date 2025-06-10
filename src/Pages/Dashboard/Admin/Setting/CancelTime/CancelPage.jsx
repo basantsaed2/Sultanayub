@@ -49,7 +49,7 @@ const CancelTimePage = () => {
               e.preventDefault();
 
               if (!cancelTime) {
-                     auth.toastError('please Enter Cancel Time')
+      auth.toastError(t("enterCancelTime"));
                      return;
               }
 
