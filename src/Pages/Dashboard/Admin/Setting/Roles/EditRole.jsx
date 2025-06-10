@@ -156,11 +156,11 @@
 
 //   if (!permissionsData || permissionsData.length === 0) {
 //     return (
-//       <div className="w-full h-40 flex flex-col items-center justify-center text-center">
-//         <h2 className="text-lg font-TextFontMedium text-red-500">
+//       <div className="flex flex-col items-center justify-center w-full h-40 text-center">
+//         <h2 className="text-lg text-red-500 font-TextFontMedium">
 //           No permissions available
 //         </h2>
-//         <p className="text-sm text-gray-600 mt-2">
+//         <p className="mt-2 text-sm text-gray-600">
 //           Please check the API response or try again later.
 //         </p>
 //       </div>
@@ -170,15 +170,15 @@
 //   return (
 //     <>
 //       {loadingRoles || loadingPost ? (
-//         <div className="w-full flex justify-center mb-96 pb-96 items-center py-10">
+//         <div className="flex items-center justify-center w-full py-10 mb-96 pb-96">
 //           <LoaderLogin className="w-10 h-10" />
 //         </div>
 //       ) : (
-//         <section className="px-4 sm:px-6 lg:px-8 py-8">
+//         <section className="px-4 py-8 sm:px-6 lg:px-8">
 //           <form onSubmit={handleRoleEdit} className="space-y-10">
             
 //             {/* Fields Section */}
-//             <div className="grid grid-cols-1   md:grid-cols-2 lg:grid-cols-4 gap-6">
+//             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
 //               {/* Role Name */}
 //               <div className="flex flex-col gap-y-2">
 //                 <label className="text-sm font-semibold text-gray-800">
@@ -209,7 +209,7 @@
 //                   panelClassName="text-sm"
 //                 />
 //                 {selectedPermissions.length > 0 && (
-//                   <ul className="mt-1 list-disc list-inside text-xs text-gray-600">
+//                   <ul className="mt-1 text-xs text-gray-600 list-disc list-inside">
 //                     {selectedPermissions.map((permission, index) => (
 //                       <li key={index}>{permission.name}</li>
 //                     ))}
@@ -234,7 +234,7 @@
 //                   panelClassName="text-sm"
 //                 />
 //                 {selectedActions.length > 0 && (
-//                   <ul className="mt-1 list-disc list-inside text-xs text-gray-600">
+//                   <ul className="mt-1 text-xs text-gray-600 list-disc list-inside">
 //                     {selectedActions.map((action, index) => (
 //                       <li key={index}>{action.name}</li>
 //                     ))}
@@ -261,7 +261,7 @@
 //             </div>
   
 //             {/* Buttons */}
-//             <div className="flex mb-96 pb-96  justify-center gap-6">
+//             <div className="flex justify-center gap-6 mb-96 pb-96">
 //               <StaticButton
 //                 text="Cancel"
 //                 handleClick={handleBack}
@@ -269,13 +269,13 @@
 //                 Color="text-red-600"
 //                 border="border border-red-600"
 //                 rounded="rounded-lg"
-//                 className="px-8 py-2 text-sm font-semibold hover:bg-gray-50 transition"
+//                 className="px-8 py-2 text-sm font-semibold transition hover:bg-gray-50"
 //               />
 //               <SubmitButton
 //                 text="Save Changes"
 //                 rounded="rounded-lg"
 //                 handleClick={handleRoleEdit}
-//                 className="px-8 py-2 text-sm font-semibold bg-red-600 hover:bg-red-700 transition text-white uppercase"
+//                 className="px-8 py-2 text-sm font-semibold text-white uppercase transition bg-red-600 hover:bg-red-700"
 //               />
 //             </div>
 //           </form>
@@ -296,6 +296,8 @@ import {
   Switch,
   TextInput,
 } from "../../../../../Components/Components";
+import { useTranslation } from "react-i18next";
+
 import { usePost } from "../../../../../Hooks/usePostJson";
 import { useGet } from "../../../../../Hooks/useGet";
 import { useAuth } from "../../../../../Context/Auth";
@@ -305,6 +307,8 @@ const EditRolePage = ({ update, setUpdate }) => {
   const { refetch: refetchRoles, loading: loadingRoles, data: dataRoles } = useGet({
     url: `${apiUrl}/admin/admin_roles`
   });
+                     const {  t,i18n } = useTranslation();
+
   const auth = useAuth();
   const nevigate =useNavigate();
   const location = useLocation();
@@ -449,7 +453,7 @@ const EditRolePage = ({ update, setUpdate }) => {
     e.preventDefault();
   
     if (!roleName.trim()) {
-      auth.toastError("Please enter a role name.");
+      auth.toastError(t("enterRoleName"));
       return;
     }
   
@@ -465,7 +469,7 @@ const EditRolePage = ({ update, setUpdate }) => {
     });
   
     if (flattenedPermissions.length === 0) {
-      auth.toastError("Please select at least one permission.");
+            auth.toastError(t("selectAtLeastOnePermission"));
       return;
     }
   
@@ -480,41 +484,41 @@ const EditRolePage = ({ update, setUpdate }) => {
     
     });
   
-    postData(formData, "Role Updated Successfully");
+    postData(formData, t("Role Updated Successfully"));
   };
 
   return (
     <>
       {loadingPost || loadingRoles ? (
-        <div className="w-full h-56 flex justify-center items-center">
+        <div className="flex items-center justify-center w-full h-56">
           <StaticLoader />
         </div>
       ) : (
-        <section className="bg-white rounded-xl shadow-lg p-6 mb-20">
+        <section className="p-6 mb-20 bg-white shadow-lg rounded-xl">
         <form onSubmit={handleRoleAdd} className="space-y-4">
           <div className="space-y-4">
             {/* Role Name Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-              <div className="lg:col-span-1 space-y-2">
+            <div className="grid items-start grid-cols-1 gap-6 lg:grid-cols-4">
+              <div className="space-y-2 lg:col-span-1">
                 <label htmlFor="role-name" className="block text-lg font-medium text-gray-700">
-                  Role Name:
+                  {t("RoleName")}:
                 </label>
                 <TextInput
                   id="role-name"
                   value={roleName}
                   onChange={(e) => setRoleName(e.target.value)}
-                  placeholder="Enter Role Name"
+                  placeholder={t("EnterRoleName")}
                   className="w-full"
                 />
               </div>
       
               {/* Active Toggle */}
-              <div className="lg:col-span-1 flex items-center space-x-3 pt-8">
-                <span className="text-lg font-medium text-gray-700">Active:</span>
+              <div className="flex items-center pt-8 space-x-3 lg:col-span-1">
+                <span className="text-lg font-medium text-gray-700">{t("Active")}:</span>
                 <Switch 
                   handleClick={handleRoleStatus} 
                   checked={roleStatus}
-                  srLabel="Toggle role active status"
+                  srLabel={t("Toggle role active status")}
                 />
               </div>
             </div>
@@ -524,31 +528,31 @@ const EditRolePage = ({ update, setUpdate }) => {
  
       
               {/* Select All Button */}
-              <div className="flex items-center space-x-3 bg-blue-50 p-3 rounded-lg">
+              <div className="flex items-center p-3 space-x-3 rounded-lg bg-blue-50">
                 <input
                   type="checkbox"
                   id="select-all"
                   onChange={toggleSelectAll}
                   checked={areAllPermissionsSelected}
-                  className="h-5 w-5 rounded text-blue-600 focus:ring-blue-500"
+                  className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
                 />
                 <label htmlFor="select-all" className="text-lg font-semibold text-gray-800">
-                  Select All Permissions
+                  {t("SelectAllPermissions")}
                 </label>
               </div>
       
               {/* Permissions Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
                 {Object.keys(permissionsData).map((category) => (
-                  <div key={category} className="border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+                  <div key={category} className="p-5 transition-shadow border border-gray-200 rounded-lg shadow-sm hover:shadow-md">
                     {/* Category Header */}
-                    <div className="flex items-center space-x-3 mb-4 pb-2 border-b border-gray-100">
+                    <div className="flex items-center pb-2 mb-4 space-x-3 border-b border-gray-100">
                       <input
                         type="checkbox"
                         id={`select-all-${category}`}
                         onChange={() => handleSelectAllCategory(category)}
                         checked={isAllSelectedInCategory(category)}
-                        className="h-5 w-5 rounded text-blue-600 focus:ring-blue-500"
+                        className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
                       />
                       <label 
                         htmlFor={`select-all-${category}`} 
@@ -559,7 +563,7 @@ const EditRolePage = ({ update, setUpdate }) => {
                     </div>
                     
                     {/* Permission Items */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                       {permissionsData[category].map((permission, index) => (
                         <div key={index} className="flex items-center space-x-3">
                           <input
@@ -567,11 +571,11 @@ const EditRolePage = ({ update, setUpdate }) => {
                             id={`permission-${category}-${index}`}
                             checked={selectedPermissions[category]?.includes(permission)}
                             onChange={() => handleTogglePermission(category, permission)}
-                            className="h-5 w-5 rounded text-blue-600 focus:ring-blue-500"
+                            className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
                           />
                           <label 
                             htmlFor={`permission-${category}-${index}`} 
-                            className="text-gray-700 font-medium"
+                            className="font-medium text-gray-700"
                           >
                             {permission}
                           </label>
@@ -584,13 +588,13 @@ const EditRolePage = ({ update, setUpdate }) => {
             </div>
           </div>
       
-         <div className="w-full flex items-center justify-end gap-x-4" >
+         <div className="flex items-center justify-end w-full gap-x-4" >
                       <div className="">
-                        <StaticButton text={'Reset'} handleClick={handleReset} bgColor='bg-transparent' Color='text-mainColor' border={'border-2'} borderColor={'border-mainColor'} rounded='rounded-full' />
+                        <StaticButton text={t('Reset')} handleClick={handleReset} bgColor='bg-transparent' Color='text-mainColor' border={'border-2'} borderColor={'border-mainColor'} rounded='rounded-full' />
                       </div>
                       <div className="">
                         <SubmitButton
-                          text={'Submit'}
+                          text={t('Submit')}
                           rounded='rounded-full'
                           handleClick={handleRoleAdd}
                         />

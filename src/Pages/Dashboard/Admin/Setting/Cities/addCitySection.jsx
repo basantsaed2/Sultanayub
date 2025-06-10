@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { StaticButton, StaticLoader, SubmitButton, Switch, TextInput, UploadInput } from '../../../../../Components/Components';
 import { usePost } from '../../../../../Hooks/usePostJson';
 import { useAuth } from '../../../../../Context/Auth';
+import { useTranslation } from "react-i18next";
 
 
 const AddCitySection = ({ update, setUpdate }) => {
@@ -11,6 +12,7 @@ const AddCitySection = ({ update, setUpdate }) => {
   });
 
   const auth = useAuth();
+                 const {  t,i18n } = useTranslation();
 
   const [cityName, setCityName] = useState('');
   const [cityStatus, setCityStatus] = useState(0);
@@ -39,7 +41,7 @@ const AddCitySection = ({ update, setUpdate }) => {
 
 
     if (!cityName) {
-      auth.toastError('please Enter City Name')
+    auth.toastError(t('enterCityName'));
       return;
     }
     const formData = new FormData();
@@ -47,14 +49,14 @@ const AddCitySection = ({ update, setUpdate }) => {
 
     formData.append('name', cityName);
     formData.append('status', cityStatus);
-    postData(formData, 'City Added Success');
+    postData(formData, t('City Added Success'));
 
   };
   return (
     <>
       {loadingPost ? (
         <>
-          <div className="w-full h-56 flex justify-center items-center">
+          <div className="flex items-center justify-center w-full h-56">
             <StaticLoader />
           </div>
         </>
@@ -63,19 +65,19 @@ const AddCitySection = ({ update, setUpdate }) => {
           <form onSubmit={handleCityAdd}>
             <div className="sm:py-3 lg:py-6">
               <div
-                className="w-full flex sm:flex-col lg:flex-row flex-wrap items-center justify-start gap-4">
+                className="flex flex-wrap items-center justify-start w-full gap-4 sm:flex-col lg:flex-row">
                 {/* Name Input */}
                 <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                  <span className="text-xl font-TextFontRegular text-thirdColor">City Name:</span>
+                  <span className="text-xl font-TextFontRegular text-thirdColor">{t("City Name")}:</span>
                   <TextInput
                     value={cityName} // Access category_name property
                     onChange={(e) => setCityName(e.target.value)}
-                    placeholder="payment Method Name"
+                    placeholder={t("payment Method Name")}
                   />
                 </div>
                 <div className="sm:w-full xl:w-[30%] flex items-start justify-start gap-x-1 pt-10">
-                  <div className='w-2/4 flex items-center justify-start gap-x-1'>
-                    <span className="text-xl font-TextFontRegular text-thirdColor">Active:</span>
+                  <div className='flex items-center justify-start w-2/4 gap-x-1'>
+                    <span className="text-xl font-TextFontRegular text-thirdColor">{t("Active")}:</span>
                     <Switch handleClick={handleCityStatus} checked={cityStatus} />
                   </div>
                 </div>
@@ -83,13 +85,13 @@ const AddCitySection = ({ update, setUpdate }) => {
             </div>
 
             {/* Buttons*/}
-            <div className="w-full flex items-center justify-end gap-x-4">
+            <div className="flex items-center justify-end w-full gap-x-4">
               <div className="">
-                <StaticButton text={'Reset'} handleClick={handleReset} bgColor='bg-transparent' Color='text-mainColor' border={'border-2'} borderColor={'border-mainColor'} rounded='rounded-full' />
+                <StaticButton text={t('Reset')} handleClick={handleReset} bgColor='bg-transparent' Color='text-mainColor' border={'border-2'} borderColor={'border-mainColor'} rounded='rounded-full' />
               </div>
               <div className="">
                 <SubmitButton
-                  text={'Submit'}
+                  text={t('Submit')}
                   rounded='rounded-full'
                   handleClick={handleCityAdd}
                 />

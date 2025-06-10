@@ -3,6 +3,7 @@ import { useGet } from '../../../../../Hooks/useGet';
 import { usePost } from '../../../../../Hooks/usePostJson';
 import { LoaderLogin, Switch } from '../../../../../Components/Components';
 import { useChangeState } from '../../../../../Hooks/useChangeState';
+import { useTranslation } from "react-i18next";
 
 const OrderTypePage = () => {
        const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -11,6 +12,7 @@ const OrderTypePage = () => {
        });
 
        const { changeState, loadingChange, responseChange } = useChangeState();
+                 const {  t,i18n } = useTranslation();
 
        const [orderTypes, setOrderTypes] = useState([])
 
@@ -46,16 +48,16 @@ const OrderTypePage = () => {
 
        };
 
-       const types = ['Take Away', 'Dine In', 'Delivery'];
+  const types = [t("TakeAway"), t("DineIn"), t("Delivery")];
 
        return (
               <>
                      {loadingChange || loadingOrderType ? (
-                            <div className="w-full flex justify-center items-center">
+                            <div className="flex items-center justify-center w-full">
                                    <LoaderLogin />
                             </div>
                      ) : (
-                            <section className="w-full flex flex-wrap items-center justify-between gap-y-2">
+                            <section className="flex flex-wrap items-center justify-between w-full gap-y-2">
                                    {orderTypes.map((type, index) => (
                                           <div key={type.id} className="sm:w-full lg:w-[30%] flex items-center justify-start gap-x-1">
                                                  <span className="text-xl font-TextFontRegular text-thirdColor">

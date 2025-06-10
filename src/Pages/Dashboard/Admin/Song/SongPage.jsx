@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useGet } from '../../../../Hooks/useGet';
 import { usePost } from '../../../../Hooks/usePostJson';
 import { LoaderLogin, SubmitButton, UploadInput } from '../../../../Components/Components';
+import { useTranslation } from "react-i18next";
 
 const SongPage = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -17,6 +18,7 @@ const SongPage = () => {
   const [song, setSong] = useState('');
   const [songFile, setSongFile] = useState(null);
   const [songFileOld, setSongFileOld] = useState(null);
+                 const {  t,i18n } = useTranslation();
 
   // Fetch data from the API
   useEffect(() => {
@@ -68,7 +70,7 @@ const SongPage = () => {
     e.preventDefault();
 
     if (!songFile) {
-      auth.toastError('Please upload a new notification sound.'); // Replace with toast or better notification
+      auth.toastError(t('Please upload a new notification sound.')); // Replace with toast or better notification
       return;
     }
 
@@ -76,13 +78,13 @@ const SongPage = () => {
     formData.append('notification_sound', songFile);
 
     console.log('FormData:', ...formData.entries());
-    postData(formData, 'Sound Changed Successfully');
+    postData(formData, t('Sound Changed Successfully'));
   };
 
   return (
     <>
       {loadingPost || loadingSong ? (
-        <div className="w-full flex justify-center items-center">
+        <div className="flex items-center justify-center w-full">
           <LoaderLogin />
         </div>
       ) : (
@@ -91,14 +93,14 @@ const SongPage = () => {
             {/* Audio Element */}
             <div className="flex items-center gap-x-2">
               {songFileOld && (
-                <div className="sm:w-full flex items-center justify-start gap-y-4 mb-4">
-                  <span className="text-xl font-TextFontRegular text-thirdColor">Your Sound:</span>
+                <div className="flex items-center justify-start mb-4 sm:w-full gap-y-4">
+                  <span className="text-xl font-TextFontRegular text-thirdColor">{t("Your Sound")}:</span>
                   <audio
-                    className="drop-shadow ml-3"
+                    className="ml-3 drop-shadow"
                     ref={audioRef}
                     src={songFileOld || ''}
                     controls
-                    onError={() => console.error('Audio failed to load. Please try again.')}
+                    onError={() => console.error(t('Audio failed to load. Please try again.'))}
                   />
                 </div>
               )}
@@ -107,20 +109,20 @@ const SongPage = () => {
             {/* Upload Input */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
               <UploadInput
-                value={songFile ? songFile.name : 'Upload Notification Sound'}
+                value={songFile ? songFile.name : t('Upload Notification Sound')}
                 uploadFileRef={songRef}
-                placeholder="Upload Notification Sound"
+                placeholder={t("Upload Notification Sound")}
                 handleFileChange={handleSongChange}
                 onClick={() => handleSongClick(songRef)}
               />
             </div>
 
             {/* Buttons */}
-            <div className="w-full flex items-center justify-end gap-x-4">
+            <div className="flex items-center justify-end w-full gap-x-4">
               <div className="">
 
                 <SubmitButton
-                  text={'Change'}
+                  text={t('Change')}
                   rounded="rounded-full"
                   handleClick={handleChangeSound}
                   disabled={!songFile} // Disable button until a file is selected

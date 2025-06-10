@@ -7,6 +7,7 @@ import { StaticLoader, Switch } from '../../../../../Components/Components';
 import { DeleteIcon, EditIcon } from '../../../../../Assets/Icons/AllIcons';
 import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react';
 import Warning from '../../../../../Assets/Icons/AnotherIcons/WarningIcon';
+import { useTranslation } from "react-i18next";
 
 const ScheduleTimePage = ({ refetch }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -29,6 +30,7 @@ const ScheduleTimePage = ({ refetch }) => {
     (currentPage - 1) * schedulePerPage,
     currentPage * schedulePerPage
   );
+  const { t, i18n } = useTranslation();
 
   // handle page change
   const handlePageChange = (pageNumber) => {
@@ -97,17 +99,17 @@ const ScheduleTimePage = ({ refetch }) => {
 
 
 
-  const headers = ['#', 'Name','Status', 'Action'];
+  const headers = ['#', t('Name'),t('Status'), t('Action')];
 
   return (
-    <div className="w-full pb-28 flex items-start justify-start overflow-x-scroll scrollSection">
+    <div className="flex items-start justify-start w-full overflow-x-scroll pb-28 scrollSection">
       {loadingSchedule || loadingChange || loadingDelete ? (
         <div className='w-full mt-40'>
           <StaticLoader />
         </div>
       ) : (
-        <div className='w-full flex flex-col'>
-          <table className="w-full sm:min-w-0 block overflow-x-scroll scrollPage">
+        <div className='flex flex-col w-full'>
+          <table className="block w-full overflow-x-scroll sm:min-w-0 scrollPage">
             <thead className="w-full">
               <tr className="w-full border-b-2">
                 {headers.map((name, index) => (
@@ -120,7 +122,7 @@ const ScheduleTimePage = ({ refetch }) => {
             <tbody className="w-full">
               {schedule.length === 0 ? (
                 <tr>
-                  <td colSpan={12} className='text-center text-xl text-mainColor font-TextFontMedium  '>Not find schedule time</td>
+                  <td colSpan={12} className='text-xl text-center text-mainColor font-TextFontMedium '>{t("Not find schedule time")}</td>
                 </tr>
               ) : (
                 currentSchedule.map((schedulee, index) => ( // Example with two rows
@@ -154,11 +156,11 @@ const ScheduleTimePage = ({ refetch }) => {
                             onClose={handleCloseDelete}
                             className="relative z-10"
                           >
-                            <DialogBackdrop className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+                            <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
                             <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                              <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                                <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                                  <div className="flex  flex-col items-center justify-center bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                              <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                                <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg">
+                                  <div className="flex flex-col items-center justify-center px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
                                     <Warning
                                       width="28"
                                       height="28"
@@ -166,22 +168,22 @@ const ScheduleTimePage = ({ refetch }) => {
                                     />
                                     <div className="flex items-center">
                                       <div className="mt-2 text-center">
-                                        You will delete schedule time {schedulee?.name || "-"}
+                                        {t("You will delete schedule time")}{schedulee?.name || "-"}
                                       </div>
                                     </div>
                                   </div>
                                   <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                                    <button className="inline-flex w-full justify-center rounded-md bg-mainColor px-6 py-3 text-sm font-TextFontSemiBold text-white shadow-sm sm:ml-3 sm:w-auto" onClick={() => handleDelete(schedulee.id, schedulee.name)}>
-                                      Delete
+                                    <button className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto" onClick={() => handleDelete(schedulee.id, schedulee.name)}>
+                                      {t("Delete")}
                                     </button>
 
                                     <button
                                       type="button"
                                       data-autofocus
                                       onClick={handleCloseDelete}
-                                      className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-6 py-3 text-sm font-TextFontMedium text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
+                                      className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
                                     >
-                                      Cancel
+                                      {t("Cancel")}
                                     </button>
                                   </div>
                                 </DialogPanel>
@@ -199,9 +201,9 @@ const ScheduleTimePage = ({ refetch }) => {
           </table>
 
           {schedule.length > 0 && (
-            <div className="my-6 flex flex-wrap items-center justify-center gap-x-4">
+            <div className="flex flex-wrap items-center justify-center my-6 gap-x-4">
               {currentPage !== 1 && (
-                <button type='button' className='text-lg px-4 py-2 rounded-xl bg-mainColor text-white font-TextFontMedium' onClick={() => setCurrentPage(currentPage - 1)}>Prev</button>
+                <button type='button' className='px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium' onClick={() => setCurrentPage(currentPage - 1)}>{t("Prev")}</button>
               )}
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <button
@@ -213,7 +215,7 @@ const ScheduleTimePage = ({ refetch }) => {
                 </button>
               ))}
               {totalPages !== currentPage && (
-                <button type='button' className='text-lg px-4 py-2 rounded-xl bg-mainColor text-white font-TextFontMedium' onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
+                <button type='button' className='px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium' onClick={() => setCurrentPage(currentPage + 1)}>{t("Next")}</button>
               )}
             </div>
           )}

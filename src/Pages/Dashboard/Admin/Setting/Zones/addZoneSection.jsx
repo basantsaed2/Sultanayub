@@ -3,6 +3,7 @@ import { DropDown, NumberInput, StaticButton, StaticLoader, SubmitButton, Switch
 import { usePost } from '../../../../../Hooks/usePostJson';
 import { useAuth } from '../../../../../Context/Auth';
 import { useGet } from '../../../../../Hooks/useGet';
+import { useTranslation } from "react-i18next";
 
 const AddZoneSection = ({ update, setUpdate }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -22,6 +23,7 @@ const AddZoneSection = ({ update, setUpdate }) => {
   const auth = useAuth();
   const [taps, setTaps] = useState([])
   const [currentTap, setCurrentTap] = useState(0);
+  const { t, i18n } = useTranslation();
 
 
   const [cities, setCities] = useState([])
@@ -31,11 +33,11 @@ const AddZoneSection = ({ update, setUpdate }) => {
   const [zoneName, setZoneName] = useState([]);
   const [zonePrice, setZonePrice] = useState('');
 
-  const [stateCity, setStateCity] = useState('Select City');
+  const [stateCity, setStateCity] = useState(t("'Select City'"));
   const [cityId, setCityId] = useState('');
   const [isOpenCity, setIsOpenCity] = useState(false);
 
-  const [stateBranch, setStateBranch] = useState('Select Branch');
+  const [stateBranch, setStateBranch] = useState(t("'Select Branch'"));
   const [branchId, setBranchId] = useState('');
   const [isOpenBranch, setIsOpenBranch] = useState(false);
 
@@ -58,11 +60,11 @@ const AddZoneSection = ({ update, setUpdate }) => {
 
   useEffect(() => {
     if (dataCities) {
-      setCities([{ id: '', name: 'Select City' }, ...dataCities.cities] || []);
+      setCities([{ id: '', name: t('Select City') }, ...dataCities.cities] || []);
     }
 
     if (dataBranches) {
-      setBranches([{ id: '', name: 'Select Branch' }, ...dataBranches.branches] || []);
+      setBranches([{ id: '', name: t('Select Branch') }, ...dataBranches.branches] || []);
     }
     console.log('cities', cities)
     console.log('Branches', branches)
@@ -139,10 +141,10 @@ const AddZoneSection = ({ update, setUpdate }) => {
       });
     })
     setZonePrice('')
-    setStateCity('Select City')
+    setStateCity(t('Select City'))
     setCityId('')
     setIsOpenCity(false)
-    setStateBranch('Select Branch')
+    setStateBranch(t('Select Branch'))
     setBranchId('')
     setIsOpenBranch(false)
     setActiveZone(0)
@@ -174,16 +176,16 @@ const AddZoneSection = ({ update, setUpdate }) => {
     e.preventDefault();
 
     if (zoneName.length === 0) {
-      auth.toastError('please Enter Zone Names')
+      auth.toastError(t('please Enter Zone Names'))
       return;
     }
 
     if (!zonePrice) {
-      auth.toastError('Please Enter Zone Price')
+      auth.toastError(t('Please Enter Zone Price'))
       return;
     }
     if (!cityId) {
-      auth.toastError('Please Select City')
+      auth.toastError(t('Please Select City'))
       return;
     }
     // if (!branchId) {
@@ -205,14 +207,14 @@ const AddZoneSection = ({ update, setUpdate }) => {
     formData.append('price', zonePrice)
     formData.append('status', activeZone)
 
-    postData(formData, 'Zone Added Success');
+    postData(formData, t('Zone Added Success'));
 
   };
   return (
     <>
       {loadingCities || loadingBranches || loadingPost ? (
         <>
-          <div className="w-full h-56 flex justify-center items-center">
+          <div className="flex items-center justify-center w-full h-56">
             <StaticLoader />
           </div>
         </>
@@ -220,7 +222,7 @@ const AddZoneSection = ({ update, setUpdate }) => {
         <section>
           <form onSubmit={handleZoneAdd}>
             {/* Taps */}
-            <div className="w-full flex items-center justify-start py-2 gap-x-6">
+            <div className="flex items-center justify-start w-full py-2 gap-x-6">
               {taps.map((tap, index) => (
                 <span
                   key={tap.id}
@@ -237,12 +239,12 @@ const AddZoneSection = ({ update, setUpdate }) => {
               {taps.map((tap, index) => (
                 currentTap === index && (
                   <div
-                    className="w-full flex sm:flex-col lg:flex-row flex-wrap items-center justify-start gap-4"
+                    className="flex flex-wrap items-center justify-start w-full gap-4 sm:flex-col lg:flex-row"
                     key={tap.id}
                   >
                     {/* Zone Name */}
                     <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                      <span className="text-xl font-TextFontRegular text-thirdColor">Name {tap.name}:</span>
+                      <span className="text-xl font-TextFontRegular text-thirdColor">{t("Name")} {tap.name}:</span>
                       <TextInput
                         value={zoneName[index]?.zone_name} // Access zone_names property
                         onChange={(e) => {
@@ -266,7 +268,7 @@ const AddZoneSection = ({ update, setUpdate }) => {
                             return updatedNames;
                           });
                         }}
-                        placeholder="Zone Name"
+                        placeholder={t("ZoneName")}
                       />
                     </div>
 
@@ -275,16 +277,16 @@ const AddZoneSection = ({ update, setUpdate }) => {
                       <>
                         {/* Zone Price */}
                         < div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                          <span className="text-xl font-TextFontRegular text-thirdColor">Zone Price:</span>
+                          <span className="text-xl font-TextFontRegular text-thirdColor">{t("ZonePrice")}:</span>
                           <NumberInput
                             value={zonePrice}
                             onChange={(e) => setZonePrice(e.target.value)}
-                            placeholder="Zone Price"
+                            placeholder={t("ZonePrice")}
                           />
                         </div>
                         {/* Cities */}
                         < div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1" >
-                          <span className="text-xl font-TextFontRegular text-thirdColor">City:</span>
+                          <span className="text-xl font-TextFontRegular text-thirdColor">{t("City")}:</span>
                           <DropDown
                             ref={dropDownCities}
                             handleOpen={handleOpenCities}
@@ -298,7 +300,7 @@ const AddZoneSection = ({ update, setUpdate }) => {
                         </div>
                         {/* Branches */}
                         <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                          <span className="text-xl font-TextFontRegular text-thirdColor">Branch:</span>
+                          <span className="text-xl font-TextFontRegular text-thirdColor">{t("Branch")}:</span>
                           <DropDown
                             ref={dropDownBranches}
                             handleOpen={handleOpenBranches}
@@ -311,7 +313,7 @@ const AddZoneSection = ({ update, setUpdate }) => {
                           />
                         </div>
                         <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3 pt-10">
-                          <span className="text-xl font-TextFontRegular text-thirdColor">Active:</span>
+                          <span className="text-xl font-TextFontRegular text-thirdColor">{t("Active")}:</span>
                           <Switch handleClick={handleStatusZone} checked={activeZone} />
                         </div>
                       </>
@@ -321,13 +323,13 @@ const AddZoneSection = ({ update, setUpdate }) => {
               ))}
             </div>
             {/* Buttons*/}
-            < div className="w-full flex items-center justify-end gap-x-4 mt-5" >
+            < div className="flex items-center justify-end w-full mt-5 gap-x-4" >
               <div className="">
-                <StaticButton text={'Reset'} handleClick={handleReset} bgColor='bg-transparent' Color='text-mainColor' border={'border-2'} borderColor={'border-mainColor'} rounded='rounded-full' />
+                <StaticButton text={t('Reset')} handleClick={handleReset} bgColor='bg-transparent' Color='text-mainColor' border={'border-2'} borderColor={'border-mainColor'} rounded='rounded-full' />
               </div>
               <div className="">
                 <SubmitButton
-                  text={'Submit'}
+                  text={t('Submit')}
                   rounded='rounded-full'
                   handleClick={handleZoneAdd}
                 />

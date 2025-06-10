@@ -10,6 +10,8 @@ import { usePost } from "../../../../../Hooks/usePostJson";
 import { useGet } from "../../../../../Hooks/useGet";
 import { useAuth } from "../../../../../Context/Auth";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
 const AddRoleSection = ({ update, setUpdate }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const { refetch: refetchRoles, loading: loadingRoles, data: dataRoles } = useGet({
@@ -24,6 +26,7 @@ const AddRoleSection = ({ update, setUpdate }) => {
   const [permissionsData, setPermissionsData] = useState([]);
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [roleStatus, setRoleStatus] = useState(0);
+                 const {  t,i18n } = useTranslation();
 
   useEffect(() => {
     refetchRoles();
@@ -134,7 +137,7 @@ const AddRoleSection = ({ update, setUpdate }) => {
     e.preventDefault();
   
     if (!roleName.trim()) {
-      auth.toastError("Please enter a role name.");
+      auth.toastError(t("Please enter a role name."));
       return;
     }
   
@@ -150,7 +153,7 @@ const AddRoleSection = ({ update, setUpdate }) => {
     });
   
     if (flattenedPermissions.length === 0) {
-      auth.toastError("Please select at least one permission.");
+      auth.toastError(t("Please select at least one permission."));
       return;
     }
   
@@ -165,41 +168,41 @@ const AddRoleSection = ({ update, setUpdate }) => {
     
     });
   
-    postData(formData, "Role Added Successfully");
+    postData(formData, t("Role Added Successfully"));
   };
 
   return (
     <>
       {loadingPost || loadingRoles ? (
-        <div className="w-full h-56 flex justify-center items-center">
+        <div className="flex items-center justify-center w-full h-56">
           <StaticLoader />
         </div>
       ) : (
-        <section className="bg-white rounded-xl shadow-lg p-6 mb-20">
+        <section className="p-6 mb-20 bg-white shadow-lg rounded-xl">
         <form onSubmit={handleRoleAdd} className="space-y-4">
           <div className="space-y-4">
             {/* Role Name Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-              <div className="lg:col-span-1 space-y-2">
+            <div className="grid items-start grid-cols-1 gap-6 lg:grid-cols-4">
+              <div className="space-y-2 lg:col-span-1">
                 <label htmlFor="role-name" className="block text-lg font-medium text-gray-700">
-                  Role Name:
+                 {t("Role Name")}:
                 </label>
                 <TextInput
                   id="role-name"
                   value={roleName}
                   onChange={(e) => setRoleName(e.target.value)}
-                  placeholder="Enter Role Name"
+                  placeholder={t("Enter Role Name")}
                   className="w-full"
                 />
               </div>
       
               {/* Active Toggle */}
-              <div className="lg:col-span-1 flex items-center space-x-3 pt-8">
-                <span className="text-lg font-medium text-gray-700">Active:</span>
+              <div className="flex items-center pt-8 space-x-3 lg:col-span-1">
+                <span className="text-lg font-medium text-gray-700">{t("Active")}:</span>
                 <Switch 
                   handleClick={handleRoleStatus} 
                   checked={roleStatus}
-                  srLabel="Toggle role active status"
+                  srLabel={t("Toggle role active status")}
                 />
               </div>
             </div>
@@ -209,31 +212,31 @@ const AddRoleSection = ({ update, setUpdate }) => {
  
       
               {/* Select All Button */}
-              <div className="flex items-center space-x-3 bg-blue-50 p-3 rounded-lg">
+              <div className="flex items-center p-3 space-x-3 rounded-lg bg-blue-50">
                 <input
                   type="checkbox"
                   id="select-all"
                   onChange={toggleSelectAll}
                   checked={areAllPermissionsSelected}
-                  className="h-5 w-5 rounded text-blue-600 focus:ring-blue-500"
+                  className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
                 />
                 <label htmlFor="select-all" className="text-lg font-semibold text-gray-800">
-                  Select All Permissions
+                    {t("SelectAllPermissions")}
                 </label>
               </div>
       
               {/* Permissions Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
                 {Object.keys(permissionsData).map((category) => (
-                  <div key={category} className="border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+                  <div key={category} className="p-5 transition-shadow border border-gray-200 rounded-lg shadow-sm hover:shadow-md">
                     {/* Category Header */}
-                    <div className="flex items-center space-x-3 mb-4 pb-2 border-b border-gray-100">
+                    <div className="flex items-center pb-2 mb-4 space-x-3 border-b border-gray-100">
                       <input
                         type="checkbox"
                         id={`select-all-${category}`}
                         onChange={() => handleSelectAllCategory(category)}
                         checked={isAllSelectedInCategory(category)}
-                        className="h-5 w-5 rounded text-blue-600 focus:ring-blue-500"
+                        className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
                       />
                       <label 
                         htmlFor={`select-all-${category}`} 
@@ -244,7 +247,7 @@ const AddRoleSection = ({ update, setUpdate }) => {
                     </div>
                     
                     {/* Permission Items */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                       {permissionsData[category].map((permission, index) => (
                         <div key={index} className="flex items-center space-x-3">
                           <input
@@ -252,11 +255,11 @@ const AddRoleSection = ({ update, setUpdate }) => {
                             id={`permission-${category}-${index}`}
                             checked={selectedPermissions[category]?.includes(permission)}
                             onChange={() => handleTogglePermission(category, permission)}
-                            className="h-5 w-5 rounded text-blue-600 focus:ring-blue-500"
+                            className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
                           />
                           <label 
                             htmlFor={`permission-${category}-${index}`} 
-                            className="text-gray-700 font-medium"
+                            className="font-medium text-gray-700"
                           >
                             {permission}
                           </label>
@@ -269,13 +272,13 @@ const AddRoleSection = ({ update, setUpdate }) => {
             </div>
           </div>
       
-         <div className="w-full flex items-center justify-end gap-x-4" >
+         <div className="flex items-center justify-end w-full gap-x-4" >
                       <div className="">
-                        <StaticButton text={'Reset'} handleClick={handleReset} bgColor='bg-transparent' Color='text-mainColor' border={'border-2'} borderColor={'border-mainColor'} rounded='rounded-full' />
+                        <StaticButton text={t('Reset')} handleClick={handleReset} bgColor='bg-transparent' Color='text-mainColor' border={'border-2'} borderColor={'border-mainColor'} rounded='rounded-full' />
                       </div>
                       <div className="">
                         <SubmitButton
-                          text={'Submit'}
+                          text={t('Submit')}
                           rounded='rounded-full'
                           handleClick={handleRoleAdd}
                         />

@@ -8,13 +8,14 @@ import {
 } from "../../../../../Components/Components";
 import { useAuth } from "../../../../../Context/Auth";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 const EditEmailPage = () => {
   const { emailId } = useParams();
   const navigate = useNavigate();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const auth = useAuth();
-
+                 const {  t,i18n } = useTranslation();
   const [newEmail, setNewEmail] = useState("");
   const [loadingPost, setLoadingPost] = useState(false);
   const [response, setResponse] = useState(null);
@@ -33,19 +34,19 @@ const EditEmailPage = () => {
     e.preventDefault();
 
     if (!newEmail.trim()) {
-      auth.toastError("Please enter a new email");
+      auth.toastError(t("Please enter a new email"));
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(newEmail.trim())) {
-      auth.toastError("Please enter a valid email");
+      auth.toastError(t("Please enter a valid email"));
       return;
     }
 
     const token = localStorage.getItem("token");
     if (!token) {
-      auth.toastError("No authentication token found. Please log in again.");
+      auth.toastError(t("No authentication token found. Please log in again."));
       return;
     }
 
@@ -60,7 +61,7 @@ const EditEmailPage = () => {
       });
 
       setResponse(res.data);
-      auth.toastSuccess("Email updated successfully");
+      auth.toastSuccess(t("Email updated successfully"));
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || "An error occurred while updating the email";
@@ -73,21 +74,21 @@ const EditEmailPage = () => {
   return (
     <>
       {loadingPost ? (
-        <div className="w-full flex justify-center items-center py-10">
+        <div className="flex items-center justify-center w-full py-10">
           <LoaderLogin className="w-10 h-10" />
         </div>
       ) : (
-        <section className="px-4 sm:px-6 lg:px-8 py-8">
+        <section className="px-4 py-8 sm:px-6 lg:px-8">
           <form onSubmit={handleEmailEdit} className="space-y-10">
             {/* New Email Input */}
             <div className="flex flex-col gap-y-2">
               <label className="text-sm font-semibold text-gray-800">
-                New Email:
+                {t('New Email')}:
               </label>
               <TextInput
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
-                placeholder="Enter New Email"
+                placeholder={t("Enter New Email")}
                 className="w-full md:w-[50%] !rounded-none text-sm border !border-gray-300 shadow-sm focus:ring-2 focus:ring-red-500"
               />
             </div>
@@ -95,19 +96,19 @@ const EditEmailPage = () => {
             {/* Buttons */}
             <div className="flex justify-center gap-6">
               <StaticButton
-                text="Cancel"
+                text={t("Cancel")}
                 handleClick={handleBack}
                 bgColor="bg-white"
                 Color="text-red-600"
                 border="border border-red-600"
                 rounded="rounded-lg"
-                className="px-8 py-2 text-sm font-semibold hover:bg-gray-50 transition"
+                className="px-8 py-2 text-sm font-semibold transition hover:bg-gray-50"
               />
               <SubmitButton
-                text="Save Changes"
+                text={t("Save Changes")}
                 rounded="rounded-lg"
                 handleClick={handleEmailEdit}
-                className="px-8 py-2 text-sm font-semibold bg-red-600 hover:bg-red-700 transition text-white uppercase"
+                className="px-8 py-2 text-sm font-semibold text-white uppercase transition bg-red-600 hover:bg-red-700"
               />
             </div>
           </form>

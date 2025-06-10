@@ -11,11 +11,11 @@ import { useTranslation } from "react-i18next";
 
 const AddEmailSection = ({ setUpdate }) => {
   const auth = useAuth();
+                 const {  t,i18n } = useTranslation();
 
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
-                 const {  t,i18n } = useTranslation();
 
   const handleReset = () => {
     setEmail("");
@@ -26,12 +26,12 @@ const AddEmailSection = ({ setUpdate }) => {
     e.preventDefault();
 
     if (!email.trim()) {
-      auth.toastError("Please enter an email.");
+    auth.toastError(t('enterEmail'));
       return;
     }
 
     if (!name.trim()) {
-      auth.toastError("Please enter a name.");
+    auth.toastError(t('enterName'));
       return;
     }
 
@@ -50,7 +50,7 @@ const AddEmailSection = ({ setUpdate }) => {
         },
       });
 
-      auth.toastSuccess("Email Added Successfully");
+      auth.toastSuccess(t("Email Added Successfully"));
       handleReset();
       setUpdate((prev) => !prev);
     } catch (error) {
@@ -77,24 +77,24 @@ const AddEmailSection = ({ setUpdate }) => {
                 {/* Email Input */}
                 <div className="w-[25%] flex flex-col gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
-                    Email:
+                    {t("Email")}:
                   </span>
                   <TextInput
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter Email"
+                    placeholder={t("Enter Email")}
                   />
                 </div>
 
                 {/* Name Input */}
                 <div className="w-[25%] flex flex-col gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
-                    Name:
+                    {t("Name")}:
                   </span>
                   <TextInput
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter Your Name"
+                    placeholder={t("Enter Your Name")}
                   />
                 </div>
               </div>

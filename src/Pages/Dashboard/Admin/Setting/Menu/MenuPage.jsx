@@ -1,21 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useGet } from '../../../../../Hooks/useGet';
-import { useChangeState } from '../../../../../Hooks/useChangeState';
-import { useDelete } from '../../../../../Hooks/useDelete';
-import { StaticLoader, Switch } from '../../../../../Components/Components';
-import { DeleteIcon, EditIcon } from '../../../../../Assets/Icons/AllIcons';
-import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react';
-import Warning from '../../../../../Assets/Icons/AnotherIcons/WarningIcon';
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useGet } from "../../../../../Hooks/useGet";
+import { useChangeState } from "../../../../../Hooks/useChangeState";
+import { useDelete } from "../../../../../Hooks/useDelete";
+import { StaticLoader, Switch } from "../../../../../Components/Components";
+import { DeleteIcon, EditIcon } from "../../../../../Assets/Icons/AllIcons";
+import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
+import Warning from "../../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { AiOutlineClose } from "react-icons/ai";
+import { useTranslation } from "react-i18next";
 
 const MenuPage = ({ refetch }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
-  const { refetch: refetchMenu, loading: loadingMenu, data: dataMenu } = useGet({
-    url: `${apiUrl}/admin/settings/menue`
+  const {
+    refetch: refetchMenu,
+    loading: loadingMenu,
+    data: dataMenu,
+  } = useGet({
+    url: `${apiUrl}/admin/settings/menue`,
   });
   const { changeState, loadingChange, responseChange } = useChangeState();
   const { deleteData, loadingDelete, responseDelete } = useDelete();
+  const { t, i18n } = useTranslation();
 
   const [menus, setMenus] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -43,8 +49,7 @@ const MenuPage = ({ refetch }) => {
     refetchMenu();
   }, [refetchMenu, refetch]); // Empty dependency array to only call refetch once on mount
 
-
-  // Change menus image status 
+  // Change menus image status
   const handleChangeStaus = async (id, name, status) => {
     const response = await changeState(
       `${apiUrl}/admin/settings/menue/status/${id}`,
@@ -64,7 +69,7 @@ const MenuPage = ({ refetch }) => {
       const updatedMenu = prevMenu.map((menu) =>
         menu.id === id ? { ...menu, status: status } : menu
       );
-      console.log('Updated Menu:', updatedMenu);
+      console.log("Updated Menu:", updatedMenu);
       return updatedMenu;
     });
   };
@@ -81,21 +86,20 @@ const MenuPage = ({ refetch }) => {
   };
 
   const handleCloseOverlay = () => {
-      setSelectedImage(null);
+    setSelectedImage(null);
   };
   // Delete menu image
   const handleDelete = async (id, name) => {
-    const success = await deleteData(`${apiUrl}/admin/settings/menue/delete/${id}`, `${name} Deleted Success.`);
+    const success = await deleteData(
+      `${apiUrl}/admin/settings/menue/delete/${id}`,
+      `${name} Deleted Success.`
+    );
 
     if (success) {
       // Update categories only if changeState succeeded
-      setMenus(
-        menus.filter((menu) =>
-          menu.id !== id
-        )
-      );
+      setMenus(menus.filter((menu) => menu.id !== id));
     }
-    console.log('Menu Image', menu)
+    console.log("Menu Image", menu);
   };
 
   // Update categories when `data` changes
@@ -103,26 +107,27 @@ const MenuPage = ({ refetch }) => {
     if (dataMenu && dataMenu.images) {
       setMenus(dataMenu.images);
     }
-    console.log('dataMenu', dataMenu)
+    console.log("dataMenu", dataMenu);
   }, [dataMenu]); // Only run this effect when `data` changes
 
-
-
-  const headers = ['#',"Image",'Status', 'Action'];
+  const headers = ['#',t("Image"),t('Status'), t('Action')];
 
   return (
-    <div className="w-full pb-28 flex items-start justify-start overflow-x-scroll scrollSection">
+    <div className="flex items-start justify-start w-full overflow-x-scroll pb-28 scrollSection">
       {loadingMenu || loadingChange || loadingDelete ? (
-        <div className='w-full mt-40'>
+        <div className="w-full mt-40">
           <StaticLoader />
         </div>
       ) : (
-        <div className='w-full flex flex-col'>
-          <table className="w-full sm:min-w-0 block overflow-x-scroll scrollPage">
+        <div className="flex flex-col w-full">
+          <table className="block w-full overflow-x-scroll sm:min-w-0 scrollPage">
             <thead className="w-full">
               <tr className="w-full border-b-2">
                 {headers.map((name, index) => (
-                  <th className="min-w-[120px] sm:w-[8%] lg:w-[5%] text-mainColor text-center font-TextFontLight sm:text-sm lg:text-base xl:text-lg pb-3" key={index}>
+                  <th
+                    className="min-w-[120px] sm:w-[8%] lg:w-[5%] text-mainColor text-center font-TextFontLight sm:text-sm lg:text-base xl:text-lg pb-3"
+                    key={index}
+                  >
                     {name}
                   </th>
                 ))}
@@ -131,7 +136,12 @@ const MenuPage = ({ refetch }) => {
             <tbody className="w-full">
               {menus.length === 0 ? (
                 <tr>
-                  <td colSpan={12} className='text-center text-xl text-mainColor font-TextFontMedium  '>Not find menu</td>
+                  <td
+                    colSpan={12}
+                    className="text-xl text-center text-mainColor font-TextFontMedium "
+                  >
+                    {t("Notfindmenu")}
+                  </td>
                 </tr>
               ) : (
                 currentMenu.map((menu, index) => (
@@ -139,18 +149,25 @@ const MenuPage = ({ refetch }) => {
                     <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {(currentPage - 1) * menuPerPage + index + 1}
                     </td>
-                    <td className="flex justify-center cursor-pointer" onClick={() => handleImageClick(menu.image_link)}>
-                      <img 
-                          src={menu.image_link} 
-                          className="bg-mainColor rounded-full min-w-14 min-h-14 max-w-14 max-h-14"
-                          alt="Photo"
+                    <td
+                      className="flex justify-center cursor-pointer"
+                      onClick={() => handleImageClick(menu.image_link)}
+                    >
+                      <img
+                        src={menu.image_link}
+                        className="rounded-full bg-mainColor min-w-14 min-h-14 max-w-14 max-h-14"
+                        alt="Photo"
                       />
-                  </td>
+                    </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       <Switch
                         checked={menu.status === 1}
                         handleClick={() => {
-                          handleChangeStaus(menu.id, menu.id, menu.status === 1 ? 0 : 1);
+                          handleChangeStaus(
+                            menu.id,
+                            menu.id,
+                            menu.status === 1 ? 0 : 1
+                          );
                         }}
                       />
                     </td>
@@ -169,11 +186,11 @@ const MenuPage = ({ refetch }) => {
                             onClose={handleCloseDelete}
                             className="relative z-10"
                           >
-                            <DialogBackdrop className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+                            <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
                             <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                              <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                                <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                                  <div className="flex  flex-col items-center justify-center bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                              <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                                <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg">
+                                  <div className="flex flex-col items-center justify-center px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
                                     <Warning
                                       width="28"
                                       height="28"
@@ -181,22 +198,28 @@ const MenuPage = ({ refetch }) => {
                                     />
                                     <div className="flex items-center">
                                       <div className="mt-2 text-center">
-                                        You will delete menu image {menu?.id || "-"}
+                                                                             {t("Youwilldeletemenuimage")} {menu?.id || "-"}
+
                                       </div>
                                     </div>
                                   </div>
                                   <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                                    <button className="inline-flex w-full justify-center rounded-md bg-mainColor px-6 py-3 text-sm font-TextFontSemiBold text-white shadow-sm sm:ml-3 sm:w-auto" onClick={() => handleDelete(menu.id, menu.id)}>
-                                      Delete
+                                    <button
+                                      className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto"
+                                      onClick={() =>
+                                        handleDelete(menu.id, menu.id)
+                                      }
+                                    >
+                                      {t("Delete")}
                                     </button>
 
                                     <button
                                       type="button"
                                       data-autofocus
                                       onClick={handleCloseDelete}
-                                      className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-6 py-3 text-sm font-TextFontMedium text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
+                                      className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
                                     >
-                                      Cancel
+                                      {t('Cancel')}
                                     </button>
                                   </div>
                                 </DialogPanel>
@@ -214,36 +237,58 @@ const MenuPage = ({ refetch }) => {
 
           {/* Full-Screen Overlay */}
           {selectedImage && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50 p-6 md:p-8">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black bg-opacity-80 md:p-8">
               {/* Close Button */}
               <button
-                  className="absolute top-5 right-5 bg-white text-black p-2 rounded-full shadow-lg hover:bg-gray-300 transition"
-                  onClick={handleCloseOverlay}
+                className="absolute p-2 text-black transition bg-white rounded-full shadow-lg top-5 right-5 hover:bg-gray-300"
+                onClick={handleCloseOverlay}
               >
-                  <AiOutlineClose size={24} className="text-mainColor"/>
+                <AiOutlineClose size={24} className="text-mainColor" />
               </button>
 
               {/* Display Full Image */}
-              <img src={selectedImage} className="max-w-full max-h-full rounded-lg shadow-lg" alt="Enlarged" />
+              <img
+                src={selectedImage}
+                className="max-w-full max-h-full rounded-lg shadow-lg"
+                alt="Enlarged"
+              />
             </div>
           )}
 
           {menus.length > 0 && (
-            <div className="my-6 flex flex-wrap items-center justify-center gap-x-4">
+            <div className="flex flex-wrap items-center justify-center my-6 gap-x-4">
               {currentPage !== 1 && (
-                <button type='button' className='text-lg px-4 py-2 rounded-xl bg-mainColor text-white font-TextFontMedium' onClick={() => setCurrentPage(currentPage - 1)}>Prev</button>
-              )}
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page ? 'bg-mainColor text-white' : ' text-mainColor'}`}
+                  type="button"
+                  className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
+                  onClick={() => setCurrentPage(currentPage - 1)}
                 >
-                  {page}
+                  {t("Prev")}
                 </button>
-              ))}
+              )}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${
+                      currentPage === page
+                        ? "bg-mainColor text-white"
+                        : " text-mainColor"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
               {totalPages !== currentPage && (
-                <button type='button' className='text-lg px-4 py-2 rounded-xl bg-mainColor text-white font-TextFontMedium' onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
+                <button
+                  type="button"
+                  className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                >
+                  {t("Next")}
+                </button>
               )}
             </div>
           )}

@@ -4,15 +4,28 @@ import { useChangeState } from "../../../../../Hooks/useChangeState";
 import { useDelete } from "../../../../../Hooks/useDelete";
 import { StaticLoader, Switch } from "../../../../../Components/Components";
 import { DeleteIcon, EditIcon } from "../../../../../Assets/Icons/AllIcons";
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/react";
 import Warning from "../../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { Link } from "react-router-dom";
 import { useGet } from "../../../../../Hooks/useGet";
+import { useTranslation } from "react-i18next";
+
 const RolesPage = ({ update, setUpdate }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
-  const { refetch: refetchRoles, loading: loadingRoles, data: dataRoles } = useGet({
-    url: `${apiUrl}/admin/admin_roles`
+  const {
+    refetch: refetchRoles,
+    loading: loadingRoles,
+    data: dataRoles,
+  } = useGet({
+    url: `${apiUrl}/admin/admin_roles`,
   });
+  const { t, i18n } = useTranslation();
+
   const { changeState, loadingChange, responseChange } = useChangeState();
   const { deleteData, loadingDelete, responseDelete } = useDelete();
   const [Roles, setRoles] = useState([]);
@@ -34,7 +47,7 @@ const RolesPage = ({ update, setUpdate }) => {
     if (dataRoles && dataRoles.user_positions) {
       setRoles(dataRoles.user_positions);
     }
-    console.log('dataRoles', dataRoles)
+    console.log("dataRoles", dataRoles);
   }, [dataRoles]); // Only run this effect when `data` changes
 
   // Calculate total number of pages
@@ -97,22 +110,25 @@ const RolesPage = ({ update, setUpdate }) => {
     });
   };
 
-  const headers = ["#", "Name", "Permissions", "Status", "Action"];
+  const headers = ["#", t("Name"), t("Permissions"), t("Status"), t("Action")];
 
   return (
-    <div className="w-full pb-28 flex items-start justify-start overflow-x-scroll scrollSection">
+    <div className="flex items-start justify-start w-full overflow-x-scroll pb-28 scrollSection">
       {loadingRoles || loadingChange || loadingDelete ? (
-        <div className='w-full mt-40'>
+        <div className="w-full mt-40">
           <StaticLoader />
         </div>
       ) : (
-        <div className="w-full flex flex-col">
+        <div className="flex flex-col w-full">
           {/* الجدول */}
-          <table className="w-full sm:min-w-0 block overflow-x-scroll scrollPage">
+          <table className="block w-full overflow-x-scroll sm:min-w-0 scrollPage">
             <thead className="w-full">
               <tr className="w-full border-b-2">
                 {headers.map((name, index) => (
-                  <th className="min-w-[120px] sm:w-[8%] lg:w-[5%] text-mainColor text-center font-TextFontLight sm:text-sm lg:text-base xl:text-lg pb-3" key={index}>
+                  <th
+                    className="min-w-[120px] sm:w-[8%] lg:w-[5%] text-mainColor text-center font-TextFontLight sm:text-sm lg:text-base xl:text-lg pb-3"
+                    key={index}
+                  >
                     {name}
                   </th>
                 ))}
@@ -123,9 +139,9 @@ const RolesPage = ({ update, setUpdate }) => {
                 <tr>
                   <td
                     colSpan={12}
-                    className="text-center text-base text-mainColor font-TextFontMedium py-4"
+                    className="py-4 text-base text-center text-mainColor font-TextFontMedium"
                   >
-                    No roles found.
+                    {t("Norolesfound")}.
                   </td>
                 </tr>
               ) : (
@@ -135,14 +151,14 @@ const RolesPage = ({ update, setUpdate }) => {
                       {(currentPage - 1) * RolesPerPage + index + 1}
                     </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                      {role?.name || '-'}
+                      {role?.name || "-"}
                     </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       <span
-                        className="text-mainColor text-sm border-b border-mainColor font-TextFontMedium cursor-pointer hover:text-mainColor-dark transition"
+                        className="text-sm transition border-b cursor-pointer text-mainColor border-mainColor font-TextFontMedium hover:text-mainColor-dark"
                         onClick={() => handleOpenPermissionsView(role.id)}
                       >
-                        View
+                        {t("View")}
                       </span>
                     </td>
                     {openPermissionsView === role.id && (
@@ -153,49 +169,62 @@ const RolesPage = ({ update, setUpdate }) => {
                       >
                         <DialogBackdrop className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm" />
                         <div className="fixed inset-0 z-10 flex items-center justify-center p-4">
-                          <DialogPanel className="relative w-full max-w-md rounded-lg bg-white shadow-xl">
+                          <DialogPanel className="relative w-full max-w-md bg-white rounded-lg shadow-xl">
                             {/* Compact header */}
-                            <div className="sticky top-0 bg-white px-4 py-3 border-b flex justify-between items-center">
-                              <DialogTitle className="text-sm font-TextFontBold text-gray-800">
-                                Permissions: {role.name || "Role"}
+                            <div className="sticky top-0 flex items-center justify-between px-4 py-3 bg-white border-b">
+                              <DialogTitle className="text-sm text-gray-800 font-TextFontBold">
+                                {t("Permissions")}: {role.name || "Role"}
                               </DialogTitle>
                               <button
                                 onClick={handleClosePermissionsView}
                                 className="text-gray-400 hover:text-gray-500"
                               >
-                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                <svg
+                                  className="w-5 h-5"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M6 18L18 6M6 6l12 12"
+                                  />
                                 </svg>
                               </button>
                             </div>
 
                             {/* Compact content area with limited height */}
                             <div className="px-4 py-2 max-h-[50vh] overflow-y-auto">
-                              {Array.isArray(role?.roles) && role.roles.length === 0 ? (
-                                <div className="py-3 text-center text-sm text-gray-500">
-                                  No permissions assigned
+                              {Array.isArray(role?.roles) &&
+                              role.roles.length === 0 ? (
+                                <div className="py-3 text-sm text-center text-gray-500">
+                                  {t("No permissions assigned")}
                                 </div>
                               ) : Array.isArray(role?.roles) ? (
                                 <div className="space-y-2">
                                   {Object.entries(
                                     role.roles.reduce((acc, permission) => {
-                                      if (!acc[permission.role]) acc[permission.role] = [];
+                                      if (!acc[permission.role])
+                                        acc[permission.role] = [];
                                       acc[permission.role].push(permission);
                                       return acc;
                                     }, {})
                                   ).map(([roleName, permissions]) => (
                                     <div key={roleName} className="text-sm">
-                                      <div className="font-TextFontMedium text-gray-700 py-1 capitalize">
+                                      <div className="py-1 text-gray-700 capitalize font-TextFontMedium">
                                         {roleName}:
                                       </div>
                                       <div className="flex flex-wrap gap-1 pl-2 mb-2">
                                         {permissions.map((p) => (
                                           <span
                                             key={p.id}
-                                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs ${p.action === "all"
+                                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs ${
+                                              p.action === "all"
                                                 ? "bg-green-100 text-green-800 font-medium"
                                                 : "bg-gray-100 text-gray-800"
-                                              }`}
+                                            }`}
                                           >
                                             {p.action}
                                           </span>
@@ -205,19 +234,19 @@ const RolesPage = ({ update, setUpdate }) => {
                                   ))}
                                 </div>
                               ) : (
-                                <div className="py-3 text-center text-sm text-red-500">
-                                  Invalid permissions data
+                                <div className="py-3 text-sm text-center text-red-500">
+                                  {t("Invalid permissions data")}
                                 </div>
                               )}
                             </div>
 
                             {/* Compact footer */}
-                            <div className="sticky bottom-0 bg-white px-4 py-2 border-t flex justify-end">
+                            <div className="sticky bottom-0 flex justify-end px-4 py-2 bg-white border-t">
                               <button
                                 onClick={handleClosePermissionsView}
                                 className="text-sm text-mainColor hover:text-mainColor-dark font-TextFontMedium"
                               >
-                                Close
+                                {t("Close")}
                               </button>
                             </div>
                           </DialogPanel>
@@ -238,7 +267,9 @@ const RolesPage = ({ update, setUpdate }) => {
                     </td>
                     <td className="py-2 text-center">
                       <div className="flex items-center justify-center gap-2">
-                        <Link to={`edit/${role.id}`} state={{ role }} ><EditIcon /></Link>
+                        <Link to={`edit/${role.id}`} state={{ role }}>
+                          <EditIcon />
+                        </Link>
 
                         <button
                           type="button"
@@ -254,18 +285,18 @@ const RolesPage = ({ update, setUpdate }) => {
                             onClose={handleCloseDelete}
                             className="relative z-10"
                           >
-                            <DialogBackdrop className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+                            <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
                             <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                              <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                                <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm">
-                                  <div className="flex flex-col items-center justify-center bg-white px-4 pb-4 pt-5 sm:p-4 sm:pb-4">
+                              <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                                <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-sm">
+                                  <div className="flex flex-col items-center justify-center px-4 pt-5 pb-4 bg-white sm:p-4 sm:pb-4">
                                     <Warning
                                       width="24"
                                       height="24"
                                       aria-hidden="true"
                                     />
-                                    <div className="mt-2 text-center text-sm">
-                                      You are about to delete the role{" "}
+                                    <div className="mt-2 text-sm text-center">
+                                      {t("Youareabouttodeletetherole")}{" "}
                                       <span className="font-TextFontMedium">
                                         {role?.name || "-"}
                                       </span>
@@ -274,19 +305,20 @@ const RolesPage = ({ update, setUpdate }) => {
                                   </div>
                                   <div className="px-4 py-2 sm:flex sm:flex-row-reverse sm:px-6">
                                     <button
-                                      className="inline-flex w-full justify-center rounded-md bg-mainColor px-4 py-2 text-sm font-TextFontMedium text-white shadow-sm sm:ml-2 sm:w-auto hover:bg-mainColor-dark"
+                                      className="inline-flex justify-center w-full px-4 py-2 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontMedium sm:ml-2 sm:w-auto hover:bg-mainColor-dark"
                                       onClick={() =>
                                         handleDelete(role.id, role.name)
                                       }
                                     >
-                                      Confirm Delete
+                                      {t("ConfirmDelete")}
                                     </button>
                                     <button
                                       type="button"
                                       onClick={handleCloseDelete}
-                                      className="mt-2 inline-flex w-full justify-center rounded-md bg-white px-4 py-2 text-sm font-TextFontMedium text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto hover:bg-gray-50"
+                                      className="inline-flex justify-center w-full px-4 py-2 mt-2 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto hover:bg-gray-50"
                                     >
-                                      Cancel
+                                                                            {t("Cancel")}
+
                                     </button>
                                   </div>
                                 </DialogPanel>
@@ -304,14 +336,14 @@ const RolesPage = ({ update, setUpdate }) => {
 
           {/* Pagination */}
           {Roles.length > 0 && (
-            <div className="my-4 flex flex-wrap items-center justify-center gap-x-2">
+            <div className="flex flex-wrap items-center justify-center my-4 gap-x-2">
               {currentPage > 1 && (
                 <button
                   type="button"
-                  className="text-sm px-3 py-1 rounded-md bg-mainColor text-white font-TextFontMedium hover:bg-mainColor-dark transition"
+                  className="px-3 py-1 text-sm text-white transition rounded-md bg-mainColor font-TextFontMedium hover:bg-mainColor-dark"
                   onClick={() => setCurrentPage(currentPage - 1)}
                 >
-                  Prev
+                  {t("Prev")}
                 </button>
               )}
 
@@ -320,10 +352,11 @@ const RolesPage = ({ update, setUpdate }) => {
                   <button
                     key={page}
                     onClick={() => handlePageChange(page)}
-                    className={`px-3 py-1 text-sm font-TextFontMedium rounded-md transition ${currentPage === page
-                      ? "bg-mainColor text-white"
-                      : "text-mainColor hover:bg-gray-100"
-                      }`}
+                    className={`px-3 py-1 text-sm font-TextFontMedium rounded-md transition ${
+                      currentPage === page
+                        ? "bg-mainColor text-white"
+                        : "text-mainColor hover:bg-gray-100"
+                    }`}
                   >
                     {page}
                   </button>
@@ -333,10 +366,10 @@ const RolesPage = ({ update, setUpdate }) => {
               {currentPage < totalPages && (
                 <button
                   type="button"
-                  className="text-sm px-3 py-1 rounded-md bg-mainColor text-white font-TextFontMedium hover:bg-mainColor-dark transition"
+                  className="px-3 py-1 text-sm text-white transition rounded-md bg-mainColor font-TextFontMedium hover:bg-mainColor-dark"
                   onClick={() => setCurrentPage(currentPage + 1)}
                 >
-                  Next
+                  {t("Next")}
                 </button>
               )}
             </div>

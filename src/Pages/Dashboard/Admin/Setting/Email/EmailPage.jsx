@@ -6,6 +6,7 @@ import { DeleteIcon, EditIcon } from "../../../../../Assets/Icons/AllIcons";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { useAuth } from "../../../../../Context/Auth";
+import { useTranslation } from "react-i18next";
 
 const EmailPage = ({ emails, refetchEmails }) => {
   const navigate = useNavigate();
@@ -13,6 +14,8 @@ const EmailPage = ({ emails, refetchEmails }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const { deleteData, loadingDelete } = useDelete();
   const auth = useAuth();
+
+  const { t, i18n } = useTranslation();
 
   const [emailsData, setEmailsData] = useState([]);
   const [openDelete, setOpenDelete] = useState(null);
@@ -49,15 +52,17 @@ const EmailPage = ({ emails, refetchEmails }) => {
   // Handle email deletion
   const handleDelete = async (id) => {
     try {
-      await deleteData(`${apiUrl}/admin/settings/business_setup/order_delay_notification/delete/${id}`, auth.token); 
-      setOpenDelete(null); 
-      refetchEmails(); 
-      auth.toastSuccess("Email deleted successfully.");
+      await deleteData(
+        `${apiUrl}/admin/settings/business_setup/order_delay_notification/delete/${id}`,
+        auth.token
+      );
+      setOpenDelete(null);
+      refetchEmails();
+      auth.toastSuccess(t("Email deleted successfully."));
     } catch (error) {
       console.error("Failed to delete email:", error);
     }
   };
-  
 
   const handleEdit = (emailItem) => {
     navigate(`edit/${emailItem.id}`, {
@@ -70,16 +75,16 @@ const EmailPage = ({ emails, refetchEmails }) => {
     });
   };
 
-  const headers = ["#", "Email", "Action"];
+  const headers = ["#", t("Email"), t("Action")];
 
   return (
-    <div className="w-full pb-16 flex items-start justify-start overflow-x-auto">
+    <div className="flex items-start justify-start w-full pb-16 overflow-x-auto">
       {loadingDelete ? (
-        <div className="w-full mt-20 flex justify-center">
+        <div className="flex justify-center w-full mt-20">
           <StaticLoader className="w-12 h-12" />
         </div>
       ) : (
-        <div className="w-full flex flex-col">
+        <div className="flex flex-col w-full">
           {/* Table */}
           <table className="w-full min-w-[600px] border-collapse">
             <thead>
@@ -99,21 +104,21 @@ const EmailPage = ({ emails, refetchEmails }) => {
                 <tr>
                   <td
                     colSpan={3}
-                    className="text-center text-base text-mainColor font-TextFontMedium py-4"
+                    className="py-4 text-base text-center text-mainColor font-TextFontMedium"
                   >
-                    No emails found.
+                    {t("Noemailsfound")}.
                   </td>
                 </tr>
               ) : (
                 currentEmails.map((emailItem, index) => (
                   <tr
                     key={emailItem.id}
-                    className="border-b border-gray-100 hover:bg-gray-50 transition duration-200"
+                    className="transition duration-200 border-b border-gray-100 hover:bg-gray-50"
                   >
-                    <td className="py-2 text-center text-thirdColor text-sm">
+                    <td className="py-2 text-sm text-center text-thirdColor">
                       {(currentPage - 1) * emailsPerPage + index + 1}
                     </td>
-                    <td className="py-2 text-center text-thirdColor text-sm">
+                    <td className="py-2 text-sm text-center text-thirdColor">
                       {emailItem.email}
                     </td>
                     <td className="py-2 text-center">
@@ -121,14 +126,14 @@ const EmailPage = ({ emails, refetchEmails }) => {
                         <button
                           type="button"
                           onClick={() => handleEdit(emailItem)}
-                          className="p-1 rounded-full hover:bg-gray-200 transition"
+                          className="p-1 transition rounded-full hover:bg-gray-200"
                         >
                           <EditIcon className="w-5 h-5 text-mainColor" />
                         </button>
                         <button
                           type="button"
                           onClick={() => handleOpenDelete(emailItem.id)}
-                          className="p-1 rounded-full hover:bg-gray-200 transition"
+                          className="p-1 transition rounded-full hover:bg-gray-200"
                         >
                           <DeleteIcon className="w-5 h-5 text-red-500" />
                         </button>
@@ -140,18 +145,18 @@ const EmailPage = ({ emails, refetchEmails }) => {
                             onClose={handleCloseDelete}
                             className="relative z-10"
                           >
-                            <DialogBackdrop className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+                            <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
                             <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                              <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                                <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm">
-                                  <div className="flex flex-col items-center justify-center bg-white px-4 pb-4 pt-5 sm:p-4 sm:pb-4">
+                              <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                                <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-sm">
+                                  <div className="flex flex-col items-center justify-center px-4 pt-5 pb-4 bg-white sm:p-4 sm:pb-4">
                                     <Warning
                                       width="24"
                                       height="24"
                                       aria-hidden="true"
                                     />
-                                    <div className="mt-2 text-center text-sm">
-                                      You are about to delete the email{" "}
+                                    <div className="mt-2 text-sm text-center">
+                                      {t("Youareabouttodeletetheemail")}{" "}
                                       <span className="font-TextFontMedium">
                                         {emailItem.email}
                                       </span>
@@ -159,20 +164,19 @@ const EmailPage = ({ emails, refetchEmails }) => {
                                     </div>
                                   </div>
                                   <div className="px-4 py-2 sm:flex sm:flex-row-reverse sm:px-6">
-                                  <button
-  onClick={() => handleDelete(emailItem.id)}
-  className="inline-flex w-full justify-center rounded-md bg-mainColor px-4 py-2 text-sm font-TextFontMedium text-white shadow-sm sm:ml-2 sm:w-auto hover:bg-mainColor-dark"
->
-  Confirm Delete
-</button>
-
+                                    <button
+                                      onClick={() => handleDelete(emailItem.id)}
+                                      className="inline-flex justify-center w-full px-4 py-2 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontMedium sm:ml-2 sm:w-auto hover:bg-mainColor-dark"
+                                    >
+  {t("ConfirmDelete")}
+                                    </button>
 
                                     <button
                                       type="button"
                                       onClick={handleCloseDelete}
-                                      className="mt-2 inline-flex w-full justify-center rounded-md bg-white px-4 py-2 text-sm font-TextFontMedium text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto hover:bg-gray-50"
+                                      className="inline-flex justify-center w-full px-4 py-2 mt-2 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto hover:bg-gray-50"
                                     >
-                                      Cancel
+                                      {t("Cancel")}
                                     </button>
                                   </div>
                                 </DialogPanel>
@@ -190,14 +194,14 @@ const EmailPage = ({ emails, refetchEmails }) => {
 
           {/* Pagination */}
           {emailsData.length > 0 && (
-            <div className="my-4 flex flex-wrap items-center justify-center gap-x-2">
+            <div className="flex flex-wrap items-center justify-center my-4 gap-x-2">
               {currentPage > 1 && (
                 <button
                   type="button"
-                  className="text-sm px-3 py-1 rounded-md bg-mainColor text-white font-TextFontMedium hover:bg-mainColor-dark transition"
+                  className="px-3 py-1 text-sm text-white transition rounded-md bg-mainColor font-TextFontMedium hover:bg-mainColor-dark"
                   onClick={() => setCurrentPage(currentPage - 1)}
                 >
-                  Prev
+                  {t("Prev")}
                 </button>
               )}
 
@@ -220,10 +224,10 @@ const EmailPage = ({ emails, refetchEmails }) => {
               {currentPage < totalPages && (
                 <button
                   type="button"
-                  className="text-sm px-3 py-1 rounded-md bg-mainColor text-white font-TextFontMedium hover:bg-mainColor-dark transition"
+                  className="px-3 py-1 text-sm text-white transition rounded-md bg-mainColor font-TextFontMedium hover:bg-mainColor-dark"
                   onClick={() => setCurrentPage(currentPage + 1)}
                 >
-                  Next
+                  {t("Next")}
                 </button>
               )}
             </div>

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useGet } from '../../../../Hooks/useGet';
 import { usePost } from '../../../../Hooks/usePostJson';
 import { DropDown, LoaderLogin, StaticLoader, SubmitButton, TextInput } from '../../../../Components/Components';
+import { useTranslation } from "react-i18next";
 
 const TaxTypePage = () => {
        const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -9,14 +10,15 @@ const TaxTypePage = () => {
               url: `${apiUrl}/admin/settings/tax_type`
        });
        const { postData, loadingPost, response } = usePost({ url: `${apiUrl}/admin/settings/tax_update` });
+                 const {  t,i18n } = useTranslation();
 
        const dropDownType = useRef();
        const [taxType, setTaxType] = useState('');
        const [stateType, setStateType] = useState('Select Tax Type');
        const [taxTypes] = useState([
-              { id: "", name: 'Select Tax Type' },
-              { id: "included", name: 'included' },
-              { id: "excluded", name: 'excluded' }
+              { id: "", name: ('Select Tax Type') },
+              { id: "included", name: t('included') },
+              { id: "excluded", name: t('excluded') }
        ])
 
 
@@ -89,7 +91,7 @@ const TaxTypePage = () => {
               <>
                      {loadingPost || loadingTaxType ? (
                             <>
-                                   <div className="w-full flex justify-center items-center">
+                                   <div className="flex items-center justify-center w-full">
                                           <LoaderLogin />
                                    </div>
                             </>
@@ -97,13 +99,11 @@ const TaxTypePage = () => {
                             <section>
                                    <form onSubmit={handleChangeTax}>
 
-                                          <div className="w-full flex sm:flex-col lg:flex-row flex-wrap items-center justify-start gap-4 mb-4">
+                                          <div className="flex flex-wrap items-center justify-start w-full gap-4 mb-4 sm:flex-col lg:flex-row">
                                                  {/* Tax Name */}
                                                  <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                                                         <span className="text-xl font-TextFontRegular text-thirdColor">Your Tax Type:</span>
-                                                        <span className='w-full rounded-2xl outline-none p-2 py-3 shadow
-                                                               font-TextFontRegular text-2xl bg-white text-thirdColor
-                                                               valueInput'>
+                                                        <span className='w-full p-2 py-3 text-2xl bg-white shadow outline-none rounded-2xl font-TextFontRegular text-thirdColor valueInput'>
                                                                {taxType}
                                                         </span>
                                                  </div>
@@ -124,7 +124,7 @@ const TaxTypePage = () => {
                                           </div>
 
                                           {/* Buttons*/}
-                                          <div className="w-full flex items-center justify-end gap-x-4">
+                                          <div className="flex items-center justify-end w-full gap-x-4">
                                                  <div className="">
                                                         <SubmitButton
                                                                text={'Change'}
