@@ -1,10 +1,10 @@
 import { Cart } from '../../../../../Components/Components'
-import { CanceledIcon, ConfirmedIcon, DeliveredIcon, FailedToDeliverIcon, OutForDeliveryIcon, PendingIcon, ReturnedIcon ,ProcessingIcon } from '../../../../../Assets/Icons/AllIcons'
+import { CanceledIcon, ConfirmedIcon, DeliveredIcon, FailedToDeliverIcon, OutForDeliveryIcon, PendingIcon, ReturnedIcon, ProcessingIcon } from '../../../../../Assets/Icons/AllIcons'
 import { RiRefund2Line } from "react-icons/ri";
 import { useTranslation } from "react-i18next";
 
 const CartsOrderSection = ({ ordersNum }) => {
-                       const {  t,i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   console.log('ordersNum', ordersNum)
   return (
@@ -18,15 +18,15 @@ const CartsOrderSection = ({ ordersNum }) => {
         />
         <Cart
           route={'/dashboard/orders/confirmed'}
-          icon={<ConfirmedIcon />}
+          icon={<ProcessingIcon />}
           title={t('Accept')}
-          count={ordersNum.ordersConfirmed || 0}
+          count={ordersNum.ordersProcessing || 0}
         />
         <Cart
           route={'/dashboard/orders/processing'}
-          icon={<ProcessingIcon />}
+          icon={<ConfirmedIcon />}
           title={t('Processing')}
-          count={ordersNum.ordersProcessing || 0}
+          count={ordersNum.ordersConfirmed || 0}
         />
         <Cart
           route={'/dashboard/orders/out_for_delivery'}
@@ -54,7 +54,7 @@ const CartsOrderSection = ({ ordersNum }) => {
         />
         <Cart
           route={'/dashboard/orders/refund'}
-          icon={<RiRefund2Line  className='text-4xl text-mainColor'/>}
+          icon={<RiRefund2Line className='text-4xl text-mainColor' />}
           title={t('Refund')}
           count={ordersNum.ordersRefund || 0}
         />
