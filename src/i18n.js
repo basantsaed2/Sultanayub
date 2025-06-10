@@ -978,6 +978,8 @@ const resources = {
 "Enabled":"Enabled",
 "Disabled":"Disabled",
 
+"Cancel Time Changed Success":"Cancel Time Changed Success"
+
 }
 },  
 },
