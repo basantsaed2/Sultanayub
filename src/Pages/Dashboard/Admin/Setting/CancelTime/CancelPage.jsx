@@ -3,6 +3,7 @@ import { useGet } from '../../../../../Hooks/useGet';
 import { usePost } from '../../../../../Hooks/usePostJson';
 import { LoaderLogin, SubmitButton, TextInput, TimeInput } from '../../../../../Components/Components';
 import classNames from 'classnames';
+import { useTranslation } from "react-i18next";
 
 const CancelTimePage = () => {
        const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -13,6 +14,7 @@ const CancelTimePage = () => {
 
        const [cancelTime, setCancelTime] = useState('');
 
+  const { t, i18n } = useTranslation();
 
        useEffect(() => {
               refetchCancelTime();
@@ -63,7 +65,7 @@ const CancelTimePage = () => {
               <>
                      {loadingPost || loadingCancelTime ? (
                             <>
-                                   <div className="w-full flex justify-center items-center">
+                                   <div className="flex items-center justify-center w-full">
                                           <LoaderLogin />
                                    </div>
                             </>
@@ -71,7 +73,7 @@ const CancelTimePage = () => {
                             <section>
                                    <form onSubmit={handleChangeCancelTime}>
 
-                                          <div className="w-full flex sm:flex-col lg:flex-row flex-wrap items-center justify-start gap-4 mb-4">
+                                          <div className="flex flex-wrap items-center justify-start w-full gap-4 mb-4 sm:flex-col lg:flex-row">
                                                  {/* Tax Types */}
                                                  <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                                                         <span className="text-xl font-TextFontRegular text-thirdColor">Time:</span>
@@ -96,7 +98,7 @@ const CancelTimePage = () => {
                                           </div>
 
                                           {/* Buttons*/}
-                                          <div className="w-full flex items-center justify-end gap-x-4">
+                                          <div className="flex items-center justify-end w-full gap-x-4">
                                                  <div className="">
                                                         <SubmitButton
                                                                text={'Change'}

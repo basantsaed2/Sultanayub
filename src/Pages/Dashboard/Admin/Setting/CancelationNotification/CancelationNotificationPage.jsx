@@ -3,6 +3,7 @@ import { useGet } from '../../../../../Hooks/useGet';
 import { usePost } from '../../../../../Hooks/usePostJson';
 import { LoaderLogin, Switch } from '../../../../../Components/Components';
 import { useChangeState } from '../../../../../Hooks/useChangeState';
+import { useTranslation } from "react-i18next";
 
 const CancelationNotificationPage = () => {
        const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -10,6 +11,7 @@ const CancelationNotificationPage = () => {
               url: `${apiUrl}/admin/settings/cancelation_notification`,
        });
        const { changeState, loadingChange, responseChange } = useChangeState();
+                 const {  t,i18n } = useTranslation();
 
        const [repeatedNotification, setRepeatedNotification] = useState(0);
 
@@ -31,7 +33,7 @@ const CancelationNotificationPage = () => {
               const newStatus = repeatedNotification === 1 ? 0 : 1;
               const response = await changeState(
                      `${apiUrl}/admin/settings/update_cancelation_notification`,
-                     'Notification status changed.',
+                     t("Notification status changed"),
                      { repeated: newStatus } // Ensure payload matches API expectation
               );
 
@@ -44,17 +46,17 @@ const CancelationNotificationPage = () => {
        return (
               <>
                      {loadingChange || loadingCancelationNotification ? (
-                            <div className="w-full flex justify-center items-center">
+                            <div className="flex items-center justify-center w-full">
                                    <LoaderLogin />
                             </div>
                      ) : (
-                            <section className="w-full flex items-center justify-start gap-y-2">
+                            <section className="flex items-center justify-start w-full gap-y-2">
                                    <div className="flex items-center justify-start gap-x-1">
                                           <Switch
                                                  checked={repeatedNotification === 1}
                                                  handleClick={handleChangeStatus}
                                           />
-                                          <span>Repeated Notification {repeatedNotification === 1 ? 'Enabled' : 'Disabled'}</span>
+                                          <span>{t("Repeated Notification")} {repeatedNotification === 1 ? t('Enabled') : t('Disabled')}</span>
                                    </div>
                             </section>
                      )}

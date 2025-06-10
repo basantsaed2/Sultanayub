@@ -972,8 +972,11 @@ const resources = {
 "Please Enter Food Preparion Time":"Please Enter Food Preparion Time",
 "Please Enter Image":"Please Enter Image",
 "Please Enter Cover File":"Please Enter Cover File",
-
 "Branch Added Success":"Branch Added Success",
+"Notification status changed":"Notification status changed",
+"Repeated Notification":"Repeated Notification",
+"Enabled":"Enabled",
+"Disabled":"Disabled",
 
 }
 },  
@@ -981,6 +984,11 @@ const resources = {
 
 ar: {  
   translation: {
+     "Branch Added Success": "تمت إضافة الفرع بنجاح",
+  "Notification status changed": "تم تغيير حالة الإشعارات",
+  "Repeated Notification": "إشعار مكرر",
+  "Enabled": "مفعل",
+  "Disabled": "غير مفعل",
      "please Enter Branch Names": "يرجى إدخال أسماء الفروع",
   "Please Enter Branch Address": "يرجى إدخال عنوان الفرع",
   "Please Enter Branch Phone": "يرجى إدخال رقم هاتف الفرع",

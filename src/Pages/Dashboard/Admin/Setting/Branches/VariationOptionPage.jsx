@@ -4,11 +4,13 @@ import { Link, useParams } from 'react-router-dom';
 import { useGet } from '../../../../../Hooks/useGet';
 import { useChangeState } from '../../../../../Hooks/useChangeState';
 import { StaticLoader, Switch } from '../../../../../Components/Components';
+import { useTranslation } from "react-i18next";
 
 const VariationOptionPage = ({ refetch }) => {
   // Extract branchId and variationId from URL parameters.
   const { branchId, variationId ,optionId} = useParams();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+                 const {  t,i18n } = useTranslation();
 
   // Fetch data for the given variationId.
   const { refetch: refetchBranchOption, loading: loadingBranchOption, data: dataBranchOption } = useGet({
@@ -79,16 +81,16 @@ const VariationOptionPage = ({ refetch }) => {
     }
   };
 
-  const headers = ['#', 'Name', 'Price', 'Point', 'Status'];
+  const headers = [t("#"), t("Name"), t("Price"), t("Point"), t("Status")];
 
   return (
-    <div className="w-full pb-28 flex items-start justify-start overflow-x-scroll scrollSection">
+    <div className="flex items-start justify-start w-full overflow-x-scroll pb-28 scrollSection">
       {loadingBranchOption || loadingChangeOptions ? (
         <div className="w-full mt-40">
           <StaticLoader />
         </div>
       ) : (
-        <div className="w-full sm:min-w-0 block overflow-x-scroll scrollSection border-collapse">
+        <div className="block w-full overflow-x-scroll border-collapse sm:min-w-0 scrollSection">
               <table className="w-full sm:min-w-0">
                      <thead className="w-full">
                             <tr className="w-full border-b-2">
@@ -102,7 +104,8 @@ const VariationOptionPage = ({ refetch }) => {
                      <tbody className="w-full">
                             {(options.length === 0 && selectedVariation) ? (
                                    <tr>
-                                          <td colSpan={12} className='text-center text-xl text-mainColor font-TextFontMedium  '>Not find Options</td>
+                                          <td colSpan={12} className='text-xl text-center text-mainColor font-TextFontMedium '>                    {t("NotfindOptions")}
+</td>
                                    </tr>
                             ) : (
                                    currentOptions.map((option, index) => ( // Example with two rows
@@ -134,9 +137,9 @@ const VariationOptionPage = ({ refetch }) => {
                      </tbody>
               </table>
               {options.length > 0 && (
-                     <div className="my-6 flex flex-wrap items-center justify-center gap-x-4">
+                     <div className="flex flex-wrap items-center justify-center my-6 gap-x-4">
                             {currentPage !== 1 && (
-                                   <button type='button' className='text-lg px-4 py-2 rounded-xl bg-mainColor text-white font-TextFontMedium' onClick={() => setCurrentPage(currentPage - 1)}>Prev</button>
+                                   <button type='button' className='px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium' onClick={() => setCurrentPage(currentPage - 1)}>Prev</button>
                             )}
                             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                                    <button
@@ -148,7 +151,7 @@ const VariationOptionPage = ({ refetch }) => {
                                    </button>
                             ))}
                             {totalPages !== currentPage && (
-                                   <button type='button' className='text-lg px-4 py-2 rounded-xl bg-mainColor text-white font-TextFontMedium' onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
+                                   <button type='button' className='px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium' onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
                             )}
                      </div>
               )}
