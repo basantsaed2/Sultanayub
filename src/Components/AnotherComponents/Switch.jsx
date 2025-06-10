@@ -1,31 +1,20 @@
 import React from "react";
 import styled from "styled-components";
-import { useTranslation } from "react-i18next";
 
-const Switch = () => {
-  const { i18n } = useTranslation();
-  const currentLang = i18n.language || 'en';
-  const isArabic = currentLang === 'ar';
-
-  const handleToggle = () => {
-    const newLang = isArabic ? 'en' : 'ar';
-    i18n.changeLanguage(newLang);
-    document.documentElement.lang = newLang;
-    document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
-  };
-
-  return (
-    <StyledWrapper isArabic={isArabic}>
-      <label className="switch">
-        <input type="checkbox" onChange={handleToggle} checked={isArabic} />
-        <span className="slider" />
-      </label>
-    </StyledWrapper>
-  );
+const Switch = ({ handleClick, checked }) => {
+       return (
+              <StyledWrapper>
+                     <label className="switch">
+                            <input type="checkbox" onClick={handleClick} checked={checked} readOnly />
+                            <span className="slider" />
+                     </label>
+              </StyledWrapper>
+       );
 };
 
 const StyledWrapper = styled.div`
   .switch {
+    font-size: 10px;
     position: relative;
     display: inline-block;
     width: 64px;
@@ -33,7 +22,7 @@ const StyledWrapper = styled.div`
   }
 
   .switch input {
-    opacity: 0;
+    opacity: 0; 
     width: 0;
     height: 0;
   }
@@ -54,23 +43,22 @@ const StyledWrapper = styled.div`
   .slider:before {
     position: absolute;
     content: "";
-    height: 26px;
-    width: 26px;
+    height: 25px; 
+    width: 25px;  
+    border-radius: 16px;
+    left: 4px; 
+    top: 3px; 
     background-color: white;
-    border-radius: 50%;
-    top: 3px;
-    left: ${(props) => (props.isArabic ? "4px" : "unset")};
-    right: ${(props) => (props.isArabic ? "unset" : "4px")};
     transition: 0.4s;
   }
 
-  input:checked + .slider:before {
-    transform: ${(props) =>
-      props.isArabic ? "translateX(32px)" : "translateX(-32px)"};
-  }
-
   input:checked + .slider {
-    background-color: #9e090f;
+    background-color: #9E090F;
+  }
+  
+  input:checked + .slider:before {
+       transform: translateX(32px); 
+       left: 2px; 
   }
 `;
 
