@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 export default function ToggleItems({ id }) {
   console.log("المنتج الحالي هو:", id);
@@ -9,11 +10,12 @@ export default function ToggleItems({ id }) {
   const [error, setError] = useState(null);
 
   const token = localStorage.getItem("token");
+                 const {  t,i18n } = useTranslation();
 
   if (!token) {
     return (
-      <div className="text-red-600 text-center p-4">
-        Token not found. Please log in.
+      <div className="p-4 text-center text-red-600">
+{t("TokennotfoundPleaselogin")}     
       </div>
     );
   }
@@ -46,12 +48,12 @@ export default function ToggleItems({ id }) {
           setBranchProductStatus(initialStatuses);
           setLoading(false);
         } else {
-          setError("Unexpected response structure.");
+          setError(t("Unexpected response structure"));
           setLoading(false);
         }
       } catch (error) {
         console.error("Branch fetch error:", error);
-        setError("Failed to fetch branches.");
+        setError(t("Failed to fetch branches"));
         setLoading(false);
       }
     };
@@ -87,34 +89,34 @@ export default function ToggleItems({ id }) {
 
   if (loading)
     return (
-      <div className="text-center p-6 text-mainColor">Loading branches...</div>
+      <div className="p-6 text-center text-mainColor">{t("Loadingbranches")}</div>
     );
-  if (error) return <div className="text-center p-6 text-red-600">{error}</div>;
+  if (error) return <div className="p-6 text-center text-red-600">{error}</div>;
   if (branches.length === 0)
-    return <div className="p-6 text-center">No branches found.</div>;
+    return <div className="p-6 text-center">{t("Nobranchesfound.")}</div>;
 
   return (
     <div className="p-6 font-TextFontRegular">
-      <h2 className="text-2xl text-mainColor font-bold mb-4 border-b border-gray-300 pb-2">
-        Branch Product Control
+      <h2 className="pb-2 mb-4 text-2xl font-bold border-b border-gray-300 text-mainColor">
+        {t("BranchProductControl")}
       </h2>
-      <p className="text-sm text-gray-600 mb-6">Total branches: {branches.length}</p>
+      <p className="mb-6 text-sm text-gray-600">{t("Totalbranches")}: {branches.length}</p>
       <ul className="space-y-4">
         {branches.map((branch) => {
           const status = branchProductStatus[branch.id] || 0;
           return (
             <li
               key={branch.id}
-              className="flex justify-between items-center bg-white border rounded-lg shadow-sm px-6 py-4"
+              className="flex items-center justify-between px-6 py-4 bg-white border rounded-lg shadow-sm"
             >
-              <span className="text-mainColor font-medium text-lg">{branch.name}</span>
+              <span className="text-lg font-medium text-mainColor">{branch.name}</span>
               <button
                 onClick={() => toggleProductStatus(branch.id)}
                 className={`px-5 py-2 rounded-md font-bold text-white transition duration-300 ${
                   status ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
                 }`}
               >
-                {status ? "ON" : "OFF"}
+                {status ? t("ON") : t("OFF")}
               </button>
             </li>
           );

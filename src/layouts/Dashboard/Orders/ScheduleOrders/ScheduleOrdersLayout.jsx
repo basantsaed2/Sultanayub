@@ -9,6 +9,8 @@ import { useGet } from "../../../../Hooks/useGet";
 import { useTranslation } from "react-i18next";
 
 const ScheduleOrdersLayout = () => {
+    const { t, i18n } = useTranslation();
+
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const {
     refetch: refetchBranch,
@@ -17,7 +19,6 @@ const ScheduleOrdersLayout = () => {
   } = useGet({
     url: `${apiUrl}/admin/order/branches`,
   });
-  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     refetchBranch(); // Refetch data when the component mounts

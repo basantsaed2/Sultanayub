@@ -506,7 +506,7 @@ const Navbar = () => {
               )}
             </div>
           </div>
-          <StaticButton Size = "text-1xl" px = "px-3" type="button" text="Logout" handleClick={handleLogout} />
+          <StaticButton Size = "text-1xl" px = "px-3" type="button" text={t("Logout")} handleClick={handleLogout} />
         </div>
       </nav>
     </>
