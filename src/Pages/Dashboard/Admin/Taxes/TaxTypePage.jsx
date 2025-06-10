@@ -75,7 +75,7 @@ const TaxTypePage = () => {
               e.preventDefault();
 
               if (!taxType) {
-                     auth.toastError('please Select Tax Type')
+                     auth.toastError(t('please Select Tax Type'))
                      return;
               }
 
@@ -85,7 +85,7 @@ const TaxTypePage = () => {
 
 
               console.log(...formData.entries());
-              postData(formData, "Tax Type Changed Success")
+              postData(formData, t("Tax Type Changed Success"))
        };
        return (
               <>
@@ -102,14 +102,14 @@ const TaxTypePage = () => {
                                           <div className="flex flex-wrap items-center justify-start w-full gap-4 mb-4 sm:flex-col lg:flex-row">
                                                  {/* Tax Name */}
                                                  <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                                                        <span className="text-xl font-TextFontRegular text-thirdColor">Your Tax Type:</span>
+                                                        <span className="text-xl font-TextFontRegular text-thirdColor">{t("Your Tax Type")}:</span>
                                                         <span className='w-full p-2 py-3 text-2xl bg-white shadow outline-none rounded-2xl font-TextFontRegular text-thirdColor valueInput'>
                                                                {taxType}
                                                         </span>
                                                  </div>
                                                  {/* Tax Types */}
                                                  <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                                                        <span className="text-xl font-TextFontRegular text-thirdColor">Tax Type:</span>
+                                                        <span className="text-xl font-TextFontRegular text-thirdColor">{t("Tax Type")}:</span>
                                                         <DropDown
                                                                ref={dropDownType}
                                                                handleOpen={handleOpentaxType}
@@ -127,7 +127,7 @@ const TaxTypePage = () => {
                                           <div className="flex items-center justify-end w-full gap-x-4">
                                                  <div className="">
                                                         <SubmitButton
-                                                               text={'Change'}
+                                                               text={t('Change')}
                                                                rounded='rounded-full'
                                                                handleClick={handleChangeTax}
                                                         />
