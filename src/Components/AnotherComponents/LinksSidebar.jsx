@@ -135,6 +135,7 @@ const routes = [
       { name: "Automatic Payment", path: "/dashboard/setting/automatic_payment" },
       { name: "Cities", path: "/dashboard/setting/cities" },
       { name: "Zones", path: "/dashboard/setting/zones" },
+      { name: "Groups", path: "/dashboard/setting/groups" },
       { name: "Order Type", path: "/dashboard/setting/order_type" },
       { name: "Restaurant Time", path: "/dashboard/setting/resturant_time" },
       { name: "Schedule Time", path: "/dashboard/setting/schedule_time" },
@@ -208,9 +209,9 @@ const LinksSidebar = () => {
   const location = useLocation();
   const pathName = location.pathname;
   const hideSide = auth.hideSidebar;
-    const { t } = useTranslation(); // تهيئة useTranslation هنا
-      const { i18n } = useTranslation();
-      const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
+  const { t } = useTranslation(); // تهيئة useTranslation هنا
+  const { i18n } = useTranslation();
+  const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
 
 
   // Orders count from Redux
@@ -360,7 +361,7 @@ const LinksSidebar = () => {
               group-hover:text-mainColor
             `}
           >
-{t(route.name)}          </span>
+            {t(route.name)}          </span>
         </div>
         {route.subRoutes && hideSide && (
           <IoIosArrowForward

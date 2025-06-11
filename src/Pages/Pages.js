@@ -67,6 +67,14 @@ export { default as CancelTimePage } from "./Dashboard/Admin/Setting/CancelTime/
 export { default as DeliveryTimePage } from "./Dashboard/Admin/Setting/DeliveryTime/DeliveryTimePage";
 //CancelationNotification
 export { default as CancelationNotificationPage } from "./Dashboard/Admin/Setting/CancelationNotification/CancelationNotificationPage";
+// Setting -> Group
+export { default as GroupPage } from "./Dashboard/Admin/Setting/Group/GroupPage";
+export { default as AddGroupPage } from "./Dashboard/Admin/Setting/Group/AddGroupPage";
+export { default as EditGroupPage } from "./Dashboard/Admin/Setting/Group/EditGroupPage";
+// Setting -> Group Extra
+export { default as ExtraPage } from "./Dashboard/Admin/Setting/Extra/ExtraPage";
+export { default as AddExtraPage } from "./Dashboard/Admin/Setting/Extra/AddExtraPage";
+export { default as EditExtraPage } from "./Dashboard/Admin/Setting/Extra/EditExtraPage";
 
 /* Texes */
 // Texes -> Taxes
