@@ -33,6 +33,7 @@ const EditCityPage = () => {
 
   const [taps, setTaps] = useState([])
   const [currentTap, setCurrentTap] = useState(0);
+  const [city, setCity] = useState("");
 
   const [cityName, setCityName] = useState([]);
   const [cityStatus, setCityStatus] = useState(0);
@@ -56,8 +57,8 @@ const EditCityPage = () => {
   }, [refetchCity]);
 
   useEffect(() => {
-    if (dataCity && dataCity.city) {
-            setCityName(dataCity.city);
+    if (dataCity && dataCity.city && dataCity.city_names) {
+      setCity(dataCity.city);
 
       const newCityNames = [];
       if (dataCity.city_names) {
@@ -65,12 +66,13 @@ const EditCityPage = () => {
           let obj = {
             tranlation_id: city.tranlation_id || "-", // Use '' if id is missing
             tranlation_name: city.tranlation_name || "Default Language", // Fallback value
-            city_name: zone.city_name || "-", // Use '' if name is missing
+            city_name: city.city_name || "-", // Use '' if name is missing
           };
           newCityNames.push(obj);
         });
       }
       console.log("categoryName edite", cityName);
+                     setCityName(newCityNames.length > 0 ? newCityNames : []);
 
       // setCityName(dataCity.city.name);
       setCityStatus(dataCity.city.status);
