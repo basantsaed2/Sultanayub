@@ -336,7 +336,7 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
                         ...newTimeSlot,
                         branch_id: e.value
                       })}
-                      placeholder="Select Branch"
+                      placeholder={t("Select Branch")}
                       className="w-full"
                       disabled={isSubmittingTimeSlots || loadingTimeSlot}
                     />

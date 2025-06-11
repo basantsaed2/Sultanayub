@@ -256,24 +256,24 @@ const SelectDateRangeSection = ({ typPage, branchsData }) => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const [stateBranch, setStateBranch] = useState("Select Branch");
+  const [stateBranch, setStateBranch] = useState(t("SelectBranch"));
   const [branchId, setBranchId] = useState("");
 
-  const [stateType, setStateType] = useState("All Types");
-  const [selectedType, setSelectedType] = useState("all");
+  const [stateType, setStateType] = useState(t("All Types"));
+  const [selectedType, setSelectedType] = useState(t("all"));
 
   const orderTypes = [
-    { id: "all", name: t("orders.all") },
-    { id: "pending", name: t("orders.pending") },
-    { id: "confirmed", name: t("orders.confirmed") },
-    { id: "processing", name: t("orders.processing") },
-    { id: "out_for_delivery", name: t("orders.out_for_delivery") },
-    { id: "delivered", name: t("orders.delivered") },
-    { id: "returned", name: t("orders.returned") },
-    { id: "refund", name: t("orders.refund") },
-    { id: "faild_to_deliver", name: t("orders.failed_to_deliver") },
-    { id: "canceled", name: t("orders.canceled") },
-    { id: "scheduled", name: t("orders.scheduled") },
+    { id: "all", name: t("all") },
+    { id: "pending", name: t("pending") },
+    { id: "confirmed", name: t("confirmed") },
+    { id: "processing", name: t("processing") },
+    { id: "out_for_delivery", name: t("out_for_delivery") },
+    { id: "delivered", name: t("delivered") },
+    { id: "returned", name: t("returned") },
+    { id: "refund", name: t("refund") },
+    { id: "faild_to_deliver", name: t("failed_to_deliver") },
+    { id: "canceled", name: t("canceled") },
+    { id: "scheduled", name: t("scheduled") },
   ];
 
   const handleOpenDropdown = (type) => {
@@ -387,11 +387,11 @@ const SelectDateRangeSection = ({ typPage, branchsData }) => {
   }, []);
 
   const handleReset = () => {
-    setStateBranch("Select Branch");
+    setStateBranch(t("Select Branch"));
     setBranchId("");
     setStartDate("");
     setEndDate("");
-    setStateType("All Types");
+    setStateType(t("All Types"));
     setSelectedType("all");
   };
 

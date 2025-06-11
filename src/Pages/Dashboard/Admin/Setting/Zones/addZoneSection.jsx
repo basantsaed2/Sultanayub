@@ -33,11 +33,11 @@ const AddZoneSection = ({ update, setUpdate }) => {
   const [zoneName, setZoneName] = useState([]);
   const [zonePrice, setZonePrice] = useState('');
 
-  const [stateCity, setStateCity] = useState(t("'Select City'"));
+  const [stateCity, setStateCity] = useState(t("Select City"));
   const [cityId, setCityId] = useState('');
   const [isOpenCity, setIsOpenCity] = useState(false);
 
-  const [stateBranch, setStateBranch] = useState(t("'Select Branch'"));
+  const [stateBranch, setStateBranch] = useState(t("Select Branch"));
   const [branchId, setBranchId] = useState('');
   const [isOpenBranch, setIsOpenBranch] = useState(false);
 
@@ -84,7 +84,7 @@ const AddZoneSection = ({ update, setUpdate }) => {
     setCityId(option.id);
     setStateCity(option.name);
 
-    setStateBranch('Select Branch')
+    setStateBranch(t('Select Branch'))
     setBranchId('');
 
     const filterBranchs = branches.filter((branch, index) => branch.city_id == option.id);

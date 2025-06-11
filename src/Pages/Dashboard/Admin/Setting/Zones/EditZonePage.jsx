@@ -87,12 +87,12 @@ const EditZonePage = () => {
   }, [dataTranslation]);
   useEffect(() => {
     if (dataCities) {
-      setCities([{ id: "", name: "Select City" }, ...dataCities.cities] || []);
+      setCities([{ id: "", name: t("Select City") }, ...dataCities.cities] || []);
     }
 
     if (dataBranches) {
       setBranches(
-        [{ id: "", name: "Select Branch" }, ...dataBranches.branches] || []
+        [{ id: "", name: t("Select Branch") }, ...dataBranches.branches] || []
       );
     }
     if (dataZone && dataZone.zone_names && dataZone.zones) {
@@ -115,10 +115,10 @@ const EditZonePage = () => {
 
       setZonePrice(dataZone.zones?.price || "");
 
-      setStateCity(dataZone.zones?.city?.name || "Select City");
+      setStateCity(dataZone.zones?.city?.name || t("Select City"));
       setCityId(dataZone.zones?.city?.id || "");
 
-      setStateBranch(dataZone.zones?.branch?.name || "Select Branch");
+      setStateBranch(dataZone.zones?.branch?.name || t("Select Branch"));
       setBranchId(dataZone.zones?.branch?.id || "");
 
       const filterBranchs = branches.filter(
@@ -147,7 +147,7 @@ const EditZonePage = () => {
     setCityId(option.id);
     setStateCity(option.name);
 
-    setStateBranch("Select Branch");
+    setStateBranch("");
     setBranchId("");
 
     const filterBranchs = branches.filter(

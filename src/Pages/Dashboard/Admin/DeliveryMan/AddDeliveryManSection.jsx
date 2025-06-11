@@ -42,7 +42,7 @@ const AddDeliveryManSection = ({ data, refetch, setRefetch }) => {
   const [phoneStatus, setPhoneStatus] = useState(0);
 
   const [deliveryBranchState, setDeliveryBranchState] =
-    useState("Select Branche");
+    useState(t("Select Branche"));
   const [deliveryBranchName, setDeliveryBranchName] = useState("");
   const [deliveryBranchId, setDeliveryBranchId] = useState("");
 
@@ -157,10 +157,10 @@ const AddDeliveryManSection = ({ data, refetch, setRefetch }) => {
     setDeliveryStatus(0);
     setChatStatus(0);
     setPhoneStatus(0);
-    setDeliveryBranchState("Select Branche");
+    setDeliveryBranchState(t("Select Branche"));
     setDeliveryBranchName("");
     setDeliveryBranchId("");
-    setIdentityTypeState("Select Identity Type");
+    setIdentityTypeState(t("Select Identity Type"));
     setIdentityTypeName("");
     setIdentityNumber("");
     setIdentityImage("");

@@ -39,12 +39,12 @@ const EditDeliveryManPage = () => {
   const [chatStatus, setChatStatus] = useState(0)
   const [phoneStatus, setPhoneStatus] = useState(0)
 
-  const [deliveryBranchState, setDeliveryBranchState] = useState('Select Branche')
+  const [deliveryBranchState, setDeliveryBranchState] = useState(t('Select Branche'))
   const [deliveryBranchName, setDeliveryBranchName] = useState('')
   const [deliveryBranchId, setDeliveryBranchId] = useState('')
 
   const [identityTypes, setIdentityTypes] = useState([{ name: 'Card' }, { name: 'Passport' }])
-  const [identityTypeState, setIdentityTypeState] = useState('Select Identity Type')
+  const [identityTypeState, setIdentityTypeState] = useState(t('Select Identity Type'))
   const [identityTypeName, setIdentityTypeName] = useState('')
 
   const [identityNumber, setIdentityNumber] = useState('')
@@ -67,7 +67,7 @@ const EditDeliveryManPage = () => {
   useEffect(() => {
     if (dataDeliveries && dataDeliveries.branches) {
       // setDeliveries(dataDeliveries.deliveries);
-      setBranches([{ id: '', name: 'Select Branche' }, ...dataDeliveries.branches] || []);
+      setBranches([{ id: '', name: t('Select Branche') }, ...dataDeliveries.branches] || []);
     }
     console.log('dataDeliveries', dataDeliveries)
   }, [dataDeliveries]); // Only run this effect when `data` changes
@@ -85,10 +85,10 @@ const EditDeliveryManPage = () => {
       setDeliveryStatus(delivery.status || 0)
       setChatStatus(delivery.chat_status || 0)
       setPhoneStatus(delivery.phone_status || 0)
-      setDeliveryBranchState(delivery.branch.name || 'Select Branche')
+      setDeliveryBranchState(delivery.branch.name || t('Select Branche'))
       setDeliveryBranchName(delivery.branch.name || '')
       setDeliveryBranchId(delivery.branch.id || '')
-      setIdentityTypeState(delivery.identity_type || 'Select Identity Type')
+      setIdentityTypeState(delivery.identity_type || t('Select Identity Type'))
       setIdentityTypeName(delivery.identity_type || '')
       setIdentityNumber(delivery.identity_number || '')
       setIdentityImage(delivery.identity_image_link || '')
