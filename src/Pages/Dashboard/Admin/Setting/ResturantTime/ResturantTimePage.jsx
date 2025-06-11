@@ -7,6 +7,8 @@ import { Dropdown } from 'primereact/dropdown';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
 import { useAuth } from '../../../../../Context/Auth';
+import { useTranslation } from 'react-i18next';
+
 const RestaurantTimeSlotPage = ({ refetch }) => {
   const auth = useAuth();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
