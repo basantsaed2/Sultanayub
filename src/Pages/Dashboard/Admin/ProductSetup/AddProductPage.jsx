@@ -759,6 +759,7 @@ const AddProductPage = () => {
         }
       });
     }
+    
 
     // Send only the selected extra IDs from selectedExtras for top-level extra
     if (Object.keys(selectedExtras).length > 0) {
