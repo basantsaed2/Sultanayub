@@ -489,17 +489,15 @@ const DetailsOrderPage = () => {
                               </h1>
                               <div className="flex items-center justify-center gap-2 sm:w-full lg:w-6/12">
                                 <Link
-                                  to={`/dashboard/orders/details/${
-                                    Number(orderNumPath) - 1
-                                  }`}
+                                  to={`/dashboard/orders/details/${Number(orderNumPath) - 1
+                                    }`}
                                   className="w-6/12 px-1 py-1 text-sm text-center text-white transition-all duration-300 ease-in-out border-2 rounded-lg md:text-md bg-mainColor border-mainColor hover:bg-white hover:text-mainColor"
                                 >
                                   {"<<"} {t("PrevOrder")}
                                 </Link>
                                 <Link
-                                  to={`/dashboard/orders/details/${
-                                    Number(orderNumPath) + 1
-                                  }`}
+                                  to={`/dashboard/orders/details/${Number(orderNumPath) + 1
+                                    }`}
                                   className="w-6/12 px-1 py-1 text-sm text-center text-white transition-all duration-300 ease-in-out border-2 rounded-lg md:text-md bg-mainColor border-mainColor hover:bg-white hover:text-mainColor"
                                 >
                                   {t("NextOrder")} {">>"}
@@ -558,13 +556,21 @@ const DetailsOrderPage = () => {
                             </p>
                             {detailsData?.payment_method?.name ===
                               "Visa Master Card" && (
-                              <p className="text-gray-800 text-md">
-                                <span className="font-TextFontSemiBold text-mainColor">
-                                  {t("PaymentStatus")}:
-                                </span>{" "}
-                                {detailsData?.status_payment || ""}
-                              </p>
-                            )}
+                                <>
+                                  <p className="text-gray-800 text-md">
+                                    <span className="font-TextFontSemiBold text-mainColor">
+                                      {t("PaymentStatus")}:
+                                    </span>{" "}
+                                    {detailsData?.status_payment || ""}
+                                  </p>
+                                  <p className="text-gray-800 text-md">
+                                    <span className="font-TextFontSemiBold text-mainColor">
+                                      {t("Transaction ID")}:
+                                    </span>{" "}
+                                    {detailsData?.transaction_id || ""}
+                                  </p>
+                                </>
+                              )}
                           </div>
                           <div className="p-2 bg-white rounded-md shadow-md sm:w-full xl:w-6/12">
                             <p className="text-gray-800 text-md">
@@ -572,11 +578,10 @@ const DetailsOrderPage = () => {
                                 {t("OrderType")}:
                               </span>{" "}
                               <span
-                                className={`px-2 py-1 rounded-full text-md ${
-                                  detailsData?.order_type === "take_away"
+                                className={`px-2 py-1 rounded-full text-md ${detailsData?.order_type === "take_away"
                                     ? "text-green-700 bg-green-100" // Green text with light green bg
                                     : "text-blue-700 bg-blue-100" // Adjust for delivery (blue as example)
-                                }`}
+                                  }`}
                               >
                                 {detailsData?.order_type || ""}
                               </span>{" "}
@@ -717,7 +722,7 @@ const DetailsOrderPage = () => {
                                     {/* Addons Column: Name, Price, Count */}
                                     <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
                                       {order.addons &&
-                                      order.addons.length > 0 ? (
+                                        order.addons.length > 0 ? (
                                         order.addons.map(
                                           (addon, addonIndex) => (
                                             <div
@@ -745,7 +750,7 @@ const DetailsOrderPage = () => {
                                     {/* Excludes Column: Name */}
                                     <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
                                       {order.excludes &&
-                                      order.excludes.length > 0 ? (
+                                        order.excludes.length > 0 ? (
                                         order.excludes.map(
                                           (exclude, excludeIndex) => (
                                             <div
@@ -766,7 +771,7 @@ const DetailsOrderPage = () => {
                                     {/* Variations Column: Name and Type */}
                                     <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
                                       {order.variations &&
-                                      order.variations.length > 0 ? (
+                                        order.variations.length > 0 ? (
                                         order.variations.map(
                                           (variation, varIndex) => (
                                             <div
@@ -779,7 +784,7 @@ const DetailsOrderPage = () => {
                                               <div className="text-xs text-gray-500">
                                                 {t("Type")}:{" "}
                                                 {variation.options &&
-                                                variation.options.length > 0 ? (
+                                                  variation.options.length > 0 ? (
                                                   variation.options.map(
                                                     (option, optIndex) => (
                                                       <span
@@ -788,8 +793,8 @@ const DetailsOrderPage = () => {
                                                       >
                                                         {option.name}
                                                         {optIndex <
-                                                        variation.options
-                                                          .length -
+                                                          variation.options
+                                                            .length -
                                                           1
                                                           ? ", "
                                                           : ""}
@@ -1133,15 +1138,14 @@ const DetailsOrderPage = () => {
                                 }
                                 disabled={isDisabled}
                                 className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all relative
-              ${
-                isCurrent
-                  ? "bg-blue-100 border-blue-500 text-blue-900 shadow-md"
-                  : isPrevious
-                  ? "bg-green-50 border-green-300 text-green-800"
-                  : isDisabled
-                  ? "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-white border-gray-200 hover:bg-gray-50 text-gray-700"
-              }
+              ${isCurrent
+                                    ? "bg-blue-100 border-blue-500 text-blue-900 shadow-md"
+                                    : isPrevious
+                                      ? "bg-green-50 border-green-300 text-green-800"
+                                      : isDisabled
+                                        ? "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
+                                        : "bg-white border-gray-200 hover:bg-gray-50 text-gray-700"
+                                  }
             `}
                               >
                                 <svg
@@ -1277,7 +1281,7 @@ const DetailsOrderPage = () => {
                               {t("Cancel Order")}
                             </h3>
                             <p className="mt-1 text-sm text-gray-500">
-{t("Confirm Cancellation")}                            </p>
+                              {t("Confirm Cancellation")}                            </p>
                           </div>
 
                           <textarea
@@ -1350,7 +1354,7 @@ const DetailsOrderPage = () => {
                               onClick={() => setShowRefundModal(false)}
                               className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
                             >
-                             {t("No, Cancel")}
+                              {t("No, Cancel")}
                             </button>
                             <button
                               type="button"
@@ -1365,7 +1369,7 @@ const DetailsOrderPage = () => {
                               }}
                               className="px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md bg-mainColor hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
-                             {t("Yes, Refund")}
+                              {t("Yes, Refund")}
                             </button>
                           </div>
                         </DialogPanel>
@@ -1382,9 +1386,8 @@ const DetailsOrderPage = () => {
                     {dataDetailsOrder.log_order.map((log, index) => (
                       <div
                         key={log.id}
-                        className={`timeline-item relative pl-6 ${
-                          index === 0 ? "first-item" : ""
-                        }`}
+                        className={`timeline-item relative pl-6 ${index === 0 ? "first-item" : ""
+                          }`}
                       >
                         {/* Timeline marker */}
                         <div className="absolute left-0 w-3 h-3 bg-blue-500 border-2 border-white rounded-full shadow timeline-marker top-2"></div>
@@ -1396,8 +1399,8 @@ const DetailsOrderPage = () => {
                               {log.from_status === "processing"
                                 ? "Accepted"
                                 : log.from_status === "confirmed"
-                                ? "Processing"
-                                : log.from_status.replace(/_/g, " ")}
+                                  ? "Processing"
+                                  : log.from_status.replace(/_/g, " ")}
                             </span>
                             <span className="text-gray-400 arrow">
                               <svg
@@ -1420,14 +1423,14 @@ const DetailsOrderPage = () => {
                               {log.to_status === "processing"
                                 ? "Accepted"
                                 : log.to_status === "confirmed"
-                                ? "Processing"
-                                : log.to_status.replace(/_/g, " ")}
+                                  ? "Processing"
+                                  : log.to_status.replace(/_/g, " ")}
                             </span>
                           </div>
 
                           <div className="flex items-center justify-between text-xs text-gray-500 meta-info">
                             <span className="changed-by">
-                             {t("Changed by")}:{" "}
+                              {t("Changed by")}:{" "}
                               <span className="font-medium">
                                 {log.admin.name}
                               </span>
@@ -1455,64 +1458,64 @@ const DetailsOrderPage = () => {
                   detailsData.order_status === "confirmed" ||
                   detailsData.order_status === "processing" ||
                   detailsData.order_status === "out_for_delivery") && (
-                  <div className="w-full p-4 mt-4 bg-white shadow-md rounded-xl">
-                    <h3 className="text-lg font-TextFontSemiBold">
-                      {t("Food Preparation Time")}
-                    </h3>
-                    <div className="flex items-center">
-                      <FaClock className="mr-2 text-gray-500" />
-                      {preparationTime ? (
-                        <>
-                          <span
-                            className={
-                              olderHours +
+                    <div className="w-full p-4 mt-4 bg-white shadow-md rounded-xl">
+                      <h3 className="text-lg font-TextFontSemiBold">
+                        {t("Food Preparation Time")}
+                      </h3>
+                      <div className="flex items-center">
+                        <FaClock className="mr-2 text-gray-500" />
+                        {preparationTime ? (
+                          <>
+                            <span
+                              className={
+                                olderHours +
+                                  preparationTime.hours -
+                                  initialTime.currentHour <=
+                                  0 ||
+                                  olderDay +
+                                  preparationTime.days -
+                                  initialTime.currentDay <=
+                                  0
+                                  ? "text-red-500"
+                                  : "text-cyan-400"
+                              }
+                            >
+                              {olderHours +
                                 preparationTime.hours -
                                 initialTime.currentHour <=
-                                0 ||
-                              olderDay +
-                                preparationTime.days -
-                                initialTime.currentDay <=
-                                0
-                                ? "text-red-500"
-                                : "text-cyan-400"
-                            }
-                          >
-                            {olderHours +
-                              preparationTime.hours -
-                              initialTime.currentHour <=
-                            0 ? (
-                              <>
-                                {olderDay +
-                                  preparationTime.days -
-                                  initialTime.currentDay}
-                                d{" "}
-                                {initialTime.currentHour -
-                                  (olderHours + preparationTime.hours)}
-                                h{" "}
-                                {olderMinutes +
-                                  preparationTime.minutes -
-                                  initialTime.currentMinute}
-                                m {preparationTime.seconds}s Over
-                              </>
-                            ) : (
-                              <>
-                                {initialTime.currentDay - olderDay}d{" "}
-                                {preparationTime.hours}h{" "}
-                                {olderMinutes +
-                                  preparationTime.minutes -
-                                  initialTime.currentMinute}
-                                m {preparationTime.seconds}s Left
-                              </>
-                            )}
-                          </span>
-                        </>
-                      ) : (
+                                0 ? (
+                                <>
+                                  {olderDay +
+                                    preparationTime.days -
+                                    initialTime.currentDay}
+                                  d{" "}
+                                  {initialTime.currentHour -
+                                    (olderHours + preparationTime.hours)}
+                                  h{" "}
+                                  {olderMinutes +
+                                    preparationTime.minutes -
+                                    initialTime.currentMinute}
+                                  m {preparationTime.seconds}s Over
+                                </>
+                              ) : (
+                                <>
+                                  {initialTime.currentDay - olderDay}d{" "}
+                                  {preparationTime.hours}h{" "}
+                                  {olderMinutes +
+                                    preparationTime.minutes -
+                                    initialTime.currentMinute}
+                                  m {preparationTime.seconds}s Left
+                                </>
+                              )}
+                            </span>
+                          </>
+                        ) : (
                           <span className="text-gray-400">
                             {t("Preparing time not available")}
                           </span>
-                      )}
-                    </div>
-                    {/* <span>preparationTime.hours: {preparationTime?.hours}</span>
+                        )}
+                      </div>
+                      {/* <span>preparationTime.hours: {preparationTime?.hours}</span>
                                                                <br />
                                                                <span>olderHours: {olderHours}</span>
                                                                <br />
@@ -1523,8 +1526,8 @@ const DetailsOrderPage = () => {
                                                                <span>olderMinutes: {olderMinutes}</span>
                                                                <br />
                                                                <span>currentMinute: {initialTime?.currentMinute}</span> */}
-                  </div>
-                )}
+                    </div>
+                  )}
 
                 {detailsData.delivery_id !== null && (
                   <div className="w-full p-4 mt-2 bg-white shadow-md rounded-xl">
@@ -1597,7 +1600,7 @@ const DetailsOrderPage = () => {
                             </h3>
                             <div className="mt-2">
                               <p className="text-sm text-gray-500">
-                               {t("Someone else is currently working on this order. Please wait until they finish before proceeding to avoid conflicts or duplication.")}
+                                {t("Someone else is currently working on this order. Please wait until they finish before proceeding to avoid conflicts or duplication.")}
                               </p>
                             </div>
                           </div>
