@@ -53,7 +53,7 @@ const AddCategorySection = ({ update, setUpdate }) => {
 
   const [selectedCategoriesAddons, setSelectedCategoriesAddons] = useState([]);
   const [statecategoriesAddonse, setStatecategoriesAddonse] = useState(
-    "Select Category Addons"
+    t("Select Category Addons")
   );
   const [categoriesAddonse, setCategoriesAddonse] = useState([]);
   const [currentTap, setCurrentTap] = useState(0);
@@ -63,13 +63,13 @@ const AddCategorySection = ({ update, setUpdate }) => {
   const [activeCategory, setActiveCategory] = useState(0);
 
   const [stateCategoriesParent, setStateCategoriesParent] = useState(
-    "Select Category Parent"
+    t("Select Category Parent")
   );
   const [categoriesParentId, setCategoriesParentId] = useState("");
   const [isOpenCategoriesParent, setIsOpenCategoriesParent] = useState(false);
 
   const [stateCategoriesPriority, setStateCategoriesPriority] = useState(
-    "Select Category Priority"
+    t("Select Category Priority")
   );
   const [categoriesPriorityId, setCategoriesPriorityId] = useState("");
   const [isOpenCategoriesPriority, setIsOpenCategoriesPriority] =
@@ -101,7 +101,7 @@ const AddCategorySection = ({ update, setUpdate }) => {
       setCategories(dataCategory.categories);
       setCategoriesParent(
         [
-          { id: "", name: "Select Category Parent" },
+          { id: "", name: t("Select Category Parent") },
           ...dataCategory.parent_categories,
         ] || []
       );
@@ -207,12 +207,12 @@ const AddCategorySection = ({ update, setUpdate }) => {
       setImageFile(null);
       setBanner("");
       setBannerFile(null);
-      setStateCategoriesParent("Select Category Parent");
+      setStateCategoriesParent(t("Select Category Parent"));
       setCategoriesParentId("");
       // setStateCategoriesPriority('Select Category Priority')
       setPriority("");
       // setCategoriesPriorityId('')
-      setStatecategoriesAddonse("Select Category Addons");
+      setStatecategoriesAddonse(t("Select Category Addons"));
       setSelectedCategoriesAddons([]);
       setStatusCategory(0);
       setActiveCategory(0);

@@ -322,7 +322,7 @@ const [days] = useState([
 
                     {/* Product Description Input */}
                     <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                      <span className="text-xl font-TextFontRegular text-thirdColor">Product Description {tap.name}:</span>
+                      <span className="text-xl font-TextFontRegular text-thirdColor">{t("Product Description")}{tap.name}:</span>
                       <TextInput
                         value={dealDescription[index]?.deal_description} // Access category_name property
                         onChange={(e) => {

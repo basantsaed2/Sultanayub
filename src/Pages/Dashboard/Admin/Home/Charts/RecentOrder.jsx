@@ -86,7 +86,7 @@ const RecentOrders = ({ recent_orders }) => {
   return (
     <div className="bg-white py-3 px-4 w-full h-[32rem] overflow-hidden mx-auto">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-TextFontSemiBold text-mainColor">Recent Orders</h3>
+        <h3 className="text-lg font-TextFontSemiBold text-mainColor">{t("RecentOrders")}</h3>
         <Link to={'/dashboard/orders/all'} className="text-sm underline text-mainColor">
           {t("ViewAll")}
         </Link>

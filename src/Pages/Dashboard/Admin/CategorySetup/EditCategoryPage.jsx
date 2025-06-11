@@ -57,7 +57,7 @@ const EditCategoryPage = () => {
 
   const [selectedCategoriesAddons, setSelectedCategoriesAddons] = useState([]);
   const [statecategoriesAddonse, setStatecategoriesAddonse] = useState(
-    "Select Category Addons"
+    t("Select Category Addons")
   );
   const [categoriesAddonse, setCategoriesAddonse] = useState([]);
 
@@ -70,13 +70,13 @@ const EditCategoryPage = () => {
   const [activeCategory, setActiveCategory] = useState(0);
 
   const [stateCategoriesParent, setStateCategoriesParent] = useState(
-    "Select Category Parent"
+    t("Select Category Parent")
   );
   const [categoriesParentId, setCategoriesParentId] = useState("");
   const [isOpenCategoriesParent, setIsOpenCategoriesParent] = useState(false);
 
   const [stateCategoriesPriority, setStateCategoriesPriority] = useState(
-    "Select Category Priority"
+    t("Select Category Priority")
   );
   const [categoriesPriorityId, setCategoriesPriorityId] = useState("");
   const [isOpenCategoriesPriority, setIsOpenCategoriesPriority] =

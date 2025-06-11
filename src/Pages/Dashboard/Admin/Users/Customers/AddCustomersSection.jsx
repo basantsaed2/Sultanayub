@@ -132,45 +132,45 @@ const AddCustomersSection = ({ update, setUpdate }) => {
             {/* First Name */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
               <span className="text-xl font-TextFontRegular text-thirdColor">
-                First Name:
+                {t("First Name")}:
               </span>
               <TextInput
                 value={customerFname}
                 onChange={(e) => setCustomerFname(e.target.value)}
-                placeholder="First Name"
+                placeholder={t("First Name")}
               />
             </div>
             {/* Last Name */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
               <span className="text-xl font-TextFontRegular text-thirdColor">
-                Last Name:
+                {t("Last Name")}:
               </span>
               <TextInput
                 value={customerLname}
                 onChange={(e) => setCustomerLname(e.target.value)}
-                placeholder="Last Name"
+                placeholder={t("Last Name")}
               />
             </div>
             {/* Customer Phone */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
               <span className="text-xl font-TextFontRegular text-thirdColor">
-                Customer Phone:
+                {t("Customer Phone")}:
               </span>
               <NumberInput
                 value={customerPhone}
                 onChange={(e) => setCustomerPhone(e.target.value)}
-                placeholder="Delivery Phone"
+                placeholder={t("Customer Phone")}
               />
             </div>
             {/* Customer Image */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
               <span className="text-xl font-TextFontRegular text-thirdColor">
-                Customer Photo:
+                {t("Customer Photo")}:
               </span>
               <UploadInput
                 value={customerImage}
                 uploadFileRef={ImageRef}
-                placeholder="Customer Photo"
+                placeholder={t("Customer Photo")}
                 handleFileChange={handleCustomerImageChange}
                 onChange={(e) => setCustomerImage(e.target.value)}
                 onClick={() => handleCustomerImageClick(ImageRef)}
@@ -179,31 +179,31 @@ const AddCustomersSection = ({ update, setUpdate }) => {
             {/* Email */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
               <span className="text-xl font-TextFontRegular text-thirdColor">
-                Email:
+                {t("Email")}:
               </span>
               <EmailInput
                 backgound="white"
                 value={customerEmail}
                 onChange={(e) => setCustomerEmail(e.target.value)}
-                placeholder="Email"
+                placeholder={t("Email")}
               />
             </div>
             {/* Password */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
               <span className="text-xl font-TextFontRegular text-thirdColor">
-                Password:
+                {t("Password")}:
               </span>
               <PasswordInput
                 backgound="white"
                 value={customerPassword}
                 onChange={(e) => setCustomerPassword(e.target.value)}
-                placeholder="Password"
+                placeholder={t("Password")}
               />
             </div>
             {/* Customer Status */}
             <div className="xl:w-[30%] flex items-center justify-start gap-x-4 ">
               <span className="text-xl font-TextFontRegular text-thirdColor">
-                Customer Status:
+                {t("Customer Status")}:
               </span>
               <Switch
                 handleClick={handleCustomerStatus}
@@ -215,7 +215,7 @@ const AddCustomersSection = ({ update, setUpdate }) => {
             <div className="flex items-center justify-end w-full gap-x-4">
               <div className="">
                 <StaticButton
-                  text={"Reset"}
+                  text={t("Reset")}
                   handleClick={handleReset}
                   bgColor="bg-transparent"
                   Color="text-mainColor"
@@ -226,7 +226,7 @@ const AddCustomersSection = ({ update, setUpdate }) => {
               </div>
               <div className="">
                 <SubmitButton
-                  text={"Add"}
+                  text={t("Add")}
                   rounded="rounded-full"
                   handleClick={handleCustomerAdd}
                 />

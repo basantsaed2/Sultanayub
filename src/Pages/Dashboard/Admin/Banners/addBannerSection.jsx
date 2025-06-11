@@ -53,15 +53,15 @@ const AddBannerSection = ({ update, setUpdate }) => {
 
   const [bannerStatus, setBannerStatus] = useState(0);
 
-  const [stateCategories, setStateCategories] = useState("Select Category");
+  const [stateCategories, setStateCategories] = useState(t("Select Category"));
   const [categoryId, setCategoryId] = useState("");
   const [isOpenCategory, setIsOpenCategory] = useState(false);
 
-  const [stateProducts, setStateProducts] = useState("Select Product");
+  const [stateProducts, setStateProducts] = useState(t("Select Product"));
   const [productId, setProductId] = useState("");
   const [isOpenProduct, setIsOpenProduct] = useState(false);
 
-  const [stateDeals, setStateDeals] = useState("Select Deal");
+  const [stateDeals, setStateDeals] = useState(t("Select Deal"));
   const [dealId, setDealId] = useState("");
   const [isOpenDeal, setIsOpenDeal] = useState(false);
 
@@ -174,12 +174,12 @@ const AddBannerSection = ({ update, setUpdate }) => {
   const handleReset = () => {
     setCurrentTap(0);
     setBannerOrder("");
-    setStateCategories("Select Category");
+    setStateCategories(t("Select Category"));
     setCategoryId("");
-    setStateProducts("Select Product");
+    setStateProducts(t("Select Product"));
     setProductId("");
     setFilterProducts([]);
-    setStateDeals("Select Deal");
+    setStateDeals(t("Select Deal"));
     setDealId("");
     setImage([]);
     setImageFile([]);

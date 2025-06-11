@@ -129,7 +129,7 @@ const PendingOrdersPage = () => {
         {/* Search Order */}
         <div className="sm:w-full lg:w-[70%] xl:w-[30%] mt-4">
           <SearchBar
-            placeholder="Search by Order ID, User Name,Phone"
+            placeholder={t("Search by Order ID, User Name,Phone")}
             value={textSearch}
             handleChange={handleFilterData}
           />

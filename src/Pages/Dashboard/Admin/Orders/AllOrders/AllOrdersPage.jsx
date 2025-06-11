@@ -117,21 +117,21 @@ const AllOrdersPage = () => {
       });
     }
   };
-
   const headers = [
-    "SL",
-    "Order ID",
-    "Delivery Date",
-    "Customer Info",
-    "Branch",
-    "Total Price",
-    "Payment Method",
-    "Order Status",
-    "Operations Status",
-    "Operations Admin",
-    "Order Type",
-    "Actions",
-  ];
+  t("sl"),               // SL - الرقم التسلسلي
+  t("orderId"),          // Order ID - رقم الطلب
+  t("deliveryDate"),     // Delivery Date - تاريخ التوصيل
+  t("customerInfo"),     // Customer Info - معلومات العميل
+  t("branch"),           // Branch - الفرع
+  t("totalPrice"),       // Total Price - السعر الإجمالي
+  t("paymentMethod"),    // Payment Method - طريقة الدفع
+  t("orderStatus"),      // Order Status - حالة الطلب
+  t("operationsStatus"), // Operations Status - حالة العمليات
+  t("operationsAdmin"),  // Operations Admin - مسؤول العمليات
+  t("orderType"),        // Order Type - نوع الطلب
+  t("actions"),          // Actions - الإجراءات
+];
+
   
   return (
     <>
