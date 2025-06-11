@@ -423,7 +423,7 @@ const EditCategoryPage = () => {
                             <UploadInput
                               value={image}
                               uploadFileRef={ImageRef}
-                              placeholder="Category Image"
+                              placeholder={t("CategoryImage")}
                               handleFileChange={handleImageChange}
                               onChange={(e) => setImage(e.target.value)}
                               onClick={() => handleImageClick(ImageRef)}

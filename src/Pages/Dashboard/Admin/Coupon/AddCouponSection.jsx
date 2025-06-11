@@ -49,7 +49,7 @@ const AddCouponPage = ({ update, setUpdate }) => {
   /* Coupon Type */
   const [couponType] = useState([{ name: "First Order" }, { name: "Normal" }]);
   const [selectedCouponType, setSelectedCouponType] =
-    useState("Select Coupon Type");
+    useState(t("Select Coupon Type"));
   const [couponTypeName, setCouponTypeName] = useState("");
   const [isOpenCouponType, setIsOpenCouponType] = useState(false);
   const dropDownCouponType = useRef();
@@ -57,7 +57,7 @@ const AddCouponPage = ({ update, setUpdate }) => {
   /* Coupon Value Type */
   const [valueType] = useState([{ name: "Percentage" }, { name: "Value" }]);
   const [selectedValueType, setSelectedValueType] =
-    useState("Select Value Type");
+    useState(t("Select Value Type"));
   const [valueTypeName, setValueTypeName] = useState("");
   const [isOpenValueType, setIsOpenValueType] = useState(false);
   const dropDownValueType = useRef();
@@ -74,7 +74,7 @@ const AddCouponPage = ({ update, setUpdate }) => {
   /* Coupon Product */
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState([]);
-  const [stateProduct, setStateProduct] = useState("Select Product");
+  const [stateProduct, setStateProduct] = useState(t("Select Product"));
   const [productId, setProductId] = useState("");
   const [isOpenProduct, setIsOpenProduct] = useState(false);
   const dropDownProductRef = useRef(); // Ref for dropdown
@@ -82,7 +82,7 @@ const AddCouponPage = ({ update, setUpdate }) => {
   /* Coupon Usage Type */
   const [usageType] = useState([{ name: "Fixed" }, { name: "UnLimited" }]);
   const [selectedUsageType, setSelectedUsageType] =
-    useState("Select Usage Type");
+    useState(t("Select Usage Type"));
   const [usageTypeName, setUsageTypeName] = useState("");
   const [isOpenUsageType, setIsOpenUsageType] = useState(false);
   const dropDownUsageType = useRef();
@@ -90,7 +90,7 @@ const AddCouponPage = ({ update, setUpdate }) => {
   /* Coupon User Usage Type*/
   const [userUsageType] = useState([{ name: "Fixed" }, { name: "UnLimited" }]);
   const [selectedUserUsageType, setSelectedUserUsageType] = useState(
-    "Select User Usage Type"
+    t("Select User Usage Type")
   );
   const [userUsageTypeName, setUserUsageTypeName] = useState("");
   const [isOpenUserUsageType, setIsOpenUserUsageType] = useState(false);
@@ -234,21 +234,21 @@ const AddCouponPage = ({ update, setUpdate }) => {
       setExpireDate("");
       setCouponTypeName("");
       setDiscountAmount("");
-      setSelectedProductOptions("Select Products Options");
+      setSelectedProductOptions(t("Select Products Options"));
       setProducts("");
       setMinPurchase("");
       setActiveCoupon(0);
       setMaxDiscountStatus(0);
       setMaxDiscount("");
-      setSelectedCouponType("Select Coupon Type");
-      setSelectedUserUsageType("Select User Usage Type");
-      setSelectedUsageType("Select Usage Type");
+      setSelectedCouponType(t("Select Coupon Type"));
+      setSelectedUserUsageType(t("Select User Usage Type"));
+      setSelectedUsageType(t("Select Usage Type"));
       setUsageNumber("");
       setUserUsageNumber("");
-      setStateProduct("Select Product");
+      setStateProduct(t("Select Product"));
       setSelectedProduct([]);
       setValueTypeName("");
-      setSelectedValueType("Select Value Type");
+      setSelectedValueType(t("Select Value Type"));
     }
     setUpdate(!update);
   }, [response]);

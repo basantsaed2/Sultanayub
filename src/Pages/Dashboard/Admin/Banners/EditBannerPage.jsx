@@ -66,15 +66,15 @@ const EditBannerPage = () => {
 
   const [bannerOrder, setBannerOrder] = useState("");
 
-  const [stateCategories, setStateCategories] = useState("Select Category");
+  const [stateCategories, setStateCategories] = useState(t("Select Category"));
   const [categoryId, setCategoryId] = useState("");
   const [isOpenCategory, setIsOpenCategory] = useState(false);
 
-  const [stateProducts, setStateProducts] = useState("Select Product");
+  const [stateProducts, setStateProducts] = useState(t("Select Product"));
   const [productId, setProductId] = useState("");
   const [isOpenProduct, setIsOpenProduct] = useState(false);
 
-  const [stateDeals, setStateDeals] = useState("Select Deal");
+  const [stateDeals, setStateDeals] = useState(t("Select Deal"));
   const [dealId, setDealId] = useState("");
   const [bannerStatus, setBannerStatus] = useState(0);
   const [isOpenDeal, setIsOpenDeal] = useState(false);
@@ -102,15 +102,15 @@ const EditBannerPage = () => {
       setTaps(allData?.translations || []);
       setCategories(
         [
-          { id: "", name: "Select Category" },
+          { id: "", name: t("Select Category") },
           ...dataCategory.parent_categories,
         ] || []
       );
       setProducts(
-        [{ id: "", name: "Select Product" }, ...allData?.products] || []
+        [{ id: "", name: t("Select Product") }, ...allData?.products] || []
       );
       // setFilterProducts([{ id: '', name:'Select Product' }, ...allData?.products] || []);
-      setDeals([{ id: "", name: "Select Deal" }, ...allData?.deals] || []);
+      setDeals([{ id: "", name: t("Select Deal") }, ...allData?.deals] || []);
     }
   }, [allData, dataCategory]);
 
@@ -118,17 +118,17 @@ const EditBannerPage = () => {
     if (dataBanner && dataBanner.banner) {
       const data = dataBanner.banner;
 
-      setStateCategories(data?.category_banner?.name || "Select Category");
+      setStateCategories(data?.category_banner?.name || t("Select Category"));
       setCategoryId(data?.category_banner?.id || "");
-      setStateProducts(data?.product?.name || "Select Product");
+      setStateProducts(data?.product?.name || t("Select Product"));
 
       const filterP = products.filter((product) => {
         return product.category_id === data?.category_banner?.id;
       });
 
-      setFilterProducts([{ id: "", name: "Select Product" }, ...filterP] || []);
+      setFilterProducts([{ id: "", name: t("Select Product") }, ...filterP] || []);
       setProductId(data?.product?.id || "");
-      setStateDeals(data?.deal?.title || "Select Deal");
+      setStateDeals(data?.deal?.title || t("Select Deal"));
       setDealId(data?.deal?.id || "");
 
       setImage(data?.images || []);

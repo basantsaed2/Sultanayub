@@ -90,7 +90,7 @@
 //        const handleLogout = () => {
 //               auth.logout()
 //               dispatch(removeUser())
-//               dispatch(removeCategory())
+//               dispatch(remove())
 //               navigate("/", { replace: true });
 //               localStorage.removeItem("token"); // تخزين التوكن بعد تسجيل الدخول
 //        }
@@ -387,8 +387,8 @@ const Navbar = () => {
               defaultValue={i18n.language}
               className="flex items-center py-1 bg-transparent border border-white rounded text-mainColor"
             >
-              <option value="en">EN</option>
-              <option value="ar">AR</option>
+              <option value="en">AR</option>
+              <option value="ar">EN</option>
             </select>
           </div>
           </div>
@@ -415,12 +415,12 @@ const Navbar = () => {
               {cancelationOpen && (
                 <div className="absolute right-0 z-40 w-64 py-1 mt-2 overflow-y-auto bg-white rounded-md shadow-lg max-h-80">
                   {loadingCancelation ? (
-                    <div className="px-4 py-2 text-gray-700">Loading...</div>
+                    <div className="px-4 py-2 text-gray-700">{t("Loading...")}</div>
                   ) : cancelationStatuses.length === 0 ? (
-                    <div className="px-4 py-2 text-gray-700">No cancellation orders</div>
+                    <div className="px-4 py-2 text-gray-700">{t("No cancellation orders")}</div>
                   ) : (
                     <>
-                      <div className="px-4 py-2 font-semibold border-b">Cancellation Orders</div>
+                      <div className="px-4 py-2 font-semibold border-b">{t("Cancellation Orders")}</div>
                       {cancelationStatuses.map((status) => (
                         <div
                           key={status.id}
@@ -469,10 +469,10 @@ const Navbar = () => {
               {notificationOpen && (
                 <div className="absolute right-0 z-40 w-64 py-1 mt-2 overflow-y-auto bg-white rounded-md shadow-lg max-h-80">
                   {canceledOrders.orders.length === 0 ? (
-                    <div className="px-4 py-2 text-gray-700">No Waiting Orders</div>
+                    <div className="px-4 py-2 text-gray-700">{t("No Waiting Orders")}</div>
                   ) : (
                     <>
-                      <div className="px-4 py-2 font-semibold border-b">Waiting Orders</div>
+                      <div className="px-4 py-2 font-semibold border-b">{t("Waiting Orders")}</div>
                       {canceledOrders.orders.map((orderId) => (
                         <div
                           key={orderId}

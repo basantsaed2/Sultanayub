@@ -497,7 +497,7 @@ const EditBranchPage = () => {
                                                                                                          <UploadInput
                                                                                                                 value={image}
                                                                                                                 uploadFileRef={ImageRef}
-                                                                                                                placeholder="Category Image"
+                                                                                                                placeholder={t("Category Image")}
                                                                                                                 handleFileChange={handleImageChange}
                                                                                                                 onChange={(e) => setImage(e.target.value)}
                                                                                                                 onClick={() => handleImageClick(ImageRef)}
@@ -563,6 +563,8 @@ const EditBranchPage = () => {
 };
 
 const CustomTimeInput = ({ value, onChange }) => {
+         const { t, i18n } = useTranslation();
+       
        const hours = Array.from({ length: 24 }, (_, i) =>
               i.toString().padStart(2, "0")
        ); // Pad hours to 2 digits
@@ -582,7 +584,7 @@ const CustomTimeInput = ({ value, onChange }) => {
        return (
               <div className="flex gap-2">
                      <span className="text-xl font-TextFontRegular text-thirdColor">
-                            Hours:
+                            {t("Hours")}:
                      </span>
                      <select
                             value={value.split(":")[0]} // Get hours part from the value
@@ -596,7 +598,7 @@ const CustomTimeInput = ({ value, onChange }) => {
                             ))}
                      </select>
                      <span className="text-xl font-TextFontRegular text-thirdColor">
-                            Minutes:
+                            {t("Minutes")}:
                      </span>
                      <select
                             value={value.split(":")[1]} // Get minutes part from the value

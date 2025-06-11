@@ -37,7 +37,7 @@
 //         if (dataSlot.resturant_time?.resturant_time) {
 //             setTimeData({
 //                 from: dataSlot.resturant_time.resturant_time.from,
-//                 hours: dataSlot.resturant_time.resturant_time.hours
+//                 hours: dataSlot.resturant_time.resturant_time.
 //             });
 //         }
 

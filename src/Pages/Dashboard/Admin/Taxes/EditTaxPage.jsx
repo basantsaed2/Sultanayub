@@ -155,7 +155,7 @@ const EditTaxPage = () => {
                 {/* Tax Types */}
                 <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
-                   {t(" Tax Type")}:
+                   {t("Tax Type")}:
                   </span>
                   <DropDown
                     ref={dropDownType}

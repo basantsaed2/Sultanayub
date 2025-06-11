@@ -118,7 +118,7 @@ const DeliveryManPage = ({ data, setDeliveries, loading }) => {
             <tbody className="w-full">
               {data.length === 0 ? (
                 <tr>
-                  <td colSpan={12} className='text-xl text-center text-mainColor font-TextFontMedium '>Not find Deliveries</td>
+                  <td colSpan={12} className='text-xl text-center text-mainColor font-TextFontMedium '>{t("Not find Deliveries")}</td>
                 </tr>
               ) : (
                 currentDatas.map((delivery, index) => ( // Example with two rows

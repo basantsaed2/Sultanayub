@@ -47,7 +47,7 @@ const AddAddonsSection = ({ update, setUpdate }) => {
   const [addonsName, setAddonsName] = useState([]);
   const [addonPrice, setAddonPrice] = useState("");
 
-  const [stateAddonTaxes, setStateAddonTaxes] = useState("Select Tax");
+  const [stateAddonTaxes, setStateAddonTaxes] = useState(t("Select Tax"));
   const [addonTaxes, setAddonTaxes] = useState([]);
   const [addonTaxesId, setAddonTaxesId] = useState("");
   const [addonTaxesName, setAddonTaxesName] = useState("");
@@ -69,7 +69,7 @@ const AddAddonsSection = ({ update, setUpdate }) => {
 
   useEffect(() => {
     if (dataAddons) {
-      setAddonTaxes([{ id: "", name: "Select Tax" }, ...dataAddons.taxes]);
+      setAddonTaxes([{ id: "", name: t("Select Tax") }, ...dataAddons.taxes]);
     }
     console.log("dataAddons", dataAddons);
   }, [dataAddons]);
@@ -112,7 +112,7 @@ const AddAddonsSection = ({ update, setUpdate }) => {
   const handleReset = () => {
     setAddonsName([]);
     setAddonPrice("");
-    setStateAddonTaxes("Select Tax");
+    setStateAddonTaxes(t("Select Tax"));
     setAddonTaxesId("");
     setAddonTaxesName("");
     setAddonQuantity(0);

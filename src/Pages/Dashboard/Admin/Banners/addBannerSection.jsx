@@ -53,7 +53,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
 
   const [bannerStatus, setBannerStatus] = useState(0);
 
-  const [stateCategories, setStateCategories] = useState(t("Select Category"));
+  const [stateCategories, setStateCategories] = useState(t("SelectCategory"));
   const [categoryId, setCategoryId] = useState("");
   const [isOpenCategory, setIsOpenCategory] = useState(false);
 
@@ -174,7 +174,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
   const handleReset = () => {
     setCurrentTap(0);
     setBannerOrder("");
-    setStateCategories(t("Select Category"));
+    setStateCategories(t("SelectCategory"));
     setCategoryId("");
     setStateProducts(t("Select Product"));
     setProductId("");
@@ -384,7 +384,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
                       handleOpen={handleOpenProduct}
                       stateoption={
                         filterProducts.length === 0
-                          ? "No Products"
+                          ? t("No Products")
                           : stateProducts
                       }
                       openMenu={isOpenProduct}

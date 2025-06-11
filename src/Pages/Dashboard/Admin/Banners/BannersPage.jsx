@@ -136,7 +136,7 @@ const BannersPage = ({ refetch, setUpdate }) => {
                     colSpan={12}
                     className="text-xl text-center text-mainColor font-TextFontMedium "
                   >
-                    {t("Not find Banners")}
+                    {t("NotfindBanners")}
                   </td>
                 </tr>
               ) : (
