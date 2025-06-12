@@ -66,6 +66,8 @@ const EditProductPage = () => {
   const discountRef = useRef();
   const taxRef = useRef();
   const productImageRef = useRef();
+  const groupRef = useRef();
+
   /* States */
   const [taps, setTaps] = useState([]);
   const [currentProductNamesTap, setCurrentProductNamesTap] = useState(0);
@@ -80,13 +82,16 @@ const EditProductPage = () => {
   const [addons, setAddons] = useState([]);
   const [discounts, setDiscounts] = useState([]);
   const [taxes, setTaxes] = useState([]);
+  const [groups, setGroups] = useState([]);
+  const [selectedGroups, setSelectedGroups] = useState([]);
+  const [selectedExtras, setSelectedExtras] = useState({}); // Object to store extras for each group
 
-   const [itemTypes, setItemTypes] = useState([
-     { id: "", name: t("Selected Item Type") },
-     { id: "online", name: t("online") },
-     { id: "offline", name: t("offline") },
-     { id: "all", name: t("all") },
-   ]);
+  const [itemTypes, setItemTypes] = useState([
+    { id: "", name: t("Selected Item Type") },
+    { id: "online", name: t("online") },
+    { id: "offline", name: t("offline") },
+    { id: "all", name: t("all") },
+  ]);
   const [stockTypes, setStockTypes] = useState([
     { id: "", name: t("Selected Stock Type") },
     { id: "unlimited", name: t("unlimited") },
@@ -171,6 +176,17 @@ const EditProductPage = () => {
   // Product Image
   const [productImage, setProductImage] = useState(null);
   const [productImageName, setProductImageName] = useState(t("Choose Photo"));
+
+  // Product Group
+  const [selectedGroupState, setSelectedGroupState] = useState(
+    t("Selected Group")
+  );
+  const [selectedGroupId, setSelectedGroupId] = useState("");
+
+  const [selectedOptionGroups, setSelectedOptionGroups] = useState({});
+  const [selectedOptionExtras, setSelectedOptionExtras] = useState({});
+
+
   /* dropdown Status */
   const [isOPenProductCategory, setIsOPenProductCategory] = useState(false);
   const [isOPenProductSubCategory, setIsOPenProductSubCategory] =
@@ -179,6 +195,7 @@ const EditProductPage = () => {
   const [isOPenProductStockType, setIsOPenProductStockType] = useState(false);
   const [isOPenProductDiscount, setIsOPenProductDiscount] = useState(false);
   const [isOPenProductTax, setIsOPenProductTax] = useState(false);
+  const [isOPenProductGroup, setIsOPenProductGroup] = useState(false);
 
   /* Refetch Data */
   useEffect(() => {
@@ -195,25 +212,27 @@ const EditProductPage = () => {
       setTaps(dataTranslation?.translation || []); // Update taps if dataTranslation exists
     }
     /* Set data to Categories && Addons && SubCategories */
-   setCategories([
-  { id: "", name: t("Select Category") },
-  ...(dataCategory?.parent_categories || []),
-]);
+    setCategories([
+      { id: "", name: t("Select Category") },
+      ...(dataCategory?.parent_categories || []),
+    ]);
 
-setSubCategories([
-  { id: "", name: t("Select Subcategory") },
-  ...(dataCategory?.sub_categories || []),
-]);
+    setSubCategories([
+      { id: "", name: t("Select Subcategory") },
+      ...(dataCategory?.sub_categories || []),
+    ]);
 
-setDiscounts([
-  { id: "", name: t("Select Discount") },
-  ...(dataProduct?.discounts || []),
-]);
+    setDiscounts([
+      { id: "", name: t("Select Discount") },
+      ...(dataProduct?.discounts || []),
+    ]);
 
-setTaxes([
-  { id: "", name: t("Select Tax") },
-  ...(dataProduct?.taxes || []),
-]);
+    setTaxes([
+      { id: "", name: t("Select Tax") },
+      ...(dataProduct?.taxes || []),
+    ]);
+
+    setGroups(dataProduct?.group || []);
 
     if (dataProductEdit) {
       setProductEdit(dataProductEdit?.product || []);
@@ -230,131 +249,139 @@ setTaxes([
     console.log("selectedAddonsId", selectedAddonsId);
   }, [selectedAddonsId]);
 
-  useEffect(() => {
-    if (productEdit) {
-      setProductNames(productEdit?.product_names || []);
-      setDescriptionNames(productEdit?.product_descriptions || []);
-      setProductExclude(productEdit?.exclude || []);
+useEffect(() => {
+  if (!productEdit) return;
 
-      // Handle description data
-      const formattedDescription =
-        productEdit?.product_descriptions?.map((description) => ({
-          description_name: description.product_description,
-          tranlation_id: description.tranlation_id,
-          tranlation_name: description.tranlation_name,
-        })) || [];
+  // ——————————————————————————————
+  // 1) BASIC FIELDS
+  // ——————————————————————————————
+  setProductNames(productEdit.product_names || []);
+  setDescriptionNames(
+    (productEdit.product_descriptions || []).map(desc => ({
+      description_name: desc.product_description,
+      tranlation_id: desc.tranlation_id,
+      tranlation_name: desc.tranlation_name,
+    }))
+  );
+  setProductExclude(productEdit.exclude || []);
 
-      setDescriptionNames(formattedDescription);
+  // ——————————————————————————————
+  // 2) TOP-LEVEL EXTRAS & GROUP MERGE
+  // ——————————————————————————————
+  const topExtras = productEdit.extra || [];
+  setProductExtra(topExtras);
 
-      // Handle extras data
-      const formattedExtras =
-        productEdit?.extras?.map((extra) => ({
-          names:
-            extra.names?.map((name) => ({
-              extra_name: name.extra_name,
-              tranlation_id: name.tranlation_id,
-              tranlation_name: name.tranlation_name,
-            })) || [],
-          extra_price: extra.extra_price || "",
-          extra_index: extra.extra_index, // Add index if available
-        })) || [];
-      setProductExtra(formattedExtras);
+  // 2a) which groups had extras, for the global extras-panel
+  const topGroupIds = [...new Set(topExtras.map(e => e.group_id))];
+  setSelectedGroups(topGroupIds);
 
-      // Handle variations data
-      const formattedVariations =
-        productEdit?.variation?.map((variation) => ({
-          id: variation.id, // Preserve variation ID if exists
-          type: variation.type || "single",
-          required: variation.required || 0,
-          min: variation.min || "",
-          max: variation.max || "",
-          names:
-            variation.names?.map((name) => ({
-              name: name.name,
-              tranlation_id: name.tranlation_id,
-              tranlation_name: name.tranlation_name,
-            })) || [],
-          options:
-            variation.options?.map((option) => ({
-              id: option.id, // Preserve option ID if exists
-              names:
-                option.names?.map((name) => ({
-                  name: name.name,
-                  tranlation_id: name.tranlation_id,
-                  tranlation_name: name.tranlation_name,
-                })) || [],
-              extra:
-                option.extra?.map((extraItem) => ({
-                  extra_index: extraItem.extra_index, // Link to extras array
-                  extra_price: extraItem.extra_price || "",
-                  extra_names: extraItem.extra_names || [], // Preserve names if available
-                })) || [],
-              points: option.points || "",
-              price: option.price || "",
-              status: option.status || 0,
-            })) || [],
-        })) || [];
-      setProductVariations(formattedVariations);
+  const topExtrasMap = topExtras.reduce((acc, e) => {
+    acc[e.group_id] = acc[e.group_id] || [];
+    acc[e.group_id].push(e.id);
+    return acc;
+  }, {});
+  setSelectedExtras(topExtrasMap);
 
-      setSelectedAddonsId(productEdit?.addons || []);
+  // 2b) merge these extras into your `groups` state
+  //     so getExtrasForGroup(groupId) returns the proper array of {id,name,…}
+  setGroups(prev =>
+    prev.map(g => ({
+      ...g,
+      extra: topExtras.filter(e => e.group_id === g.id)
+    }))
+  );
 
-      setSelectedCategoryId(productEdit?.category?.id || "");
-      setSelectedCategoryState(
-        productEdit?.category?.name || selectedCategoryState
-      );
+  // ——————————————————————————————
+  // 3) VARIATIONS & PER-OPTION GROUPS/EXTRAS
+  // ——————————————————————————————
+  const variationGroups = {};  // will hold “vi-oi” → [groupId,…]
+  const variationExtras = {};  // will hold “vi-oi” → { [groupId]: [extraId,…] }
 
-      setSelectedSubCategoryId(productEdit?.sub_category?.id || "");
-      setSelectedSubCategoryState(
-        productEdit?.sub_category?.name || selectedSubCategoryState
-      );
+  const formattedVariations = (productEdit.variation || []).map((v, vi) => ({
+    id: v.id,
+    type: v.type || "single",
+    required: v.required || 0,
+    min: v.min ?? "",
+    max: v.max ?? "",
+    names: (v.names || []).map(n => ({
+      name: n.name,
+      tranlation_id: n.tranlation_id,
+      tranlation_name: n.tranlation_name,
+    })),
+    options: (v.options || []).map((opt, oi) => {
+      // capture this option’s saved group-ids
+      const optGroupIds = [...new Set((opt.extra || []).map(e => e.group_id))];
+      variationGroups[`${vi}-${oi}`] = optGroupIds;
 
-      const filterSup = subCategories.filter(
-        (sup) => sup.category_id === productEdit?.category?.id
-      );
-      setFilterSubCategories(
-        [{ id: "", name: "Select Subcategory " }, ...filterSup] || []
-      );
+      // build map: group_id → [extraId,…]
+      variationExtras[`${vi}-${oi}`] = (opt.extra || []).reduce((acc, e) => {
+        acc[e.group_id] = acc[e.group_id] || [];
+        acc[e.group_id].push(e.id);
+        return acc;
+      }, {});
 
-      setSelectedItemTypeName(productEdit?.item_type || "");
-      setSelectedItemTypeState(productEdit?.item_type || selectedItemTypeState);
+      return {
+        id: opt.id,
+        names: (opt.names || []).map(n => ({
+          name: n.name,
+          tranlation_id: n.tranlation_id,
+          tranlation_name: n.tranlation_name,
+        })),
+        price: opt.price ?? "",
+        points: opt.points ?? "",
+        status: opt.status ?? 0,
 
-      setProductPrice(productEdit?.price || 0);
-      setSelectedStockTypeState(
-        productEdit?.stock_type || selectedStockTypeState
-      );
-      setSelectedStockTypeName(productEdit?.stock_type || "");
-      setProductStockNumber(productEdit?.number || "");
+        // **carry the raw extra objects through** so you can
+        // render their `name` in the UI if you need it:
+        extra: (opt.extra || []).map(e => ({
+          id: e.id,
+          name: e.name,
+          group_id: e.group_id
+        }))
+      };
+    }),
+  }));
 
-      setProductImage(productEdit?.image_link || "");
-      setProductImageName(productEdit?.image_link || "");
+  setProductVariations(formattedVariations);
+  setSelectedOptionGroups(variationGroups);
+  setSelectedOptionExtras(variationExtras);
 
-      setSelectedDiscountId(productEdit?.discount?.id || "");
-      setSelectedDiscountState(
-        productEdit?.discount?.name || selectedDiscountState
-      );
-      setSelectedTaxId(productEdit?.tax?.id || "");
-      setSelectedTaxState(productEdit?.tax?.name || selectedTaxState);
+  // ——————————————————————————————
+  // 4) REMAINING FIELDS (categories, price, flags, image…)
+  // ——————————————————————————————
+  setSelectedAddonsId(productEdit.addons || []);
 
-      setProductPoint(productEdit?.points || 0);
+  setSelectedCategoryId(productEdit.category?.id || "");
+  setSelectedCategoryState(productEdit.category?.name || t("Selected Category"));
+  const filtered = subCategories.filter(s => s.category_id === productEdit.category?.id);
+  setFilterSubCategories([{ id: "", name: t("Select Subcategory") }, ...filtered]);
 
-      setProductStatusFrom(productEdit?.from || "");
-      setProductStatusTo(productEdit?.to || "");
+  setSelectedSubCategoryId(productEdit.sub_category?.id || "");
+  setSelectedSubCategoryState(productEdit.sub_category?.name || t("Selected Subcategory"));
 
-      setProductStatus(productEdit?.status || 0);
-      setProductTimeStatus(productEdit?.product_time_status || 0);
-      setProductRecommended(productEdit?.recommended || 0);
+  setSelectedItemTypeName(productEdit.item_type || "");
+  setSelectedItemTypeState(productEdit.item_type || t("Selected Item Type"));
+  setSelectedStockTypeName(productEdit.stock_type || "");
+  setSelectedStockTypeState(productEdit.stock_type || t("Selected Stock Type"));
+  setProductStockNumber(productEdit.number ?? "");
 
-      // setDescriptionNames(productEdit?.product_descriptions || [])
-      console.log("productEdit?.points", productEdit?.points);
-      console.log("productPoint", productPoint);
-      console.log("productId", productId);
-      console.log("dataProductEdit", productEdit);
-      console.log("dataProductEdit", productEdit);
-      console.log("ProductNames", productNames);
-      console.log("DescriptionNames", descriptionNames);
-      // console.log('ProductVariations', productVariations)
-    }
-  }, [productEdit, subCategories]);
+  setProductPrice(productEdit.price ?? 0);
+  setProductPoint(productEdit.points ?? 0);
+
+  setSelectedDiscountId(productEdit.discount?.id || "");
+  setSelectedDiscountState(productEdit.discount?.name || t("Selected Discount"));
+  setSelectedTaxId(productEdit.tax?.id || "");
+  setSelectedTaxState(productEdit.tax?.name || t("Selected Tax"));
+
+  setProductStatus(productEdit.status ?? 0);
+  setProductRecommended(productEdit.recommended ?? 0);
+  setProductTimeStatus(productEdit.product_time_status ?? 0);
+  setProductStatusFrom(productEdit.from || "");
+  setProductStatusTo(productEdit.to || "");
+
+  setProductImage(productEdit.image_link || null);
+  setProductImageName(productEdit.image_link || t("Choose Photo"));
+}, [productEdit, subCategories, taps]);
 
   /* Handle Function */
 
@@ -380,24 +407,18 @@ setTaxes([
     );
   };
 
-  const handleRemoveExtra = (index) => {
-    setProductExtra((prevProductExtra) =>
-      prevProductExtra.filter((_, idx) => idx !== index)
-    );
-  };
-
   const handleVariationNameChange = (updatedValue, indexVariation, tapName) => {
     setProductVariations((prevProductVariations) =>
       prevProductVariations.map((item, idx) =>
         idx === indexVariation
           ? {
-              ...item,
-              names: item.names.map((name) =>
-                name.tranlation_name === tapName
-                  ? { ...name, name: updatedValue }
-                  : name
-              ),
-            }
+            ...item,
+            names: item.names.map((name) =>
+              name.tranlation_name === tapName
+                ? { ...name, name: updatedValue }
+                : name
+            ),
+          }
           : item
       )
     );
@@ -466,13 +487,13 @@ setTaxes([
       prevProductVariations.map((item, idx) =>
         idx === variationIndex
           ? {
-              ...item,
-              [field]: item[field].map((subField) =>
-                subField.tranlation_name === tapName
-                  ? { ...subField, name: updatedValue }
-                  : subField
-              ),
-            }
+            ...item,
+            [field]: item[field].map((subField) =>
+              subField.tranlation_name === tapName
+                ? { ...subField, name: updatedValue }
+                : subField
+            ),
+          }
           : item
       )
     );
@@ -530,6 +551,7 @@ setTaxes([
     setIsOPenProductStockType(false);
     setIsOPenProductDiscount(false);
     setIsOPenProductTax(false);
+    setIsOPenProductGroup(false);
   };
 
   const handleOpenCategory = () => {
@@ -664,7 +686,9 @@ setTaxes([
         discountRef.current &&
         !discountRef.current.contains(event.target) &&
         taxRef.current &&
-        !taxRef.current.contains(event.target)
+        !taxRef.current.contains(event.target) &&
+        groupRef.current &&
+        !groupRef.current.contains(event.target)
       ) {
         handleCloseAllDropdowns();
       }
@@ -698,6 +722,7 @@ setTaxes([
     setIsOPenProductDiscount,
     setIsOPenProductTax,
     setOpenVariationIndex,
+    setIsOPenProductGroup,
   ]);
 
   // Go To Languages Tap About Product Names
@@ -720,9 +745,7 @@ setTaxes([
   const handleVariationOptionTap = (index) => {
     setCurrentVariationOptionTap(index);
   };
-  useEffect(() => {
-    console.log("descriptionNames", descriptionNames);
-  }, [descriptionNames]);
+
   /* Reset Details Product */
   const handleBack = () => {
     navigate(-1, { replace: true });
@@ -730,9 +753,6 @@ setTaxes([
 
   /* Reset Details Product */
   const handleReset = () => {
-    console.log("productNames", productNames);
-    console.log("descriptionNames", descriptionNames);
-
     setCurrentProductNamesTap(0);
     setCurrentExcludeNamesTap(0);
     setCurrentExtraNamesTap(0);
@@ -752,6 +772,7 @@ setTaxes([
     setSelectedTaxState(t("Selected Tax"));
     setSelectedTaxId("");
     setSelectedAddonsState(t("Selected Addons"));
+    setSelectedGroupState(t("Selected Groups"));
     setSelectedAddonsId("");
     setSelectedItemTypeState(t("Selected Item Type"));
     setSelectedItemTypeName("");
@@ -767,302 +788,109 @@ setTaxes([
     setProductTimeStatus(0);
     setProductImage(null);
     setProductImageName(t("Choose Photo"));
-
-    console.log("productExtra", productExtra);
   };
 
-  // State for controlling extra dropdowns
-  const [openExtraDropdown, setOpenExtraDropdown] = useState(null);
-  const extraDropdownRef = useRef([]);
-
-  const handleOpenExtraDropdown = (variationIndex, optionIndex, extraIndex) => {
-    const key = `${variationIndex}-${optionIndex}-${extraIndex}`;
-    setOpenExtraDropdown(openExtraDropdown === key ? null : key);
-  };
-
-  // Modify your handleAddExtra function to include extra_index
-  const handleAddExtra = () => {
-    setProductExtra((prev) => [
-      ...prev,
-      {
-        names: taps.map((tap) => ({
-          extra_name: "",
-          tranlation_name: tap.name,
-          tranlation_id: tap.id,
-        })),
-        extra_price: "",
-        extra_index: prev.length, // This will be the index
-      },
-    ]);
-  };
-  // Modify your handleAddExtraAtOption function
-  const handleAddExtraAtOption = (variationIndex, optionIndex) => {
-    setProductVariations((prev) =>
-      prev.map((variation, vIdx) =>
-        vIdx === variationIndex
-          ? {
-              ...variation,
-              options: variation.options.map((option, oIdx) =>
-                oIdx === optionIndex
-                  ? {
-                      ...option,
-                      extra: [
-                        ...option.extra,
-                        {
-                          extra_index:
-                            productExtra.length === 1 ? 0 : undefined,
-                          extra_price:
-                            productExtra.length === 1
-                              ? productExtra[0].extra_price
-                              : "",
-                          extra_names:
-                            productExtra.length === 1
-                              ? productExtra[0].names
-                              : taps.map((tap) => ({
-                                  extra_name: "",
-                                  tranlation_name: tap.name,
-                                  tranlation_id: tap.id,
-                                })),
-                        },
-                      ],
-                    }
-                  : option
-              ),
-            }
-          : variation
-      )
-    );
-  };
   // Remove an option from a specific Option within a Variation
   const handleRemoveOption = (variationIndex, optionIndex) => {
     setProductVariations((prevVariations) =>
       prevVariations.map((variation, vIdx) =>
         vIdx === variationIndex
           ? {
-              ...variation,
-              options: variation.options.filter(
-                (_, oIdx) => oIdx !== optionIndex
-              ),
-            }
-          : variation
-      )
-    );
-  };
-  // Remove an Extra from a specific Option within a Variation
-  const handleRemoveExtraAtOption = (
-    variationIndex,
-    optionIndex,
-    extraIndex
-  ) => {
-    setProductVariations((prevVariations) =>
-      prevVariations.map((variation, vIdx) =>
-        vIdx === variationIndex
-          ? {
-              ...variation,
-              options: variation.options.map((option, oIdx) =>
-                oIdx === optionIndex
-                  ? {
-                      ...option,
-                      extra: option.extra.filter(
-                        (_, eIdx) => eIdx !== extraIndex
-                      ),
-                    }
-                  : option
-              ),
-            }
+            ...variation,
+            options: variation.options.filter(
+              (_, oIdx) => oIdx !== optionIndex
+            ),
+          }
           : variation
       )
     );
   };
 
-  // Handle extra name change
-  const handleExtraNameChange = (indexMap, language, value) => {
-    setProductExtra((prev) =>
-      prev.map((item, idx) =>
-        idx === indexMap
-          ? {
-              ...item,
-              names: item.names.map((name) =>
-                name.tranlation_name === language
-                  ? { ...name, extra_name: value }
-                  : name
-              ),
-            }
-          : item
-      )
-    );
+  // Handle group selection and auto-select all extras
+  const handleGroupChange = (e) => {
+    const selected = e.value; // Array of selected group IDs
+    setSelectedGroups(selected);
+
+    // Update selectedExtras: auto-select all extras for newly selected groups
+    const updatedExtras = { ...selectedExtras };
+    selected.forEach((groupId) => {
+      if (!updatedExtras[groupId]) {
+        // If group is newly selected, select all its extras by default
+        const extras = getExtrasForGroup(groupId);
+        updatedExtras[groupId] = extras.map((extra) => extra.id);
+      }
+    });
+
+    // Remove extras for deselected groups
+    Object.keys(updatedExtras).forEach((groupId) => {
+      if (!selected.includes(Number(groupId))) {
+        delete updatedExtras[groupId];
+      }
+    });
+
+    setSelectedExtras(updatedExtras);
   };
 
-  // Handle extra price change (in extras section)
-  const handleExtraPriceChange = (indexMap, price) => {
-    setProductExtra((prev) =>
-      prev.map((item, idx) =>
-        idx === indexMap ? { ...item, extra_price: price } : item
-      )
-    );
+  // Handle extra selection for a specific group
+  const handleExtraChange = (groupId, selectedExtraIds) => {
+    setSelectedExtras((prev) => ({
+      ...prev,
+      [groupId]: selectedExtraIds,
+    }));
   };
 
-  // Handle price override in variations
-  const handleExtraPriceOverride = (
-    variationIndex,
-    optionIndex,
-    extraIndex,
-    price
-  ) => {
-    setProductVariations((prev) =>
-      prev.map((variation, vIdx) =>
-        vIdx === variationIndex
-          ? {
-              ...variation,
-              options: variation.options.map((option, oIdx) =>
-                oIdx === optionIndex
-                  ? {
-                      ...option,
-                      extra: option.extra.map((ext, eIdx) =>
-                        eIdx === extraIndex
-                          ? { ...ext, extra_price: price }
-                          : ext
-                      ),
-                    }
-                  : option
-              ),
-            }
-          : variation
-      )
-    );
+  // Filter extras for a specific group
+  const getExtrasForGroup = (groupId) => {
+    const group = groups.find((g) => g.id === groupId);
+    return group && group.extra ? group.extra : [];
+  };
+
+  // Handle group selection for a specific variation option
+  const handleOptionGroupChange = (variationIndex, optionIndex, selectedGroupIds) => {
+    const key = `${variationIndex}-${optionIndex}`;
+    setSelectedOptionGroups((prev) => ({
+      ...prev,
+      [key]: selectedGroupIds,
+    }));
+
+    // Update selectedOptionExtras: auto-select all extras for newly selected groups
+    const updatedExtras = { ...selectedOptionExtras[key] } || {};
+    selectedGroupIds.forEach((groupId) => {
+      if (!updatedExtras[groupId]) {
+        const extras = getExtrasForGroup(groupId);
+        console.log(`Extras for group ${groupId} in variation ${key}:`, extras); // Debug
+        updatedExtras[groupId] = extras.map((extra) => extra.id); // Use 'id'
+      }
+    });
+
+    // Remove extras for deselected groups
+    Object.keys(updatedExtras).forEach((groupId) => {
+      if (!selectedGroupIds.includes(Number(groupId))) {
+        delete updatedExtras[groupId];
+      }
+    });
+
+    setSelectedOptionExtras((prev) => ({
+      ...prev,
+      [key]: updatedExtras,
+    }));
+  };
+  // Handle extras selection for a specific group within a variation option
+  const handleOptionExtrasChange = (variationIndex, optionIndex, groupId, selectedExtraIds) => {
+    const key = `${variationIndex}-${optionIndex}`;
+    console.log(`Updating extras for ${key}, group ${groupId}:`, selectedExtraIds); // Debug
+    setSelectedOptionExtras((prev) => ({
+      ...prev,
+      [key]: {
+        ...prev[key],
+        [groupId]: selectedExtraIds,
+      },
+    }));
   };
 
   /* Edit Product */
   const handleproductEdit = (e) => {
     e.preventDefault();
-
-    // // Filter out any invalid or empty entries in product Names
-    // const validProductNames = productNames.filter(
-    //        (product) => product && product.tranlation_id && product.product_name && product.tranlation_name
-    // );
-
-    // if (validProductNames.length === 0) {
-    //        auth.toastError('Please enter a product name');
-    //        console.log('productNames', validProductNames);
-    //        console.log('validProductNames.length', validProductNames.length);
-    //        console.log('validProductNames', validProductNames)
-    //        return;
-    // }
-
-    // if (validProductNames.length !== taps.length) {
-    //        auth.toastError('Please enter all product names');
-    //        console.log('productNames', validProductNames);
-    //        console.log('taps.length', taps.length)
-    //        console.log('validProductNames', validProductNames)
-    //        return;
-    // }
-
-    // // if (productNames.length === 0) {
-    // //   auth.toastError('please Enter product Name')
-    // //   console.log('productNames', productNames)
-    // //   return;
-    // // }
-
-    // // if (productNames.length !== taps.length) {
-    // //   auth.toastError('please Enter All Product Names')
-    // //   console.log('productNames', productNames)
-    // //   return;
-    // // }
-
-    // if (!selectedCategoryId) {
-    //        auth.toastError('please Select Category Name')
-    //        console.log('selectedCategoryId', selectedCategoryId)
-    //        return;
-    // }
-
-    // // if (!selectedSubCategoryId) {
-    // //   auth.toastError('please Select SubCategory Name')
-    // //   console.log('selectedSubCategoryId', selectedSubCategoryId)
-    // //   return;
-    // // }
-
-    // // if (selectedAddonsId.length === 0) {
-    // //   auth.toastError('please Select Addons')
-    // //   console.log('selectedAddonsId', selectedAddonsId)
-    // //   return;
-    // // }
-
-    // if (!selectedItemTypeName) {
-    //        auth.toastError('please Enter Item Type')
-    //        console.log('selectedItemTypeName', selectedItemTypeName)
-    //        return;
-    // }
-    // if (!selectedStockTypeName) {
-    //        auth.toastError('please Select Stock Type')
-    //        console.log('selectedStockTypeName', selectedStockTypeName)
-    //        return;
-    // }
-    // if (selectedStockTypeName === 'daily' || selectedStockTypeName === 'fixed') {
-    //        if (!productStockNumber) {
-    //               auth.toastError('please Enter Stock Number')
-    //               console.log('productStockNumber', productStockNumber)
-    //               return;
-    //        }
-    // }
-    // if (!productPrice) {
-    //        auth.toastError('please Enter Product Price')
-    //        console.log('productPrice', productPrice)
-    //        return;
-    // }
-    // // if (!selectedDiscountId) {
-    // //   auth.toastError('please Select Product Discount')
-    // //   console.log('selectedDiscountId', selectedDiscountId)
-    // //   return;
-    // // }
-    // // if (!selectedTaxId) {
-    // //   auth.toastError('please Select Product Tax')
-    // //   console.log('selectedTaxId', selectedTaxId)
-    // //   return;
-    // // }
-
-    // // if (!productPoint) {
-    // //   auth.toastError('please Enter Product Point')
-    // //   console.log('productPoint', productPoint)
-    // //   return;
-    // // }
-    // if (!productImage) {
-    //        auth.toastError('please Set Product Image')
-    //        console.log('productImage', productImage)
-    //        return;
-    // }
-
-    // // if (productExclude.length === 0) {
-    // //        auth.toastError('please Enter Exclude Name')
-    // //        console.log('productExclude', productExclude)
-    // //        return;
-    // // }
-
-    // // for (const ex of productExclude) {
-    // //        for (const name of ex.names) {
-    // //               if (!name.exclude_name || name.exclude_name.trim() === '') {
-    // //                      auth.toastError('Please Enter All Exclude names');
-    // //                      console.log('productExclude', productExclude)
-    // //                      return;
-    // //               }
-    // //        }
-    // // }
-
-    // // Filter out any invalid or empty entries description Names
-    // const validDescriptionNames = descriptionNames.filter(
-    //        (desc) => desc && desc.tranlation_id && desc.product_description && desc.tranlation_name
-    // );
-
-    // // if (validDescriptionNames.length === 0) {
-    // //        auth.toastError('Please enter a description name');
-    // //        console.log('descriptionNames', validDescriptionNames);
-    // //        return;
-    // // }
-
-    // // if (validDescriptionNames.length !== taps.length) {
-    // //        auth.toastError('Please enter all description names');
-    // //        console.log('descriptionNames', validDescriptionNames);
-    // //        return;
-    // // }
 
     const formData = new FormData();
     formData.append("category_id", selectedCategoryId);
@@ -1087,205 +915,133 @@ setTaxes([
     formData.append("image", productImage);
 
     if (selectedAddonsId.length > 0) {
-      const addonIds = selectedAddonsId.map((addon) => addon.id); // Extracts only the IDs
-
+      const addonIds = selectedAddonsId.map((addon) => addon.id);
       addonIds.forEach((id, indexID) => {
-        formData.append(`addons[${indexID}]`, id); // Appending each ID separately with 'addons[]'
+        formData.append(`addons[${indexID}]`, id);
       });
     }
 
-    {
-      productNames.forEach((name, index) => {
-        formData.append(
-          `product_names[${index}][product_name]`,
-          name.product_name
-        );
-        formData.append(
-          `product_names[${index}][tranlation_id]`,
-          name.tranlation_id
-        );
-        formData.append(
-          `product_names[${index}][tranlation_name]`,
-          name.tranlation_name
-        );
-      });
-    }
+    productNames.forEach((name, index) => {
+      formData.append(`product_names[${index}][product_name]`, name.product_name);
+      formData.append(`product_names[${index}][tranlation_id]`, name.tranlation_id);
+      formData.append(`product_names[${index}][tranlation_name]`, name.tranlation_name);
+    });
 
     {
       descriptionNames.forEach((name, index) => {
-        formData.append(
-          `product_descriptions[${index}][product_description]`,
-          name.description_name
-        );
-        formData.append(
-          `product_descriptions[${index}][tranlation_name]`,
-          name.tranlation_name
-        );
-        formData.append(
-          `product_descriptions[${index}][tranlation_id]`,
-          name.tranlation_id
-        );
-      });
+        formData.append(`product_descriptions[${index}][product_description]`, name.description_name)
+        formData.append(`product_descriptions[${index}][tranlation_name]`, name.tranlation_name)
+        formData.append(`product_descriptions[${index}][tranlation_id]`, name.tranlation_id)
+      })
     }
 
     if (Array.isArray(productExclude)) {
       productExclude.forEach((exclude, index) => {
         if (Array.isArray(exclude.names)) {
           exclude.names.forEach((exName, exInd) => {
-            formData.append(
-              `excludes[${index}][names][${exInd}][exclude_name]`,
-              exName.exclude_name
-            );
-            formData.append(
-              `excludes[${index}][names][${exInd}][tranlation_id]`,
-              exName.tranlation_id
-            );
-            formData.append(
-              `excludes[${index}][names][${exInd}][tranlation_name]`,
-              exName.tranlation_name
-            );
+            formData.append(`excludes[${index}][names][${exInd}][exclude_name]`, exName.exclude_name);
+            formData.append(`excludes[${index}][names][${exInd}][tranlation_id]`, exName.tranlation_id);
+            formData.append(`excludes[${index}][names][${exInd}][tranlation_name]`, exName.tranlation_name);
           });
         }
       });
-    } else {
-      console.error("productExtra is not a valid array.");
     }
 
-    if (Array.isArray(productExtra)) {
-      productExtra.forEach((extra, index) => {
-        if (Array.isArray(extra.names)) {
-          extra.names.forEach((exName, exInd) => {
-            formData.append(
-              `extra[${index}][names][${exInd}][extra_name]`,
-              exName.extra_name
-            );
-            formData.append(
-              `extra[${index}][names][${exInd}][tranlation_id]`,
-              exName.tranlation_id
-            );
-            formData.append(
-              `extra[${index}][names][${exInd}][tranlation_name]`,
-              exName.tranlation_name
-            );
+
+    // Send only the selected extra IDs from selectedExtras for top-level extra
+    if (Object.keys(selectedExtras).length > 0) {
+      let extraIndex = 0;
+      Object.entries(selectedExtras).forEach(([groupId, extraIds]) => {
+        if (Array.isArray(extraIds)) {
+          extraIds.forEach((extraId) => {
+            formData.append(`extra[${extraIndex}][id]`, extraId);
+            extraIndex++;
           });
         }
-
-        formData.append(`extra[${index}][extra_price]`, extra.extra_price);
       });
-    } else {
-      console.error("productExtra is not a valid array.");
     }
+
+    // Debug: Log selectedOptionExtras to verify its content
+    console.log("selectedOptionExtras:", JSON.stringify(selectedOptionExtras, null, 2));
 
     if (Array.isArray(productVariations)) {
       productVariations.forEach((variation, indexVar) => {
-        // Validate and log variations to verify data integrity
         console.log(`Processing variation index ${indexVar}`, variation);
 
         /* Names */
         if (Array.isArray(variation.names)) {
           variation.names.forEach((name, index) => {
-            // Log data for verification
             console.log(`Processing name at index ${index}:`, name);
-
-            // Append formData fields for names
-            formData.append(
-              `variations[${indexVar}][names][${index}][name]`,
-              name.name
-            );
-            formData.append(
-              `variations[${indexVar}][names][${index}][tranlation_name]`,
-              name.tranlation_name
-            );
-            formData.append(
-              `variations[${indexVar}][names][${index}][tranlation_id]`,
-              name.tranlation_id
-            );
+            formData.append(`variations[${indexVar}][names][${index}][name]`, name.name);
+            formData.append(`variations[${indexVar}][names][${index}][tranlation_name]`, name.tranlation_name);
+            formData.append(`variations[${indexVar}][names][${index}][tranlation_id]`, name.tranlation_id);
           });
         } else {
-          console.warn(
-            `variation.names is not a valid array for variation index ${indexVar}`
-          );
+          console.warn(`variation.names is not a valid array for variation index ${indexVar}`);
         }
 
         if (Array.isArray(variation.options)) {
           variation.options.forEach((option, indexOption) => {
-            // Extra Option Handling
-            if (Array.isArray(option.extra)) {
-              option.extra.forEach((extraOption, indexExtra) => {
-                // Append extra_index and extra_price directly
-                formData.append(
-                  `variations[${indexVar}][options][${indexOption}][extra][${indexExtra}][extra_index]`,
-                  extraOption.extra_index !== undefined
-                    ? String(extraOption.extra_index)
-                    : ""
-                );
+            // Extra Option Handling using selectedOptionExtras
+            const extraKey = `${indexVar}-${indexOption}`;
+            const selectedExtrasForOption = selectedOptionExtras[extraKey] || {};
+            console.log(`Processing option ${indexVar}-${indexOption}, selectedExtrasForOption:`, selectedExtrasForOption);
 
+            if (Object.keys(selectedExtrasForOption).length > 0) {
+              let extraIndex = 0;
+              Object.values(selectedExtrasForOption).flat().forEach((extraId) => {
+                console.log(`Appending extra_index for ${extraKey}, extraIndex ${extraIndex}:`, extraId);
                 formData.append(
-                  `variations[${indexVar}][options][${indexOption}][extra][${indexExtra}][extra_price]`,
-                  extraOption.extra_price || "0"
+                  `variations[${indexVar}][options][${indexOption}][extra][${extraIndex}][extra_index]`,
+                  extraId !== undefined ? String(extraId) : ""
                 );
+                extraIndex++;
               });
+            } else {
+              console.warn(`No extras found for option ${extraKey}`);
             }
 
-            // Names Option Handling (unchanged as it's separate from extras)
+            // Names Option Handling
             if (Array.isArray(option.names) && option.names.length > 0) {
               option.names.forEach((optionNa, indexOpNa) => {
                 formData.append(
                   `variations[${indexVar}][options][${indexOption}][names][${indexOpNa}][name]`,
-                  optionNa.name && typeof optionNa.name === "string"
-                    ? optionNa.name
-                    : ""
+                  optionNa.name && typeof optionNa.name === "string" ? optionNa.name : ""
                 );
-
                 formData.append(
                   `variations[${indexVar}][options][${indexOption}][names][${indexOpNa}][tranlation_id]`,
-                  optionNa.tranlation_id !== undefined
-                    ? String(optionNa.tranlation_id)
-                    : ""
+                  optionNa.tranlation_id !== undefined ? String(optionNa.tranlation_id) : ""
                 );
-
                 formData.append(
                   `variations[${indexVar}][options][${indexOption}][names][${indexOpNa}][tranlation_name]`,
-                  typeof optionNa.tranlation_name === "string"
-                    ? optionNa.tranlation_name
-                    : ""
+                  typeof optionNa.tranlation_name === "string" ? optionNa.tranlation_name : ""
                 );
               });
             }
 
             // Append other option-specific data
-            formData.append(
-              `variations[${indexVar}][options][${indexOption}][price]`,
-              option.price || 0
-            );
-            formData.append(
-              `variations[${indexVar}][options][${indexOption}][status]`,
-              option.status
-            );
-            formData.append(
-              `variations[${indexVar}][options][${indexOption}][points]`,
-              option.points || 0
-            );
+            formData.append(`variations[${indexVar}][options][${indexOption}][price]`, option.price || 0);
+            formData.append(`variations[${indexVar}][options][${indexOption}][status]`, option.status);
+            formData.append(`variations[${indexVar}][options][${indexOption}][points]`, option.points || 0);
           });
         }
+
         // Append general variation data
         formData.append(`variations[${indexVar}][type]`, variation.type);
         formData.append(`variations[${indexVar}][min]`, variation.min);
         formData.append(`variations[${indexVar}][max]`, variation.max);
-        formData.append(
-          `variations[${indexVar}][required]`,
-          variation.required ? 1 : 0
-        ); // Convert boolean to 1/0
+        formData.append(`variations[${indexVar}][required]`, variation.required ? 1 : 0);
       });
-    } else {
-      console.error("productVariations is not a valid array.");
     }
 
+    // Debug: Log only extra-related form data
     for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
+      if (key.includes("extra")) {
+        console.log(`${key}: ${value}`);
+      }
     }
 
-    postData(formData, "Product Edited Success");
+    postData(formData, t("Product Added Success"));
   };
 
   useEffect(() => {
@@ -1298,9 +1054,9 @@ setTaxes([
   return (
     <>
       {loadingTranslation ||
-      loadingCategory ||
-      loadingProduct ||
-      loadingPost ? (
+        loadingCategory ||
+        loadingProduct ||
+        loadingPost ? (
         <>
           <div className="flex items-center justify-center w-full">
             <LoaderLogin />
@@ -1319,11 +1075,10 @@ setTaxes([
                   <span
                     key={tap.id}
                     onClick={() => handleProductNamesTap(index)}
-                    className={`${
-                      currentProductNamesTap === index
-                        ? "text-mainColor border-b-4 border-mainColor"
-                        : "text-thirdColor"
-                    }  pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
+                    className={`${currentProductNamesTap === index
+                      ? "text-mainColor border-b-4 border-mainColor"
+                      : "text-thirdColor"
+                      }  pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
                   >
                     {tap.name}
                   </span>
@@ -1494,7 +1249,7 @@ setTaxes([
               </div>
 
               {selectedStockTypeName === "daily" ||
-              selectedStockTypeName === "fixed" ? (
+                selectedStockTypeName === "fixed" ? (
                 <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
                     {t("Number")}:
@@ -1642,6 +1397,58 @@ setTaxes([
               </div>
             </div>
 
+            <div className="w-full p-6 bg-gray-50 rounded-2xl shadow-lg">
+              {/* Group MultiSelect */}
+              <div className="mb-6 w-full sm:w-full lg:w-[30%] ">
+                <label className="block text-lg font-semibold text-gray-700 mb-2">
+                  {t("Group Extra Names")}:
+                </label>
+                <MultiSelect
+                  value={selectedGroups}
+                  onChange={handleGroupChange}
+                  options={groups}
+                  optionLabel="name"
+                  optionValue="id"
+                  display="chip"
+                  placeholder={selectedGroupState}
+                  // maxSelectedLabels={3}
+                  className="w-full bg-white border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-200"
+                  panelClassName="bg-white border border-gray-200 rounded-lg shadow-lg"
+                />
+              </div>
+
+              {/* Extras MultiSelects */}
+              {selectedGroups.length > 0 && (
+                <div className="space-y-6">
+                  {selectedGroups.map((groupId) => {
+                    const group = groups.find((g) => g.id === groupId);
+                    return (
+                      <div
+                        key={groupId}
+                        className="p-4 bg-white rounded-xl shadow-sm animate-fadeIn"
+                      >
+                        <label className="block text-lg font-semibold text-gray-700 mb-2">
+                          {t("Extra Names")} for {group?.name || 'Group'}:
+                        </label>
+                        <MultiSelect
+                          value={selectedExtras[groupId] || []}
+                          onChange={(e) => handleExtraChange(groupId, e.value)}
+                          options={getExtrasForGroup(groupId)}
+                          optionLabel="name"
+                          optionValue="id"
+                          display="chip"
+                          placeholder={t("Select Extras")}
+                          // maxSelectedLabels={5}
+                          className="w-full bg-white border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-200"
+                          panelClassName="bg-white border border-gray-200 rounded-lg shadow-lg"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
             {/* Exclude Names */}
             <div className="flex flex-col items-start justify-start w-full gap-4 pb-4 border-b-4 border-gray-300">
               {productExclude.length !== 0 && (
@@ -1650,11 +1457,10 @@ setTaxes([
                     <span
                       key={tap.id}
                       onClick={() => handleExcludeNamesTap(index)}
-                      className={`${
-                        currentExcludeNamesTap === index
-                          ? "text-mainColor border-b-4 border-mainColor"
-                          : "text-thirdColor"
-                      }  pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
+                      className={`${currentExcludeNamesTap === index
+                        ? "text-mainColor border-b-4 border-mainColor"
+                        : "text-thirdColor"
+                        }  pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
                     >
                       {tap.name}
                     </span>
@@ -1691,16 +1497,16 @@ setTaxes([
                                     prevProductExclude.map((item, idx) =>
                                       idx === indexMap
                                         ? {
-                                            ...item,
-                                            names: item.names.map((name) =>
-                                              name.tranlation_name === tap.name
-                                                ? {
-                                                    ...name,
-                                                    exclude_name: updatedValue,
-                                                  }
-                                                : name
-                                            ),
-                                          }
+                                          ...item,
+                                          names: item.names.map((name) =>
+                                            name.tranlation_name === tap.name
+                                              ? {
+                                                ...name,
+                                                exclude_name: updatedValue,
+                                              }
+                                              : name
+                                          ),
+                                        }
                                         : item
                                     )
                                   );
@@ -1724,11 +1530,10 @@ setTaxes([
                         ))}
                         {index === 0 && (
                           <div
-                            className={`w-full flex items-center ${
-                              productExclude.length === 0
-                                ? "justify-center"
-                                : "justify-start"
-                            }`}
+                            className={`w-full flex items-center ${productExclude.length === 0
+                              ? "justify-center"
+                              : "justify-start"
+                              }`}
                           >
                             <ButtonAdd
                               isWidth={true}
@@ -1748,123 +1553,6 @@ setTaxes([
               </div>
             </div>
 
-            {/* Extra Names & Price */}
-            <div className="flex flex-col items-start justify-start w-full gap-4 pb-4 border-b-4 border-gray-300">
-              {productExtra.length !== 0 && (
-                <div className="flex items-center justify-start w-full gap-x-6">
-                  {taps.map((tap, index) => (
-                    <span
-                      key={tap.id}
-                      onClick={() => handleExtraNamesTap(index)}
-                      className={`${
-                        currentExtraNamesTap === index
-                          ? "text-mainColor border-b-4 border-mainColor"
-                          : "text-thirdColor"
-                      } pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
-                    >
-                      {tap.name}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <div className="w-full">
-                {taps.map(
-                  (tap, index) =>
-                    currentExtraNamesTap === index && (
-                      <div
-                        className="flex flex-col items-center justify-center w-full gap-4"
-                        key={tap.id}
-                      >
-                        {(productExtra || []).map((ele, indexMap) => (
-                          <div
-                            className="flex items-center justify-start w-full gap-5"
-                            key={`${tap.id}-${indexMap}`}
-                          >
-                            {/* Extra Name Input */}
-                            <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                              <span className="text-xl font-TextFontRegular text-thirdColor">
-                                {t("ExtraName")} {tap.name}:
-                              </span>
-                              <TextInput
-                                value={
-                                  ele.names.find(
-                                    (name) => name.tranlation_name === tap.name
-                                  )?.extra_name
-                                }
-                                onChange={(e) =>
-                                  handleExtraNameChange(
-                                    indexMap,
-                                    tap.name,
-                                    e.target.value
-                                  )
-                                }
-                                placeholder={t("ExtraName")}
-                              />
-                            </div>
-
-                            {/* Extra Price Input (shown for all languages but only editable in first) */}
-                            <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                              <span className="text-xl font-TextFontRegular text-thirdColor">
-                                {t("DefaultPrice")}:
-                              </span>
-                              {index === 0 ? (
-                                <NumberInput
-                                  value={ele.extra_price}
-                                  onChange={(e) =>
-                                    handleExtraPriceChange(
-                                      indexMap,
-                                      e.target.value
-                                    )
-                                  }
-                                  placeholder={t("DefaultPrice")}
-                                />
-                              ) : (
-                                <NumberInput
-                                  value={ele.extra_price}
-                                  readOnly
-                                  placeholder={t("DefaultPrice")}
-                                />
-                              )}
-                            </div>
-
-                            {/* Remove Button (only shown for first language) */}
-                            {index === 0 && (
-                              <div className="flex items-end mt-10">
-                                <StaticButton
-                                  text="Remove"
-                                  handleClick={() =>
-                                    handleRemoveExtra(indexMap)
-                                  }
-                                />
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                        {index === 0 && (
-                          <div
-                            className={`w-full flex items-center ${
-                              productExtra.length === 0
-                                ? "justify-center"
-                                : "justify-start"
-                            }`}
-                          >
-                            <ButtonAdd
-                              isWidth={true}
-                              Color="mainColor"
-                              Text={
-                                productExtra.length === 0
-                                  ? t("AddExtra")
-                                  : t("AddMoreExtra")
-                              }
-                              handleClick={handleAddExtra}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    )
-                )}
-              </div>
-            </div>
 
             {/* Product Variations */}
             <div className="flex flex-col items-start justify-start w-full gap-4 pb-4 border-b-4 border-gray-300">
@@ -1874,11 +1562,10 @@ setTaxes([
                     <span
                       key={tap.id}
                       onClick={() => handleVariationTap(index)}
-                      className={`${
-                        currentVariationTap === index
-                          ? "text-mainColor border-b-4 border-mainColor"
-                          : "text-thirdColor"
-                      }  pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
+                      className={`${currentVariationTap === index
+                        ? "text-mainColor border-b-4 border-mainColor"
+                        : "text-thirdColor"
+                        } pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
                     >
                       {tap.name}
                     </span>
@@ -1893,662 +1580,406 @@ setTaxes([
                         className="flex flex-col items-center justify-center w-full gap-4"
                         key={tap.id}
                       >
-                        {(productVariations || []).map(
-                          (ele, indexVariation) => (
-                            <div
-                              className="flex flex-wrap items-start justify-start w-full gap-5 p-3 border-4 shadow border-mainColor rounded-2xl sm:flex-col lg:flex-row"
-                              key={`${tap.id}-${indexVariation}`}
-                            >
-                              {/* Variation Name */}
-                              <div className="sm:w-full lg:w-[30%] flex sm:flex-col lg:flex-row items-start justify-start gap-5">
-                                <div className="flex flex-col items-start justify-center w-full gap-y-1">
+                        {(productVariations || []).map((ele, indexVariation) => (
+                          <div
+                            className="flex flex-wrap items-start justify-start w-full gap-5 p-3 border-4 shadow border-mainColor rounded- Pty-2xl sm:flex-col lg:flex-row"
+                            key={`${tap.id}-${indexVariation}`}
+                          >
+                            {/* Variation Name */}
+                            <div className="sm:w-full lg:w-[30%] flex sm:flex-col lg:flex-row items-start justify-start gap-5">
+                              <div className="flex flex-col items-start justify-center w-full gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                  {t("VariationName")} {tap.name}:
+                                </span>
+                                <TextInput
+                                  value={
+                                    ele.names.find((name) => name.tranlation_name === tap.name)?.name
+                                  }
+                                  onChange={(e) =>
+                                    updateVariationState(
+                                      setProductVariations,
+                                      indexVariation,
+                                      "names",
+                                      tap.name,
+                                      e.target.value
+                                    )
+                                  }
+                                  placeholder={t("VariationName")}
+                                />
+                              </div>
+                            </div>
+                            {index === 0 && (
+                              <>
+                                <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                                   <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("VariationName")} {tap.name}:
+                                    {t("Variation Type")}:
                                   </span>
-                                  <TextInput
-                                    value={
-                                      ele.names.find(
-                                        (name) =>
-                                          name.tranlation_name === tap.name
-                                      )?.name
+                                  <DropDown
+                                    ref={(el) => (variationTypeRef.current[indexVariation] = el)}
+                                    handleOpen={() => handleOpenVariationType(indexVariation)}
+                                    stateoption={ele.type || "Select Type"}
+                                    openMenu={openVariationIndex === indexVariation}
+                                    handleOpenOption={handleOpenOptionProductVariationType}
+                                    options={[
+                                      { name: t("single") },
+                                      { name: t("multiple") },
+                                    ]}
+                                    onSelectOption={(option) =>
+                                      handleSelectProductVariationType(option, indexVariation)
                                     }
-                                    onChange={(e) =>
-                                      updateVariationState(
-                                        setProductVariations,
-                                        indexVariation,
-                                        "names",
-                                        tap.name,
-                                        e.target.value
-                                      )
-                                    }
-                                    placeholder={t("VariationName")}
                                   />
                                 </div>
-                              </div>
-                              {index === 0 && (
-                                <>
-                                  <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
-                                    <span className="text-xl font-TextFontRegular text-thirdColor">
-                                      Variation Type:
-                                    </span>
-                                    <DropDown
-                                      ref={(el) =>
-                                        (variationTypeRef.current[
-                                          indexVariation
-                                        ] = el)
-                                      } // Ensure correct indexing for refs
-                                      handleOpen={() =>
-                                        handleOpenVariationType(indexVariation)
-                                      } // Pass index of current variation
-                                      stateoption={ele.type || "Select Type"}
-                                      openMenu={
-                                        openVariationIndex === indexVariation
-                                      } // Open only if index matches the open state
-                                      handleOpenOption={
-                                        handleOpenOptionProductVariationType
-                                      }
-                                      options={[
-                                        { name: t("single") },
-                                        { name: t("multiple") },
-                                      ]}
-                                      onSelectOption={(option) =>
-                                        handleSelectProductVariationType(
-                                          option,
-                                          indexVariation
-                                        )
-                                      }
-                                    />
-                                  </div>
 
-                                  {ele.type === "multiple" && (
-                                    <>
-                                      <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
-                                        <span className="text-xl font-TextFontRegular text-thirdColor">
-                                          {t("Min")}:
-                                        </span>
-                                        <NumberInput
-                                          value={ele.min} // Ensure `ele.points` has a default if undefined
-                                          onChange={(e) => {
-                                            const updatedValue = e.target.value;
-                                            setProductVariations(
-                                              (prevProductVariations) =>
-                                                prevProductVariations.map(
-                                                  (item, idx) =>
-                                                    idx === indexVariation
-                                                      ? {
-                                                          ...item,
-                                                          min: updatedValue, // Ensure this sets `points` correctly
-                                                        }
-                                                      : item
-                                                )
-                                            );
-                                          }}
-                                          placeholder={t("Min")}
-                                        />
-                                      </div>
-
-                                      <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
-                                        <span className="text-xl font-TextFontRegular text-thirdColor">
-                                          {t("Max")}:
-                                        </span>
-                                        <NumberInput
-                                          value={ele.max} // Ensure `ele.points` has a default if undefined
-                                          onChange={(e) => {
-                                            const updatedValue = e.target.value;
-                                            setProductVariations(
-                                              (prevProductVariations) =>
-                                                prevProductVariations.map(
-                                                  (item, idx) =>
-                                                    idx === indexVariation
-                                                      ? {
-                                                          ...item,
-                                                          max: updatedValue, // Ensure this sets `points` correctly
-                                                        }
-                                                      : item
-                                                )
-                                            );
-                                          }}
-                                          placeholder={t("Max")}
-                                        />
-                                      </div>
-                                    </>
-                                  )}
-
-                                  <div className="w-[32%] flex mt-10 items-center justify-center gap-x-3">
-                                    <span className="text-xl font-TextFontRegular text-thirdColor">
-                                                                            {t("Required")}:
-                                    </span>
-                                    <Switch
-                                      handleClick={() => {
-                                        setProductVariations(
-                                          (prevProductVariations) =>
-                                            prevProductVariations.map(
-                                              (item, idx) =>
-                                                idx === indexVariation
-                                                  ? {
-                                                      ...item,
-                                                      required:
-                                                        item.required === 1
-                                                          ? 0
-                                                          : 1, // Toggle between 1 and 0
-                                                    }
-                                                  : item
-                                            )
-                                        );
-                                      }}
-                                      checked={ele.required === 1} // Consider it checked if `required` is 1
-                                    />
-                                  </div>
-                                  <div className="w-full">
-                                    <TitlePage text={t("Options Variation")} />
-                                  </div>
-                                </>
-                              )}
-
-                              {index === 0 && (
-                                <>
-                                  {/* Options */}
-                                  <div className="flex items-center justify-start w-full gap-x-6">
-                                    {/* Tabs for variation options */}
-                                    {taps.map((tap, index) => (
-                                      <span
-                                        key={tap.id}
-                                        onClick={() =>
-                                          handleVariationOptionTap(index)
-                                        }
-                                        className={`${
-                                          currentVariationOptionTap === index
-                                            ? "text-mainColor border-b-4 border-mainColor"
-                                            : "text-thirdColor"
-                                        } 
-                            pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
-                                      >
-                                        {tap.name}
+                                {ele.type === "multiple" && (
+                                  <>
+                                    <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
+                                      <span className="text-xl font-TextFontRegular text-thirdColor">
+                                        {t("Min")}:
                                       </span>
-                                    ))}
-                                  </div>
+                                      <NumberInput
+                                        value={ele.min}
+                                        onChange={(e) => {
+                                          const updatedValue = e.target.value;
+                                          setProductVariations((prevProductVariations) =>
+                                            prevProductVariations.map((item, idx) =>
+                                              idx === indexVariation
+                                                ? { ...item, min: updatedValue }
+                                                : item
+                                            )
+                                          );
+                                        }}
+                                        placeholder={t("Min")}
+                                      />
+                                    </div>
+                                    <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
+                                      <span className="text-xl font-TextFontRegular text-thirdColor">
+                                        {t("Max")}:
+                                      </span>
+                                      <NumberInput
+                                        value={ele.max}
+                                        onChange={(e) => {
+                                          const updatedValue = e.target.value;
+                                          setProductVariations((prevProductVariations) =>
+                                            prevProductVariations.map((item, idx) =>
+                                              idx === indexVariation
+                                                ? { ...item, max: updatedValue }
+                                                : item
+                                            )
+                                          );
+                                        }}
+                                        placeholder={t("Max")}
+                                      />
+                                    </div>
+                                  </>
+                                )}
 
-                                  {/* Render each variation's options */}
-                                  {taps.map(
-                                    (tapOption, indexOptionTap) =>
-                                      currentVariationOptionTap ===
-                                        indexOptionTap && (
-                                        <div
-                                          className="flex flex-col items-start justify-start w-full gap-4"
-                                          key={tapOption.id}
-                                        >
-                                          <div className="flex flex-wrap items-start justify-start gap-5 sm:w-full">
-                                            {/* Render options */}
-                                            {ele.options.map(
-                                              (option, indexOption) => (
-                                                <div
-                                                  className="flex flex-wrap items-start justify-start gap-5 p-5 pt-0 shadow-md sm:w-full rounded-xl"
-                                                  key={`${indexOption}-${tapOption.id}`}
-                                                >
-                                                  {/* Option Name */}
-                                                  <div className="w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                                                    <span className="text-xl font-TextFontRegular text-thirdColor">
-                                                      {t("OptionName")}{" "}
-                                                      {tapOption.name}:
-                                                    </span>
-                                                    <TextInput
-                                                      value={
-                                                        option.names.find(
-                                                          (nameObj) =>
-                                                            nameObj.tranlation_name ===
-                                                            tapOption.name
-                                                        )?.name
-                                                      }
-                                                      onChange={(e) => {
-                                                        const updatedValue =
-                                                          e.target.value;
-                                                        setProductVariations(
-                                                          (prevVariations) =>
-                                                            prevVariations.map(
-                                                              (
-                                                                variation,
-                                                                idx
-                                                              ) =>
-                                                                idx ===
-                                                                indexVariation
+                                <div className="w-[32%] flex mt-10 items-center justify-center gap-x-3">
+                                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Required")}:
+                                  </span>
+                                  <Switch
+                                    handleClick={() => {
+                                      setProductVariations((prevProductVariations) =>
+                                        prevProductVariations.map((item, idx) =>
+                                          idx === indexVariation
+                                            ? {
+                                              ...item,
+                                              required: item.required === 1 ? 0 : 1,
+                                            }
+                                            : item
+                                        )
+                                      );
+                                    }}
+                                    checked={ele.required === 1}
+                                  />
+                                </div>
+                                <div className="w-full">
+                                  <TitlePage text={t("Options Variation")} />
+                                </div>
+                              </>
+                            )}
+
+                            {index === 0 && (
+                              <>
+                                {/* Options Tabs */}
+                                <div className="flex items-center justify-start w-full gap-x-6">
+                                  {taps.map((tapOption, indexOptionTap) => (
+                                    <span
+                                      key={tapOption.id}
+                                      onClick={() => handleVariationOptionTap(indexOptionTap)}
+                                      className={`${currentVariationOptionTap === indexOptionTap
+                                        ? "text-mainColor border-b-4 border-mainColor"
+                                        : "text-thirdColor"
+                                        } pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
+                                    >
+                                      {tapOption.name}
+                                    </span>
+                                  ))}
+                                </div>
+
+                                {/* Render each variation's options */}
+                                {taps.map(
+                                  (tapOption, indexOptionTap) =>
+                                    currentVariationOptionTap === indexOptionTap && (
+                                      <div
+                                        className="flex flex-col items-start justify-start w-full gap-4"
+                                        key={tapOption.id}
+                                      >
+                                        <div className="flex flex-wrap items-start justify-start gap-5 sm:w-full">
+                                          {ele.options.map((option, indexOption) => (
+                                            <div
+                                              className="flex flex-wrap items-start justify-start gap-5 p-5 pt-0 shadow-md sm:w-full rounded-xl"
+                                              key={`${indexOption}-${tapOption.id}`}
+                                            >
+                                              {/* Option Name */}
+                                              <div className="w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                                  {t("OptionName")} {tapOption.name}:
+                                                </span>
+                                                <TextInput
+                                                  value={
+                                                    option.names.find(
+                                                      (nameObj) => nameObj.tranlation_name === tapOption.name
+                                                    )?.name
+                                                  }
+                                                  onChange={(e) => {
+                                                    const updatedValue = e.target.value;
+                                                    setProductVariations((prevVariations) =>
+                                                      prevVariations.map((variation, vIdx) =>
+                                                        vIdx === indexVariation
+                                                          ? {
+                                                            ...variation,
+                                                            options: variation.options.map(
+                                                              (opt, oIdx) =>
+                                                                oIdx === indexOption
                                                                   ? {
-                                                                      ...variation,
-                                                                      options:
-                                                                        variation.options.map(
-                                                                          (
-                                                                            opt,
-                                                                            optIdx
-                                                                          ) =>
-                                                                            optIdx ===
-                                                                            indexOption
-                                                                              ? {
-                                                                                  ...opt,
-                                                                                  names:
-                                                                                    opt.names.map(
-                                                                                      (
-                                                                                        nameObj
-                                                                                      ) =>
-                                                                                        nameObj.tranlation_name ===
-                                                                                        tapOption.name
-                                                                                          ? {
-                                                                                              ...nameObj,
-                                                                                              name: updatedValue,
-                                                                                            }
-                                                                                          : nameObj
-                                                                                    ),
-                                                                                }
-                                                                              : opt
-                                                                        ),
-                                                                    }
-                                                                  : variation
-                                                            )
+                                                                    ...opt,
+                                                                    names: opt.names.map(
+                                                                      (nameObj) =>
+                                                                        nameObj.tranlation_name === tapOption.name
+                                                                          ? {
+                                                                            ...nameObj,
+                                                                            name: updatedValue,
+                                                                          }
+                                                                          : nameObj
+                                                                    ),
+                                                                  }
+                                                                  : opt
+                                                            ),
+                                                          }
+                                                          : variation
+                                                      )
+                                                    );
+                                                  }}
+                                                  placeholder={t("OptionName")}
+                                                />
+                                              </div>
+                                              {indexOptionTap === 0 && (
+                                                <>
+                                                  {/* Option Price */}
+                                                  <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
+                                                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                                                      {t("Price")}:
+                                                    </span>
+                                                    <NumberInput
+                                                      value={option.price}
+                                                      onChange={(e) => {
+                                                        const updatedValue = e.target.value;
+                                                        setProductVariations((prevProductVariations) =>
+                                                          prevProductVariations.map((item, idx) =>
+                                                            idx === indexVariation
+                                                              ? {
+                                                                ...item,
+                                                                options: item.options.map(
+                                                                  (opt, oIdx) =>
+                                                                    oIdx === indexOption
+                                                                      ? {
+                                                                        ...opt,
+                                                                        price: updatedValue,
+                                                                      }
+                                                                      : opt
+                                                                ),
+                                                              }
+                                                              : item
+                                                          )
                                                         );
                                                       }}
-  placeholder={t("OptionName")} />
-                                                    
-                                                  </div>
-                                                  {indexOptionTap === 0 && (
-                                                    <>
-                                                      {/* Option Price */}
-                                                      <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
-                                                        <span className="text-xl font-TextFontRegular text-thirdColor">
-                                                          {t("Price")}:
-                                                        </span>
-                                                        <NumberInput
-                                                          value={option.price}
-                                                          onChange={(e) => {
-                                                            const updatedValue =
-                                                              e.target.value;
-                                                            setProductVariations(
-                                                              (
-                                                                prevProductVariations
-                                                              ) =>
-                                                                prevProductVariations.map(
-                                                                  (item, idx) =>
-                                                                    idx ===
-                                                                    indexVariation
-                                                                      ? {
-                                                                          ...item,
-                                                                          options:
-                                                                            item.options.map(
-                                                                              (
-                                                                                opt,
-                                                                                optIdx
-                                                                              ) =>
-                                                                                optIdx ===
-                                                                                indexOption
-                                                                                  ? {
-                                                                                      ...opt,
-                                                                                      price:
-                                                                                        updatedValue,
-                                                                                    }
-                                                                                  : opt
-                                                                            ),
-                                                                        }
-                                                                      : item
-                                                                )
-                                                            );
-                                                          }}
-                                                          placeholder={t("Price")}
-                                                        />
-                                                      </div>
-                                                      <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
-                                                        <span className="text-xl font-TextFontRegular text-thirdColor">
-                                                          {t("Point")}:
-                                                        </span>
-                                                        <NumberInput
-                                                          value={option.points} // Ensure `ele.points` has a default if undefined
-                                                          onChange={(e) => {
-                                                            const updatedValue =
-                                                              e.target.value;
-                                                            setProductVariations(
-                                                              (
-                                                                prevProductVariations
-                                                              ) =>
-                                                                prevProductVariations.map(
-                                                                  (item, idx) =>
-                                                                    idx ===
-                                                                    indexVariation
-                                                                      ? {
-                                                                          ...item,
-                                                                          options:
-                                                                            item.options.map(
-                                                                              (
-                                                                                opt,
-                                                                                optIdx
-                                                                              ) =>
-                                                                                optIdx ===
-                                                                                indexOption
-                                                                                  ? {
-                                                                                      ...opt,
-                                                                                      points:
-                                                                                        updatedValue,
-                                                                                    }
-                                                                                  : opt
-                                                                            ),
-                                                                        }
-                                                                      : item
-                                                                )
-                                                            );
-                                                          }}
-                                                          placeholder={t("Point")}
-                                                        />
-                                                      </div>
-
-                                                      {/* Option Status */}
-                                                      <div className="w-[20%] flex items-center justify-start gap-x-3 lg:mt-3">
-                                                        <span className="text-xl font-TextFontRegular text-thirdColor">
-                                                          {t("Status")}:
-                                                        </span>
-                                                        <Switch
-                                                          handleClick={() =>
-                                                            setProductVariations(
-                                                              (
-                                                                prevProductVariations
-                                                              ) =>
-                                                                prevProductVariations.map(
-                                                                  (item, idx) =>
-                                                                    idx ===
-                                                                    indexVariation
-                                                                      ? {
-                                                                          ...item,
-                                                                          options:
-                                                                            item.options.map(
-                                                                              (
-                                                                                opt,
-                                                                                optIdx
-                                                                              ) =>
-                                                                                optIdx ===
-                                                                                indexOption
-                                                                                  ? {
-                                                                                      ...opt,
-                                                                                      status:
-                                                                                        opt.status
-                                                                                          ? 0
-                                                                                          : 1,
-                                                                                    }
-                                                                                  : opt
-                                                                            ),
-                                                                        }
-                                                                      : item
-                                                                )
-                                                            )
-                                                          }
-                                                          checked={
-                                                            option.status === 1
-                                                          }
-                                                        />
-                                                      </div>
-                                                    </>
-                                                  )}
-
-                                                  {/* Inside the variation options section */}
-                                                  {/* Inside variation options */}
-                                                  {option.extra.map(
-                                                    (extra, extraIndex) => {
-                                                      // Only show in first language tab (indexOptionTap === 0)
-                                                      if (indexOptionTap !== 0)
-                                                        return null;
-
-                                                      const selectedExtra =
-                                                        productExtra.find(
-                                                          (ex) =>
-                                                            ex.extra_index ===
-                                                            extra.extra_index
-                                                        );
-                                                      const defaultPrice =
-                                                        selectedExtra?.extra_price ||
-                                                        "";
-
-                                                      return (
-                                                        <div
-                                                          className="flex flex-wrap items-start justify-start w-full gap-5"
-                                                          key={`${tapOption.id}-${indexOption}-${extraIndex}`}
-                                                        >
-                                                          {/* Extra Selection Dropdown */}
-                                                          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                                                            <span className="text-xl font-TextFontRegular text-thirdColor">
-                                                            {t("Select Extra")}:
-                                                            </span>
-                                                            <DropDown
-                                                              ref={(el) =>
-                                                                (extraDropdownRef.current[
-                                                                  `${indexVariation}-${indexOption}-${extraIndex}`
-                                                                ] = el)
-                                                              }
-                                                              handleOpen={() =>
-                                                                handleOpenExtraDropdown(
-                                                                  indexVariation,
-                                                                  indexOption,
-                                                                  extraIndex
-                                                                )
-                                                              }
-                                                              stateoption={
-                                                                selectedExtra
-                                                                  ? selectedExtra
-                                                                      .names[0]
-                                                                      ?.extra_name ||
-                                                                    `Extra ${
-                                                                      extra.extra_index +
-                                                                      1
-                                                                    }`
-                                                                  : "Select Extra"
-                                                              }
-                                                              openMenu={
-                                                                openExtraDropdown ===
-                                                                `${indexVariation}-${indexOption}-${extraIndex}`
-                                                              }
-                                                              options={productExtra
-                                                                .filter(
-                                                                  (ex) =>
-                                                                    // Show if not used in other extras or is the current selection
-                                                                    !option.extra.some(
-                                                                      (e) =>
-                                                                        e.extra_index ===
-                                                                          ex.extra_index &&
-                                                                        e !==
-                                                                          extra
-                                                                    ) ||
-                                                                    ex.extra_index ===
-                                                                      extra.extra_index
-                                                                )
-                                                                .map((ex) => ({
-                                                                  name:
-                                                                    ex.names.find(
-                                                                      (n) =>
-                                                                        n.tranlation_name ===
-                                                                        taps[0]
-                                                                          .name
-                                                                    )
-                                                                      ?.extra_name ||
-                                                                    `Extra ${
-                                                                      ex.extra_index +
-                                                                      1
-                                                                    }`,
-                                                                  value:
-                                                                    ex.extra_index,
-                                                                }))}
-                                                              onSelectOption={(
-                                                                selected
-                                                              ) => {
-                                                                const selectedExtra =
-                                                                  productExtra.find(
-                                                                    (ex) =>
-                                                                      ex.extra_index ===
-                                                                      selected.value
-                                                                  );
-                                                                if (
-                                                                  selectedExtra
-                                                                ) {
-                                                                  setProductVariations(
-                                                                    (prev) =>
-                                                                      prev.map(
-                                                                        (
-                                                                          variation,
-                                                                          vIdx
-                                                                        ) =>
-                                                                          vIdx ===
-                                                                          indexVariation
-                                                                            ? {
-                                                                                ...variation,
-                                                                                options:
-                                                                                  variation.options.map(
-                                                                                    (
-                                                                                      opt,
-                                                                                      oIdx
-                                                                                    ) =>
-                                                                                      oIdx ===
-                                                                                      indexOption
-                                                                                        ? {
-                                                                                            ...opt,
-                                                                                            extra:
-                                                                                              opt.extra.map(
-                                                                                                (
-                                                                                                  ext,
-                                                                                                  eIdx
-                                                                                                ) =>
-                                                                                                  eIdx ===
-                                                                                                  extraIndex
-                                                                                                    ? {
-                                                                                                        ...ext,
-                                                                                                        extra_index:
-                                                                                                          selectedExtra.extra_index,
-                                                                                                        extra_price:
-                                                                                                          selectedExtra.extra_price, // Set default price initially
-                                                                                                        extra_names:
-                                                                                                          selectedExtra.names,
-                                                                                                      }
-                                                                                                    : ext
-                                                                                              ),
-                                                                                          }
-                                                                                        : opt
-                                                                                  ),
-                                                                              }
-                                                                            : variation
-                                                                      )
-                                                                  );
-                                                                }
-                                                              }}
-                                                            />
-                                                          </div>
-
-                                                          {/* Override Price Input */}
-                                                          <div className="sm:w-full lg:w-[20%] flex flex-col items-start justify-center gap-y-1">
-                                                            <span className="text-xl font-TextFontRegular text-thirdColor">
- {t( "OverridePrice")}                                                           
-                                                            </span>
-                                                            <NumberInput
-                                                              value={
-                                                                extra.extra_price
-                                                              }
-                                                              onChange={(e) =>
-                                                                handleExtraPriceOverride(
-                                                                  indexVariation,
-                                                                  indexOption,
-                                                                  extraIndex,
-                                                                  e.target.value
-                                                                )
-                                                              }
-                                                              placeholder={t( "OverridePrice")} 
-                                                            />
-                                                          </div>
-
-                                                          {/* Remove Extra Button */}
-                                                          <div className="sm:w-full lg:w-[20%] flex items-center justify-center lg:mt-8">
-                                                            <StaticButton
-                                                              text={t("Remove Extra")}
-                                                              handleClick={() =>
-                                                                handleRemoveExtraAtOption(
-                                                                  indexVariation,
-                                                                  indexOption,
-                                                                  extraIndex
-                                                                )
-                                                              }
-                                                            />
-                                                          </div>
-                                                        </div>
-                                                      );
-                                                    }
-                                                  )}
-                                                  {/* Add Extra Button */}
-                                                  <div className="flex items-center justify-center sm:w-full">
-                                                    <ButtonAdd
-                                                      isWidth={true}
-                                                      Color="mainColor"
-                                                      Text={t("AddExtra")}
-                                                      handleClick={() =>
-                                                        handleAddExtraAtOption(
-                                                          indexVariation,
-                                                          indexOption
-                                                        )
-                                                      }
+                                                      placeholder={t("Price")}
                                                     />
                                                   </div>
+                                                  {/* Option Points */}
+                                                  <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
+                                                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                                                      {t("Point")}:
+                                                    </span>
+                                                    <NumberInput
+                                                      value={option.points}
+                                                      onChange={(e) => {
+                                                        const updatedValue = e.target.value;
+                                                        setProductVariations((prevProductVariations) =>
+                                                          prevProductVariations.map((item, idx) =>
+                                                            idx === indexVariation
+                                                              ? {
+                                                                ...item,
+                                                                options: item.options.map(
+                                                                  (opt, oIdx) =>
+                                                                    oIdx === indexOption
+                                                                      ? {
+                                                                        ...opt,
+                                                                        points: updatedValue,
+                                                                      }
+                                                                      : opt
+                                                                ),
+                                                              }
+                                                              : item
+                                                          )
+                                                        );
+                                                      }}
+                                                      placeholder={t("Point")}
+                                                    />
+                                                  </div>
+                                                  {/* Option Status */}
+                                                  <div className="w-[20%] flex items-center justify-start gap-x-3 lg:mt-3">
+                                                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                                                      {t("Status")}:
+                                                    </span>
+                                                    <Switch
+                                                      handleClick={() =>
+                                                        setProductVariations((prevProductVariations) =>
+                                                          prevProductVariations.map((item, idx) =>
+                                                            idx === indexVariation
+                                                              ? {
+                                                                ...item,
+                                                                options: item.options.map(
+                                                                  (opt, oIdx) =>
+                                                                    oIdx === indexOption
+                                                                      ? {
+                                                                        ...opt,
+                                                                        status: opt.status ? 0 : 1,
+                                                                      }
+                                                                      : opt
+                                                                ),
+                                                              }
+                                                              : item
+                                                          )
+                                                        )
+                                                      }
+                                                      checked={option.status === 1}
+                                                    />
+                                                  </div>
+                                                  <div className="w-full flex flex-col gap-4 sm:gap-6">
+                                                    {/* Group Selection */}
+                                                    <div className="w-full sm:w-full lg:w-[30%] flex flex-col items-start gap-y-2">
+                                                      <label className="text-lg font-semibold text-gray-800">
+                                                        {t("Select Group")}:
+                                                      </label>
+                                                      <MultiSelect
+                                                        value={selectedOptionGroups[`${indexVariation}-${indexOption}`] || []}
+                                                        onChange={(e) => handleOptionGroupChange(indexVariation, indexOption, e.value)}
+                                                        options={groups.map((group) => ({
+                                                          name: group.name,
+                                                          value: group.id,
+                                                        }))}
+                                                        optionLabel="name"
+                                                        optionValue="value"
+                                                        display="chip"
+                                                        placeholder={t("Select Groups")}
+                                                        className="w-full bg-white border border-gray-300 rounded-xl shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all duration-300 text-gray-700"
+                                                        filter
+                                                        filterPlaceholder={t("Search Groups")}
+                                                        maxSelectedLabels={3}
+                                                        aria-label={t("Select Groups")}
+                                                      />
+                                                    </div>
+
+                                                    {/* Extras Selection for Each Group */}
+                                                    {selectedOptionGroups[`${indexVariation}-${indexOption}`]?.length > 0 && (
+                                                      <div className="w-full items-start gap-y-3 bg-gray-50 p-4 rounded-xl shadow-sm">
+                                                        <label className="text-lg font-semibold text-gray-800">
+                                                          {t("Select Extras")}:
+                                                        </label>
+                                                        <div className="w-full space-y-3">
+                                                          {selectedOptionGroups[`${indexVariation}-${indexOption}`].map((groupId) => {
+                                                            const group = groups.find((g) => g.id === groupId);
+                                                            return (
+                                                              <div
+                                                                key={groupId}
+                                                                className="w-full p-3 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+                                                              >
+                                                                <label className="block text-sm font-medium text-gray-600 mb-1">
+                                                                  {t("Extras for")} {group?.name || t("Group")}:
+                                                                </label>
+                                                                <MultiSelect
+                                                                  value={selectedOptionExtras[`${indexVariation}-${indexOption}`]?.[groupId] || []}
+                                                                  onChange={(e) => handleOptionExtrasChange(indexVariation, indexOption, groupId, e.value)}
+                                                                  options={getExtrasForGroup(groupId)}
+                                                                  optionLabel="name"
+                                                                  optionValue="id" // Changed from "value" to "id"
+                                                                  display="chip"
+                                                                  placeholder={t("Select Extras")}
+                                                                  className="w-full bg-white border border-gray-300 rounded-xl shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all duration-300 text-gray-700"
+                                                                  filter
+                                                                  filterPlaceholder={t("Search Extras")}
+                                                                  maxSelectedLabels={5}
+                                                                  aria-label={`${t("Select Extras")} for ${group?.name || t("Group")}`}
+                                                                />
+                                                              </div>
+                                                            );
+                                                          })}
+                                                        </div>
+                                                      </div>
+                                                    )}
+                                                  </div>
+                                                  {/* Remove Option Button */}
                                                   {ele.options.length > 1 && (
                                                     <div className="sm:w-full lg:w-[20%] flex items-center justify-center lg:mt-8">
                                                       <StaticButton
                                                         text={t("Removeoption")}
                                                         handleClick={() =>
-                                                          handleRemoveOption(
-                                                            indexVariation,
-                                                            indexOption
-                                                          )
+                                                          handleRemoveOption(indexVariation, indexOption)
                                                         }
                                                       />
                                                     </div>
                                                   )}
-                                                </div>
-                                              )
-                                            )}
-                                          </div>
+                                                </>
+                                              )}
+                                            </div>
+                                          ))}
                                         </div>
-                                      )
-                                  )}
-
-                                  <div className="flex flex-col w-full gap-y-3">
-                                    <div className="flex items-center justify-center sm:w-full">
-                                      <ButtonAdd
-                                        isWidth={true}
-                                        Color="mainColor"
-                                        Text={t("AddOption")}
-                                        handleClick={() =>
-                                          handleAddOption(indexVariation)
-                                        }
-                                      />
-                                    </div>
-
-                                    <div className="flex items-center justify-end sm:w-full">
-                                      <div className="sm:w-full lg:w-auto">
-                                        <StaticButton
-                                          text={t("RemoveVariation")}
-                                          handleClick={() =>
-                                            handleRemoveVariation(
-                                              indexVariation
-                                            )
-                                          }
-                                        />
+                                        <div className="flex items-center justify-center sm:w-full">
+                                          <ButtonAdd
+                                            isWidth={true}
+                                            Color="mainColor"
+                                            Text={t("AddOption")}
+                                            handleClick={() => handleAddOption(indexVariation)}
+                                          />
+                                        </div>
                                       </div>
-                                    </div>
+                                    )
+                                )}
+                                <div className="flex items-center justify-end sm:w-full">
+                                  <div className="sm:w-full lg:w-auto">
+                                    <StaticButton
+                                      text={t("RemoveVariation")}
+                                      handleClick={() => handleRemoveVariation(indexVariation)}
+                                    />
                                   </div>
-                                </>
-                              )}
-                            </div>
-                          )
-                        )}
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        ))}
                         {index === 0 && (
                           <div
-                            className={`w-full flex items-center ${
-                              productVariations.length === 0
-                                ? "justify-center"
-                                : "justify-start"
-                            }`}
+                            className={`w-full flex items-center ${productVariations.length === 0 ? "justify-center" : "justify-start"
+                              }`}
                           >
                             <ButtonAdd
                               isWidth={true}
                               Color="mainColor"
                               Text={
                                 productVariations.length === 0
-                                    ? t("Add Variation")
+                                  ? t("Add Variation")
                                   : t("Add More Variation")
                               }
                               handleClick={handleAddVariation}

@@ -58,7 +58,6 @@ const AddProductPage = () => {
   const taxRef = useRef();
   const productImageRef = useRef();
   const groupRef = useRef();
-  const extraRef = useRef();
 
   /* States */
   const [taps, setTaps] = useState([]);
@@ -75,7 +74,6 @@ const AddProductPage = () => {
   const [discounts, setDiscounts] = useState([]);
   const [taxes, setTaxes] = useState([]);
   const [groups, setGroups] = useState([]);
-  const [extras, setExtras] = useState([]);
   const [selectedGroups, setSelectedGroups] = useState([]);
   const [selectedExtras, setSelectedExtras] = useState({}); // Object to store extras for each group
 
@@ -555,14 +553,9 @@ const AddProductPage = () => {
   const handleVariationOptionTap = (index) => {
     setCurrentVariationOptionTap(index);
   };
-  useEffect(() => {
-    console.log("descriptionNames", descriptionNames);
-  }, [descriptionNames]);
+
   /* Reset Details Product */
   const handleReset = () => {
-    console.log("productNames", productNames);
-    console.log("descriptionNames", descriptionNames);
-
     setCurrentProductNamesTap(0);
     setCurrentExcludeNamesTap(0);
     setCurrentExtraNamesTap(0);
@@ -598,8 +591,6 @@ const AddProductPage = () => {
     setProductTimeStatus(0);
     setProductImage(null);
     setProductImageName(t("Choose Photo"));
-
-    console.log("productExtra", productExtra);
   };
 
   // Remove an option from a specific Option within a Variation
@@ -617,8 +608,6 @@ const AddProductPage = () => {
       )
     );
   };
-
-
 
 
   // Handle group selection and auto-select all extras
@@ -742,11 +731,13 @@ const AddProductPage = () => {
       formData.append(`product_names[${index}][tranlation_name]`, name.tranlation_name);
     });
 
-    descriptionNames.forEach((name, index) => {
-      formData.append(`product_descriptions[${index}][product_description]`, name.description_name);
-      formData.append(`product_descriptions[${index}][tranlation_name]`, name.tranlation_name);
-      formData.append(`product_descriptions[${index}][tranlation_id]`, name.tranlation_id);
-    });
+    {
+      descriptionNames.forEach((name, index) => {
+        formData.append(`product_descriptions[${index}][product_description]`, name.description_name)
+        formData.append(`product_descriptions[${index}][tranlation_name]`, name.tranlation_name)
+        formData.append(`product_descriptions[${index}][tranlation_id]`, name.tranlation_id)
+      })
+    }
 
     if (Array.isArray(productExclude)) {
       productExclude.forEach((exclude, index) => {
