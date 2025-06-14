@@ -13,8 +13,14 @@ import { useGet } from './Hooks/useGet';
 import { useTranslation } from 'react-i18next';
 
 const App = () => {
-   const { i18n } = useTranslation();
-useEffect(() => {
+  const { t, i18n } = useTranslation();
+
+  // 🔥 Dynamically update the <title>
+  useEffect(() => {
+    document.title = t('projectName');
+  }, [t, i18n.language]);
+
+  useEffect(() => {
     const dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.dir = dir;
     document.documentElement.lang = i18n.language;
@@ -154,9 +160,9 @@ useEffect(() => {
         <div className={`
         w-full duration-300
         ${direction === "ltr"
-          ? (hideSide ? 'pl-60' : 'pl-16') // Padding-left لـ LTR
-          : (hideSide ? 'pr-60' : 'pr-16') // Padding-right لـ RTL
-        }
+            ? (hideSide ? 'pl-60' : 'pl-16') // Padding-left لـ LTR
+            : (hideSide ? 'pr-60' : 'pr-16') // Padding-right لـ RTL
+          }
       `}>
           {/* Navbar */}
           <div className="sticky top-0 z-10 bg-secoundBgColor">

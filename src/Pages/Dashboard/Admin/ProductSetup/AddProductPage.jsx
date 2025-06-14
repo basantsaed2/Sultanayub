@@ -693,7 +693,7 @@ const AddProductPage = () => {
   };
 
   /* Add Product */
-  const handleproductAdd = (e) => {
+  const handleProductUpdate = (e) => {
     e.preventDefault();
 
     const formData = new FormData();
@@ -796,7 +796,7 @@ const AddProductPage = () => {
               Object.values(selectedExtrasForOption).flat().forEach((extraId) => {
                 console.log(`Appending extra_index for ${extraKey}, extraIndex ${extraIndex}:`, extraId);
                 formData.append(
-                  `variations[${indexVar}][options][${indexOption}][extra][${extraIndex}][extra_index]`,
+                  `variations[${indexVar}][options][${indexOption}][extra][${extraIndex}][extra]`,
                   extraId !== undefined ? String(extraId) : ""
                 );
                 extraIndex++;
@@ -847,6 +847,160 @@ const AddProductPage = () => {
 
     postData(formData, t("Product Added Success"));
   };
+  // const handleproductAdd = (e) => {
+  //   e.preventDefault();
+
+  //   const formData = new FormData();
+  //   formData.append("category_id", selectedCategoryId);
+  //   formData.append("sub_category_id", selectedSubCategoryId);
+  //   formData.append("item_type", selectedItemTypeName);
+  //   formData.append("stock_type", selectedStockTypeName);
+  //   formData.append("number", productStockNumber);
+  //   formData.append("price", productPrice);
+  //   formData.append("discount_id", selectedDiscountId);
+  //   formData.append("tax_id", selectedTaxId);
+  //   formData.append("points", productPoint);
+
+  //   formData.append("product_time_status", productTimeStatus);
+  //   if (productStatusFrom) {
+  //     formData.append("from", productStatusFrom);
+  //   }
+  //   if (productStatusTo) {
+  //     formData.append("to", productStatusTo);
+  //   }
+  //   formData.append("recommended", productRecommended);
+  //   formData.append("status", productStatus);
+  //   formData.append("image", productImage);
+
+  //   if (selectedAddonsId.length > 0) {
+  //     const addonIds = selectedAddonsId.map((addon) => addon.id);
+  //     addonIds.forEach((id, indexID) => {
+  //       formData.append(`addons[${indexID}]`, id);
+  //     });
+  //   }
+
+  //   productNames.forEach((name, index) => {
+  //     formData.append(`product_names[${index}][product_name]`, name.product_name);
+  //     formData.append(`product_names[${index}][tranlation_id]`, name.tranlation_id);
+  //     formData.append(`product_names[${index}][tranlation_name]`, name.tranlation_name);
+  //   });
+
+  //   {
+  //     descriptionNames.forEach((name, index) => {
+  //       formData.append(`product_descriptions[${index}][product_description]`, name.description_name)
+  //       formData.append(`product_descriptions[${index}][tranlation_name]`, name.tranlation_name)
+  //       formData.append(`product_descriptions[${index}][tranlation_id]`, name.tranlation_id)
+  //     })
+  //   }
+
+  //   if (Array.isArray(productExclude)) {
+  //     productExclude.forEach((exclude, index) => {
+  //       if (Array.isArray(exclude.names)) {
+  //         exclude.names.forEach((exName, exInd) => {
+  //           formData.append(`excludes[${index}][names][${exInd}][exclude_name]`, exName.exclude_name);
+  //           formData.append(`excludes[${index}][names][${exInd}][tranlation_id]`, exName.tranlation_id);
+  //           formData.append(`excludes[${index}][names][${exInd}][tranlation_name]`, exName.tranlation_name);
+  //         });
+  //       }
+  //     });
+  //   }
+    
+
+  //   // Send only the selected extra IDs from selectedExtras for top-level extra
+  //   if (Object.keys(selectedExtras).length > 0) {
+  //     let extraIndex = 0;
+  //     Object.entries(selectedExtras).forEach(([groupId, extraIds]) => {
+  //       if (Array.isArray(extraIds)) {
+  //         extraIds.forEach((extraId) => {
+  //           formData.append(`extra[${extraIndex}][id]`, extraId);
+  //           extraIndex++;
+  //         });
+  //       }
+  //     });
+  //   }
+
+  //   // Debug: Log selectedOptionExtras to verify its content
+  //   console.log("selectedOptionExtras:", JSON.stringify(selectedOptionExtras, null, 2));
+
+  //   if (Array.isArray(productVariations)) {
+  //     productVariations.forEach((variation, indexVar) => {
+  //       console.log(`Processing variation index ${indexVar}`, variation);
+
+  //       /* Names */
+  //       if (Array.isArray(variation.names)) {
+  //         variation.names.forEach((name, index) => {
+  //           console.log(`Processing name at index ${index}:`, name);
+  //           formData.append(`variations[${indexVar}][names][${index}][name]`, name.name);
+  //           formData.append(`variations[${indexVar}][names][${index}][tranlation_name]`, name.tranlation_name);
+  //           formData.append(`variations[${indexVar}][names][${index}][tranlation_id]`, name.tranlation_id);
+  //         });
+  //       } else {
+  //         console.warn(`variation.names is not a valid array for variation index ${indexVar}`);
+  //       }
+
+  //       if (Array.isArray(variation.options)) {
+  //         variation.options.forEach((option, indexOption) => {
+  //           // Extra Option Handling using selectedOptionExtras
+  //           const extraKey = `${indexVar}-${indexOption}`;
+  //           const selectedExtrasForOption = selectedOptionExtras[extraKey] || {};
+  //           console.log(`Processing option ${indexVar}-${indexOption}, selectedExtrasForOption:`, selectedExtrasForOption);
+
+  //           if (Object.keys(selectedExtrasForOption).length > 0) {
+  //             let extraIndex = 0;
+  //             Object.values(selectedExtrasForOption).flat().forEach((extraId) => {
+  //               console.log(`Appending extra_index for ${extraKey}, extraIndex ${extraIndex}:`, extraId);
+  //               formData.append(
+  //                 `variations[${indexVar}][options][${indexOption}][extra]`,
+  //                 extraId !== undefined ? String(extraId) : ""
+  //               );
+  //               extraIndex++;
+  //             });
+  //           } else {
+  //             console.warn(`No extras found for option ${extraKey}`);
+  //           }
+
+  //           // Names Option Handling
+  //           if (Array.isArray(option.names) && option.names.length > 0) {
+  //             option.names.forEach((optionNa, indexOpNa) => {
+  //               formData.append(
+  //                 `variations[${indexVar}][options][${indexOption}][names][${indexOpNa}][name]`,
+  //                 optionNa.name && typeof optionNa.name === "string" ? optionNa.name : ""
+  //               );
+  //               formData.append(
+  //                 `variations[${indexVar}][options][${indexOption}][names][${indexOpNa}][tranlation_id]`,
+  //                 optionNa.tranlation_id !== undefined ? String(optionNa.tranlation_id) : ""
+  //               );
+  //               formData.append(
+  //                 `variations[${indexVar}][options][${indexOption}][names][${indexOpNa}][tranlation_name]`,
+  //                 typeof optionNa.tranlation_name === "string" ? optionNa.tranlation_name : ""
+  //               );
+  //             });
+  //           }
+
+  //           // Append other option-specific data
+  //           formData.append(`variations[${indexVar}][options][${indexOption}][price]`, option.price || 0);
+  //           formData.append(`variations[${indexVar}][options][${indexOption}][status]`, option.status);
+  //           formData.append(`variations[${indexVar}][options][${indexOption}][points]`, option.points || 0);
+  //         });
+  //       }
+
+  //       // Append general variation data
+  //       formData.append(`variations[${indexVar}][type]`, variation.type);
+  //       formData.append(`variations[${indexVar}][min]`, variation.min);
+  //       formData.append(`variations[${indexVar}][max]`, variation.max);
+  //       formData.append(`variations[${indexVar}][required]`, variation.required ? 1 : 0);
+  //     });
+  //   }
+
+  //   // Debug: Log only extra-related form data
+  //   for (const [key, value] of formData.entries()) {
+  //     if (key.includes("extra")) {
+  //       console.log(`${key}: ${value}`);
+  //     }
+  //   }
+
+  //   postData(formData, t("Product Added Success"));
+  // };
 
   useEffect(() => {
     if (response && response.status === 200) {

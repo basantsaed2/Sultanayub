@@ -11,7 +11,8 @@ import { useTranslation } from "react-i18next";
 
 const AddEmailSection = ({ setUpdate }) => {
   const auth = useAuth();
-                 const {  t,i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -26,16 +27,16 @@ const AddEmailSection = ({ setUpdate }) => {
     e.preventDefault();
 
     if (!email.trim()) {
-    auth.toastError(t('enterEmail'));
+      auth.toastError(t('enterEmail'));
       return;
     }
 
     if (!name.trim()) {
-    auth.toastError(t('enterName'));
+      auth.toastError(t('enterName'));
       return;
     }
 
-    const finalUrl = `https://sultanayubbcknd.food2go.online/admin/settings/business_setup/order_delay_notification/add?email=${encodeURIComponent(email.trim())}`;
+    const finalUrl = `${apiUrl}/admin/settings/business_setup/order_delay_notification/add?email=${encodeURIComponent(email.trim())}`;
 
     const bodyData = new URLSearchParams();
     bodyData.append("name", name.trim());

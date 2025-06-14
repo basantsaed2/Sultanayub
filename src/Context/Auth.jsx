@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 // Create a context
 const AuthContext = createContext(null);
 
-export const authSelector = (state) => state.userSultanAyub || null;
+export const authSelector = (state) => state.userProject || null;
 export const ContextProvider = ({ children }) => {
   const [hideSidebar, setHideSidebar] = useState(() => {
     const savedState = localStorage.getItem('stateSidebar');
@@ -16,7 +16,7 @@ export const ContextProvider = ({ children }) => {
   });
 
   const dispatch = useDispatch();
-  const userStore = useSelector(state => state.userSultanAyub);
+  const userStore = useSelector(state => state.userProject);
            const { t, i18n } = useTranslation();
 
   const [userState, setUserState] = useState(() => {

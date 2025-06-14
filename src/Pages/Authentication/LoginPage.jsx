@@ -78,7 +78,7 @@ const LoginPage = () => {
               <>
                 <div className="flex flex-col items-start justify-start w-full gap-y-4">
                   <span className="sm:text-4xl xl:text-5xl font-TextFontRegular text-secoundColor">
-                    {t("LogintoSultanAyub")}
+                    {t("Loginto")} {t("projectName")}
                   </span>
                   <span className="sm:text-4xl xl:text-5xl font-TextFontRegular text-secoundColor">
                     {t("welcomeback")}

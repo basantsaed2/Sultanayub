@@ -8,6 +8,7 @@ export default function ToggleItems({ id }) {
   const [branchProductStatus, setBranchProductStatus] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
   const token = localStorage.getItem("token");
                  const {  t,i18n } = useTranslation();
@@ -24,7 +25,7 @@ export default function ToggleItems({ id }) {
     const fetchBranches = async () => {
       try {
         const response = await axios.get(
-          `https://sultanayubbcknd.food2go.online/admin/branch/branch_in_product/${id}`,
+          `${apiUrl}/admin/branch/branch_in_product/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -67,7 +68,7 @@ export default function ToggleItems({ id }) {
 
     try {
       await axios.put(
-        `https://sultanayubbcknd.food2go.online/admin/branch/branch_product_status/${id}`,
+        `${apiUrl}/admin/branch/branch_product_status/${id}`,
         { branch_id, status: newStatus },
         {
           headers: { Authorization: `Bearer ${token}` },

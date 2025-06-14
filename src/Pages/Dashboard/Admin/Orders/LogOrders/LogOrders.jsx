@@ -8,17 +8,18 @@ const LogOrders = () => {
   const [orderId, setOrderId] = useState("");
   const [selectedAdmin, setSelectedAdmin] = useState(null);
   const [showAdminModal, setShowAdminModal] = useState(false);
-                 const {  t,i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
   const headers = ["SL", "Admin Name", "Date", "From-Status", "To-Status"];
 
   const fetchLogs = (id) => {
     if (!id) return;
-    
+
     setLoading(true);
     axios({
       method: "post",
-      url: `https://sultanayubbcknd.food2go.online/admin/order/log?order_id=${id}`,
+      url: `${apiUrl}/admin/order/log?order_id=${id}`,
       headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer 136|oxbdg9QVDeaeSETkO9y1Rurk1mZZFE3ywuZaTLMM0b11e7e1",
@@ -65,7 +66,7 @@ const LogOrders = () => {
             type='submit'
             className="px-4 py-2 text-white rounded bg-mainColor hover:bg-gray-700"
           >
-                        {t("Search")}
+            {t("Search")}
 
           </button>
         </form>
@@ -96,7 +97,7 @@ const LogOrders = () => {
               {logData.map((log, index) => (
                 <tr key={log.id} className="border-b">
                   <td className="px-4 py-2 text-center">{index + 1}</td>
-                  <td 
+                  <td
                     className="px-4 py-2 text-center text-blue-500 cursor-pointer hover:underline"
                     onClick={() => handleAdminClick(log.admin)}
                   >
@@ -120,27 +121,27 @@ const LogOrders = () => {
           <div className="w-full max-w-md p-6 bg-white rounded-lg">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold">{t("AdminDetails")}</h3>
-              <button 
+              <button
                 onClick={closeAdminModal}
                 className="text-gray-500 hover:text-gray-700"
               >
                 ✕
               </button>
             </div>
-            
+
             <div className="space-y-3">
-                <p><span className="font-semibold">{t("Name")}:</span> {selectedAdmin.name}</p>
+              <p><span className="font-semibold">{t("Name")}:</span> {selectedAdmin.name}</p>
               <p><span className="font-semibold">{t('Email')}:</span> {selectedAdmin.email}</p>
               <p><span className="font-semibold">{t("Phone")}:</span> {selectedAdmin.phone}</p>
               <p><span className="font-semibold">{t("Role")}:</span> {selectedAdmin.role}</p>
               <p><span className="font-semibold">{t("Status")}:</span> {selectedAdmin.status === 1 ? t("Active") : t("Inactive")}</p>
-              
+
               {selectedAdmin.image && (
                 <div>
                   <span className="font-semibold">{t("Image")}:</span>
-                  <img 
-                    src={`${selectedAdmin.image_link}/${selectedAdmin.image}`} 
-                    alt="Admin" 
+                  <img
+                    src={`${selectedAdmin.image_link}/${selectedAdmin.image}`}
+                    alt="Admin"
                     className="mt-2 max-h-40"
                   />
                 </div>

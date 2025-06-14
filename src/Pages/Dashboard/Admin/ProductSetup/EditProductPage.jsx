@@ -1,5 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { useGet } from "../../../../Hooks/useGet";
+import { usePost } from "../../../../Hooks/usePostJson";
 import {
   DropDown,
   LoaderLogin,
@@ -12,34 +14,30 @@ import {
   TitlePage,
   UploadInput,
 } from "../../../../Components/Components";
-import { usePost } from "../../../../Hooks/usePostJson";
 import { MultiSelect } from "primereact/multiselect";
 import ButtonAdd from "../../../../Components/Buttons/AddButton";
 import { useAuth } from "../../../../Context/Auth";
-import { replace, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 const EditProductPage = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
   const auth = useAuth();
-  /* Get Data */
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
+  /* Get Data */
   const {
     refetch: refetchProductEdit,
     loading: loadingProductEdit,
     data: dataProductEdit,
   } = useGet({ url: `${apiUrl}/admin/product/item/${productId}` });
-
   const {
     refetch: refetchTranslation,
     loading: loadingTranslation,
     data: dataTranslation,
-  } = useGet({
-    url: `${apiUrl}/admin/translation`,
-  });
+  } = useGet({ url: `${apiUrl}/admin/translation` });
   const {
     refetch: refetchCategory,
     loading: loadingCategory,
@@ -49,16 +47,15 @@ const EditProductPage = () => {
     refetch: refetchProduct,
     loading: loadingProduct,
     data: dataProduct,
-  } = useGet({
-    url: `${apiUrl}/admin/product`,
-  });
-  const { postData, loadingPost, response } = usePost({
+  } = useGet({ url: `${apiUrl}/admin/product` });
+
+  const { postData, loading: loadingPut, response } = usePost({
     url: `${apiUrl}/admin/product/update/${productId}`,
   });
+
   /* Refs */
   const variationTypeRef = useRef([]);
-  const [openVariationIndex, setOpenVariationIndex] = useState(null); // Tracks which variation's dropdown is open
-
+  const [openVariationIndex, setOpenVariationIndex] = useState(null);
   const categoryRef = useRef();
   const subCategoryRef = useRef();
   const itemTypeRef = useRef();
@@ -72,7 +69,6 @@ const EditProductPage = () => {
   const [taps, setTaps] = useState([]);
   const [currentProductNamesTap, setCurrentProductNamesTap] = useState(0);
   const [currentExcludeNamesTap, setCurrentExcludeNamesTap] = useState(0);
-  const [currentExtraNamesTap, setCurrentExtraNamesTap] = useState(0);
   const [currentVariationTap, setCurrentVariationTap] = useState(0);
   const [currentVariationOptionTap, setCurrentVariationOptionTap] = useState(0);
 
@@ -84,7 +80,7 @@ const EditProductPage = () => {
   const [taxes, setTaxes] = useState([]);
   const [groups, setGroups] = useState([]);
   const [selectedGroups, setSelectedGroups] = useState([]);
-  const [selectedExtras, setSelectedExtras] = useState({}); // Object to store extras for each group
+  const [selectedExtras, setSelectedExtras] = useState({});
 
   const [itemTypes, setItemTypes] = useState([
     { id: "", name: t("Selected Item Type") },
@@ -99,98 +95,42 @@ const EditProductPage = () => {
     { id: "fixed", name: t("fixed") },
   ]);
 
-  /*  */
-  const [productEdit, setProductEdit] = useState([]);
   // Selected Data
-  // Product Names
   const [productNames, setProductNames] = useState([]);
-
-  // Product Description
   const [descriptionNames, setDescriptionNames] = useState([]);
-
-  // Product Exclude
   const [productExclude, setProductExclude] = useState([]);
-
-  // Product Extra
   const [productExtra, setProductExtra] = useState([]);
-
-  // Product Variations
   const [productVariations, setProductVariations] = useState([]);
-
-  // Product Category
-  const [selectedCategoryState, setSelectedCategoryState] =
-    useState(t("Selected Category"));
-  // const [selectedCategoryName, setSelectedCategoryName] = useState('')
+  const [selectedCategoryState, setSelectedCategoryState] = useState(t("Selected Category"));
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
-
-  // Product SubCategory
-  const [selectedSubCategoryState, setSelectedSubCategoryState] = useState(
-    t("Selected Subcategory")
-  );
-  // const [selectedSubCategoryName, setSelectedSubCategoryName] = useState('')
+  const [selectedSubCategoryState, setSelectedSubCategoryState] = useState(t("Selected Subcategory"));
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState("");
-
-  // Product Discount
-  const [selectedDiscountState, setSelectedDiscountState] =
-    useState(t("Selected Discount"));
-  // const [selectedDiscountName, setSelectedDiscountName] = useState('')
+  const [selectedDiscountState, setSelectedDiscountState] = useState(t("Selected Discount"));
   const [selectedDiscountId, setSelectedDiscountId] = useState("");
-
-  // Product Tax
-  const [selectedTaxState, setSelectedTaxState] = useState("Selected Tax");
-  // const [selectedTaxName, setSelectedTaxName] = useState('')
+  const [selectedTaxState, setSelectedTaxState] = useState(t("Selected Tax"));
   const [selectedTaxId, setSelectedTaxId] = useState("");
-
-  // Product Addons
-  const [selectedAddonsState, setSelectedAddonsState] =
-    useState(t("Selected Addons"));
-  const [selectedAddonsObjects, setSelectedAddonsObjects] = useState([]);
+  const [selectedAddonsState, setSelectedAddonsState] = useState(t("Selected Addons"));
   const [selectedAddonsId, setSelectedAddonsId] = useState([]);
-
-  // Product Item Types
-  const [selectedItemTypeState, setSelectedItemTypeState] =
-    useState(t("Selected Item Type"));
+  const [selectedItemTypeState, setSelectedItemTypeState] = useState(t("Selected Item Type"));
   const [selectedItemTypeName, setSelectedItemTypeName] = useState("");
-
-  // Product Stock Types
-  const [selectedStockTypeState, setSelectedStockTypeState] = useState(
-    t("Selected Stock Type")
-  );
+  const [selectedStockTypeState, setSelectedStockTypeState] = useState(t("Selected Stock Type"));
   const [selectedStockTypeName, setSelectedStockTypeName] = useState("");
-  // Product Stock Number
   const [productStockNumber, setProductStockNumber] = useState("");
-
-  // Product Price && Point
   const [productPrice, setProductPrice] = useState("");
   const [productPoint, setProductPoint] = useState("");
-
-  // Product From && To Status
   const [productStatusFrom, setProductStatusFrom] = useState("");
   const [productStatusTo, setProductStatusTo] = useState("");
-
-  // Product Status && Recommended && Time Status
   const [productStatus, setProductStatus] = useState(0);
   const [productRecommended, setProductRecommended] = useState(0);
   const [productTimeStatus, setProductTimeStatus] = useState(0);
-
-  // Product Image
   const [productImage, setProductImage] = useState(null);
   const [productImageName, setProductImageName] = useState(t("Choose Photo"));
-
-  // Product Group
-  const [selectedGroupState, setSelectedGroupState] = useState(
-    t("Selected Group")
-  );
-  const [selectedGroupId, setSelectedGroupId] = useState("");
-
   const [selectedOptionGroups, setSelectedOptionGroups] = useState({});
   const [selectedOptionExtras, setSelectedOptionExtras] = useState({});
 
-
-  /* dropdown Status */
+  /* Dropdown Status */
   const [isOPenProductCategory, setIsOPenProductCategory] = useState(false);
-  const [isOPenProductSubCategory, setIsOPenProductSubCategory] =
-    useState(false);
+  const [isOPenProductSubCategory, setIsOPenProductSubCategory] = useState(false);
   const [isOPenProductItemType, setIsOPenProductItemType] = useState(false);
   const [isOPenProductStockType, setIsOPenProductStockType] = useState(false);
   const [isOPenProductDiscount, setIsOPenProductDiscount] = useState(false);
@@ -199,697 +139,186 @@ const EditProductPage = () => {
 
   /* Refetch Data */
   useEffect(() => {
-    refetchProductEdit(); // Get Product Edit data when the component mounts
-
-    refetchTranslation(); // Get Language Translation data when the component mounts
-    refetchCategory(); // Get Categories && Addons && SubCategories data when the component mounts
-    refetchProduct(); // Get Discounts && Taxes data when the component mounts
+    refetchProductEdit();
+    refetchTranslation();
+    refetchCategory();
+    refetchProduct();
   }, [refetchProductEdit, refetchTranslation, refetchCategory, refetchProduct]);
 
+  /* Set Translation, Category, and Product Data */
   useEffect(() => {
-    /* Set data to Taps Languages Translation */
     if (dataTranslation) {
-      setTaps(dataTranslation?.translation || []); // Update taps if dataTranslation exists
+      setTaps(dataTranslation?.translation || []);
     }
-    /* Set data to Categories && Addons && SubCategories */
-    setCategories([
-      { id: "", name: t("Select Category") },
-      ...(dataCategory?.parent_categories || []),
-    ]);
-
-    setSubCategories([
-      { id: "", name: t("Select Subcategory") },
-      ...(dataCategory?.sub_categories || []),
-    ]);
-
-    setDiscounts([
-      { id: "", name: t("Select Discount") },
-      ...(dataProduct?.discounts || []),
-    ]);
-
-    setTaxes([
-      { id: "", name: t("Select Tax") },
-      ...(dataProduct?.taxes || []),
-    ]);
-
-    setGroups(dataProduct?.group || []);
-
-    if (dataProductEdit) {
-      setProductEdit(dataProductEdit?.product || []);
+    if (dataCategory) {
+      setCategories([{ id: "", name: t("Select Category") }, ...dataCategory.parent_categories] || []);
+      setSubCategories([{ id: "", name: t("Select Subcategory") }, ...dataCategory?.sub_categories] || []);
+      setAddons(dataCategory?.addons || []);
     }
-    /* Log Data */
+    if (dataProduct) {
+      setDiscounts([{ id: "", name: t("Select Discount") }, ...dataProduct?.discounts] || []);
+      setTaxes([{ id: "", name: t("Select Tax") }, ...dataProduct?.taxes] || []);
+      setGroups(dataProduct?.group || []);
+    }
+  }, [dataTranslation, dataCategory, dataProduct, t]);
 
-    console.log("dataTranslation", dataTranslation);
-    console.log("dataCategory", dataCategory);
-    console.log("dataProduct", dataProduct);
-    console.log("ProductExclude", productExclude);
-  }, [dataTranslation, dataCategory, dataProduct]);
-
+  /* Populate Form with Fetched Product Data */
   useEffect(() => {
-    console.log("selectedAddonsId", selectedAddonsId);
-  }, [selectedAddonsId]);
+    if (!dataProductEdit?.product || !taps.length || !groups.length) return;
 
-useEffect(() => {
-  if (!productEdit) return;
+    const product = dataProductEdit.product;
 
-  // ——————————————————————————————
-  // 1) BASIC FIELDS
-  // ——————————————————————————————
-  setProductNames(productEdit.product_names || []);
-  setDescriptionNames(
-    (productEdit.product_descriptions || []).map(desc => ({
-      description_name: desc.product_description,
-      tranlation_id: desc.tranlation_id,
-      tranlation_name: desc.tranlation_name,
-    }))
-  );
-  setProductExclude(productEdit.exclude || []);
-
-  // ——————————————————————————————
-  // 2) TOP-LEVEL EXTRAS & GROUP MERGE
-  // ——————————————————————————————
-  const topExtras = productEdit.extra || [];
-  setProductExtra(topExtras);
-
-  // 2a) which groups had extras, for the global extras-panel
-  const topGroupIds = [...new Set(topExtras.map(e => e.group_id))];
-  setSelectedGroups(topGroupIds);
-
-  const topExtrasMap = topExtras.reduce((acc, e) => {
-    acc[e.group_id] = acc[e.group_id] || [];
-    acc[e.group_id].push(e.id);
-    return acc;
-  }, {});
-  setSelectedExtras(topExtrasMap);
-
-  // 2b) merge these extras into your `groups` state
-  //     so getExtrasForGroup(groupId) returns the proper array of {id,name,…}
-  setGroups(prev =>
-    prev.map(g => ({
-      ...g,
-      extra: topExtras.filter(e => e.group_id === g.id)
-    }))
-  );
-
-  // ——————————————————————————————
-  // 3) VARIATIONS & PER-OPTION GROUPS/EXTRAS
-  // ——————————————————————————————
-  const variationGroups = {};  // will hold “vi-oi” → [groupId,…]
-  const variationExtras = {};  // will hold “vi-oi” → { [groupId]: [extraId,…] }
-
-  const formattedVariations = (productEdit.variation || []).map((v, vi) => ({
-    id: v.id,
-    type: v.type || "single",
-    required: v.required || 0,
-    min: v.min ?? "",
-    max: v.max ?? "",
-    names: (v.names || []).map(n => ({
-      name: n.name,
-      tranlation_id: n.tranlation_id,
-      tranlation_name: n.tranlation_name,
-    })),
-    options: (v.options || []).map((opt, oi) => {
-      // capture this option’s saved group-ids
-      const optGroupIds = [...new Set((opt.extra || []).map(e => e.group_id))];
-      variationGroups[`${vi}-${oi}`] = optGroupIds;
-
-      // build map: group_id → [extraId,…]
-      variationExtras[`${vi}-${oi}`] = (opt.extra || []).reduce((acc, e) => {
-        acc[e.group_id] = acc[e.group_id] || [];
-        acc[e.group_id].push(e.id);
-        return acc;
-      }, {});
-
-      return {
-        id: opt.id,
-        names: (opt.names || []).map(n => ({
-          name: n.name,
-          tranlation_id: n.tranlation_id,
-          tranlation_name: n.tranlation_name,
+    // Basic Fields
+    setProductNames(product.product_names || []);
+    setDescriptionNames(
+      (product.product_descriptions || []).map((desc) => ({
+        description_name: desc.product_description,
+        tranlation_id: desc.tranlation_id,
+        tranlation_name: desc.tranlation_name,
+      }))
+    );
+    setProductExclude(
+      (product.exclude || []).map((exc) => ({
+        names: exc.names.map((name) => ({
+          exclude_name: name.exclude_name,
+          tranlation_id: name.tranlation_id,
+          tranlation_name: name.tranlation_name,
         })),
-        price: opt.price ?? "",
-        points: opt.points ?? "",
-        status: opt.status ?? 0,
-
-        // **carry the raw extra objects through** so you can
-        // render their `name` in the UI if you need it:
-        extra: (opt.extra || []).map(e => ({
-          id: e.id,
-          name: e.name,
-          group_id: e.group_id
-        }))
-      };
-    }),
-  }));
-
-  setProductVariations(formattedVariations);
-  setSelectedOptionGroups(variationGroups);
-  setSelectedOptionExtras(variationExtras);
-
-  // ——————————————————————————————
-  // 4) REMAINING FIELDS (categories, price, flags, image…)
-  // ——————————————————————————————
-  setSelectedAddonsId(productEdit.addons || []);
-
-  setSelectedCategoryId(productEdit.category?.id || "");
-  setSelectedCategoryState(productEdit.category?.name || t("Selected Category"));
-  const filtered = subCategories.filter(s => s.category_id === productEdit.category?.id);
-  setFilterSubCategories([{ id: "", name: t("Select Subcategory") }, ...filtered]);
-
-  setSelectedSubCategoryId(productEdit.sub_category?.id || "");
-  setSelectedSubCategoryState(productEdit.sub_category?.name || t("Selected Subcategory"));
-
-  setSelectedItemTypeName(productEdit.item_type || "");
-  setSelectedItemTypeState(productEdit.item_type || t("Selected Item Type"));
-  setSelectedStockTypeName(productEdit.stock_type || "");
-  setSelectedStockTypeState(productEdit.stock_type || t("Selected Stock Type"));
-  setProductStockNumber(productEdit.number ?? "");
-
-  setProductPrice(productEdit.price ?? 0);
-  setProductPoint(productEdit.points ?? 0);
-
-  setSelectedDiscountId(productEdit.discount?.id || "");
-  setSelectedDiscountState(productEdit.discount?.name || t("Selected Discount"));
-  setSelectedTaxId(productEdit.tax?.id || "");
-  setSelectedTaxState(productEdit.tax?.name || t("Selected Tax"));
-
-  setProductStatus(productEdit.status ?? 0);
-  setProductRecommended(productEdit.recommended ?? 0);
-  setProductTimeStatus(productEdit.product_time_status ?? 0);
-  setProductStatusFrom(productEdit.from || "");
-  setProductStatusTo(productEdit.to || "");
-
-  setProductImage(productEdit.image_link || null);
-  setProductImageName(productEdit.image_link || t("Choose Photo"));
-}, [productEdit, subCategories, taps]);
-
-  /* Handle Function */
-
-  // Exclude Product
-  const handleAddExclude = () => {
-    const newExclude = {
-      names: taps.map((tap) => ({
-        exclude_name: "",
-        tranlation_id: tap.id,
-        tranlation_name: tap.name,
-      })),
-    };
-
-    setProductExclude((prevProductnewExclude) => [
-      ...prevProductnewExclude,
-      newExclude,
-    ]);
-  };
-
-  const handleRemoveExclude = (index) => {
-    setProductExclude((prevProductExclude) =>
-      prevProductExclude.filter((_, idx) => idx !== index)
+      }))
     );
-  };
+    setProductExtra(product.extra || []);
 
-  const handleVariationNameChange = (updatedValue, indexVariation, tapName) => {
-    setProductVariations((prevProductVariations) =>
-      prevProductVariations.map((item, idx) =>
-        idx === indexVariation
-          ? {
-            ...item,
-            names: item.names.map((name) =>
-              name.tranlation_name === tapName
-                ? { ...name, name: updatedValue }
-                : name
-            ),
-          }
-          : item
-      )
-    );
-  };
-
-  useEffect(() => {
-    console.log("ProductExclude", productExclude);
-    console.log("ProductExtra", productExtra);
-  }, [productExtra, productExclude]);
-
-  // Add a new Variation
-  const handleAddVariation = () => {
-    const newVariation = {
-      type: "",
-      required: 0,
-      min: "",
-      max: "",
-      names: taps.map((tap) => ({
-        name: "",
-        tranlation_id: tap.id,
-        tranlation_name: tap.name,
-      })),
-      options: [
-        {
+    // Variations
+    setProductVariations(
+      (product.variations || []).map((varn) => ({
+        type: varn.type || "",
+        required: varn.required || 0,
+        min: varn.min || "",
+        max: varn.max || "",
+        names: taps.map((tap) => ({
+          name: varn.name || "",
+          tranlation_id: tap.id,
+          tranlation_name: tap.name,
+        })),
+        options: (varn.options || []).map((opt) => ({
           names: taps.map((tap) => ({
-            name: "",
+            name: opt.name || "",
             tranlation_id: tap.id,
             tranlation_name: tap.name,
           })),
-          extra: [
-            {
-              extra_names: taps.map((tap) => ({
-                extra_name: "",
-                tranlation_id: tap.id,
-                tranlation_name: tap.name,
-              })),
-              extra_price: "",
-            },
-          ],
-          points: "",
-          price: "",
-          status: 0,
-        },
-      ],
-    };
-    setProductVariations((prevVariations) => [...prevVariations, newVariation]);
-  };
-
-  // Remove a Variation
-  const handleRemoveVariation = (index) => {
-    setProductVariations((prevVariations) =>
-      prevVariations.filter((_, idx) => idx !== index)
+          extra: opt.extra || [],
+          price: opt.price || "",
+          points: opt.points || "",
+          status: opt.status || 0,
+        })),
+      }))
     );
-  };
-  // Option
 
-  // Example for updating nested options array
-  const updateVariationState = (
-    setProductVariations,
-    variationIndex,
-    field,
-    tapName,
-    updatedValue
-  ) => {
-    setProductVariations((prevProductVariations) =>
-      prevProductVariations.map((item, idx) =>
-        idx === variationIndex
-          ? {
-            ...item,
-            [field]: item[field].map((subField) =>
-              subField.tranlation_name === tapName
-                ? { ...subField, name: updatedValue }
-                : subField
-            ),
-          }
-          : item
-      )
+    // Category
+    const category = categories.find((cat) => cat.id === product.category_id);
+    setSelectedCategoryId(product.category_id || "");
+    setSelectedCategoryState(category?.name || t("Selected Category"));
+
+    // SubCategory
+    const subCategory = subCategories.find((sub) => sub.id === product.sub_category_id);
+    setSelectedSubCategoryId(product.sub_category_id || "");
+    setSelectedSubCategoryState(subCategory?.name || t("Selected Subcategory"));
+    setFilterSubCategories(
+      subCategories.filter((sub) => sub.category_id === product.category_id) || []
     );
-  };
 
-  // Add a new Option to a specific Variation
-  const handleAddOption = (variationIndex) => {
-    const newOption = {
-      names: taps.map((tap) => ({
-        name: "",
-        tranlation_id: tap.id,
-        tranlation_name: tap.name,
-      })),
-      extra: [
-        {
-          extra_names: taps.map((tap) => ({
-            extra_name: "",
-            tranlation_id: tap.id,
-            tranlation_name: tap.name,
-          })),
-          extra_price: "",
-        },
-      ],
-      price: "",
-      points: "",
-      status: 0,
-    };
+    // Addons
+    setSelectedAddonsId(product.addons || []);
 
-    setProductVariations((prevVariations) =>
-      prevVariations.map((variation, idx) =>
-        idx === variationIndex
-          ? { ...variation, options: [...variation.options, newOption] }
-          : variation
-      )
+    // Item Type
+    const itemType = itemTypes.find((type) => type.id === product.item_type);
+    setSelectedItemTypeName(product.item_type || "");
+    setSelectedItemTypeState(itemType?.name || t("Selected Item Type"));
+
+    // Stock Type
+    const stockType = stockTypes.find((type) => type.id === product.stock_type);
+    setSelectedStockTypeName(product.stock_type || "");
+    setSelectedStockTypeState(stockType?.name || t("Selected Stock Type"));
+    setProductStockNumber(product.number || "");
+
+    // Price and Points
+    setProductPrice(product.price || "");
+    setProductPoint(product.points || "");
+
+    // Discount
+    const discount = discounts.find((disc) => disc.id === product.discount_id);
+    setSelectedDiscountId(product.discount_id || "");
+    setSelectedDiscountState(discount?.name || t("Selected Discount"));
+
+    // Tax
+    const tax = taxes.find((tx) => tx.id === product.tax_id);
+    setSelectedTaxId(product.tax_id || "");
+    setSelectedTaxState(tax?.name || t("Selected Tax"));
+
+    // Time Status
+    setProductTimeStatus(product.product_time_status || 0);
+    setProductStatusFrom(product.from || "");
+    setProductStatusTo(product.to || "");
+
+    // Status and Recommended
+    setProductStatus(product.status || 0);
+    setProductRecommended(product.recommended || 0);
+
+    // Image
+    setProductImageName(
+      product.image ? product.image.split("/").pop() || t("Choose Photo") : t("Choose Photo")
     );
-  };
+  }, [dataProductEdit, categories, subCategories, itemTypes, stockTypes, discounts, taxes, taps, groups, t]);
 
+  /* Pre-select Groups and Extras */
   useEffect(() => {
-    console.log("productVariations", productVariations);
-  }, [productVariations]);
+    if (!dataProductEdit?.product || !groups.length) return;
 
-  // DropDowns
-  const handleOpenVariationType = (index) => {
-    setOpenVariationIndex((prevIndex) => (prevIndex === index ? null : index)); // Toggle open state for the selected index
-  };
+    const product = dataProductEdit.product;
+    const allGroupIds = groups.map((group) => group.id);
+    setSelectedGroups(allGroupIds);
 
-  const handleOpenOptionProductVariationType = () => {
-    setOpenVariationIndex(null); // Close the dropdown
-  };
-
-  const handleCloseAllDropdowns = () => {
-    setIsOPenProductCategory(false);
-    setIsOPenProductSubCategory(false);
-    setIsOPenProductItemType(false);
-    setIsOPenProductStockType(false);
-    setIsOPenProductDiscount(false);
-    setIsOPenProductTax(false);
-    setIsOPenProductGroup(false);
-  };
-
-  const handleOpenCategory = () => {
-    handleCloseAllDropdowns();
-    setIsOPenProductCategory(!isOPenProductCategory);
-  };
-  const handleOpenSubCategory = () => {
-    handleCloseAllDropdowns();
-    setIsOPenProductSubCategory(!isOPenProductSubCategory);
-  };
-  const handleOpenItemType = () => {
-    handleCloseAllDropdowns();
-    setIsOPenProductItemType(!isOPenProductItemType);
-  };
-  const handleOpenStockType = () => {
-    handleCloseAllDropdowns();
-    setIsOPenProductStockType(!isOPenProductStockType);
-  };
-  const handleOpenDiscount = () => {
-    handleCloseAllDropdowns();
-    setIsOPenProductDiscount(!isOPenProductDiscount);
-  };
-  const handleOpenTax = () => {
-    handleCloseAllDropdowns();
-    setIsOPenProductTax(!isOPenProductTax);
-  };
-
-  const handleOpenOptionProductCategory = () => setIsOPenProductCategory(false);
-  const handleOpenOptionProductSubCategory = () =>
-    setIsOPenProductSubCategory(false);
-  const handleOpenOptionProductItemType = () => setIsOPenProductItemType(false);
-  const handleOpenOptionProductStockType = () =>
-    setIsOPenProductStockType(false);
-  const handleOpenOptionProductDiscount = () => setIsOPenProductDiscount(false);
-  const handleOpenOptionProductTax = () => setIsOPenProductTax(false);
-
-  const handleSelectProductVariationType = (option, variationIndex) => {
-    // Update the `type` of the variation at `variationIndex`
-    setProductVariations((prevProductVariations) =>
-      prevProductVariations.map((ele, index) =>
-        index === variationIndex
-          ? { ...ele, type: option.name, min: "", max: "" } // Update type with selected value
-          : ele
-      )
-    );
-  };
-
-  const handleSelectProductCategory = (option) => {
-    setSelectedCategoryId(option.id);
-    setSelectedCategoryState(option.name);
-    const filterSup = subCategories.filter(
-      (sup) => sup.category_id === option.id
-    );
-
-    setFilterSubCategories([
-      { id: "", name: "Selected Subcategory" },
-      ...filterSup,
-    ]);
-    console.log("filterSup", filterSup);
-  };
-  const handleSelectProductSubCategory = (option) => {
-    setSelectedSubCategoryId(option.id);
-    setSelectedSubCategoryState(option.name);
-  };
-  const handleSelectProductItemType = (option) => {
-    setSelectedItemTypeName(option.name);
-    setSelectedItemTypeState(option.name);
-  };
-  const handleSelectProductStockType = (option) => {
-    setSelectedStockTypeName(option.name);
-    setSelectedStockTypeState(option.name);
-    setProductStockNumber("");
-  };
-  const handleSelectProductDiscount = (option) => {
-    setSelectedDiscountId(option.name);
-    setSelectedDiscountState(option.name);
-  };
-  const handleSelectProductTax = (option) => {
-    setSelectedTaxId(option.id);
-    setSelectedTaxState(option.name);
-  };
-
-  const handleProductStatus = () => {
-    const currentState = productStatus;
-    {
-      currentState === 0 ? setProductStatus(1) : setProductStatus(0);
-    }
-  };
-
-  const handleProductRecommended = () => {
-    const currentState = productRecommended;
-    {
-      currentState === 0 ? setProductRecommended(1) : setProductRecommended(0);
-    }
-  };
-
-  const handleProductTimeStatus = () => {
-    const currentState = productTimeStatus;
-    {
-      currentState === 0 ? setProductTimeStatus(1) : setProductTimeStatus(0);
-    }
-    setProductStatusFrom("");
-    setProductStatusTo("");
-  };
-
-  // Image
-  const handleProductImageClick = (ref) => {
-    if (ref.current) {
-      ref.current.click();
-    }
-  };
-  const handleProductImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setProductImage(file);
-      setProductImageName(file.name);
-    }
-  };
-
-  // Close All dropdowns if clicked outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        categoryRef.current &&
-        !categoryRef.current.contains(event.target) &&
-        subCategoryRef.current &&
-        !subCategoryRef.current.contains(event.target) &&
-        itemTypeRef.current &&
-        !itemTypeRef.current.contains(event.target) &&
-        stockTypeRef.current &&
-        !stockTypeRef.current.contains(event.target) &&
-        discountRef.current &&
-        !discountRef.current.contains(event.target) &&
-        taxRef.current &&
-        !taxRef.current.contains(event.target) &&
-        groupRef.current &&
-        !groupRef.current.contains(event.target)
-      ) {
-        handleCloseAllDropdowns();
-      }
-
-      // Handle closing variation dropdowns
-      if (variationTypeRef.current) {
-        let clickedInsideAnyVariation = false;
-        for (let i = 0; i < variationTypeRef.current.length; i++) {
-          const ref = variationTypeRef.current[i];
-          if (ref && ref.contains(event.target)) {
-            clickedInsideAnyVariation = true;
-            break;
-          }
-        }
-
-        if (!clickedInsideAnyVariation) {
-          setOpenVariationIndex(null); // Close the variation dropdown
-        }
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [
-    setIsOPenProductCategory,
-    setIsOPenProductSubCategory,
-    setIsOPenProductItemType,
-    setIsOPenProductStockType,
-    setIsOPenProductDiscount,
-    setIsOPenProductTax,
-    setOpenVariationIndex,
-    setIsOPenProductGroup,
-  ]);
-
-  // Go To Languages Tap About Product Names
-  const handleProductNamesTap = (index) => {
-    setCurrentProductNamesTap(index);
-  };
-  // Go To Languages Tap About Exclude Names
-  const handleExcludeNamesTap = (index) => {
-    setCurrentExcludeNamesTap(index);
-  };
-  // Go To Languages Tap About Extra Names
-  const handleExtraNamesTap = (index) => {
-    setCurrentExtraNamesTap(index);
-  };
-  // Go To Languages Tap About Product Variation
-  const handleVariationTap = (index) => {
-    setCurrentVariationTap(index);
-  };
-  // Go To Languages Tap About Product Variation
-  const handleVariationOptionTap = (index) => {
-    setCurrentVariationOptionTap(index);
-  };
-
-  /* Reset Details Product */
-  const handleBack = () => {
-    navigate(-1, { replace: true });
-  };
-
-  /* Reset Details Product */
-  const handleReset = () => {
-    setCurrentProductNamesTap(0);
-    setCurrentExcludeNamesTap(0);
-    setCurrentExtraNamesTap(0);
-    setCurrentVariationTap(0);
-    setCurrentVariationOptionTap(0);
-    setProductNames([]);
-    setDescriptionNames([]);
-    setProductExclude([]);
-    setProductExtra([]);
-    setProductVariations([]);
-    setSelectedCategoryState(t("Selected Category"));
-    setSelectedCategoryId("");
-    setSelectedSubCategoryState(t("Selected SubCategory"));
-    setSelectedSubCategoryId("");
-    setSelectedDiscountState(t("Selected Discount"));
-    setSelectedDiscountId("");
-    setSelectedTaxState(t("Selected Tax"));
-    setSelectedTaxId("");
-    setSelectedAddonsState(t("Selected Addons"));
-    setSelectedGroupState(t("Selected Groups"));
-    setSelectedAddonsId("");
-    setSelectedItemTypeState(t("Selected Item Type"));
-    setSelectedItemTypeName("");
-    setSelectedStockTypeState(t("Selected Stock Type"));
-    setSelectedStockTypeName("");
-    setProductStockNumber("");
-    setProductPrice("");
-    setProductPoint("");
-    setProductStatusFrom("");
-    setProductStatusTo("");
-    setProductStatus(0);
-    setProductRecommended(0);
-    setProductTimeStatus(0);
-    setProductImage(null);
-    setProductImageName(t("Choose Photo"));
-  };
-
-  // Remove an option from a specific Option within a Variation
-  const handleRemoveOption = (variationIndex, optionIndex) => {
-    setProductVariations((prevVariations) =>
-      prevVariations.map((variation, vIdx) =>
-        vIdx === variationIndex
-          ? {
-            ...variation,
-            options: variation.options.filter(
-              (_, oIdx) => oIdx !== optionIndex
-            ),
-          }
-          : variation
-      )
-    );
-  };
-
-  // Handle group selection and auto-select all extras
-  const handleGroupChange = (e) => {
-    const selected = e.value; // Array of selected group IDs
-    setSelectedGroups(selected);
-
-    // Update selectedExtras: auto-select all extras for newly selected groups
-    const updatedExtras = { ...selectedExtras };
-    selected.forEach((groupId) => {
-      if (!updatedExtras[groupId]) {
-        // If group is newly selected, select all its extras by default
-        const extras = getExtrasForGroup(groupId);
-        updatedExtras[groupId] = extras.map((extra) => extra.id);
-      }
+    // Product-level extras
+    const extrasByGroup = {};
+    allGroupIds.forEach((groupId) => {
+      const group = groups.find((g) => g.id === groupId);
+      const productExtras = product.extra?.filter((extra) => extra.group_id === groupId) || [];
+      // Map product extras to group.extra IDs
+      extrasByGroup[groupId] = productExtras
+        .map((extra) => {
+          const matchingExtra = group?.extra?.find((gExtra) => gExtra.name === extra.name && gExtra.group_id === extra.group_id);
+          return matchingExtra?.id;
+        })
+        .filter((id) => id !== undefined);
     });
+    setSelectedExtras(extrasByGroup);
 
-    // Remove extras for deselected groups
-    Object.keys(updatedExtras).forEach((groupId) => {
-      if (!selected.includes(Number(groupId))) {
-        delete updatedExtras[groupId];
-      }
+    // Variation-level extras
+    const optionGroups = {};
+    const optionExtras = {};
+    product.variations?.forEach((varn, varIdx) => {
+      varn.options?.forEach((opt, optIdx) => {
+        const key = `${varIdx}-${optIdx}`;
+        optionGroups[key] = allGroupIds;
+        optionExtras[key] = {};
+        allGroupIds.forEach((groupId) => {
+          const group = groups.find((g) => g.id === groupId);
+          const optionExtrasForGroup = opt.extra?.filter((extra) => extra.group_id === groupId) || [];
+          optionExtras[key][groupId] = optionExtrasForGroup
+            .map((extra) => {
+              const matchingExtra = group?.extra?.find((gExtra) => gExtra.name === extra.name && gExtra.group_id === extra.group_id);
+              return matchingExtra?.id;
+            })
+            .filter((id) => id !== undefined);
+        });
+      });
     });
+    setSelectedOptionGroups(optionGroups);
+    setSelectedOptionExtras(optionExtras);
+  }, [dataProductEdit, groups]);
 
-    setSelectedExtras(updatedExtras);
-  };
-
-  // Handle extra selection for a specific group
-  const handleExtraChange = (groupId, selectedExtraIds) => {
-    setSelectedExtras((prev) => ({
-      ...prev,
-      [groupId]: selectedExtraIds,
-    }));
-  };
-
-  // Filter extras for a specific group
-  const getExtrasForGroup = (groupId) => {
-    const group = groups.find((g) => g.id === groupId);
-    return group && group.extra ? group.extra : [];
-  };
-
-  // Handle group selection for a specific variation option
-  const handleOptionGroupChange = (variationIndex, optionIndex, selectedGroupIds) => {
-    const key = `${variationIndex}-${optionIndex}`;
-    setSelectedOptionGroups((prev) => ({
-      ...prev,
-      [key]: selectedGroupIds,
-    }));
-
-    // Update selectedOptionExtras: auto-select all extras for newly selected groups
-    const updatedExtras = { ...selectedOptionExtras[key] } || {};
-    selectedGroupIds.forEach((groupId) => {
-      if (!updatedExtras[groupId]) {
-        const extras = getExtrasForGroup(groupId);
-        console.log(`Extras for group ${groupId} in variation ${key}:`, extras); // Debug
-        updatedExtras[groupId] = extras.map((extra) => extra.id); // Use 'id'
-      }
-    });
-
-    // Remove extras for deselected groups
-    Object.keys(updatedExtras).forEach((groupId) => {
-      if (!selectedGroupIds.includes(Number(groupId))) {
-        delete updatedExtras[groupId];
-      }
-    });
-
-    setSelectedOptionExtras((prev) => ({
-      ...prev,
-      [key]: updatedExtras,
-    }));
-  };
-  // Handle extras selection for a specific group within a variation option
-  const handleOptionExtrasChange = (variationIndex, optionIndex, groupId, selectedExtraIds) => {
-    const key = `${variationIndex}-${optionIndex}`;
-    console.log(`Updating extras for ${key}, group ${groupId}:`, selectedExtraIds); // Debug
-    setSelectedOptionExtras((prev) => ({
-      ...prev,
-      [key]: {
-        ...prev[key],
-        [groupId]: selectedExtraIds,
-      },
-    }));
-  };
-
-  /* Edit Product */
-  const handleproductEdit = (e) => {
+  /* Handle Form Submission */
+   const handleProductUpdate = (e) => {
     e.preventDefault();
 
     const formData = new FormData();
@@ -946,7 +375,7 @@ useEffect(() => {
         }
       });
     }
-
+    
 
     // Send only the selected extra IDs from selectedExtras for top-level extra
     if (Object.keys(selectedExtras).length > 0) {
@@ -992,7 +421,7 @@ useEffect(() => {
               Object.values(selectedExtrasForOption).flat().forEach((extraId) => {
                 console.log(`Appending extra_index for ${extraKey}, extraIndex ${extraIndex}:`, extraId);
                 formData.append(
-                  `variations[${indexVar}][options][${indexOption}][extra][${extraIndex}][extra_index]`,
+                  `variations[${indexVar}][options][${indexOption}][extra][${extraIndex}][extra]`,
                   extraId !== undefined ? String(extraId) : ""
                 );
                 extraIndex++;
@@ -1044,27 +473,413 @@ useEffect(() => {
     postData(formData, t("Product Added Success"));
   };
 
+  /* Handle Reset to Original Data */
+  const handleReset = () => {
+    refetchProductEdit();
+  };
+
+  /* Handle Navigation on Success */
   useEffect(() => {
     if (response && response.status === 200) {
-      //  handleBack();
+      navigate(-1);
     }
-    console.log("response", response);
-  }, [response]);
+  }, [response, navigate]);
+
+  /* Handlers */
+  const handleAddExclude = () => {
+    const newExclude = {
+      names: taps.map((tap) => ({
+        exclude_name: "",
+        tranlation_id: tap.id,
+        tranlation_name: tap.name,
+      })),
+    };
+    setProductExclude((prev) => [...prev, newExclude]);
+  };
+
+  const handleRemoveExclude = (index) => {
+    setProductExclude((prev) => prev.filter((_, idx) => idx !== index));
+  };
+
+  const handleAddVariation = () => {
+    const newVariation = {
+      type: "",
+      required: 0,
+      min: "",
+      max: "",
+      names: taps.map((tap) => ({
+        name: "",
+        tranlation_id: tap.id,
+        tranlation_name: tap.name,
+      })),
+      options: [
+        {
+          names: taps.map((tap) => ({
+            name: "",
+            tranlation_id: tap.id,
+            tranlation_name: tap.name,
+          })),
+          extra: [],
+          points: "",
+          price: "",
+          status: 0,
+        },
+      ],
+    };
+    setProductVariations((prev) => [...prev, newVariation]);
+    // Initialize new variation's option groups and extras
+    setSelectedOptionGroups((prev) => ({
+      ...prev,
+      [`${productVariations.length}-0`]: groups.map((g) => g.id),
+    }));
+    setSelectedOptionExtras((prev) => ({
+      ...prev,
+      [`${productVariations.length}-0`]: {},
+    }));
+  };
+
+  const handleRemoveVariation = (index) => {
+    setProductVariations((prev) => prev.filter((_, idx) => idx !== index));
+    // Clean up option groups and extras
+    setSelectedOptionGroups((prev) => {
+      const updated = { ...prev };
+      Object.keys(updated).forEach((key) => {
+        if (key.startsWith(`${index}-`)) {
+          delete updated[key];
+        }
+      });
+      return updated;
+    });
+    setSelectedOptionExtras((prev) => {
+      const updated = { ...prev };
+      Object.keys(updated).forEach((key) => {
+        if (key.startsWith(`${index}-`)) {
+          delete updated[key];
+        }
+      });
+      return updated;
+    });
+  };
+
+  const updateVariationState = (setProductVariations, variationIndex, field, tapName, updatedValue) => {
+    setProductVariations((prev) =>
+      prev.map((item, idx) =>
+        idx === variationIndex
+          ? {
+              ...item,
+              [field]: item[field].map((subField) =>
+                subField.tranlation_name === tapName ? { ...subField, name: updatedValue } : subField
+              ),
+            }
+          : item
+      )
+    );
+  };
+
+  const handleAddOption = (variationIndex) => {
+    const newOption = {
+      names: taps.map((tap) => ({
+        name: "",
+        tranlation_id: tap.id,
+        tranlation_name: tap.name,
+      })),
+      extra: [],
+      price: "",
+      points: "",
+      status: 0,
+    };
+    setProductVariations((prev) =>
+      prev.map((variation, idx) =>
+        idx === variationIndex ? { ...variation, options: [...variation.options, newOption] } : variation
+      )
+    );
+    // Initialize new option's groups and extras
+    setSelectedOptionGroups((prev) => ({
+      ...prev,
+      [`${variationIndex}-${productVariations[variationIndex].options.length}`]: groups.map((g) => g.id),
+    }));
+    setSelectedOptionExtras((prev) => ({
+      ...prev,
+      [`${variationIndex}-${productVariations[variationIndex].options.length}`]: {},
+    }));
+  };
+
+  const handleRemoveOption = (variationIndex, optionIndex) => {
+    setProductVariations((prev) =>
+      prev.map((variation, vIdx) =>
+        vIdx === variationIndex
+          ? { ...variation, options: variation.options.filter((_, oIdx) => oIdx !== optionIndex) }
+          : variation
+      )
+    );
+    // Clean up option groups and extras
+    setSelectedOptionGroups((prev) => {
+      const updated = { ...prev };
+      delete updated[`${variationIndex}-${optionIndex}`];
+      return updated;
+    });
+    setSelectedOptionExtras((prev) => {
+      const updated = { ...prev };
+      delete updated[`${variationIndex}-${optionIndex}`];
+      return updated;
+    });
+  };
+
+  const handleOpenVariationType = (index) => {
+    setOpenVariationIndex((prev) => (prev === index ? null : index));
+  };
+
+  const handleOpenOptionProductVariationType = () => {
+    setOpenVariationIndex(null);
+  };
+
+  const handleCloseAllDropdowns = () => {
+    setIsOPenProductCategory(false);
+    setIsOPenProductSubCategory(false);
+    setIsOPenProductItemType(false);
+    setIsOPenProductStockType(false);
+    setIsOPenProductDiscount(false);
+    setIsOPenProductTax(false);
+    setIsOPenProductGroup(false);
+  };
+
+  const handleOpenCategory = () => {
+    handleCloseAllDropdowns();
+    setIsOPenProductCategory(!isOPenProductCategory);
+  };
+
+  const handleOpenSubCategory = () => {
+    handleCloseAllDropdowns();
+    setIsOPenProductSubCategory(!isOPenProductSubCategory);
+  };
+
+  const handleOpenItemType = () => {
+    handleCloseAllDropdowns();
+    setIsOPenProductItemType(!isOPenProductItemType);
+  };
+
+  const handleOpenStockType = () => {
+    handleCloseAllDropdowns();
+    setIsOPenProductStockType(!isOPenProductStockType);
+  };
+
+  const handleOpenDiscount = () => {
+    handleCloseAllDropdowns();
+    setIsOPenProductDiscount(!isOPenProductDiscount);
+  };
+
+  const handleOpenTax = () => {
+    handleCloseAllDropdowns();
+    setIsOPenProductTax(!isOPenProductTax);
+  };
+
+  const handleOpenOptionProductCategory = () => setIsOPenProductCategory(false);
+  const handleOpenOptionProductSubCategory = () => setIsOPenProductSubCategory(false);
+  const handleOpenOptionProductItemType = () => setIsOPenProductItemType(false);
+  const handleOpenOptionProductStockType = () => setIsOPenProductStockType(false);
+  const handleOpenOptionProductDiscount = () => setIsOPenProductDiscount(false);
+  const handleOpenOptionProductTax = () => setIsOPenProductTax(false);
+
+  const handleSelectProductVariationType = (option, variationIndex) => {
+    setProductVariations((prev) =>
+      prev.map((ele, index) =>
+        index === variationIndex ? { ...ele, type: option.name, min: "", max: "" } : ele
+      )
+    );
+  };
+
+  const handleSelectProductCategory = (option) => {
+    setSelectedCategoryId(option.id);
+    setSelectedCategoryState(option.name);
+    const filterSup = subCategories.filter((sup) => sup.category_id === option.id);
+    setFilterSubCategories([{ id: "", name: "Selected Subcategory" }, ...filterSup]);
+  };
+
+  const handleSelectProductSubCategory = (option) => {
+    setSelectedSubCategoryId(option.id);
+    setSelectedSubCategoryState(option.name);
+  };
+
+  const handleSelectProductItemType = (option) => {
+    setSelectedItemTypeName(option.id);
+    setSelectedItemTypeState(option.name);
+  };
+
+  const handleSelectProductStockType = (option) => {
+    setSelectedStockTypeName(option.id);
+    setSelectedStockTypeState(option.name);
+    setProductStockNumber("");
+  };
+
+  const handleSelectProductDiscount = (option) => {
+    setSelectedDiscountId(option.id);
+    setSelectedDiscountState(option.name);
+  };
+
+  const handleSelectProductTax = (option) => {
+    setSelectedTaxId(option.id);
+    setSelectedTaxState(option.name);
+  };
+
+  const handleProductStatus = () => {
+    setProductStatus((prev) => (prev === 0 ? 1 : 0));
+  };
+
+  const handleProductRecommended = () => {
+    setProductRecommended((prev) => (prev === 0 ? 1 : 0));
+  };
+
+  const handleProductTimeStatus = () => {
+    setProductTimeStatus((prev) => (prev === 0 ? 1 : 0));
+    if (productTimeStatus === 1) {
+      setProductStatusFrom("");
+      setProductStatusTo("");
+    }
+  };
+
+  const handleProductImageClick = (ref) => {
+    if (ref.current) {
+      ref.current.click();
+    }
+  };
+
+  const handleProductImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProductImage(file);
+      setProductImageName(file.name);
+    }
+  };
+
+  const handleProductNamesTap = (index) => {
+    setCurrentProductNamesTap(index);
+  };
+
+  const handleExcludeNamesTap = (index) => {
+    setCurrentExcludeNamesTap(index);
+  };
+
+  const handleVariationTap = (index) => {
+    setCurrentVariationTap(index);
+  };
+
+  const handleVariationOptionTap = (index) => {
+    setCurrentVariationOptionTap(index);
+  };
+
+  const handleGroupChange = (e) => {
+    const selected = e.value;
+    setSelectedGroups(selected);
+    const updatedExtras = { ...selectedExtras };
+    selected.forEach((groupId) => {
+      if (!updatedExtras[groupId]) {
+        updatedExtras[groupId] = [];
+      }
+    });
+    Object.keys(updatedExtras).forEach((groupId) => {
+      if (!selected.includes(Number(groupId))) {
+        delete updatedExtras[groupId];
+      }
+    });
+    setSelectedExtras(updatedExtras);
+  };
+
+  const handleExtraChange = (groupId, selectedExtraIds) => {
+    setSelectedExtras((prev) => ({
+      ...prev,
+      [groupId]: selectedExtraIds,
+    }));
+  };
+
+  const getExtrasForGroup = (groupId) => {
+    const group = groups.find((g) => g.id === groupId);
+    return group?.extra || [];
+  };
+
+  const handleOptionGroupChange = (variationIndex, optionIndex, selectedGroupIds) => {
+    const key = `${variationIndex}-${optionIndex}`;
+    setSelectedOptionGroups((prev) => ({
+      ...prev,
+      [key]: selectedGroupIds,
+    }));
+    const updatedExtras = selectedOptionExtras[key] || {};
+    selectedGroupIds.forEach((groupId) => {
+      if (!updatedExtras[groupId]) {
+        updatedExtras[groupId] = [];
+      }
+    });
+    Object.keys(updatedExtras).forEach((groupId) => {
+      if (!selectedGroupIds.includes(Number(groupId))) {
+        delete updatedExtras[groupId];
+      }
+    });
+    setSelectedOptionExtras((prev) => ({
+      ...prev,
+      [key]: updatedExtras,
+    }));
+  };
+
+  const handleOptionExtrasChange = (variationIndex, optionIndex, groupId, selectedExtraIds) => {
+    const key = `${variationIndex}-${optionIndex}`;
+    setSelectedOptionExtras((prev) => ({
+      ...prev,
+      [key]: {
+        ...prev[key],
+        [groupId]: selectedExtraIds,
+      },
+    }));
+  };
+
+  /* Close Dropdowns on Click Outside */
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        categoryRef.current &&
+        !categoryRef.current.contains(event.target) &&
+        subCategoryRef.current &&
+        !subCategoryRef.current.contains(event.target) &&
+        itemTypeRef.current &&
+        !itemTypeRef.current.contains(event.target) &&
+        stockTypeRef.current &&
+        !stockTypeRef.current.contains(event.target) &&
+        discountRef.current &&
+        !discountRef.current.contains(event.target) &&
+        taxRef.current &&
+        !taxRef.current.contains(event.target) &&
+        groupRef.current &&
+        !groupRef.current.contains(event.target)
+      ) {
+        handleCloseAllDropdowns();
+      }
+      if (variationTypeRef.current) {
+        let clickedInsideAnyVariation = false;
+        for (let i = 0; i < variationTypeRef.current.length; i++) {
+          const ref = variationTypeRef.current[i];
+          if (ref && ref.contains(event.target)) {
+            clickedInsideAnyVariation = true;
+            break;
+          }
+        }
+        if (!clickedInsideAnyVariation) {
+          setOpenVariationIndex(null);
+        }
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <>
-      {loadingTranslation ||
-        loadingCategory ||
-        loadingProduct ||
-        loadingPost ? (
-        <>
-          <div className="flex items-center justify-center w-full">
-            <LoaderLogin />
-          </div>
-        </>
+      {loadingProductEdit || loadingTranslation || loadingCategory || loadingProduct || loadingPut ? (
+        <div className="flex items-center justify-center w-full">
+          <LoaderLogin />
+        </div>
       ) : (
         <form
-          onSubmit={handleproductEdit}
+          onSubmit={handleProductUpdate}
           className="flex flex-col items-center justify-center w-full gap-5 pb-24"
         >
           <div className="flex flex-col items-start justify-start w-full gap-5">
@@ -1078,13 +893,12 @@ useEffect(() => {
                     className={`${currentProductNamesTap === index
                       ? "text-mainColor border-b-4 border-mainColor"
                       : "text-thirdColor"
-                      }  pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
+                      } pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
                   >
                     {tap.name}
                   </span>
                 ))}
               </div>
-
               <div className="w-full">
                 {taps.map(
                   (tap, index) =>
@@ -1093,71 +907,50 @@ useEffect(() => {
                         className="flex items-center justify-start w-full gap-4 sm:flex-col lg:flex-row"
                         key={tap.id}
                       >
-                        {/* Product Name Input */}
                         <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                           <span className="text-xl font-TextFontRegular text-thirdColor">
                             {t("ProductName")} {tap.name}:
                           </span>
                           <TextInput
-                            value={productNames[index]?.product_name} // Access category_name property
+                            value={productNames[index]?.product_name || ""}
                             onChange={(e) => {
-                              const inputValue = e.target.value; // Ensure this is a string
+                              const inputValue = e.target.value;
                               setProductNames((prev) => {
-                                const updatedProductNames = [...prev];
-
-                                // Ensure the array is long enough
-                                if (updatedProductNames.length <= index) {
-                                  updatedProductNames.length = index + 1; // Resize array
-                                }
-
-                                // Create or update the object at the current index
-                                updatedProductNames[index] = {
-                                  ...updatedProductNames[index], // Retain existing properties if any
-                                  tranlation_id: tap.id, // Use the ID from tap
-                                  product_name: inputValue, // Use the captured string value
-                                  tranlation_name: tap.name || "Default Name", // Use tap.name for tranlation_name
+                                const updated = [...prev];
+                                updated[index] = {
+                                  ...updated[index],
+                                  tranlation_id: tap.id,
+                                  product_name: inputValue,
+                                  tranlation_name: tap.name,
                                 };
-
-                                return updatedProductNames;
+                                return updated;
                               });
                             }}
                             placeholder={t("Product Name")}
                           />
                         </div>
-
-                        {/* Product Description Input */}
                         <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                           <span className="text-xl font-TextFontRegular text-thirdColor">
                             {t("Product Description")} {tap.name}:
                           </span>
                           <TextInput
-                            value={descriptionNames[index]?.description_name} // Access category_name property
+                            value={descriptionNames[index]?.description_name || ""}
                             onChange={(e) => {
-                              const inputValue = e.target.value; // Ensure this is a string
+                              const inputValue = e.target.value;
                               setDescriptionNames((prev) => {
-                                const updatedDescriptionNames = [...prev];
-
-                                // Ensure the array is long enough
-                                if (updatedDescriptionNames.length <= index) {
-                                  updatedDescriptionNames.length = index + 1; // Resize array
-                                }
-
-                                // Create or update the object at the current index
-                                updatedDescriptionNames[index] = {
-                                  ...updatedDescriptionNames[index], // Retain existing properties if any
-                                  tranlation_id: tap.id, // Use the ID from tap
-                                  description_name: inputValue, // Use the captured string value
-                                  tranlation_name: tap.name || "Default Name", // Use tap.name for tranlation_name
+                                const updated = [...prev];
+                                updated[index] = {
+                                  ...updated[index],
+                                  tranlation_id: tap.id,
+                                  description_name: inputValue,
+                                  tranlation_name: tap.name,
                                 };
-
-                                return updatedDescriptionNames;
+                                return updated;
                               });
                             }}
                             placeholder={t("Product Description")}
                           />
                         </div>
-
-                        {/* Conditional Rendering for First Tab Only */}
                       </div>
                     )
                 )}
@@ -1165,10 +958,7 @@ useEffect(() => {
             </div>
 
             {/* Product Details */}
-
-            {/* More Details */}
             <div className="flex items-start justify-start w-full gap-5 sm:flex-col lg:flex-row">
-              {/* Product Category  */}
               <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Category Name")}:
@@ -1183,7 +973,6 @@ useEffect(() => {
                   onSelectOption={handleSelectProductCategory}
                 />
               </div>
-              {/* Product SubCategory  */}
               <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("SubCategory Name")}:
@@ -1198,14 +987,13 @@ useEffect(() => {
                   onSelectOption={handleSelectProductSubCategory}
                 />
               </div>
-              {/* Product Addons  */}
               <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Addons Names")}:
                 </span>
                 <MultiSelect
                   value={selectedAddonsId}
-                  onChange={(e) => setSelectedAddonsId(e.value)} // Assigns entire selected array
+                  onChange={(e) => setSelectedAddonsId(e.value)}
                   options={addons}
                   optionLabel="name"
                   display="chip"
@@ -1217,7 +1005,6 @@ useEffect(() => {
             </div>
 
             <div className="flex items-start justify-start w-full gap-5 sm:flex-col lg:flex-row">
-              {/* Product Item Type  */}
               <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Item Type")}:
@@ -1232,7 +1019,6 @@ useEffect(() => {
                   onSelectOption={handleSelectProductItemType}
                 />
               </div>
-              {/* Product Stock Type  */}
               <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Stock Type")}:
@@ -1247,9 +1033,7 @@ useEffect(() => {
                   onSelectOption={handleSelectProductStockType}
                 />
               </div>
-
-              {selectedStockTypeName === "daily" ||
-                selectedStockTypeName === "fixed" ? (
+              {selectedStockTypeName === "daily" || selectedStockTypeName === "fixed" ? (
                 <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
                     {t("Number")}:
@@ -1260,11 +1044,10 @@ useEffect(() => {
                     placeholder={t("Number")}
                   />
                 </div>
-              ) : (
-                ""
-              )}
+              ) : null}
+            </div>
 
-              {/* Product Price */}
+            <div className="flex items-start justify-start w-full gap-5 sm:flex-col lg:flex-row">
               <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Price")}:
@@ -1275,10 +1058,6 @@ useEffect(() => {
                   placeholder={t("Price")}
                 />
               </div>
-            </div>
-
-            <div className="flex items-start justify-start w-full gap-5 sm:flex-col lg:flex-row">
-              {/* Product Discount  */}
               <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Discount Name")}:
@@ -1293,7 +1072,6 @@ useEffect(() => {
                   onSelectOption={handleSelectProductDiscount}
                 />
               </div>
-              {/* Product Tax  */}
               <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Tax Name")}:
@@ -1308,7 +1086,9 @@ useEffect(() => {
                   onSelectOption={handleSelectProductTax}
                 />
               </div>
-              {/* Product Point */}
+            </div>
+
+            <div className="flex items-start justify-start w-full gap-5 sm:flex-col lg:flex-row">
               <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Point")}:
@@ -1319,11 +1099,6 @@ useEffect(() => {
                   placeholder={t("Point")}
                 />
               </div>
-            </div>
-
-            <div className="flex items-start justify-start w-full gap-5 mt-2 sm:flex-col lg:flex-row">
-              {/* Product Image */}
-              {/* <div className="sm:w-full lg:w-[33%]  sm:flex-col lg:flex-row flex sm:items-start lg:items-center justify-start gap-x-3"> */}
               <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Product Image")}:
@@ -1333,11 +1108,9 @@ useEffect(() => {
                   uploadFileRef={productImageRef}
                   placeholder={t("Product Image")}
                   handleFileChange={handleProductImageChange}
-                  onChange={(e) => setProductImage(e.target.value)}
                   onClick={() => handleProductImageClick(productImageRef)}
                 />
               </div>
-
               {productTimeStatus === 1 && (
                 <>
                   <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
@@ -1348,9 +1121,7 @@ useEffect(() => {
                       value={productStatusFrom ?? ""}
                       onChange={(e) => setProductStatusFrom(e.target.value)}
                     />
-                    {/* <input type="time" /> */}
                   </div>
-
                   <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                     <span className="text-xl font-TextFontRegular text-thirdColor">
                       {t("To")}:
@@ -1365,82 +1136,66 @@ useEffect(() => {
             </div>
 
             <div className="flex items-start justify-start w-full gap-4 sm:flex-col lg:flex-row">
-              {/* Product Status */}
               <div className="sm:w-full lg:w-[20%] flex items-center justify-start gap-x-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Status")}:
                 </span>
-                <Switch
-                  handleClick={handleProductStatus}
-                  checked={productStatus}
-                />
+                <Switch handleClick={handleProductStatus} checked={productStatus} />
               </div>
-              {/* Product Product Recommended */}
               <div className="sm:w-full lg:w-[40%] flex items-center justify-start gap-x-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("ProductRecommended")}:
                 </span>
-                <Switch
-                  handleClick={handleProductRecommended}
-                  checked={productRecommended}
-                />
+                <Switch handleClick={handleProductRecommended} checked={productRecommended} />
               </div>
-              {/* Product Time Status */}
               <div className="sm:w-full lg:w-[35%] flex items-center justify-start gap-x-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("ProductTimeStatus")}:
                 </span>
-                <Switch
-                  handleClick={handleProductTimeStatus}
-                  checked={productTimeStatus}
-                />
+                <Switch handleClick={handleProductTimeStatus} checked={productTimeStatus} />
               </div>
             </div>
 
             <div className="w-full p-6 bg-gray-50 rounded-2xl shadow-lg">
-              {/* Group MultiSelect */}
-              <div className="mb-6 w-full sm:w-full lg:w-[30%] ">
+              <div className="mb-6 w-full sm:w-full lg:w-[30%]">
                 <label className="block text-lg font-semibold text-gray-700 mb-2">
                   {t("Group Extra Names")}:
                 </label>
                 <MultiSelect
                   value={selectedGroups}
                   onChange={handleGroupChange}
-                  options={groups}
-                  optionLabel="name"
-                  optionValue="id"
+                  options={groups.map((group) => ({
+                    label: group.name || t("Unnamed Group"),
+                    value: group.id,
+                  }))}
+                  optionLabel="label"
+                  optionValue="value"
                   display="chip"
-                  placeholder={selectedGroupState}
-                  // maxSelectedLabels={3}
-                  className="w-full bg-white border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-200"
-                  panelClassName="bg-white border border-gray-200 rounded-lg shadow-lg"
+                  placeholder={t("Select Groups")}
+                  className="w-full bg-white border border-gray-300 rounded-lg shadow-sm"
                 />
               </div>
-
-              {/* Extras MultiSelects */}
               {selectedGroups.length > 0 && (
                 <div className="space-y-6">
                   {selectedGroups.map((groupId) => {
                     const group = groups.find((g) => g.id === groupId);
                     return (
-                      <div
-                        key={groupId}
-                        className="p-4 bg-white rounded-xl shadow-sm animate-fadeIn"
-                      >
+                      <div key={groupId} className="p-4 bg-white rounded-xl shadow-sm">
                         <label className="block text-lg font-semibold text-gray-700 mb-2">
-                          {t("Extra Names")} for {group?.name || 'Group'}:
+                          {t("Extra Names")} for {group?.name || t("Unnamed Group")}:
                         </label>
                         <MultiSelect
                           value={selectedExtras[groupId] || []}
                           onChange={(e) => handleExtraChange(groupId, e.value)}
-                          options={getExtrasForGroup(groupId)}
-                          optionLabel="name"
-                          optionValue="id"
+                          options={getExtrasForGroup(groupId).map((extra) => ({
+                            label: extra.name || t("Unnamed Extra"),
+                            value: extra.id,
+                          }))}
+                          optionLabel="label"
+                          optionValue="value"
                           display="chip"
                           placeholder={t("Select Extras")}
-                          // maxSelectedLabels={5}
-                          className="w-full bg-white border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-200"
-                          panelClassName="bg-white border border-gray-200 rounded-lg shadow-lg"
+                          className="w-full bg-white border border-gray-300 rounded-lg shadow-sm"
                         />
                       </div>
                     );
@@ -1460,7 +1215,7 @@ useEffect(() => {
                       className={`${currentExcludeNamesTap === index
                         ? "text-mainColor border-b-4 border-mainColor"
                         : "text-thirdColor"
-                        }  pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
+                        } pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
                     >
                       {tap.name}
                     </span>
@@ -1471,42 +1226,31 @@ useEffect(() => {
                 {taps.map(
                   (tap, index) =>
                     currentExcludeNamesTap === index && (
-                      <div
-                        className="flex flex-col items-center justify-center w-full gap-4"
-                        key={tap.id}
-                      >
+                      <div className="flex flex-col items-center justify-center w-full gap-4" key={tap.id}>
                         {(productExclude || []).map((ele, indexMap) => (
                           <div
                             className="flex items-center justify-start w-full gap-5"
                             key={`${tap.id}-${indexMap}`}
                           >
-                            {/* Exclude Name Input */}
                             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("ExcludeName")} {tap.name}:
                               </span>
                               <TextInput
-                                value={
-                                  ele.names.find(
-                                    (name) => name.tranlation_name === tap.name
-                                  )?.exclude_name
-                                }
+                                value={ele.names.find((name) => name.tranlation_name === tap.name)?.exclude_name || ""}
                                 onChange={(e) => {
                                   const updatedValue = e.target.value;
-                                  setProductExclude((prevProductExclude) =>
-                                    prevProductExclude.map((item, idx) =>
+                                  setProductExclude((prev) =>
+                                    prev.map((item, idx) =>
                                       idx === indexMap
                                         ? {
-                                          ...item,
-                                          names: item.names.map((name) =>
-                                            name.tranlation_name === tap.name
-                                              ? {
-                                                ...name,
-                                                exclude_name: updatedValue,
-                                              }
-                                              : name
-                                          ),
-                                        }
+                                            ...item,
+                                            names: item.names.map((name) =>
+                                              name.tranlation_name === tap.name
+                                                ? { ...name, exclude_name: updatedValue }
+                                                : name
+                                            ),
+                                          }
                                         : item
                                     )
                                   );
@@ -1514,15 +1258,11 @@ useEffect(() => {
                                 placeholder={t("ExcludeName")}
                               />
                             </div>
-
-                            {/* Remove Button */}
                             {index === 0 && (
                               <div className="flex items-end mt-10">
                                 <StaticButton
                                   text={t("Remove")}
-                                  handleClick={() =>
-                                    handleRemoveExclude(indexMap)
-                                  }
+                                  handleClick={() => handleRemoveExclude(indexMap)}
                                 />
                               </div>
                             )}
@@ -1530,19 +1270,14 @@ useEffect(() => {
                         ))}
                         {index === 0 && (
                           <div
-                            className={`w-full flex items-center ${productExclude.length === 0
-                              ? "justify-center"
-                              : "justify-start"
-                              }`}
+                            className={`w-full flex items-center ${
+                              productExclude.length === 0 ? "justify-center" : "justify-start"
+                            }`}
                           >
                             <ButtonAdd
                               isWidth={true}
                               Color="mainColor"
-                              Text={
-                                productExclude.length === 0
-                                  ? t("AddExclude")
-                                  : t("AddMoreExclude")
-                              }
+                              Text={productExclude.length === 0 ? t("AddExclude") : t("AddMoreExclude")}
                               handleClick={handleAddExclude}
                             />
                           </div>
@@ -1552,7 +1287,6 @@ useEffect(() => {
                 )}
               </div>
             </div>
-
 
             {/* Product Variations */}
             <div className="flex flex-col items-start justify-start w-full gap-4 pb-4 border-b-4 border-gray-300">
@@ -1576,25 +1310,19 @@ useEffect(() => {
                 {taps.map(
                   (tap, index) =>
                     currentVariationTap === index && (
-                      <div
-                        className="flex flex-col items-center justify-center w-full gap-4"
-                        key={tap.id}
-                      >
+                      <div className="flex flex-col items-center justify-center w-full gap-4" key={tap.id}>
                         {(productVariations || []).map((ele, indexVariation) => (
                           <div
-                            className="flex flex-wrap items-start justify-start w-full gap-5 p-3 border-4 shadow border-mainColor rounded- Pty-2xl sm:flex-col lg:flex-row"
+                            className="flex flex-wrap items-start justify-start w-full gap-5 p-3 border-4 shadow border-mainColor rounded-xl sm:flex-col lg:flex-row"
                             key={`${tap.id}-${indexVariation}`}
                           >
-                            {/* Variation Name */}
                             <div className="sm:w-full lg:w-[30%] flex sm:flex-col lg:flex-row items-start justify-start gap-5">
                               <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
                                   {t("VariationName")} {tap.name}:
                                 </span>
                                 <TextInput
-                                  value={
-                                    ele.names.find((name) => name.tranlation_name === tap.name)?.name
-                                  }
+                                  value={ele.names.find((name) => name.tranlation_name === tap.name)?.name || ""}
                                   onChange={(e) =>
                                     updateVariationState(
                                       setProductVariations,
@@ -1620,16 +1348,12 @@ useEffect(() => {
                                     stateoption={ele.type || "Select Type"}
                                     openMenu={openVariationIndex === indexVariation}
                                     handleOpenOption={handleOpenOptionProductVariationType}
-                                    options={[
-                                      { name: t("single") },
-                                      { name: t("multiple") },
-                                    ]}
+                                    options={[{ name: t("single") }, { name: t("multiple") }]}
                                     onSelectOption={(option) =>
                                       handleSelectProductVariationType(option, indexVariation)
                                     }
                                   />
                                 </div>
-
                                 {ele.type === "multiple" && (
                                   <>
                                     <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
@@ -1640,11 +1364,9 @@ useEffect(() => {
                                         value={ele.min}
                                         onChange={(e) => {
                                           const updatedValue = e.target.value;
-                                          setProductVariations((prevProductVariations) =>
-                                            prevProductVariations.map((item, idx) =>
-                                              idx === indexVariation
-                                                ? { ...item, min: updatedValue }
-                                                : item
+                                          setProductVariations((prev) =>
+                                            prev.map((item, idx) =>
+                                              idx === indexVariation ? { ...item, min: updatedValue } : item
                                             )
                                           );
                                         }}
@@ -1659,11 +1381,9 @@ useEffect(() => {
                                         value={ele.max}
                                         onChange={(e) => {
                                           const updatedValue = e.target.value;
-                                          setProductVariations((prevProductVariations) =>
-                                            prevProductVariations.map((item, idx) =>
-                                              idx === indexVariation
-                                                ? { ...item, max: updatedValue }
-                                                : item
+                                          setProductVariations((prev) =>
+                                            prev.map((item, idx) =>
+                                              idx === indexVariation ? { ...item, max: updatedValue } : item
                                             )
                                           );
                                         }}
@@ -1672,20 +1392,16 @@ useEffect(() => {
                                     </div>
                                   </>
                                 )}
-
                                 <div className="w-[32%] flex mt-10 items-center justify-center gap-x-3">
                                   <span className="text-xl font-TextFontRegular text-thirdColor">
                                     {t("Required")}:
                                   </span>
                                   <Switch
                                     handleClick={() => {
-                                      setProductVariations((prevProductVariations) =>
-                                        prevProductVariations.map((item, idx) =>
+                                      setProductVariations((prev) =>
+                                        prev.map((item, idx) =>
                                           idx === indexVariation
-                                            ? {
-                                              ...item,
-                                              required: item.required === 1 ? 0 : 1,
-                                            }
+                                            ? { ...item, required: item.required === 1 ? 0 : 1 }
                                             : item
                                         )
                                       );
@@ -1698,10 +1414,8 @@ useEffect(() => {
                                 </div>
                               </>
                             )}
-
                             {index === 0 && (
                               <>
-                                {/* Options Tabs */}
                                 <div className="flex items-center justify-start w-full gap-x-6">
                                   {taps.map((tapOption, indexOptionTap) => (
                                     <span
@@ -1716,8 +1430,6 @@ useEffect(() => {
                                     </span>
                                   ))}
                                 </div>
-
-                                {/* Render each variation's options */}
                                 {taps.map(
                                   (tapOption, indexOptionTap) =>
                                     currentVariationOptionTap === indexOptionTap && (
@@ -1731,7 +1443,6 @@ useEffect(() => {
                                               className="flex flex-wrap items-start justify-start gap-5 p-5 pt-0 shadow-md sm:w-full rounded-xl"
                                               key={`${indexOption}-${tapOption.id}`}
                                             >
-                                              {/* Option Name */}
                                               <div className="w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                                                 <span className="text-xl font-TextFontRegular text-thirdColor">
                                                   {t("OptionName")} {tapOption.name}:
@@ -1740,33 +1451,28 @@ useEffect(() => {
                                                   value={
                                                     option.names.find(
                                                       (nameObj) => nameObj.tranlation_name === tapOption.name
-                                                    )?.name
+                                                    )?.name || ""
                                                   }
                                                   onChange={(e) => {
                                                     const updatedValue = e.target.value;
-                                                    setProductVariations((prevVariations) =>
-                                                      prevVariations.map((variation, vIdx) =>
+                                                    setProductVariations((prev) =>
+                                                      prev.map((variation, vIdx) =>
                                                         vIdx === indexVariation
                                                           ? {
-                                                            ...variation,
-                                                            options: variation.options.map(
-                                                              (opt, oIdx) =>
+                                                              ...variation,
+                                                              options: variation.options.map((opt, oIdx) =>
                                                                 oIdx === indexOption
                                                                   ? {
-                                                                    ...opt,
-                                                                    names: opt.names.map(
-                                                                      (nameObj) =>
+                                                                      ...opt,
+                                                                      names: opt.names.map((nameObj) =>
                                                                         nameObj.tranlation_name === tapOption.name
-                                                                          ? {
-                                                                            ...nameObj,
-                                                                            name: updatedValue,
-                                                                          }
+                                                                          ? { ...nameObj, name: updatedValue }
                                                                           : nameObj
-                                                                    ),
-                                                                  }
+                                                                      ),
+                                                                    }
                                                                   : opt
-                                                            ),
-                                                          }
+                                                              ),
+                                                            }
                                                           : variation
                                                       )
                                                     );
@@ -1776,7 +1482,6 @@ useEffect(() => {
                                               </div>
                                               {indexOptionTap === 0 && (
                                                 <>
-                                                  {/* Option Price */}
                                                   <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                                                     <span className="text-xl font-TextFontRegular text-thirdColor">
                                                       {t("Price")}:
@@ -1785,21 +1490,17 @@ useEffect(() => {
                                                       value={option.price}
                                                       onChange={(e) => {
                                                         const updatedValue = e.target.value;
-                                                        setProductVariations((prevProductVariations) =>
-                                                          prevProductVariations.map((item, idx) =>
+                                                        setProductVariations((prev) =>
+                                                          prev.map((item, idx) =>
                                                             idx === indexVariation
                                                               ? {
-                                                                ...item,
-                                                                options: item.options.map(
-                                                                  (opt, oIdx) =>
+                                                                  ...item,
+                                                                  options: item.options.map((opt, oIdx) =>
                                                                     oIdx === indexOption
-                                                                      ? {
-                                                                        ...opt,
-                                                                        price: updatedValue,
-                                                                      }
+                                                                      ? { ...opt, price: updatedValue }
                                                                       : opt
-                                                                ),
-                                                              }
+                                                                  ),
+                                                                }
                                                               : item
                                                           )
                                                         );
@@ -1807,7 +1508,6 @@ useEffect(() => {
                                                       placeholder={t("Price")}
                                                     />
                                                   </div>
-                                                  {/* Option Points */}
                                                   <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                                                     <span className="text-xl font-TextFontRegular text-thirdColor">
                                                       {t("Point")}:
@@ -1816,21 +1516,17 @@ useEffect(() => {
                                                       value={option.points}
                                                       onChange={(e) => {
                                                         const updatedValue = e.target.value;
-                                                        setProductVariations((prevProductVariations) =>
-                                                          prevProductVariations.map((item, idx) =>
+                                                        setProductVariations((prev) =>
+                                                          prev.map((item, idx) =>
                                                             idx === indexVariation
                                                               ? {
-                                                                ...item,
-                                                                options: item.options.map(
-                                                                  (opt, oIdx) =>
+                                                                  ...item,
+                                                                  options: item.options.map((opt, oIdx) =>
                                                                     oIdx === indexOption
-                                                                      ? {
-                                                                        ...opt,
-                                                                        points: updatedValue,
-                                                                      }
+                                                                      ? { ...opt, points: updatedValue }
                                                                       : opt
-                                                                ),
-                                                              }
+                                                                  ),
+                                                                }
                                                               : item
                                                           )
                                                         );
@@ -1838,28 +1534,23 @@ useEffect(() => {
                                                       placeholder={t("Point")}
                                                     />
                                                   </div>
-                                                  {/* Option Status */}
                                                   <div className="w-[20%] flex items-center justify-start gap-x-3 lg:mt-3">
                                                     <span className="text-xl font-TextFontRegular text-thirdColor">
                                                       {t("Status")}:
                                                     </span>
                                                     <Switch
                                                       handleClick={() =>
-                                                        setProductVariations((prevProductVariations) =>
-                                                          prevProductVariations.map((item, idx) =>
+                                                        setProductVariations((prev) =>
+                                                          prev.map((item, idx) =>
                                                             idx === indexVariation
                                                               ? {
-                                                                ...item,
-                                                                options: item.options.map(
-                                                                  (opt, oIdx) =>
+                                                                  ...item,
+                                                                  options: item.options.map((opt, oIdx) =>
                                                                     oIdx === indexOption
-                                                                      ? {
-                                                                        ...opt,
-                                                                        status: opt.status ? 0 : 1,
-                                                                      }
+                                                                      ? { ...opt, status: opt.status ? 0 : 1 }
                                                                       : opt
-                                                                ),
-                                                              }
+                                                                  ),
+                                                                }
                                                               : item
                                                           )
                                                         )
@@ -1868,76 +1559,86 @@ useEffect(() => {
                                                     />
                                                   </div>
                                                   <div className="w-full flex flex-col gap-4 sm:gap-6">
-                                                    {/* Group Selection */}
                                                     <div className="w-full sm:w-full lg:w-[30%] flex flex-col items-start gap-y-2">
                                                       <label className="text-lg font-semibold text-gray-800">
                                                         {t("Select Group")}:
                                                       </label>
                                                       <MultiSelect
                                                         value={selectedOptionGroups[`${indexVariation}-${indexOption}`] || []}
-                                                        onChange={(e) => handleOptionGroupChange(indexVariation, indexOption, e.value)}
+                                                        onChange={(e) =>
+                                                          handleOptionGroupChange(indexVariation, indexOption, e.value)
+                                                        }
                                                         options={groups.map((group) => ({
-                                                          name: group.name,
+                                                          name: group.name || t("Unnamed Group"),
                                                           value: group.id,
                                                         }))}
                                                         optionLabel="name"
                                                         optionValue="value"
                                                         display="chip"
                                                         placeholder={t("Select Groups")}
-                                                        className="w-full bg-white border border-gray-300 rounded-xl shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all duration-300 text-gray-700"
+                                                        className="w-full bg-white border border-gray-300 rounded-xl shadow-sm"
                                                         filter
                                                         filterPlaceholder={t("Search Groups")}
                                                         maxSelectedLabels={3}
-                                                        aria-label={t("Select Groups")}
                                                       />
                                                     </div>
-
-                                                    {/* Extras Selection for Each Group */}
                                                     {selectedOptionGroups[`${indexVariation}-${indexOption}`]?.length > 0 && (
                                                       <div className="w-full items-start gap-y-3 bg-gray-50 p-4 rounded-xl shadow-sm">
                                                         <label className="text-lg font-semibold text-gray-800">
                                                           {t("Select Extras")}:
                                                         </label>
                                                         <div className="w-full space-y-3">
-                                                          {selectedOptionGroups[`${indexVariation}-${indexOption}`].map((groupId) => {
-                                                            const group = groups.find((g) => g.id === groupId);
-                                                            return (
-                                                              <div
-                                                                key={groupId}
-                                                                className="w-full p-3 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
-                                                              >
-                                                                <label className="block text-sm font-medium text-gray-600 mb-1">
-                                                                  {t("Extras for")} {group?.name || t("Group")}:
-                                                                </label>
-                                                                <MultiSelect
-                                                                  value={selectedOptionExtras[`${indexVariation}-${indexOption}`]?.[groupId] || []}
-                                                                  onChange={(e) => handleOptionExtrasChange(indexVariation, indexOption, groupId, e.value)}
-                                                                  options={getExtrasForGroup(groupId)}
-                                                                  optionLabel="name"
-                                                                  optionValue="id" // Changed from "value" to "id"
-                                                                  display="chip"
-                                                                  placeholder={t("Select Extras")}
-                                                                  className="w-full bg-white border border-gray-300 rounded-xl shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all duration-300 text-gray-700"
-                                                                  filter
-                                                                  filterPlaceholder={t("Search Extras")}
-                                                                  maxSelectedLabels={5}
-                                                                  aria-label={`${t("Select Extras")} for ${group?.name || t("Group")}`}
-                                                                />
-                                                              </div>
-                                                            );
-                                                          })}
+                                                          {selectedOptionGroups[`${indexVariation}-${indexOption}`].map(
+                                                            (groupId) => {
+                                                              const group = groups.find((g) => g.id === groupId);
+                                                              return (
+                                                                <div
+                                                                  key={groupId}
+                                                                  className="w-full p-3 bg-white rounded-lg shadow-sm"
+                                                                >
+                                                                  <label className="block text-sm font-medium text-gray-600 mb-1">
+                                                                    {t("Extras for")} {group?.name || t("Unnamed Group")}:
+                                                                  </label>
+                                                                  <MultiSelect
+                                                                    value={
+                                                                      selectedOptionExtras[`${indexVariation}-${indexOption}`]?.[
+                                                                        groupId
+                                                                      ] || []
+                                                                    }
+                                                                    onChange={(e) =>
+                                                                      handleOptionExtrasChange(
+                                                                        indexVariation,
+                                                                        indexOption,
+                                                                        groupId,
+                                                                        e.value
+                                                                      )
+                                                                    }
+                                                                    options={getExtrasForGroup(groupId).map((extra) => ({
+                                                                      label: extra.name || t("Unnamed Extra"),
+                                                                      value: extra.id,
+                                                                    }))}
+                                                                    optionLabel="label"
+                                                                    optionValue="value"
+                                                                    display="chip"
+                                                                    placeholder={t("Select Extras")}
+                                                                    className="w-full bg-white border border-gray-300 rounded-xl shadow-sm"
+                                                                    filter
+                                                                    filterPlaceholder={t("Search Extras")}
+                                                                    maxSelectedLabels={5}
+                                                                  />
+                                                                </div>
+                                                              );
+                                                            }
+                                                          )}
                                                         </div>
                                                       </div>
                                                     )}
                                                   </div>
-                                                  {/* Remove Option Button */}
                                                   {ele.options.length > 1 && (
                                                     <div className="sm:w-full lg:w-[20%] flex items-center justify-center lg:mt-8">
                                                       <StaticButton
                                                         text={t("Removeoption")}
-                                                        handleClick={() =>
-                                                          handleRemoveOption(indexVariation, indexOption)
-                                                        }
+                                                        handleClick={() => handleRemoveOption(indexVariation, indexOption)}
                                                       />
                                                     </div>
                                                   )}
@@ -1971,17 +1672,14 @@ useEffect(() => {
                         ))}
                         {index === 0 && (
                           <div
-                            className={`w-full flex items-center ${productVariations.length === 0 ? "justify-center" : "justify-start"
-                              }`}
+                            className={`w-full flex items-center ${
+                              productVariations.length === 0 ? "justify-center" : "justify-start"
+                            }`}
                           >
                             <ButtonAdd
                               isWidth={true}
                               Color="mainColor"
-                              Text={
-                                productVariations.length === 0
-                                  ? t("Add Variation")
-                                  : t("Add More Variation")
-                              }
+                              Text={productVariations.length === 0 ? t("Add Variation") : t("Add More Variation")}
                               handleClick={handleAddVariation}
                             />
                           </div>
@@ -1993,7 +1691,7 @@ useEffect(() => {
             </div>
           </div>
 
-          {/* Buttons*/}
+          {/* Buttons */}
           <div className="flex items-center justify-end w-full gap-x-4">
             <div>
               <StaticButton
@@ -2008,9 +1706,9 @@ useEffect(() => {
             </div>
             <div>
               <SubmitButton
-                text={t("AddProduct")}
+                text={t("UpdateProduct")}
                 rounded="rounded-full"
-                handleClick={handleproductEdit}
+                handleClick={handleProductUpdate}
               />
             </div>
           </div>

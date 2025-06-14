@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 export const usePost = ({ url, login = false, type = false }) => {
        const auth = useAuth();
-       const user = useSelector(state => state.userSultanAyub);
+       const user = useSelector(state => state.userProject);
        const [loadingPost, setLoadingPost] = useState(false);
        const [response, setResponse] = useState(null);
   const { t, i18n } = useTranslation();

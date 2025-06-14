@@ -21,7 +21,7 @@ const reducers = combineReducers({
        ordersFailed: ordersFailedReducer,
        ordersCanceled: ordersCanceledReducer,
        ordersSchedule: ordersScheduleReducer,
-       userSultanAyub: userReducer,  // Add user reducer here
+       userProject: userReducer,  // Add user reducer here
 
        canceledOrders: canceledOrdersReducer,
 
@@ -31,7 +31,7 @@ const reducers = combineReducers({
 const persistConfig = {
        key: 'root',
        storage,
-       whitelist: ['userSultanAyub', 'canceledOrders'], // Add canceledOrders to persisted state
+       whitelist: ['userProject', 'canceledOrders'], // Add canceledOrders to persisted state
 };
 
 const persistedReducer = persistReducer(persistConfig, reducers);

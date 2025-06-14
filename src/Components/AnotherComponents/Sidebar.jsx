@@ -33,7 +33,7 @@ const Sidebar = () => {
                      {/* <aside className=""> */}
                      <div direction={direction}  className="flex items-center justify-between w-full pb-1 border-b-2 cursor-pointer border-b-gray-300"
                             onClick={handleSidebar}>
-                            <span className={`${stateSide ? 'block' : 'hidden'} font-TextFontLight text-white text-2xl`}>{t("SultanAyub")}</span>
+                            <span className={`${stateSide ? 'block' : 'hidden'} font-TextFontLight text-white text-2xl`}>{t("projectName")}</span>
                             <WhiteLogo width={50} height={50} />
                      </div>
                      <div className="w-full h-[40rem] pb-52 text-lg overflow-scroll scrollSidebar scroll-smooth mt-2">
