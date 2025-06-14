@@ -58,6 +58,7 @@ const initialOrdersScheduleState = {
        loading: false,
 };
 
+const initialLanguage = { data: [], selected: 'en', }
 
 // New Orders slice
 const newOrdersSlice = createSlice({
@@ -319,6 +320,20 @@ const canceledOrdersSlice = createSlice({
        },
 });
 
+/* Languages */
+const languageSlice = createSlice({
+       name: 'language',
+       initialState: initialLanguage,
+       reducers: {
+              setLanguage: (state, action) => {
+                state.selected = action.payload;
+              },
+              setLanguageData: (state, action) => {
+                state.data = action.payload;
+              }, 
+       }
+})
+
 
 // Fetch and dispatch orders
 export const OrdersComponent = () => {
@@ -409,6 +424,7 @@ export const { setOrdersRefund } = ordersRefundSlice.actions;
 export const { setOrdersFailed } = ordersFailedSlice.actions;
 export const { setOrdersCanceled } = ordersCanceledSlice.actions;
 export const { setOrdersSchedule } = ordersScheduleSlice.actions;
+export const { setLanguage ,setLanguageData } = languageSlice.actions;
 
 // Export reducers
 export const newOrdersReducer = newOrdersSlice.reducer;
@@ -427,6 +443,7 @@ export const ordersRefundReducer = ordersRefundSlice.reducer;
 export const ordersFailedReducer = ordersFailedSlice.reducer;
 export const ordersCanceledReducer = ordersCanceledSlice.reducer;
 export const ordersScheduleReducer = ordersScheduleSlice.reducer;
+export const languageReducer = languageSlice.reducer;
 
 
 // Add to your exports

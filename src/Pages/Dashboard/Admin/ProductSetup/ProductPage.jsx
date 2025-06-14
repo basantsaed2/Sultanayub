@@ -8,16 +8,20 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import ToggleItems from "./ToggleItems";
 import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from 'react-redux';
 
 const ProductPage = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const selectedLanguage = useSelector(state => state.language?.selected ?? 'en'); // Default to 'en' if no language is selected
+
   const {
     refetch: refetchProducts,
     loading: loadingProducts,
     data: dataProducts,
   } = useGet({
-    url: `${apiUrl}/admin/product`,
+    url: `${apiUrl}/admin/product?locale=${selectedLanguage}`,
   });
+
   const { deleteData, loadingDelete } = useDelete();
   const [showLayer, setShowLayer] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
@@ -259,11 +263,10 @@ const ProductPage = () => {
                     <button
                       key={page}
                       onClick={() => handlePageChange(page)}
-                      className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${
-                        currentPage === page
+                      className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
                           ? "bg-mainColor text-white"
                           : " text-mainColor"
-                      }`}
+                        }`}
                     >
                       {page}
                     </button>
@@ -418,7 +421,7 @@ const ProductPage = () => {
                                               )
                                             }
                                           >
-                                          {t("Delete")}
+                                            {t("Delete")}
                                           </button>
 
                                           <button
@@ -427,7 +430,7 @@ const ProductPage = () => {
                                             onClick={handleCloseDelete}
                                             className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
                                           >
-                                          {t("Cancel")}
+                                            {t("Cancel")}
                                           </button>
                                         </div>
                                       </DialogPanel>
@@ -462,7 +465,7 @@ const ProductPage = () => {
                                             onClick={handleCloseDescriptionView}
                                             className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontMedium sm:mt-0 sm:w-auto hover:bg-mainColor-dark focus:outline-none"
                                           >
-                                          {t("Close")}
+                                            {t("Close")}
                                           </button>
                                         </div>
                                       </DialogPanel>
@@ -515,7 +518,7 @@ const ProductPage = () => {
                                             onClick={handleCloseAddonsView}
                                             className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontMedium sm:mt-0 sm:w-auto hover:bg-mainColor-dark focus:outline-none"
                                           >
-                                          {t("Close")}
+                                            {t("Close")}
                                           </button>
                                         </div>
                                       </DialogPanel>
@@ -538,7 +541,7 @@ const ProductPage = () => {
                                         <div className="flex flex-col items-start justify-start w-full gap-4 px-4 my-4 sm:p-6 sm:pb-4">
                                           {product.variations.length === 0 ? (
                                             <div className="w-full my-4 text-lg text-center text-gray-500 font-TextFontSemiBold">
-                                                                                         {t("NoVariationsavailableforthisproduct")}
+                                              {t("NoVariationsavailableforthisproduct")}
 
                                             </div>
                                           ) : (
@@ -567,19 +570,19 @@ const ProductPage = () => {
                                                           >
                                                             <div className="">
                                                               <span>
-                                                              {t("optionName")}:{" "}
+                                                                {t("optionName")}:{" "}
                                                                 {option.name}
                                                               </span>
                                                             </div>
                                                             <div className="">
                                                               <span>
-                                                              {t("optionPrice")}:{" "}
+                                                                {t("optionPrice")}:{" "}
                                                                 {option.price}
                                                               </span>
                                                             </div>
                                                             <div className="">
                                                               <span>
-                                                              {t("optionpoints")}:{" "}
+                                                                {t("optionpoints")}:{" "}
                                                                 {option.points}
                                                               </span>
                                                             </div>
@@ -601,7 +604,7 @@ const ProductPage = () => {
                                             onClick={handleCloseVariationsView}
                                             className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontMedium sm:mt-0 sm:w-auto hover:bg-mainColor-dark focus:outline-none"
                                           >
-                                                                                      {t("Close")}
+                                            {t("Close")}
 
                                           </button>
                                         </div>
@@ -625,7 +628,7 @@ const ProductPage = () => {
                                         <div className="flex flex-wrap items-center justify-center w-full gap-4 px-4 my-4 sm:p-6 sm:pb-4">
                                           {product.excludes.length === 0 ? (
                                             <div className="w-full my-4 text-lg text-center text-gray-500 font-TextFontSemiBold">
-                                                                                       {t("NoExcludesavailableforthisproduct")}
+                                              {t("NoExcludesavailableforthisproduct")}
 
                                             </div>
                                           ) : (
@@ -655,7 +658,7 @@ const ProductPage = () => {
                                             onClick={handleCloseExcludesView}
                                             className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontMedium sm:mt-0 sm:w-auto hover:bg-mainColor-dark focus:outline-none"
                                           >
-                                          {t("Close")}
+                                            {t("Close")}
                                           </button>
                                         </div>
                                       </DialogPanel>
@@ -678,7 +681,7 @@ const ProductPage = () => {
                                         <div className="flex flex-wrap items-center justify-center w-full gap-4 px-4 my-4 sm:p-6 sm:pb-4">
                                           {product.extra.length === 0 ? (
                                             <div className="w-full my-4 text-lg text-center text-gray-500 font-TextFontSemiBold">
-                                                                                        {t("Noextraavailableforthisproduct")}.
+                                              {t("Noextraavailableforthisproduct")}.
 
                                             </div>
                                           ) : (
@@ -705,7 +708,7 @@ const ProductPage = () => {
                                             onClick={handleCloseExtraView}
                                             className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontMedium sm:mt-0 sm:w-auto hover:bg-mainColor-dark focus:outline-none"
                                           >
-                                          {t("Close")}
+                                            {t("Close")}
                                           </button>
                                         </div>
                                       </DialogPanel>

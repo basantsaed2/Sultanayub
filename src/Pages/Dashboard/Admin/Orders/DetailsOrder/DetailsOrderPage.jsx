@@ -26,11 +26,13 @@ const DetailsOrderPage = () => {
   const pathOrder = location.pathname;
   const orderNumPath = pathOrder.split("/").pop();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const selectedLanguage = useSelector(state => state.language?.selected ?? 'en'); // Default to 'en' if no language is selected
+
   const {
     refetch: refetchDetailsOrder,
     loading: loadingDetailsOrder,
     data: dataDetailsOrder,
-  } = useGet({ url: `${apiUrl}/admin/order/order/${orderNumPath}` });
+  } = useGet({ url: `${apiUrl}/admin/order/order/${orderNumPath}?locale=${selectedLanguage}` });
   const { postData, loadingPost, response } = usePost({
     url: `${apiUrl}/admin/order/delivery`,
   });

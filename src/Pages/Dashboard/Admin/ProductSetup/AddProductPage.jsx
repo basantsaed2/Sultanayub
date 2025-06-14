@@ -693,7 +693,7 @@ const AddProductPage = () => {
   };
 
   /* Add Product */
-  const handleProductUpdate = (e) => {
+  const handleproductAdd  = (e) => {
     e.preventDefault();
 
     const formData = new FormData();

@@ -7,6 +7,8 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { useChangeState } from "../../../../Hooks/useChangeState";
 import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from 'react-redux';
+import { setLanguageData } from '../../../../Store/CreateSlices';
 
 const LanguagesPage = ({ refetch, setUpdate }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -90,6 +92,7 @@ const LanguagesPage = ({ refetch, setUpdate }) => {
   useEffect(() => {
     if (dataLanguages && dataLanguages.translation_list) {
       setLanguages(dataLanguages.translation_list);
+      dispatch(setLanguageData(dataLanguages.translation_list)); // this triggers setLanguageData reducer
     }
   }, [dataLanguages]); // Only run this effect when `data` changes
 
@@ -173,7 +176,7 @@ const LanguagesPage = ({ refetch, setUpdate }) => {
                                     />
                                     <div className="flex items-center">
                                       <div className="mt-2 text-center">
-                                               {t("Youwilldelete")} {language.name}
+                                        {t("Youwilldelete")} {language.name}
                                       </div>
                                     </div>
                                   </div>
@@ -193,7 +196,7 @@ const LanguagesPage = ({ refetch, setUpdate }) => {
                                       onClick={handleCloseDelete}
                                       className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
                                     >
-                                                                            {t("Cancel")}
+                                      {t("Cancel")}
 
                                     </button>
                                   </div>
@@ -226,11 +229,10 @@ const LanguagesPage = ({ refetch, setUpdate }) => {
                   <button
                     key={page}
                     onClick={() => handlePageChange(page)}
-                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${
-                      currentPage === page
+                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
                         ? "bg-mainColor text-white"
                         : " text-mainColor"
-                    }`}
+                      }`}
                   >
                     {page}
                   </button>

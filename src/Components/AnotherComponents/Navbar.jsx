@@ -14,9 +14,10 @@ import { useGet } from '../../Hooks/useGet.jsx';
 import "../../i18n.js";
 import { useTranslation } from "react-i18next";
 import { GrLanguage } from "react-icons/gr";
+import { setLanguage } from '../../Store/CreateSlices'; // <-- Adjust this path
 
 const Navbar = () => {
-    const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const auth = useAuth();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const dispatch = useDispatch();
@@ -37,8 +38,9 @@ const Navbar = () => {
     const newLang = i18n.language === "ar" ? "en" : "ar";
     i18n.changeLanguage(newLang);
     localStorage.setItem("language", newLang);
+    dispatch(setLanguage(newLang));  // Update Redux store with the new language
   };
-  
+
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("language");
@@ -159,28 +161,27 @@ const Navbar = () => {
               <RedLogo width={60} height={60} />
             )}
             <span
-              className={`absolute z-10 sm:right-0 lg:-right-0 ${
-                isOnline ? 'bg-green-400' : 'bg-red-600'
-              } rounded-full bottom-1 w-[18px] h-[18px] animate-pulse`}
+              className={`absolute z-10 sm:right-0 lg:-right-0 ${isOnline ? 'bg-green-400' : 'bg-red-600'
+                } rounded-full bottom-1 w-[18px] h-[18px] animate-pulse`}
             ></span>
           </div>
           <div className="sm:w-10/12">
             <span className="w-full text-2xl text-left text-mainColor font-TextFontSemiBold">
-               {t("Hello")}, {auth?.userState?.name || ""}
+              {t("Hello")}, {auth?.userState?.name || ""}
             </span>
-                <div className="flex items-center sm:w-11/12 text-mainColor ">
-            <i>
-              <GrLanguage />
-            </i>
-            <select
-              onChange={handleLanguage}
-              defaultValue={i18n.language}
-              className="flex items-center py-1 bg-transparent border border-white rounded text-mainColor"
-            >
-              <option value="en">EN</option>
-              <option value="ar">Ar</option>
-            </select>
-          </div>
+            <div className="flex items-center sm:w-11/12 text-mainColor ">
+              <i>
+                <GrLanguage />
+              </i>
+              <select
+                onChange={handleLanguage}
+                defaultValue={i18n.language}
+                className="flex items-center py-1 bg-transparent border border-white rounded text-mainColor"
+              >
+                <option value="en">EN</option>
+                <option value="ar">Ar</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -216,16 +217,16 @@ const Navbar = () => {
                           key={status.id}
                           className="flex items-center justify-between px-4 py-2 hover:bg-gray-100"
                         ><Link
-                            to={`/dashboard/orders/details/${status.id}`}
-                            onClick={() => {() => setSelectedCancelId(status.id)}}
-                            className="flex-1 text-left"
-                          >
-                          <span
-                            className="flex-1 text-left cursor-pointer"
-                            onClick={() => setSelectedCancelId(status.id)}
-                          >
-                            {status.name || `Order #${status.id}`}
-                          </span>
+                          to={`/dashboard/orders/details/${status.id}`}
+                          onClick={() => { () => setSelectedCancelId(status.id) }}
+                          className="flex-1 text-left"
+                        >
+                            <span
+                              className="flex-1 text-left cursor-pointer"
+                              onClick={() => setSelectedCancelId(status.id)}
+                            >
+                              {status.name || `Order #${status.id}`}
+                            </span>
                           </Link>
                           <button
                             onClick={() => handleChangeStatus(status.id)}
@@ -296,7 +297,7 @@ const Navbar = () => {
               )}
             </div>
           </div>
-          <StaticButton Size = "text-1xl" px = "px-3" type="button" text={t("Logout")} handleClick={handleLogout} />
+          <StaticButton Size="text-1xl" px="px-3" type="button" text={t("Logout")} handleClick={handleLogout} />
         </div>
       </nav>
     </>
