@@ -163,112 +163,146 @@ const EditProductPage = () => {
   }, [dataTranslation, dataCategory, dataProduct, t]);
 
   /* Populate Form with Fetched Product Data */
-  useEffect(() => {
-    if (!dataProductEdit?.product || !taps.length || !groups.length) return;
+ useEffect(() => {
+  if (!dataProductEdit) return;
+    const productEdit = dataProductEdit.product;
 
-    const product = dataProductEdit.product;
-
-    // Basic Fields
-    setProductNames(product.product_names || []);
+  try {
+    // ——————————————————————————————
+    // 1) BASIC FIELDS
+    // ——————————————————————————————
+    setProductNames(productEdit.product_names || []);
     setDescriptionNames(
-      (product.product_descriptions || []).map((desc) => ({
+      (productEdit.product_descriptions || []).map(desc => ({
         description_name: desc.product_description,
         tranlation_id: desc.tranlation_id,
         tranlation_name: desc.tranlation_name,
       }))
     );
-    setProductExclude(
-      (product.exclude || []).map((exc) => ({
-        names: exc.names.map((name) => ({
-          exclude_name: name.exclude_name,
-          tranlation_id: name.tranlation_id,
-          tranlation_name: name.tranlation_name,
-        })),
-      }))
-    );
-    setProductExtra(product.extra || []);
+    setProductExclude(productEdit.exclude || []);
 
-    // Variations
-    setProductVariations(
-      (product.variations || []).map((varn) => ({
-        type: varn.type || "",
-        required: varn.required || 0,
-        min: varn.min || "",
-        max: varn.max || "",
-        names: taps.map((tap) => ({
-          name: varn.name || "",
-          tranlation_id: tap.id,
-          tranlation_name: tap.name,
-        })),
-        options: (varn.options || []).map((opt) => ({
-          names: taps.map((tap) => ({
-            name: opt.name || "",
-            tranlation_id: tap.id,
-            tranlation_name: tap.name,
-          })),
-          extra: opt.extra || [],
-          price: opt.price || "",
-          points: opt.points || "",
-          status: opt.status || 0,
-        })),
+    // ——————————————————————————————
+    // 2) TOP-LEVEL EXTRAS & GROUP MERGE
+    // ——————————————————————————————
+    const topExtras = productEdit.extra || [];
+    setProductExtra(topExtras);
+
+    // 2a) which groups had extras, for the global extras-panel
+    const topGroupIds = [...new Set(topExtras.map(e => e.group_id))];
+    setSelectedGroups(topGroupIds);
+
+    const topExtrasMap = topExtras.reduce((acc, e) => {
+      acc[e.group_id] = acc[e.group_id] || [];
+      acc[e.group_id].push(e.id);
+      return acc;
+    }, {});
+    setSelectedExtras(topExtrasMap);
+
+    // 2b) merge these extras into your `groups` state
+    //     so getExtrasForGroup(groupId) returns the proper array of {id,name,…}
+    setGroups(prev =>
+      prev.map(g => ({
+        ...g,
+        extra: topExtras.filter(e => e.group_id === g.id)
       }))
     );
 
-    // Category
-    const category = categories.find((cat) => cat.id === product.category_id);
-    setSelectedCategoryId(product.category_id || "");
-    setSelectedCategoryState(category?.name || t("Selected Category"));
+    // ——————————————————————————————
+    // 3) VARIATIONS & PER-OPTION GROUPS/EXTRAS
+    // ——————————————————————————————
+    const variationGroups = {}; // will hold “vi-oi” → [groupId,…]
+    const variationExtras = {}; // will hold “vi-oi” → { [groupId]: [extraId,…] }
 
-    // SubCategory
-    const subCategory = subCategories.find((sub) => sub.id === product.sub_category_id);
-    setSelectedSubCategoryId(product.sub_category_id || "");
-    setSelectedSubCategoryState(subCategory?.name || t("Selected Subcategory"));
-    setFilterSubCategories(
-      subCategories.filter((sub) => sub.category_id === product.category_id) || []
-    );
+    const formattedVariations = (productEdit.variation || [])
+      .filter(v => v != null) // Remove null/undefined entries
+      .map((v, vi) => ({
+        id: v.id,
+        type: v.type || "single",
+        required: v.required || 0,
+        min: v.min ?? "",
+        max: v.max ?? "",
+        names: (v.names || []).map(n => ({
+          name: n.name,
+          tranlation_id: n.tranlation_id,
+          tranlation_name: n.tranlation_name,
+        })),
+        options: (v.options || []).map((opt, oi) => {
+          // capture this option’s saved group-ids
+          const optGroupIds = [...new Set((opt.extra || []).map(e => e.group_id))];
+          variationGroups[`${vi}-${oi}`] = optGroupIds;
 
-    // Addons
-    setSelectedAddonsId(product.addons || []);
+          // build map: group_id → [extraId,…]
+          variationExtras[`${vi}-${oi}`] = (opt.extra || []).reduce((acc, e) => {
+            acc[e.group_id] = acc[e.group_id] || [];
+            acc[e.group_id].push(e.id);
+            return acc;
+          }, {});
 
-    // Item Type
-    const itemType = itemTypes.find((type) => type.id === product.item_type);
-    setSelectedItemTypeName(product.item_type || "");
-    setSelectedItemTypeState(itemType?.name || t("Selected Item Type"));
+          return {
+            id: opt.id,
+            names: (opt.names || []).map(n => ({
+              name: n.name,
+              tranlation_id: n.tranlation_id,
+              tranlation_name: n.tranlation_name,
+            })),
+            price: opt.price ?? "",
+            points: opt.points ?? "",
+            status: opt.status ?? 0,
 
-    // Stock Type
-    const stockType = stockTypes.find((type) => type.id === product.stock_type);
-    setSelectedStockTypeName(product.stock_type || "");
-    setSelectedStockTypeState(stockType?.name || t("Selected Stock Type"));
-    setProductStockNumber(product.number || "");
+            // **carry the raw extra objects through** so you can
+            // render their `name` in the UI if you need it:
+            extra: (opt.extra || []).map(e => ({
+              id: e.id,
+              name: e.name,
+              group_id: e.group_id
+            }))
+          };
+        }),
+      }));
 
-    // Price and Points
-    setProductPrice(product.price || "");
-    setProductPoint(product.points || "");
+    setProductVariations(formattedVariations);
+    setSelectedOptionGroups(variationGroups);
+    setSelectedOptionExtras(variationExtras);
 
-    // Discount
-    const discount = discounts.find((disc) => disc.id === product.discount_id);
-    setSelectedDiscountId(product.discount_id || "");
-    setSelectedDiscountState(discount?.name || t("Selected Discount"));
+    // ——————————————————————————————
+    // 4) REMAINING FIELDS (categories, price, flags, image…)
+    // ——————————————————————————————
+    setSelectedAddonsId(productEdit.addons || []);
 
-    // Tax
-    const tax = taxes.find((tx) => tx.id === product.tax_id);
-    setSelectedTaxId(product.tax_id || "");
-    setSelectedTaxState(tax?.name || t("Selected Tax"));
+    setSelectedCategoryId(productEdit.category?.id || "");
+    setSelectedCategoryState(productEdit.category?.name || t("Selected Category"));
+    const filtered = subCategories.filter(s => s.category_id === productEdit.category?.id);
+    setFilterSubCategories([{ id: "", name: t("Select Subcategory") }, ...filtered]);
 
-    // Time Status
-    setProductTimeStatus(product.product_time_status || 0);
-    setProductStatusFrom(product.from || "");
-    setProductStatusTo(product.to || "");
+    setSelectedSubCategoryId(productEdit.sub_category?.id || "");
+    setSelectedSubCategoryState(productEdit.sub_category?.name || t("Selected Subcategory"));
 
-    // Status and Recommended
-    setProductStatus(product.status || 0);
-    setProductRecommended(product.recommended || 0);
+    setSelectedItemTypeName(productEdit.item_type || "");
+    setSelectedItemTypeState(productEdit.item_type || t("Selected Item Type"));
+    setSelectedStockTypeName(productEdit.stock_type || "");
+    setSelectedStockTypeState(productEdit.stock_type || t("Selected Stock Type"));
+    setProductStockNumber(productEdit.number ?? "");
 
-    // Image
-    setProductImageName(
-      product.image ? product.image.split("/").pop() || t("Choose Photo") : t("Choose Photo")
-    );
-  }, [dataProductEdit, categories, subCategories, itemTypes, stockTypes, discounts, taxes, taps, groups, t]);
+    setProductPrice(productEdit.price ?? 0);
+    setProductPoint(productEdit.points ?? 0);
+
+    setSelectedDiscountId(productEdit.discount?.id || "");
+    setSelectedDiscountState(productEdit.discount?.name || t("Selected Discount"));
+    setSelectedTaxId(productEdit.tax?.id || "");
+    setSelectedTaxState(productEdit.tax?.name || t("Selected Tax"));
+
+    setProductStatus(productEdit.status ?? 0);
+    setProductRecommended(productEdit.recommended ?? 0);
+    setProductTimeStatus(productEdit.product_time_status ?? 0);
+    setProductStatusFrom(productEdit.from || "");
+    setProductStatusTo(productEdit.to || "");
+
+    setProductImage(productEdit.image_link || null);
+    setProductImageName(productEdit.image_link || t("Choose Photo"));
+  } catch (error) {
+    console.error("Error in useEffect:", error, "Product:", productEdit);
+  }
+}, [dataProductEdit, subCategories, taps]);
 
   /* Pre-select Groups and Extras */
   useEffect(() => {
