@@ -676,13 +676,13 @@ const DetailsOrderPage = () => {
                                   {t("Products")}
                                 </th>
                                 <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
+                                  {t("variation")}
+                                </th>
+                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
                                   {t("Addons")}
                                 </th>
                                 <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
                                   {t("Excludes")}
-                                </th>
-                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
-                                  {t("variation")}
                                 </th>
                                 <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
                                   {t("Extra")}
@@ -722,6 +722,51 @@ const DetailsOrderPage = () => {
                                           </div>
                                         </div>
                                       ))}
+                                    </td>
+
+                                    {/* Variations Column: Name and Type */}
+                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
+                                      {order.variations &&
+                                        order.variations.length > 0 ? (
+                                        order.variations.map(
+                                          (variation, varIndex) => (
+                                            <div
+                                              key={`variation-${varIndex}`}
+                                              className="mb-3"
+                                            >
+                                              <div className="font-semibold text-gray-800">
+                                                {variation.variation?.name}
+                                              </div>
+                                              <div className="text-xs text-gray-500">
+                                                {t("Type")}:{" "}
+                                                {variation.options &&
+                                                  variation.options.length > 0 ? (
+                                                  variation.options.map(
+                                                    (option, optIndex) => (
+                                                      <span
+                                                        key={`option-${optIndex}`}
+                                                        className="mr-1"
+                                                      >
+                                                        {option.name}
+                                                        {optIndex <
+                                                          variation.options
+                                                            .length -
+                                                          1
+                                                          ? ", "
+                                                          : ""}
+                                                      </span>
+                                                    )
+                                                  )
+                                                ) : (
+                                                  <span>-</span>
+                                                )}
+                                              </div>
+                                            </div>
+                                          )
+                                        )
+                                      ) : (
+                                        <span className="text-gray-500">-</span>
+                                      )}
                                     </td>
 
                                     {/* Addons Column: Name, Price, Count */}
@@ -764,51 +809,6 @@ const DetailsOrderPage = () => {
                                             >
                                               <div className="font-semibold text-gray-800">
                                                 {exclude.name}
-                                              </div>
-                                            </div>
-                                          )
-                                        )
-                                      ) : (
-                                        <span className="text-gray-500">-</span>
-                                      )}
-                                    </td>
-
-                                    {/* Variations Column: Name and Type */}
-                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                      {order.variations &&
-                                        order.variations.length > 0 ? (
-                                        order.variations.map(
-                                          (variation, varIndex) => (
-                                            <div
-                                              key={`variation-${varIndex}`}
-                                              className="mb-3"
-                                            >
-                                              <div className="font-semibold text-gray-800">
-                                                {variation.variation?.name}
-                                              </div>
-                                              <div className="text-xs text-gray-500">
-                                                {t("Type")}:{" "}
-                                                {variation.options &&
-                                                  variation.options.length > 0 ? (
-                                                  variation.options.map(
-                                                    (option, optIndex) => (
-                                                      <span
-                                                        key={`option-${optIndex}`}
-                                                        className="mr-1"
-                                                      >
-                                                        {option.name}
-                                                        {optIndex <
-                                                          variation.options
-                                                            .length -
-                                                          1
-                                                          ? ", "
-                                                          : ""}
-                                                      </span>
-                                                    )
-                                                  )
-                                                ) : (
-                                                  <span>-</span>
-                                                )}
                                               </div>
                                             </div>
                                           )

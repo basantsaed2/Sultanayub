@@ -75,6 +75,10 @@ export { default as EditGroupPage } from "./Dashboard/Admin/Setting/Group/EditGr
 export { default as ExtraPage } from "./Dashboard/Admin/Setting/Extra/ExtraPage";
 export { default as AddExtraPage } from "./Dashboard/Admin/Setting/Extra/AddExtraPage";
 export { default as EditExtraPage } from "./Dashboard/Admin/Setting/Extra/EditExtraPage";
+// Setting -> PolicySupport
+export { default as PolicySupportPage } from "./Dashboard/Admin/Setting/PolicySupport/PolicySupportPage";
+// Setting -> AppSetupPage
+export { default as AppSetupPage } from "./Dashboard/Admin/Setting/AppSetup/AppSetupPage";
 
 /* Texes */
 // Texes -> Taxes

@@ -73,6 +73,7 @@ import {
   EditScheduleTimeLayout,
   RefundOrdersLayout,
   CancelationNotificationLayout,
+  PolicySupportLayout,
 } from "./layouts/Layouts";
 import ProtectedLogin from "./ProtectedData/ProtectedLogin";
 import NotFoundPage from "./Pages/NotFoundPage/NotFoundPage";
@@ -84,6 +85,7 @@ import GroupLayout from "./layouts/Dashboard/Setting/Group/GroupLayout";
 import EditGroupLayout from "./layouts/Dashboard/Setting/Group/EditGroupLayout";
 import ExtraLayout from "./layouts/Dashboard/Setting/Extra/ExtraLayout";
 import EditExtraLayout from "./layouts/Dashboard/Setting/Extra/EditExtraLayout";
+import AppSetupLayout from "./layouts/Dashboard/Setting/AppSetup/AppSetupLayout";
 //import ToggleItems from "./Pages/Dashboard/Admin/ProductSetup/ToggleItems";
 
 const ProductSetupLayout = () => {
@@ -428,6 +430,14 @@ export const router = createBrowserRouter([
               {
                 path: 'cancelation_notification',
                 element: <CancelationNotificationLayout />,
+              },
+              {
+                path: 'policy_support',
+                element: <PolicySupportLayout />,
+              },
+              {
+                path: 'app_setup',
+                element: <AppSetupLayout />,
               },
             ]
           },

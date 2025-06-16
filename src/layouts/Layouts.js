@@ -67,6 +67,8 @@ export { default as DeliveryTimeLayout } from "./Dashboard/Setting/DeliveryTime/
 export { default as MenuLayout } from "./Dashboard/Setting/Menu/MenuLayout";
 //CancelationNotificationLayout
 export { default as CancelationNotificationLayout } from "./Dashboard/Setting/CancelationNotification/CancelationNotificationLayout";
+//PolicySupportLayout
+export { default as PolicySupportLayout } from "./Dashboard/Setting/PolicySupport/PolicySupportLayout";
 
 /*  Taxes */
 // Taxes -> Taxes

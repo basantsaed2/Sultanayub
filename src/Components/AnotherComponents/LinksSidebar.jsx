@@ -144,6 +144,8 @@ const routes = [
       { name: "Sound", path: "/dashboard/setting/sound" },
       { name: "Menu", path: "/dashboard/setting/menu" },
       { name: "Cancelation Notification", path: "/dashboard/setting/cancelation_notification" },
+      { name: "Policy&Support", path: "/dashboard/setting/policy_support" },
+      { name: "AppSetup", path: "/dashboard/setting/app_setup" },
     ],
     redirectTo: "/dashboard/setting/roles",
   },
