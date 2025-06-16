@@ -58,6 +58,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
   const [branchCoverage, setBranchCoverage] = useState("");
 
   const [activeBranch, setActiveBranch] = useState(0);
+  const [activeBranchPhone, setActiveBranchPhone] = useState(0);
 
   const [stateCity, setStateCity] = useState(t("Select City"));
   const [cityId, setCityId] = useState("");
@@ -131,6 +132,12 @@ const AddBannerSection = ({ update, setUpdate }) => {
       currentState === 0 ? setActiveBranch(1) : setActiveBranch(0);
     }
   };
+  const handleStatusBranchPhone = () => {
+    const currentState = activeBranchPhone;
+    {
+      currentState === 0 ? setActiveBranchPhone(1) : setActiveBranchPhone(0);
+    }
+  };
 
   useEffect(() => {
     console.log("response", response);
@@ -178,6 +185,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
     setBranchLongitude("");
     setBranchCoverage("");
     setActiveBranch(0);
+    setActiveBranchPhone(0);
     setStateCity(t("Select City"));
     setCityId("");
     setIsOpenCity(false);
@@ -274,6 +282,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
     formData.append("coverage", branchCoverage);
     formData.append("city_id", cityId);
     formData.append("status", activeBranch);
+    formData.append("phone_status", activeBranchPhone);
     formData.append("image", imageFile);
     formData.append("cover_image", coverFile);
 
@@ -309,11 +318,10 @@ const AddBannerSection = ({ update, setUpdate }) => {
                 <span
                   key={tap.id}
                   onClick={() => handleTap(index)}
-                  className={`${
-                    currentTap === index
-                      ? "text-mainColor border-b-4 border-mainColor"
-                      : "text-thirdColor"
-                  }  pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
+                  className={`${currentTap === index
+                    ? "text-mainColor border-b-4 border-mainColor"
+                    : "text-thirdColor"
+                    }  pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
                 >
                   {tap.name}
                 </span>
@@ -357,7 +365,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
                                 return updatedNames;
                               });
                             }}
-                    placeholder={t("BranchName")}
+                            placeholder={t("BranchName")}
                           />
                         </div>
 
@@ -366,43 +374,43 @@ const AddBannerSection = ({ update, setUpdate }) => {
                             {/* Branch Address */}
                             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("BranchAddress")}:
+                                {t("BranchAddress")}:
                               </span>
                               <TextInput
                                 value={branchAddress}
                                 onChange={(e) =>
                                   setBranchAddress(e.target.value)
                                 }
-                    placeholder={t("BranchAddress")}
+                                placeholder={t("BranchAddress")}
                               />
                             </div>
                             {/* Branch Phone */}
                             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("BranchPhone")}:
+                                {t("BranchPhone")}:
                               </span>
                               <NumberInput
                                 value={branchPhone}
                                 onChange={(e) => setBranchPhone(e.target.value)}
-                    placeholder={t("BranchPhone")}
+                                placeholder={t("BranchPhone")}
                               />
                             </div>
                             {/* Branch Email */}
                             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("BranchEmail")}:
+                                {t("BranchEmail")}:
                               </span>
                               <TextInput
                                 // backgound='white'
                                 value={branchEmail}
                                 onChange={(e) => setBranchEmail(e.target.value)}
-                    placeholder={t("BranchEmail")}
+                                placeholder={t("BranchEmail")}
                               />
                             </div>
                             {/* Branch Password */}
                             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("BranchPassword")}:
+                                {t("BranchPassword")}:
                               </span>
                               <PasswordInput
                                 backgound="white"
@@ -410,26 +418,26 @@ const AddBannerSection = ({ update, setUpdate }) => {
                                 onChange={(e) =>
                                   setBranchPassword(e.target.value)
                                 }
-                    placeholder={t("BranchPassword")}
+                                placeholder={t("BranchPassword")}
                               />
                             </div>
                             {/* Branch Coverage */}
                             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("BranchCoverage")}:
+                                {t("BranchCoverage")}:
                               </span>
                               <NumberInput
                                 value={branchCoverage}
                                 onChange={(e) =>
                                   setBranchCoverage(e.target.value)
                                 }
-                    placeholder={t("BranchCoverage")}
+                                placeholder={t("BranchCoverage")}
                               />
                             </div>
                             {/* Cities */}
                             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("City")}:
+                                {t("City")}:
                               </span>
                               <DropDown
                                 ref={dropDownCities}
@@ -445,33 +453,33 @@ const AddBannerSection = ({ update, setUpdate }) => {
                             {/* Branch Latitude */}
                             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("BranchLatitude")}:
+                                {t("BranchLatitude")}:
                               </span>
                               <NumberInput
                                 value={branchLatitude}
                                 onChange={(e) =>
                                   setBranchLatitude(e.target.value)
                                 }
-                    placeholder={t("BranchLatitude")}
+                                placeholder={t("BranchLatitude")}
                               />
                             </div>
                             {/* Branch Longitude */}
                             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("BranchLongitude")}:
+                                {t("BranchLongitude")}:
                               </span>
                               <NumberInput
                                 value={branchLongitude}
                                 onChange={(e) =>
                                   setBranchLongitude(e.target.value)
                                 }
-                    placeholder={t("BranchLongitude")}
+                                placeholder={t("BranchLongitude")}
                               />
                             </div>
                             {/* Branch Preparion Time */}
                             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("FoodPreparationTime")}:
+                                {t("FoodPreparationTime")}:
                               </span>
                               <CustomTimeInput
                                 value={foodPreparationTime}
@@ -483,7 +491,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
                             {/* Branch Image */}
                             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("Image")}:
+                                {t("Image")}:
                               </span>
                               <UploadInput
                                 value={image}
@@ -497,12 +505,12 @@ const AddBannerSection = ({ update, setUpdate }) => {
                             {/* Banner Cover Image */}
                             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("CoverImage")}:
+                                {t("CoverImage")}:
                               </span>
                               <UploadInput
                                 value={cover}
                                 uploadFileRef={CoverRef}
-                    placeholder={t("CoverImage")}
+                                placeholder={t("CoverImage")}
                                 handleFileChange={handleCoverChange}
                                 onChange={(e) => setCover(e.target.value)}
                                 onClick={() => handleCoverClick(CoverRef)}
@@ -510,11 +518,20 @@ const AddBannerSection = ({ update, setUpdate }) => {
                             </div>
                             <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("Active")}:
+                                {t("Active")}:
                               </span>
                               <Switch
                                 handleClick={handleStatusBranch}
                                 checked={activeBranch}
+                              />
+                            </div>
+                            <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3">
+                              <span className="text-xl font-TextFontRegular text-thirdColor">
+                                {t("ActiveBranchPhone")}:
+                              </span>
+                              <Switch
+                                handleClick={handleStatusBranchPhone}
+                                checked={activeBranchPhone}
                               />
                             </div>
                           </>

@@ -27,6 +27,8 @@ const AppSetupPage = () => {
   const [formData, setFormData] = useState({
     name: "",
     ar_name: "",
+    facebook: "",
+    instagram: "",
     logo: null,
     image1: null,
     image2: null,
@@ -58,6 +60,8 @@ const AppSetupPage = () => {
       setFormData({
         name: dataMainData.main_data?.name || "",
         ar_name: dataMainData.main_data?.ar_name || "",
+        facebook: dataMainData.main_data?.facebook || "",
+        instagram: dataMainData.main_data?.instagram || "",
         logo: dataMainData.main_data?.logo_link || null,
         image1: dataMainData.main_data?.image1_link || null,
         image2: dataMainData.main_data?.image2_link || null,
@@ -134,6 +138,26 @@ const AppSetupPage = () => {
                   onChange={handleTextChange}
                   placeholder={t("Enter Arabic Name")}
                   name="ar_name"
+                />
+              </div>
+               {/* Facebook */}
+              <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                <label>{t("Facebook Link")}</label>
+                <TextInput
+                  value={formData.facebook}
+                  onChange={handleTextChange}
+                  placeholder={t("Enter Facebook Link")}
+                  name="facebook"
+                />
+              </div>
+               {/* Instagram */}
+              <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                <label>{t("Instagram Link")}</label>
+                <TextInput
+                  value={formData.instagram}
+                  onChange={handleTextChange}
+                  placeholder={t("Enter Instagram Link")}
+                  name="instagram"
                 />
               </div>
               {/* logo Upload */}

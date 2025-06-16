@@ -67,6 +67,7 @@ const EditBranchPage = () => {
        const [branchCoverage, setBranchCoverage] = useState("");
 
        const [activeBranch, setActiveBranch] = useState(0);
+       const [activeBranchPhone, setActiveBranchPhone] = useState(0);
 
        const [stateCity, setStateCity] = useState("Select City");
        const [cityId, setCityId] = useState("");
@@ -124,6 +125,7 @@ const EditBranchPage = () => {
                      setBranchCoverage(dataBranch.branch.coverage || "");
 
                      setActiveBranch(dataBranch.branch.status || 0);
+                     setActiveBranchPhone(dataBranch.branch.phone_status || 0);
 
                      setStateCity(dataBranch.branch.city.name || "Select City");
                      setCityId(dataBranch.branch.city.id || "");
@@ -182,6 +184,12 @@ const EditBranchPage = () => {
               const currentState = activeBranch;
               {
                      currentState === 0 ? setActiveBranch(1) : setActiveBranch(0);
+              }
+       };
+       const handleStatusBranchPhone = () => {
+              const currentState = activeBranchPhone;
+              {
+                     currentState === 0 ? setActiveBranchPhone(1) : setActiveBranchPhone(0);
               }
        };
 
@@ -284,6 +292,7 @@ const EditBranchPage = () => {
               formData.append("coverage", branchCoverage);
               formData.append("city_id", cityId);
               formData.append("status", activeBranch);
+              formData.append("phone_status", activeBranchPhone);
               formData.append("image", imageFile);
               formData.append("cover_image", coverFile);
 
@@ -320,8 +329,8 @@ const EditBranchPage = () => {
                                                                key={tap.id}
                                                                onClick={() => handleTap(index)}
                                                                className={`${currentTap === index
-                                                                             ? "text-mainColor border-b-4 border-mainColor"
-                                                                             : "text-thirdColor"
+                                                                      ? "text-mainColor border-b-4 border-mainColor"
+                                                                      : "text-thirdColor"
                                                                       }  pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
                                                         >
                                                                {tap.name}
@@ -526,6 +535,15 @@ const EditBranchPage = () => {
                                                                                                                 checked={activeBranch}
                                                                                                          />
                                                                                                   </div>
+                                                                                                  <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3">
+                                                                                                         <span className="text-xl font-TextFontRegular text-thirdColor">
+                                                                                                                {t("ActiveBranchPhone")}:
+                                                                                                         </span>
+                                                                                                         <Switch
+                                                                                                                handleClick={handleStatusBranchPhone}
+                                                                                                                checked={activeBranchPhone}
+                                                                                                         />
+                                                                                                  </div>
                                                                                            </>
                                                                                     )}
                                                                              </div>
@@ -563,8 +581,8 @@ const EditBranchPage = () => {
 };
 
 const CustomTimeInput = ({ value, onChange }) => {
-         const { t, i18n } = useTranslation();
-       
+       const { t, i18n } = useTranslation();
+
        const hours = Array.from({ length: 24 }, (_, i) =>
               i.toString().padStart(2, "0")
        ); // Pad hours to 2 digits

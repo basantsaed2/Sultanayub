@@ -98,6 +98,7 @@ const BranchesPage = ({ refetch }) => {
     t("Phone"),
     t("PreparationTime"),
     t("BranchCategory"),
+    t("ActiveBranchPhone"),
     t("Status"),
     t("Action"),
   ];
@@ -178,6 +179,9 @@ const BranchesPage = ({ refetch }) => {
                         </Link>
                       </td>
                       <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                        {branch?.phone_status===1?"Active":"Inactive" || "-"}
+                      </td>
+                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                         <Switch
                           checked={branch.status === 1}
                           handleClick={() => {
@@ -230,7 +234,7 @@ const BranchesPage = ({ refetch }) => {
                                           handleDelete(branch.id, branch.name)
                                         }
                                       >
-                                                                                {t("Delete")}
+                                        {t("Delete")}
 
                                       </button>
 
@@ -240,7 +244,7 @@ const BranchesPage = ({ refetch }) => {
                                         onClick={handleCloseDelete}
                                         className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
                                       >
-                                                                                {t("Cancel")}
+                                        {t("Cancel")}
 
                                       </button>
                                     </div>
@@ -273,11 +277,10 @@ const BranchesPage = ({ refetch }) => {
                   <button
                     key={page}
                     onClick={() => handlePageChange(page)}
-                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${
-                      currentPage === page
+                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
                         ? "bg-mainColor text-white"
                         : " text-mainColor"
-                    }`}
+                      }`}
                   >
                     {page}
                   </button>
@@ -289,7 +292,7 @@ const BranchesPage = ({ refetch }) => {
                   className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
                   onClick={() => setCurrentPage(currentPage + 1)}
                 >
-                                    {t("Next")}
+                  {t("Next")}
 
                 </button>
               )}
