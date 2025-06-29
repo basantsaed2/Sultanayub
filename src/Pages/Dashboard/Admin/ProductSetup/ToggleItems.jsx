@@ -126,8 +126,6 @@
 //     </div>
 //   );
 // }
-
-
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
@@ -152,12 +150,13 @@ export default function ToggleItems({ id, type }) {
   useEffect(() => {
     const fetchBranches = async () => {
       try {
-        const response = await axios.get(
-          `${apiUrl}/admin/branch/branch_in_product/${id}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const endpoint =
+          type === "category"
+            ? `${apiUrl}/admin/category/branch_category/${id}`
+            : `${apiUrl}/admin/branch/branch_in_product/${id}`;
+        const response = await axios.get(endpoint, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         if (response.data && response.data.branches) {
           setBranches(response.data.branches);
@@ -171,7 +170,9 @@ export default function ToggleItems({ id, type }) {
             initialStatuses[branch.id] =
               storedStatus !== null
                 ? parseInt(storedStatus, 10)
-                : branch.status;
+                : type === "category"
+                ? branch.category_status
+                : branch.product_status;
           });
 
           setBranchStatus(initialStatuses);
@@ -195,19 +196,18 @@ export default function ToggleItems({ id, type }) {
     const newStatus = currentStatus ? 0 : 1;
 
     try {
-      const payload = {
-        branch_id,
-        status: newStatus,
-        [type === "category" ? "category_id" : "product_id"]: id,
-      };
+      const endpoint =
+        type === "category"
+          ? `${apiUrl}/admin/category/status/${id}`
+          : `${apiUrl}/admin/branch/branch_product_status/${id}`;
+      const payload =
+        type === "category"
+          ? {branch_id , status: newStatus}
+          : { branch_id, status: newStatus, product_id: id };
 
-      await axios.put(
-        `${apiUrl}/admin/branch/branch_product_status/${id}`,
-        payload,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await axios.put(endpoint, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       setBranchStatus((prev) => ({
         ...prev,

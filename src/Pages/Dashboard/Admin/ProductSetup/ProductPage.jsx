@@ -1164,7 +1164,7 @@ const ProductPage = () => {
                                 />
                               </div>
                             </td>
-                            <td onClick={() => handleOpenCategoryToggle(category.id)} className="px-4 py-2 text-sm text-center text-red-800 lg:text-base underline">
+                            <td onClick={() => handleOpenCategoryToggle(product.category_id)} className="px-4 py-2 text-sm text-center text-red-800 lg:text-base underline">
                               {product.category?.name || product.sub_category?.name || "-"}
                             </td>
                             <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
@@ -1272,7 +1272,7 @@ const ProductPage = () => {
                                             />
                                           </div>
                                         </td>
-                                        <td onClick={() => handleOpenCategoryToggle(category.id)} className="px-4 py-2 text-sm text-center text-red-800 lg:text-base underline">
+                                        <td onClick={() => handleOpenCategoryToggle(product.category_id)} className="px-4 py-2 text-sm text-center text-red-800 lg:text-base underline">
                                           {product.category?.name ||
                                             product.sub_category?.name ||
                                             "-"}
