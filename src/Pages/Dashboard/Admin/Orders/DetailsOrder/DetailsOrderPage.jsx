@@ -16,7 +16,7 @@ import { useAuth } from "../../../../../Context/Auth";
 import { useDispatch } from "react-redux";
 import { removeCanceledOrder } from "../../../../../Store/CreateSlices";
 import { useSelector } from "react-redux"; // Add this import
-import { FaFileInvoice, FaWhatsapp } from "react-icons/fa";
+import { FaFileInvoice, FaWhatsapp, FaCopy } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 
 const DetailsOrderPage = () => {
@@ -46,6 +46,7 @@ const DetailsOrderPage = () => {
   const [showRefundConfirm, setShowRefundConfirm] = useState(false);
   const [showRefundModal, setShowRefundModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const [showReason, setShowReason] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
@@ -120,6 +121,7 @@ const DetailsOrderPage = () => {
     console.log("detailsData", detailsData); // Refetch data when the component mounts
     console.log("OrderStatus", orderStatus); // Refetch data when the component mounts
   }, [dataDetailsOrder]);
+  
   useEffect(() => {
     console.log("orderId", orderId); // Refetch data when the component mounts
   }, [orderId]);
@@ -325,6 +327,18 @@ const DetailsOrderPage = () => {
   //     auth.toastError(errorMessage);
   //   }
   // };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          auth.toastSuccess("Phone number copied!"); // Use auth.toastSuccess()
+        })
+      setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+    });
+  };
 
   const handleSelectOrderStatus = (selectedOption) => {
     console.log("selectedOption", selectedOption);
@@ -960,20 +974,26 @@ const DetailsOrderPage = () => {
                     {t("Orders")}: {detailsData?.user?.count_orders || "-"}
                   </p>
                   <p className="flex items-center gap-2 text-sm">
-                    {t("Contact")}:
+                    Contact:
                     {detailsData?.user?.phone && (
-                      <a
-                        href={`https://wa.me/${detailsData.user.phone.replace(
-                          /[^0-9]/g,
-                          ""
-                        )}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-black transition duration-200 hover:text-green-600"
-                      >
-                        <FaWhatsapp className="w-5 h-5 text-green-600" />
-                        {detailsData.user.phone}
-                      </a>
+                      <>
+                        <a
+                          href={`https://wa.me/${detailsData.user.phone.replace(/[^0-9]/g, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-black transition duration-200 hover:text-green-600"
+                        >
+                          <FaWhatsapp className="w-5 h-5 text-green-600" />
+                          {detailsData.user.phone}
+                        </a>
+                        <button
+                          onClick={() => copyToClipboard(detailsData.user.phone)}
+                          className="text-gray-500 hover:text-blue-500"
+                          title={copied ? "Copied!" : "Copy Number"}
+                        >
+                          <FaCopy />
+                        </button>
+                      </>
                     )}
                   </p>
                   <p className="text-sm">
