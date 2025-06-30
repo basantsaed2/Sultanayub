@@ -57,8 +57,9 @@ const AddBannerSection = ({ update, setUpdate }) => {
   const [branchLongitude, setBranchLongitude] = useState("");
   const [branchCoverage, setBranchCoverage] = useState("");
 
-  const [activeBranch, setActiveBranch] = useState(0);
+  const [activeBranch, setActiveBranch] = useState(1);
   const [activeBranchPhone, setActiveBranchPhone] = useState(0);
+  const [notActiveReason, setNotActiveReason] = useState("");
 
   const [stateCity, setStateCity] = useState(t("Select City"));
   const [cityId, setCityId] = useState("");
@@ -184,8 +185,9 @@ const AddBannerSection = ({ update, setUpdate }) => {
     setBranchLatitude("");
     setBranchLongitude("");
     setBranchCoverage("");
-    setActiveBranch(0);
+    setActiveBranch(1);
     setActiveBranchPhone(0);
+    setNotActiveReason("");
     setStateCity(t("Select City"));
     setCityId("");
     setIsOpenCity(false);
@@ -269,6 +271,10 @@ const AddBannerSection = ({ update, setUpdate }) => {
       auth.toastError(t("Please Enter Cover File"));
       return;
     }
+    if (activeBranch === 0 && !notActiveReason) {
+      auth.toastError(t("Please Enter Branch Not Active Reason"));
+      return;
+    }
 
     const formData = new FormData();
 
@@ -285,7 +291,10 @@ const AddBannerSection = ({ update, setUpdate }) => {
     formData.append("phone_status", activeBranchPhone);
     formData.append("image", imageFile);
     formData.append("cover_image", coverFile);
-
+    {
+      (activeBranch === 0 && notActiveReason) &&
+        formData.append("block_reason", notActiveReason)
+    } 
     branchName.forEach((name, index) => {
       // Corrected the typo and added translation_id and translation_name
       formData.append(
@@ -525,6 +534,22 @@ const AddBannerSection = ({ update, setUpdate }) => {
                                 checked={activeBranch}
                               />
                             </div>
+                            {/* Branch Not Active Reason */}
+                            {
+                              activeBranch === 0 && (
+                                <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("BranchNotActiveReason")}:
+                                  </span>
+                                  <TextInput
+                                    value={notActiveReason}
+                                    onChange={(e) =>
+                                      setNotActiveReason(e.target.value)
+                                    }
+                                    placeholder={t("Reason")}
+                                  />
+                                </div>
+                              )}
                             <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("ActiveBranchPhone")}:

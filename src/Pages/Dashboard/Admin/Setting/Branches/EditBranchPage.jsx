@@ -66,8 +66,9 @@ const EditBranchPage = () => {
        const [branchLongitude, setBranchLongitude] = useState("");
        const [branchCoverage, setBranchCoverage] = useState("");
 
-       const [activeBranch, setActiveBranch] = useState(0);
+       const [activeBranch, setActiveBranch] = useState(1);
        const [activeBranchPhone, setActiveBranchPhone] = useState(0);
+       const [notActiveReason, setNotActiveReason] = useState("");
 
        const [stateCity, setStateCity] = useState("Select City");
        const [cityId, setCityId] = useState("");
@@ -135,6 +136,11 @@ const EditBranchPage = () => {
 
                      setCover(dataBranch.branch.cover_image || "");
                      setCoverFile(dataBranch.branch.cover_image_link || null);
+                     {
+                            dataBranch.branch.status === 0 && dataBranch.branch.block_reason
+                                   ? setNotActiveReason(dataBranch.branch.block_reason)
+                                   : setNotActiveReason("");
+                     }
               }
 
               console.log("cities", cities);
@@ -276,6 +282,10 @@ const EditBranchPage = () => {
                      auth.toastError(t("Please Enter Cover File"));
                      return;
               }
+              if (activeBranch === 0 && !notActiveReason) {
+                     auth.toastError(t("Please Enter Branch Not Active Reason"));
+                     return;
+              }
 
               const formData = new FormData();
 
@@ -295,6 +305,10 @@ const EditBranchPage = () => {
               formData.append("phone_status", activeBranchPhone);
               formData.append("image", imageFile);
               formData.append("cover_image", coverFile);
+              {
+                     (activeBranch === 0 && notActiveReason) &&
+                            formData.append("block_reason", notActiveReason)
+              }
 
               branchName.forEach((name, index) => {
                      // Corrected the typo and added translation_id and translation_name
@@ -535,6 +549,22 @@ const EditBranchPage = () => {
                                                                                                                 checked={activeBranch}
                                                                                                          />
                                                                                                   </div>
+                                                                                                  {/* Branch Not Active Reason */}
+                                                                                                  {
+                                                                                                         activeBranch === 0 && (
+                                                                                                                <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                                                                                                                       <span className="text-xl font-TextFontRegular text-thirdColor">
+                                                                                                                              {t("BranchNotActiveReason")}:
+                                                                                                                       </span>
+                                                                                                                       <TextInput
+                                                                                                                              value={notActiveReason}
+                                                                                                                              onChange={(e) =>
+                                                                                                                                     setNotActiveReason(e.target.value)
+                                                                                                                              }
+                                                                                                                              placeholder={t("Reason")}
+                                                                                                                       />
+                                                                                                                </div>
+                                                                                                         )}
                                                                                                   <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3">
                                                                                                          <span className="text-xl font-TextFontRegular text-thirdColor">
                                                                                                                 {t("ActiveBranchPhone")}:
@@ -574,7 +604,7 @@ const EditBranchPage = () => {
                                                  </div>
                                           </div>
                                    </form>
-                            </section>
+                            </section >
                      )}
               </>
        );
