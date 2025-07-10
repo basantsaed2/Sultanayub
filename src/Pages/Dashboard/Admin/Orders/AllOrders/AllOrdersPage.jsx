@@ -3,7 +3,7 @@ import { LoaderLogin, SearchBar } from "../../../../../Components/Components";
 import { useSelector } from "react-redux";
 import { BiSolidShow } from "react-icons/bi";
 import { Link } from "react-router-dom";
-import { FaFileInvoice, FaWhatsapp } from "react-icons/fa";
+import { FaFileInvoice, FaWhatsapp, FaRegCopy } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 
 const AllOrdersPage = () => {
@@ -23,7 +23,7 @@ const AllOrdersPage = () => {
     (currentPage - 1) * filteredOrdersPerPage,
     currentPage * filteredOrdersPerPage
   );
-                   const {  t,i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   // handle page change
   const handlePageChange = (pageNumber) => {
@@ -68,8 +68,7 @@ const AllOrdersPage = () => {
       console.log("Filtered orders:", filter); // Debugging
     }
   };
-  {/**
-         const handleCopy = (phone) => {
+  const handleCopy = (phone) => {
     if (!phone) return;
 
     navigator.clipboard
@@ -78,7 +77,7 @@ const AllOrdersPage = () => {
         auth.toastSuccess("Phone number copied!"); // Use auth.toastSuccess()
       })
       .catch((err) => console.error("Failed to copy:", err));
-  }; */}
+  };
 
   const tableContainerRef = useRef(null);
   const tableRef = useRef(null);
@@ -118,21 +117,21 @@ const AllOrdersPage = () => {
     }
   };
   const headers = [
-  t("sl"),               // SL - الرقم التسلسلي
-  t("orderId"),          // Order ID - رقم الطلب
-  t("deliveryDate"),     // Delivery Date - تاريخ التوصيل
-  t("customerInfo"),     // Customer Info - معلومات العميل
-  t("branch"),           // Branch - الفرع
-  t("totalPrice"),       // Total Price - السعر الإجمالي
-  t("paymentMethod"),    // Payment Method - طريقة الدفع
-  t("orderStatus"),      // Order Status - حالة الطلب
-  t("operationsStatus"), // Operations Status - حالة العمليات
-  t("operationsAdmin"),  // Operations Admin - مسؤول العمليات
-  t("orderType"),        // Order Type - نوع الطلب
-  t("actions"),          // Actions - الإجراءات
-];
+    t("sl"),               // SL - الرقم التسلسلي
+    t("orderId"),          // Order ID - رقم الطلب
+    t("deliveryDate"),     // Delivery Date - تاريخ التوصيل
+    t("customerInfo"),     // Customer Info - معلومات العميل
+    t("branch"),           // Branch - الفرع
+    t("totalPrice"),       // Total Price - السعر الإجمالي
+    t("paymentMethod"),    // Payment Method - طريقة الدفع
+    t("orderStatus"),      // Order Status - حالة الطلب
+    t("operationsStatus"), // Operations Status - حالة العمليات
+    t("operationsAdmin"),  // Operations Admin - مسؤول العمليات
+    t("orderType"),        // Order Type - نوع الطلب
+    t("actions"),          // Actions - الإجراءات
+  ];
 
-  
+
   return (
     <>
       <div className="flex flex-col w-full gap-y-3">
@@ -221,7 +220,7 @@ const AllOrdersPage = () => {
                         colSpan={headers.length}
                         className="py-4 text-lg text-center text-mainColor font-TextFontMedium"
                       >
-                          {t("Noordersfound")}
+                        {t("Noordersfound")}
                       </td>
                     </tr>
                   ) : (
@@ -269,16 +268,21 @@ const AllOrdersPage = () => {
                               <>
                                 <FaWhatsapp className="w-5 h-5 text-green-600" />
                                 <a
-                                  href={`https://wa.me/${order.user.phone.replace(/[^0-9]/g, '')}`}
+                                  href={`https://wa.me/${order.user.phone.replace(/[^0-9]/g, "")}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="text-black transition duration-200 hover:text-green-600"
                                 >
                                   {order.user.phone}
                                 </a>
+                                <FaRegCopy
+                                  className="w-4 h-4 cursor-pointer text-gray-600 hover:text-blue-500"
+                                  onClick={() => handleCopy(order.user.phone)}
+                                  title="Copy number"
+                                />
                               </>
                             ) : (
-                                <span>{t("NoPhone")}</span>
+                              <span>{t("NoPhone")}</span>
                             )}
                           </div>
                         </td>
@@ -295,7 +299,7 @@ const AllOrdersPage = () => {
                           {order?.amount || 0}
                         </td>
 
-                         {/* Order Payment */}
+                        {/* Order Payment */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order?.payment_method?.name || 0}
                         </td>

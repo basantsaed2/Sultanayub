@@ -4,7 +4,7 @@ import { LoaderLogin, SearchBar } from '../../../../../Components/Components';
 import { BiSolidShow } from 'react-icons/bi';
 import { FaFileInvoice } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { FaCopy, FaWhatsapp } from "react-icons/fa";
+import { FaRegCopy, FaWhatsapp } from "react-icons/fa";
 import { useAuth } from "../../../../../Context/Auth"; // Make sure to import useAuth if required
 import { useTranslation } from "react-i18next";
 
@@ -14,7 +14,7 @@ const ProcessingOrdersPage = () => {
   const ordersProcessing = useSelector((state) => state.ordersConfirmed);
   const [textSearch, setTextSearch] = useState('');
   const [filteredOrders, setFilteredOrders] = useState([]);
-   const {  t,i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
   const filteredOrdersPerPage = 20; // Limit to 20 filteredOrders per page
@@ -61,8 +61,8 @@ const ProcessingOrdersPage = () => {
           order.id.toString().startsWith(text) || // Matches if order.id starts with the text
           (order.user?.name || "-")
             .toLowerCase()
-            .includes(text.toLowerCase()) || 
-             (order.user?.phone || "-")
+            .includes(text.toLowerCase()) ||
+          (order.user?.phone || "-")
             .toLowerCase()
             .includes(text.toLowerCase())
       );
@@ -100,6 +100,17 @@ const ProcessingOrdersPage = () => {
     };
   }, [filteredOrders, currentPage]);
 
+  const handleCopy = (phone) => {
+    if (!phone) return;
+
+    navigator.clipboard
+      .writeText(phone)
+      .then(() => {
+        auth.toastSuccess("Phone number copied!"); // Use auth.toastSuccess()
+      })
+      .catch((err) => console.error("Failed to copy:", err));
+  };
+
   const scrollTable = (direction) => {
     if (tableContainerRef.current) {
       const scrollAmount = 300;
@@ -110,21 +121,21 @@ const ProcessingOrdersPage = () => {
     }
   };
 
-const headers = [
-  t('sl'),
-  t('order_id'),
-  t('delivery_date'),
-  t('customer_info'),
-  t('branch'),
-  t('total_amount'),
-  t('payment_method'),
-  t('order_status'),
-  t('operations_status'),
-  t('operations_admin'),
-  t('order_type'),
-  t('actions')
-];
- 
+  const headers = [
+    t('sl'),
+    t('order_id'),
+    t('delivery_date'),
+    t('customer_info'),
+    t('branch'),
+    t('total_amount'),
+    t('payment_method'),
+    t('order_status'),
+    t('operations_status'),
+    t('operations_admin'),
+    t('order_type'),
+    t('actions')
+  ];
+
   return (
     <>
       <div className="relative flex flex-col w-full gap-y-3">
@@ -213,7 +224,7 @@ const headers = [
                         colSpan={headers.length}
                         className="py-4 text-lg text-center text-mainColor font-TextFontMedium"
                       >
-                          {t("Noordersfound")}
+                        {t("Noordersfound")}
                       </td>
                     </tr>
                   ) : (
@@ -256,19 +267,25 @@ const headers = [
                               <>
                                 <FaWhatsapp className="w-5 h-5 text-green-600" />
                                 <a
-                                  href={`https://wa.me/${order.user.phone.replace(/[^0-9]/g, '')}`}
+                                  href={`https://wa.me/${order.user.phone.replace(/[^0-9]/g, "")}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="text-black transition duration-200 hover:text-green-600"
                                 >
                                   {order.user.phone}
                                 </a>
+                                <FaRegCopy
+                                  className="w-4 h-4 cursor-pointer text-gray-600 hover:text-blue-500"
+                                  onClick={() => handleCopy(order.user.phone)}
+                                  title="Copy number"
+                                />
                               </>
                             ) : (
-                                <span>{t("NoPhone")}</span>
+                              <span>{t("NoPhone")}</span>
                             )}
                           </div>
                         </td>
+
                         {/* Branch */}
                         <td className="px-4 py-2 text-sm text-center lg:text-base">
                           <span className="px-2 py-1 rounded-md text-cyan-500 bg-cyan-200">
@@ -281,7 +298,7 @@ const headers = [
                           {order?.amount || '-'}
                         </td>
 
-                          {/* Order Payment */}
+                        {/* Order Payment */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order?.payment_method?.name || 0}
                         </td>
@@ -298,7 +315,7 @@ const headers = [
                                   : 'bg-gray-200 text-gray-500'
                               }`}
                           >
-                            {order?.order_status === "confirmed"? "Processing" : '-'}
+                            {order?.order_status === "confirmed" ? "Processing" : '-'}
                           </span>
                         </td>
 

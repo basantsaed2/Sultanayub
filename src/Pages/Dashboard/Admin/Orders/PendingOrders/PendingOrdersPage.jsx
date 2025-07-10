@@ -4,13 +4,13 @@ import { LoaderLogin, SearchBar } from '../../../../../Components/Components';
 import { BiSolidShow } from 'react-icons/bi';
 import { FaFileInvoice } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { FaCopy, FaWhatsapp } from "react-icons/fa";
+import { FaRegCopy, FaWhatsapp } from "react-icons/fa";
 import { useAuth } from "../../../../../Context/Auth"; // Make sure to import useAuth if required
 import { useTranslation } from "react-i18next";
 
 const PendingOrdersPage = () => {
   const auth = useAuth();
-                 const {  t,i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const ordersPending = useSelector((state) => state.ordersPending);
   const [textSearch, setTextSearch] = useState('');
@@ -60,8 +60,8 @@ const PendingOrdersPage = () => {
           order.id.toString().startsWith(text) || // Matches if order.id starts with the text
           (order.user?.name || "-")
             .toLowerCase()
-            .includes(text.toLowerCase()) || 
-             (order.user?.phone || "-")
+            .includes(text.toLowerCase()) ||
+          (order.user?.phone || "-")
             .toLowerCase()
             .includes(text.toLowerCase())
       );
@@ -98,6 +98,17 @@ const PendingOrdersPage = () => {
     };
   }, [filteredOrders, currentPage]);
 
+  const handleCopy = (phone) => {
+    if (!phone) return;
+
+    navigator.clipboard
+      .writeText(phone)
+      .then(() => {
+        auth.toastSuccess("Phone number copied!"); // Use auth.toastSuccess()
+      })
+      .catch((err) => console.error("Failed to copy:", err));
+  };
+
   const scrollTable = (direction) => {
     if (tableContainerRef.current) {
       const scrollAmount = 300;
@@ -109,19 +120,19 @@ const PendingOrdersPage = () => {
   };
 
   const headers = [
-  t('sl'),
-  t('order_id'),
-  t('delivery_date'),
-  t('customer_info'),
-  t('branch'),
-  t('total_price'),
-  t('payment_method'),
-  t('order_status'),
-  t('operations_status'),
-  t('operations_admin'),
-  t('order_type'),
-  t('actions')
-];
+    t('sl'),
+    t('order_id'),
+    t('delivery_date'),
+    t('customer_info'),
+    t('branch'),
+    t('total_price'),
+    t('payment_method'),
+    t('order_status'),
+    t('operations_status'),
+    t('operations_admin'),
+    t('order_type'),
+    t('actions')
+  ];
 
   return (
     <>
@@ -149,24 +160,24 @@ const PendingOrdersPage = () => {
             </button>
 
             {filteredOrders.length > 0 && (
-                <div className="flex flex-wrap items-center justify-center gap-x-4">
-                  {currentPage !== 1 && (
-                    <button type='button' className='px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium' onClick={() => setCurrentPage(currentPage - 1)}>Prev</button>
-                  )}
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page ? 'bg-mainColor text-white' : ' text-mainColor'}`}
-                    >
-                      {page}
-                    </button>
-                  ))}
-                  {totalPages !== currentPage && (
-                    <button type='button' className='px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium' onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
-                  )}
-                </div>
-              )}
+              <div className="flex flex-wrap items-center justify-center gap-x-4">
+                {currentPage !== 1 && (
+                  <button type='button' className='px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium' onClick={() => setCurrentPage(currentPage - 1)}>Prev</button>
+                )}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page ? 'bg-mainColor text-white' : ' text-mainColor'}`}
+                  >
+                    {page}
+                  </button>
+                ))}
+                {totalPages !== currentPage && (
+                  <button type='button' className='px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium' onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
+                )}
+              </div>
+            )}
 
             <button
               onClick={() => scrollTable('right')}
@@ -211,7 +222,7 @@ const PendingOrdersPage = () => {
                         colSpan={headers.length}
                         className="py-4 text-lg text-center text-mainColor font-TextFontMedium"
                       >
-                          {t("Noordersfound")}
+                        {t("Noordersfound")}
                       </td>
                     </tr>
                   ) : (
@@ -254,19 +265,25 @@ const PendingOrdersPage = () => {
                               <>
                                 <FaWhatsapp className="w-5 h-5 text-green-600" />
                                 <a
-                                  href={`https://wa.me/${order.user.phone.replace(/[^0-9]/g, '')}`}
+                                  href={`https://wa.me/${order.user.phone.replace(/[^0-9]/g, "")}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="text-black transition duration-200 hover:text-green-600"
                                 >
                                   {order.user.phone}
                                 </a>
+                                <FaRegCopy
+                                  className="w-4 h-4 cursor-pointer text-gray-600 hover:text-blue-500"
+                                  onClick={() => handleCopy(order.user.phone)}
+                                  title="Copy number"
+                                />
                               </>
                             ) : (
-                                <span>{t("NoPhone")}</span>
+                              <span>{t("NoPhone")}</span>
                             )}
                           </div>
                         </td>
+
                         <td className="px-4 py-2 text-sm text-center lg:text-base">
                           <span className="px-2 py-1 rounded-md text-cyan-500 bg-cyan-200">
                             {order.branch?.name || "-"} / {order.address?.zone.zone || "-"}

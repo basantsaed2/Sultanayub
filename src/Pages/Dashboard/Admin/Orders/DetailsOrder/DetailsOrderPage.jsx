@@ -121,7 +121,7 @@ const DetailsOrderPage = () => {
     console.log("detailsData", detailsData); // Refetch data when the component mounts
     console.log("OrderStatus", orderStatus); // Refetch data when the component mounts
   }, [dataDetailsOrder]);
-  
+
   useEffect(() => {
     console.log("orderId", orderId); // Refetch data when the component mounts
   }, [orderId]);
@@ -594,6 +594,9 @@ const DetailsOrderPage = () => {
                                   #
                                 </th>
                                 <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
+                                  {t("Image")}
+                                </th>
+                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
                                   {t("Products")}
                                 </th>
                                 <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
@@ -632,6 +635,14 @@ const DetailsOrderPage = () => {
                                           key={`prod-${prodIndex}`}
                                           className="mb-3"
                                         >
+                                          {/* Image */}
+                                          {prod.product.image_link && (
+                                            <img
+                                              src={prod.product.image_link}
+                                              alt={prod.product.name}
+                                              className="w-14 h-14 object-cover rounded border border-gray-300"
+                                            />
+                                          )}
                                           <div className="font-semibold text-gray-800">
                                             {prod.product.name}
                                           </div>
