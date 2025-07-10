@@ -25,11 +25,13 @@ const App = () => {
     document.documentElement.dir = dir;
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
+  
   const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
   const auth = useAuth();
   const hideSide = auth.hideSidebar;
   const [allCount, setAllCount] = useState(0);
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  
   const {
     refetch: refetchCountOrders,
     loading,
@@ -37,19 +39,41 @@ const App = () => {
   } = useGet({
     url: `${apiUrl}/admin/order/count`,
   });
+  
   const { refetch: refetchSong, loading: loadingSong, data: dataSong } = useGet({
     url: `${apiUrl}/admin/settings/notification_sound`,
   });
+  
   const { postData, loadingPost, response } = usePost({ url: `${apiUrl}/admin/order/notification` });
   const ordersAll = useSelector((state) => state.ordersAll.data);
   const newOrders = useSelector((state) => state.newOrders);
   const soundNotification = useSelector((state) => state.soundNotification);
 
   const dispatch = useDispatch();
-
   const [isOpen, setIsOpen] = useState(false);
   const [orderCounts, setOrderCounts] = useState(0);
   const [orderId, setOrderId] = useState('');
+  const [newOrder, setNewOrder] = useState([]);
+
+  const playNotificationSound = (soundUrl) => {
+    const audio = new Audio(soundUrl);
+    audio.volume = 1.0;
+    
+    const playPromise = audio.play();
+    
+    if (playPromise !== undefined) {
+      playPromise
+        .then(_ => {
+          console.log('Audio played successfully');
+        })
+        .catch(error => {
+          console.error('Playback failed:', error);
+          setTimeout(() => {
+            audio.play().catch(e => console.error('Retry failed:', e));
+          }, 1000);
+        });
+    }
+  };
 
   // Fetch data from the API
   useEffect(() => {
@@ -70,7 +94,6 @@ const App = () => {
 
   const handleClose = () => setIsOpen(false);
 
-
   // Update `orderCounts` when a response is received
   useEffect(() => {
     if (response?.data?.new_orders !== undefined) {
@@ -86,17 +109,30 @@ const App = () => {
       dispatch(setNewOrders({ count: orderCounts, id: orderId }));
 
       if (soundNotification && soundNotification.data) {
-        const audio = new Audio(soundNotification.data); // Create a new Audio object
-        audio.play().catch((error) => {
-          console.error('Error playing audio:', error);
-        });
+        playNotificationSound(soundNotification.data);
         console.log('Playing sound notification.');
-        console.log('audio', audio);
       } else {
         console.log('No sound notification available.');
       }
     }
   }, [orderCounts, soundNotification, dispatch]);
+
+  // Handle visibility changes
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && newOrders?.count > 0) {
+        if (soundNotification && soundNotification.data) {
+          playNotificationSound(soundNotification.data);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [newOrders, soundNotification]);
 
   // Open/close modal based on `newOrders` count
   useEffect(() => {
@@ -121,12 +157,11 @@ const App = () => {
     if (dataCountOrders) {
       setAllCount(dataCountOrders.orders);
     }
-  }
-    , [dataCountOrders]);
+  }, [dataCountOrders]);
 
   // Poll the notification endpoint every 8 seconds
   useEffect(() => {
-    if (!allCount) return; // Exit if ordersAll is not available
+    if (!allCount) return;
     const interval = setInterval(() => {
       console.log("Sending request to notification endpoint...");
       const formData = new FormData();
@@ -134,11 +169,11 @@ const App = () => {
       postData(formData);
     }, 8000);
 
-    return () => clearInterval(interval); // Cleanup interval
+    return () => clearInterval(interval);
   }, [ordersAll, postData, loading, dataCountOrders]);
 
   useEffect(() => {
-    if (loadingPost && response) return; // Exit if ordersAll is not available
+    if (loadingPost && response) return;
     refetchCountOrders();
   }, [response]);
 
@@ -160,8 +195,8 @@ const App = () => {
         <div className={`
         w-full duration-300
         ${direction === "ltr"
-            ? (hideSide ? 'pl-60' : 'pl-16') // Padding-left لـ LTR
-            : (hideSide ? 'pr-60' : 'pr-16') // Padding-right لـ RTL
+            ? (hideSide ? 'pl-60' : 'pl-16')
+            : (hideSide ? 'pr-60' : 'pr-16')
           }
       `}>
           {/* Navbar */}
