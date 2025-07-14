@@ -19,7 +19,7 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
     hours: '',
     branch_id: null
   });
-                   const {  t,i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [editingSlot, setEditingSlot] = useState(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -30,7 +30,8 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
   });
 
   const { postData: postCustom, loadingPost: loadingCustom } = usePost({
-    url: `${apiUrl}/admin/settings/business_setup/time_slot/add_custom`
+    url: `${apiUrl}/admin/settings/business_setup/time_slot/add_custom`,
+    type: true // Ensure JSON content type
   });
 
   const { postData: postTimeSlot, loadingPost: loadingTimeSlot } = usePost({
@@ -65,7 +66,9 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
       setBranches(dataSlot.branches || []);
 
       if (dataSlot.days?.length > 0) {
-        const customDays = dataSlot.days.map(day => ({ name: day }));
+        const customDays = dataSlot.days
+          .filter(day => day !== 'none')
+          .map(day => ({ name: day }));
         setSelectedDays(customDays);
         setOptionName('customize');
       }
@@ -233,17 +236,12 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
 
   const handleSubmitCustomDays = async (e) => {
     e.preventDefault();
-    if (optionName !== 'customize' || selectedDays.length === 0) {
-      auth.toastError(t('Please select at least one day in customize mode'));
-      return;
-    }
 
     setIsSubmittingCustom(true);
     try {
       await postCustom({
-        custom: selectedDays.map(day => day.name)
+        custom: selectedDays.length > 0 ? selectedDays.map(day => day.name) : []
       });
-      auth.toastSuccess(t('Custom days saved successfully'));
       refetchTimeSlot();
     } catch (error) {
       console.error('Submit custom days error:', error);
@@ -373,7 +371,7 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
                   className="px-4 py-2 mt-4 text-white rounded bg-mainColor hover:bg-red-700 disabled:bg-gray-400"
                   disabled={isSubmittingTimeSlots || loadingTimeSlot}
                 >
-                  {loadingTimeSlot ?t("Saving") :t('Add Branch Time')}
+                  {loadingTimeSlot ? t("Saving") : t('Add Branch Time')}
                 </button>
               </div>
             </div>
