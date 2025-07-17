@@ -17,6 +17,7 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
   const [newTimeSlot, setNewTimeSlot] = useState({
     from: '',
     hours: '',
+    minutes: '',
     branch_id: null
   });
   const { t, i18n } = useTranslation();
@@ -100,6 +101,7 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
   const validateTimeSlot = (slot) => {
     if (!slot.from) return t('Opening time is required');
     if (!slot.hours || isNaN(parseInt(slot.hours, 10))) return t('Valid number of hours is required');
+    if (!slot.minutes || isNaN(parseInt(slot.minutes, 10))) return t('Valid number of minutes is required');
     if (!slot.branch_id || isNaN(slot.branch_id)) return t('Branch selection is required');
     return null;
   };
@@ -118,26 +120,27 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
     const payload = {
       from: formattedTime,
       hours: parseInt(newTimeSlot.hours, 10),
+      minutes: parseInt(newTimeSlot.minutes, 10),
       branch_id: parseInt(newTimeSlot.branch_id, 10)
     };
 
-    console.log('Adding new slot with payload:', payload); // Debug: Log payload
+    console.log('Adding new slot with payload:', payload);
 
     const response = await postTimeSlot(payload);
-    console.log('Post response:', response); // Debug: Log response
+    console.log('Post response:', response);
 
     if (response?.id) {
       setTimeSlots([...timeSlots, {
         ...newTimeSlot,
         from: formattedTime,
         branch,
-        id: response.id // Use server-generated ID
+        id: response.id
       }]);
       auth.toastSuccess(t('Branch Time added and saved to server'));
     } else {
       throw new Error(t('No ID returned from server'));
     }
-    setNewTimeSlot({ from: '', hours: '', branch_id: null });
+    setNewTimeSlot({ from: '', hours: '', minutes: '', branch_id: null });
   };
 
   const handleEditSlot = (slot) => {
@@ -163,6 +166,7 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
       const response = await postUpdateTimeSlot({
         from: formattedTime,
         hours: parseInt(editingSlot.hours, 10),
+        minutes: parseInt(editingSlot.minutes, 10),
         branch_id: editingSlot.branch_id
       });
 
@@ -176,7 +180,6 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
     setShowEditDialog(false);
     setEditingSlot(null);
     setSelectedTime('');
-
   };
 
   const handleSubmitTimeSlots = async (e) => {
@@ -187,10 +190,10 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
     }
 
     setIsSubmittingTimeSlots(true);
-    console.log('Branch Times to submit:', timeSlots); // Debug: Log all slots
+    console.log('Branch Times to submit:', timeSlots);
     const results = await Promise.allSettled(
       timeSlots
-        .filter(slot => !slot.id) // Only process slots without server ID (i.e., failed local adds)
+        .filter(slot => !slot.id)
         .map(async (slot) => {
           const error = validateTimeSlot(slot);
           if (error) {
@@ -200,24 +203,25 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
           const payload = {
             from: formatTimeToHHMMSS(slot.from),
             hours: parseInt(slot.hours, 10),
+            minutes: parseInt(slot.minutes, 10),
             branch_id: parseInt(slot.branch_id, 10)
           };
 
-          console.log('Submitting slot:', { payload, isUpdate: !!slot.id }); // Debug: Log payload
+          console.log('Submitting slot:', { payload, isUpdate: !!slot.id });
 
           console.log('Adding new slot with tempId:', slot.tempId);
           const response = await postTimeSlot(payload);
-          console.log('Add response:', response); // Debug: Log response
+          console.log('Add response:', response);
           return { slot, response };
         })
     );
 
     const updatedSlots = timeSlots.map((slot, index) => {
-      if (slot.id) return slot; // Skip slots already posted
+      if (slot.id) return slot;
       const result = results.find((r, i) => timeSlots[i].tempId === slot.tempId);
       if (result?.status === 'fulfilled' && result.value.response?.id) {
         const { response } = result.value;
-        console.log('Processing response for slot:', response); // Debug: Log response
+        console.log('Processing response for slot:', response);
         return {
           ...slot,
           id: response.id,
@@ -225,12 +229,12 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
           branch: branches.find(b => b.id === slot.branch_id) || slot.branch
         };
       }
-      console.error('Failed to process slot:', result?.reason); // Debug: Log error
+      console.error('Failed to process slot:', result?.reason);
       auth.toastError(`Failed to process slot: ${result?.reason?.message || 'Unknown error'}`);
       return slot;
     });
 
-    console.log('Updated slots:', updatedSlots); // Debug: Log final slots
+    console.log('Updated slots:', updatedSlots);
     setTimeSlots(updatedSlots);
   };
 
@@ -253,7 +257,7 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
 
   const handleReset = () => {
     setTimeSlots([]);
-    setNewTimeSlot({ from: '', hours: '', branch_id: null });
+    setNewTimeSlot({ from: '', hours: '', minutes: '', branch_id: null });
     setOptionName('daily');
     setSelectedDays([]);
     setSelectedTime('');
@@ -267,9 +271,7 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
           <LoaderLogin />
         </div>
       ) : (
-        <div className="flex flex-col items-start w-full gap-4">
-          {/* <TitleSection text={'Restaurant Operating Hours'} /> */}
-
+        <div className="flex flex-col items-start w-full gap-4 mb-20">
           <div className="flex w-full gap-8 mt-4">
             <span
               className={`text-xl font-TextFontRegular cursor-pointer ${optionName === 'daily' ? 'text-mainColor' : 'text-thirdColor'}`}
@@ -302,6 +304,7 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
                           <p className="font-semibold">{slot.branch?.name || 'Branch Not Selected'}</p>
                           <p>{t("From")}: {slot.from}</p>
                           <p>{t("Hours")}: {slot.hours}</p>
+                          <p>{t("Minutes")}: {slot.minutes}</p>
                         </div>
                         <div className="flex gap-2">
                           <button
@@ -321,7 +324,7 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
 
               <div className="w-full p-4 rounded-lg bg-gray-50">
                 <h4 className="mb-3 text-lg font-medium">{t("Add New Branch Time")}</h4>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                   <div>
                     <label className="block mb-1 text-sm font-medium text-gray-700">{t("Branch *")}</label>
                     <Dropdown
@@ -362,6 +365,22 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
                       placeholder={t("Enter number of hours")}
                       className="w-full"
                       disabled={isSubmittingTimeSlots || loadingTimeSlot}
+                      min={0}
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">{t("Minutes *")}</label>
+                    <NumberInput
+                      value={newTimeSlot.minutes}
+                      onChange={(e) => setNewTimeSlot({
+                        ...newTimeSlot,
+                        minutes: e.target.value
+                      })}
+                      placeholder={t("Enter number of minutes")}
+                      className="w-full"
+                      disabled={isSubmittingTimeSlots || loadingTimeSlot}
+                      min={0}
+                      max={59}
                     />
                   </div>
                 </div>
@@ -400,27 +419,6 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
               </div>
             </div>
           )}
-
-
-
-          {/* <div className="flex items-center justify-end w-full mt-6 gap-x-4">
-                        <StaticButton
-                            text={'Reset'}
-                            handleClick={handleReset}
-                            bgColor="bg-transparent"
-                            Color="text-mainColor"
-                            border="border-2"
-                            borderColor="border-mainColor"
-                            rounded="rounded-full"
-                            disabled={isSubmittingCustom || isSubmittingTimeSlots || loadingTimeSlot}
-                        />
-                        <SubmitButton 
-                            text={isSubmittingTimeSlots ? 'Saving Branch Times...' : 'Save Branch Times'} 
-                            rounded="rounded-full" 
-                            handleClick={handleSubmitTimeSlots}
-                            disabled={isSubmittingCustom || isSubmittingTimeSlots || loadingTimeSlot}
-                        />
-                    </div> */}
 
           <Dialog
             visible={showEditDialog}
@@ -469,6 +467,22 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
                     placeholder={t("Enter number of hours")}
                     className="w-full"
                     disabled={isSubmittingTimeSlots || loadingTimeSlot}
+                    min={0}
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">{t("Minutes *")}</label>
+                  <NumberInput
+                    value={editingSlot.minutes}
+                    onChange={(e) => setEditingSlot({
+                      ...editingSlot,
+                      minutes: e.target.value
+                    })}
+                    placeholder={t("Enter number of minutes")}
+                    className="w-full"
+                    disabled={isSubmittingTimeSlots || loadingTimeSlot}
+                    min={0}
+                    max={59}
                   />
                 </div>
                 <div className="flex justify-end gap-2 mt-4">

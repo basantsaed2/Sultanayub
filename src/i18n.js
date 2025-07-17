@@ -79,7 +79,7 @@ const resources = {
       "EditPaymentMethod": "Edit Payment Method",
       "AddNewPaymentMethod": "Add New Payment Method",
       "PaymentMethodsTable": "Payment Methods Table",
-      "ResturantTime": "Resturan tTime",
+      "ResturantTime": "Resturan Time",
       "AddRole": "Add Role",
       "EditRole": 'Edit Role',
       "RolesTable": "Roles Table",
