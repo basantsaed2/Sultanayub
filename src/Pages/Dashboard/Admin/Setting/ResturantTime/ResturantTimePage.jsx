@@ -71,7 +71,7 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
           .filter(day => day !== 'none')
           .map(day => ({ name: day }));
         setSelectedDays(customDays);
-        setOptionName('customize');
+        setOptionName('daily');
       }
 
       if (dataSlot.time_setting?.length > 0) {
