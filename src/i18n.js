@@ -5,6 +5,7 @@ const resources = {
   en: {
     translation: {
       projectName: import.meta.env.VITE_PROJECT_EN_NAME || "Food2go", // Fallback if undefined
+      "Source": "Source",
       "ActiveBranchPhone": "Branch Phone Status",
       "newOrders": "You have {{count}} new order(s), please check.",
       "Logout": "Logout",
@@ -1103,6 +1104,7 @@ const resources = {
   ar: {
     translation: {
       projectName: import.meta.env.VITE_PROJECT_AR_NAME || "Food2go", // Fallback if undefined
+      "Source": "المصدر",
       "ActiveBranchPhone": "هاتف الفرع النشط",
       "Select Products Options": "اختر خيارات المنتجات",
       "Select Coupon Type": "اختر نوع القسيمة",

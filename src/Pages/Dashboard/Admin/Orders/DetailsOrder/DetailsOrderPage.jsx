@@ -47,6 +47,7 @@ const DetailsOrderPage = () => {
   const [showRefundModal, setShowRefundModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [selectedDeliveryId, setSelectedDeliveryId] = useState(null);
 
   const [showReason, setShowReason] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
@@ -189,6 +190,8 @@ const DetailsOrderPage = () => {
       setSearchDelivery("");
       setOpenDeliveries(false);
       setDeliveriesFilter(deliveries);
+      refetchDetailsOrder(); // Refetch to update the UI with new status and delivery info.
+      
     }
     console.log("response", response);
   }, [response]);
@@ -458,6 +461,12 @@ const DetailsOrderPage = () => {
                                 {t("Schedule")}:
                               </span>{" "}
                               {detailsData?.schedule?.name || "-"}
+                            </p>
+                            <p className="mt-1 text-sm text-gray-700">
+                              <span className="font-TextFontSemiBold">
+                                {t("Source")}:
+                              </span>{" "}
+                              {detailsData?.source || "-"}
                             </p>
                           </div>
                         </div>
@@ -1344,6 +1353,86 @@ const DetailsOrderPage = () => {
                   </div>
                 </div>
 
+                  {(detailsData.order_type === 'delivery' || detailsData.order_status === 'processing' || detailsData.order_status === 'confirmed') && (
+                    <button
+                      className="w-full bg-mainColor text-white py-2 rounded-md mt-4"
+                      onClick={() => handleOpenDeliviers(detailsData.id)}
+                    >
+                      {t("Assign Delivery Man")}
+                    </button>
+                  )}
+
+                {/* Delivery man selection */}
+                {openDeliveries === detailsData.id && (
+                  <Dialog open={true} onClose={handleCloseDeliveries} className="relative z-10">
+                    <DialogBackdrop className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+                    <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                      <div className="flex min-h-full items-end justify-center text-center sm:items-center sm:p-0">
+                        <DialogPanel className="relative sm:w-full sm:max-w-2xl pt-4 transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all">
+                          <div className="mb-2 px-2">
+                            <SearchBar
+                              placeholder="Search Delivery"
+                              value={searchDelivery}
+                              handleChange={handleChangeDeliveries}
+                            />
+                          </div>
+                          <div className="px-4 flex flex-col gap-3 max-h-64 overflow-y-auto">
+                            {deliveriesFilter.length === 0 ? (
+                              <div className="text-center font-TextFontMedium text-mainColor">
+                                {t("Not Found Delivery")}
+                              </div>
+                            ) : (
+                              deliveriesFilter.map((delivery) => (
+                                <div
+                                  className="border-2 flex items-center justify-between border-gray-400 p-2 rounded-2xl"
+                                  key={`${delivery.id}-${detailsData.id}`}
+                                >
+                                  <label className="flex items-center gap-2">
+                                    <input
+                                      type="radio"
+                                      name="delivery"
+                                      value={delivery.id}
+                                      checked={selectedDeliveryId === delivery.id}
+                                      onChange={() => setSelectedDeliveryId(delivery.id)}
+                                      className="form-radio"
+                                    />
+                                    <span className="font-TextFontRegular text-xl">
+                                      {delivery?.f_name || '-'} {delivery?.l_name || '-'}
+                                    </span>
+                                  </label>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                          {/* Dialog Footer */}
+                          <div className="px-4 py-3 sm:flex sm:flex-row-reverse gap-x-3">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (!selectedDeliveryId) {
+                                  auth.toastError(t("Please select a delivery person"));
+                                  return;
+                                }
+                                handleAssignDelivery(selectedDeliveryId, detailsData.id, detailsData.order_number);
+                              }}
+                              className="inline-flex w-full justify-center rounded-md bg-mainColor px-6 py-3 text-sm font-TextFontMedium text-white shadow-sm sm:w-auto hover:bg-mainColor-dark focus:outline-none"
+                            >
+                              {t("Submit")}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleCloseDeliveries}
+                              className="mt-3 inline-flex w-full justify-center rounded-md bg-gray-300 px-6 py-3 text-sm font-TextFontMedium text-gray-800 shadow-sm sm:mt-0 sm:w-auto hover:bg-gray-400 focus:outline-none"
+                            >
+                              {t("Close")}
+                            </button>
+                          </div>
+                        </DialogPanel>
+                      </div>
+                    </div>
+                  </Dialog>
+                )}
+
                 <div className="p-4 mt-4 bg-white rounded-lg shadow-sm order-status-history">
                   <h3 className="mb-4 text-lg font-semibold text-gray-800 history-title">
                     {t("Order Status History")}
@@ -1481,17 +1570,6 @@ const DetailsOrderPage = () => {
                           </span>
                         )}
                       </div>
-                      {/* <span>preparationTime.hours: {preparationTime?.hours}</span>
-                                                               <br />
-                                                               <span>olderHours: {olderHours}</span>
-                                                               <br />
-                                                               <span>currentHour: {initialTime?.currentHour}</span>
-                                                               <br />
-                                                               <span>preparationTime.minutes: {preparationTime?.minutes}</span>
-                                                               <br />
-                                                               <span>olderMinutes: {olderMinutes}</span>
-                                                               <br />
-                                                               <span>currentMinute: {initialTime?.currentMinute}</span> */}
                     </div>
                   )}
 
