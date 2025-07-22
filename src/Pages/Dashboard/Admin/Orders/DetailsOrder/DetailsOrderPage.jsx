@@ -191,7 +191,7 @@ const DetailsOrderPage = () => {
       setOpenDeliveries(false);
       setDeliveriesFilter(deliveries);
       refetchDetailsOrder(); // Refetch to update the UI with new status and delivery info.
-      
+
     }
     console.log("response", response);
   }, [response]);
@@ -1353,14 +1353,14 @@ const DetailsOrderPage = () => {
                   </div>
                 </div>
 
-                  {(detailsData.order_type === 'delivery' || detailsData.order_status === 'processing' || detailsData.order_status === 'confirmed') && (
-                    <button
-                      className="w-full bg-mainColor text-white py-2 rounded-md mt-4"
-                      onClick={() => handleOpenDeliviers(detailsData.id)}
-                    >
-                      {t("Assign Delivery Man")}
-                    </button>
-                  )}
+                {(detailsData.order_type === 'delivery') && (detailsData.order_status === 'processing' || detailsData.order_status === 'confirmed' || detailsData.order_status === 'out_for_delivery') && (
+                  <button
+                    className="w-full bg-mainColor text-white py-2 rounded-md mt-4"
+                    onClick={() => handleOpenDeliviers(detailsData.id)}
+                  >
+                    {t("Assign Delivery Man")}
+                  </button>
+                )}
 
                 {/* Delivery man selection */}
                 {openDeliveries === detailsData.id && (
@@ -1368,7 +1368,9 @@ const DetailsOrderPage = () => {
                     <DialogBackdrop className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
                     <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                       <div className="flex min-h-full items-end justify-center text-center sm:items-center sm:p-0">
-                        <DialogPanel className="relative sm:w-full sm:max-w-2xl pt-4 transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all">
+                        <DialogPanel
+                          className="relative sm:w-full sm:max-w-2xl pt-4 transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all h-[90vh]" // Increased height with h-[80vh]
+                        >
                           <div className="mb-2 px-2">
                             <SearchBar
                               placeholder="Search Delivery"
@@ -1376,7 +1378,7 @@ const DetailsOrderPage = () => {
                               handleChange={handleChangeDeliveries}
                             />
                           </div>
-                          <div className="px-4 flex flex-col gap-3 max-h-64 overflow-y-auto">
+                          <div className="px-4 flex flex-col gap-3 overflow-y-auto max-h-[70vh]"> {/* Adjusted max-height for content */}
                             {deliveriesFilter.length === 0 ? (
                               <div className="text-center font-TextFontMedium text-mainColor">
                                 {t("Not Found Delivery")}
