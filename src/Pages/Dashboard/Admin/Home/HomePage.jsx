@@ -20,6 +20,13 @@ const HomePage = () => {
   } = useGet({
     url: `${apiUrl}/admin/home`,
   });
+  const {
+    refetch: refetchOrders,
+    loading: loadingOrders,
+    data: dataOrders,
+  } = useGet({
+    url: `${apiUrl}/admin/home/orders`,
+  });
   const { refetch: refetchBranch, loading: loadingBranch, data: dataBranch } = useGet({
     url: `${apiUrl}/admin/order/branches`
   });
@@ -36,7 +43,8 @@ const HomePage = () => {
   useEffect(() => {
     refetchChart();
     refetchBranch();
-  }, [refetchChart, refetchBranch]);
+    refetchOrders();
+  }, [refetchChart, refetchBranch , refetchOrders]);
 
   useEffect(() => {
     if (dataCharts) {
@@ -44,7 +52,6 @@ const HomePage = () => {
       setOrder_statistics(dataCharts.order_statistics)
       setEarning_statistics(dataCharts.earning_statistics)
       setRecent_orders(dataCharts.recent_orders)
-      setOrders(dataCharts.orders)
       setOffers(dataCharts.offers)
       SetTopSelling(dataCharts.top_selling)
       setTopCustomers(dataCharts.top_customers)
@@ -52,23 +59,23 @@ const HomePage = () => {
   }, [dataCharts, dataHome, order_statistics]);
 
   const counters = {
-    ordersAll: orders?.orders || 0,
-    ordersPending: orders?.pending || 0,
-    ordersConfirmed: orders?.confirmed || 0,
-    ordersProcessing: orders?.processing || 0,
-    ordersOutForDelivery: orders?.out_for_delivery || 0,
-    ordersDelivered: orders?.delivered || 0,
-    ordersReturned: orders?.returned || 0,
-    ordersFailed: orders?.faild_to_deliver || 0,
-    ordersCanceled: orders?.canceled || 0,
-    ordersSchedule: orders?.scheduled || 0,
+    ordersAll: dataOrders?.orders || 0,
+    ordersPending: dataOrders?.pending || 0,
+    ordersConfirmed: dataOrders?.confirmed || 0,
+    ordersProcessing: dataOrders?.processing || 0,
+    ordersOutForDelivery: dataOrders?.out_for_delivery || 0,
+    ordersDelivered: dataOrders?.delivered || 0,
+    ordersReturned: dataOrders?.returned || 0,
+    ordersFailed: dataOrders?.faild_to_deliver || 0,
+    ordersCanceled: dataOrders?.canceled || 0,
+    ordersSchedule: dataOrders?.scheduled || 0,
   };
 
   return (
     <>
       <OrdersComponent />
       <div className="flex flex-col w-full mb-0">
-        {loadingChart && loadingBranch ? (
+        { (loadingBranch || loadingOrders ) ? (
           <>
             <div className="flex items-center justify-center w-full">
               <LoaderLogin />
