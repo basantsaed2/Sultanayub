@@ -28,12 +28,20 @@ import { useTranslation } from "react-i18next";
 const SelectDateRangeSection = ({ typPage, branchsData }) => {
   const dispatch = useDispatch();
   const auth = useAuth();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
+  // Get the user's role from the auth context
+  const role = localStorage.getItem("role"); // Access role safely
+  console.log("Current user role (inside SelectDateRangeSection):", role);
+
+  // Dynamically set the API URL based on the user's role
   const { postData, loadingPost, response } = usePost({
-    url: `${apiUrl}/admin/order/order_filter_date`,
+    url:
+      role === "branch"
+        ? `${apiUrl}/branch/online_order/order_filter_date`
+        : `${apiUrl}/admin/order/order_filter_date`,
   });
 
   const dropDownBranch = useRef();
@@ -93,10 +101,11 @@ const SelectDateRangeSection = ({ typPage, branchsData }) => {
   };
 
   useEffect(() => {
-    if (branchsData?.branches) {
+    // Only set branches if role is NOT 'branch'
+    if (role !== "branch" && branchsData?.branches) {
       setBranchs(branchsData.branches);
     }
-  }, [branchsData]);
+  }, [branchsData, role]);
 
   useEffect(() => {
     if (response !== null) {
@@ -176,8 +185,11 @@ const SelectDateRangeSection = ({ typPage, branchsData }) => {
   }, []);
 
   const handleReset = () => {
-    setStateBranch(t("Select Branch"));
-    setBranchId("");
+    // Only reset branch-related state if not a 'branch' role
+    if (role !== "branch") {
+      setStateBranch(t("SelectBranch"));
+      setBranchId("");
+    }
     setStartDate("");
     setEndDate("");
     setStateType(t("All Types"));
@@ -195,7 +207,8 @@ const SelectDateRangeSection = ({ typPage, branchsData }) => {
 
     const formData = new FormData();
 
-    if (branchId) {
+    // Only set branch_id if role is NOT 'branch' and a branch is selected
+    if (role !== "branch" && branchId) {
       formData.set("branch_id", branchId);
     }
 
@@ -219,6 +232,9 @@ const SelectDateRangeSection = ({ typPage, branchsData }) => {
     postData(formData);
   };
 
+  // Calculate the width for each field based on whether branch select is shown
+  const fieldWidth = role === "branch" ? "sm:w-full lg:w-[30%]" : "sm:w-full lg:w-[23%]";
+
   return (
     <>
       <TitleSection text={t("SelectDateRange")} />
@@ -233,25 +249,28 @@ const SelectDateRangeSection = ({ typPage, branchsData }) => {
           onSubmit={handleData}
           className="flex flex-wrap items-center justify-start w-full gap-4 px-3 py-3 pt-0 shadow-md sm:flex-col lg:flex-row rounded-xl"
         >
-          <div className="sm:w-full lg:w-[23%] flex flex-col items-start justify-center gap-y-1">
-            <span className="text-xl font-TextFontRegular text-thirdColor">
-              {t("SelectBranch")}:
-            </span>
-            <DropDown
-              ref={dropDownBranch}
-              handleOpen={() => handleOpenDropdown("branch")}
-              stateoption={stateBranch}
-              openMenu={isOpenBranch}
-              handleOpenOption={handleOpenOptionBranch}
-              options={branchs}
-              onSelectOption={handleSelectBranch}
-              border={false}
-            />
-          </div>
+          {/* Conditionally render Select Branch dropdown - ONLY for non-branch roles */}
+          {role !== "branch" && (
+            <div className="sm:w-full lg:w-[23%] flex flex-col items-start justify-center gap-y-1">
+              <span className="text-xl font-TextFontRegular text-thirdColor">
+                {t("SelectBranch")}:
+              </span>
+              <DropDown
+                ref={dropDownBranch}
+                handleOpen={() => handleOpenDropdown("branch")}
+                stateoption={stateBranch}
+                openMenu={isOpenBranch}
+                handleOpenOption={handleOpenOptionBranch}
+                options={branchs}
+                onSelectOption={handleSelectBranch}
+                border={false}
+              />
+            </div>
+          )}
 
-          <div className="sm:w-full lg:w-[23%] flex flex-col items-start justify-center gap-y-1">
+          <div className={`${fieldWidth} flex flex-col items-start justify-center gap-y-1`}>
             <span className="text-xl font-TextFontRegular text-thirdColor">
-             {t("Order Type")}:
+              {t("Order Type")}:
             </span>
             <DropDown
               ref={dropDownType}
@@ -265,7 +284,7 @@ const SelectDateRangeSection = ({ typPage, branchsData }) => {
             />
           </div>
 
-          <div className="sm:w-full lg:w-[23%] flex flex-col items-start justify-center gap-y-1">
+          <div className={`${fieldWidth} flex flex-col items-start justify-center gap-y-1`}>
             <span className="text-xl font-TextFontRegular text-thirdColor">
               {t("StartDate")}:
             </span>
@@ -276,7 +295,7 @@ const SelectDateRangeSection = ({ typPage, branchsData }) => {
             />
           </div>
 
-          <div className="sm:w-full lg:w-[23%] flex flex-col items-start justify-center gap-y-1">
+          <div className={`${fieldWidth} flex flex-col items-start justify-center gap-y-1`}>
             <span className="text-xl font-TextFontRegular text-thirdColor">
               {t("EndDate")}:
             </span>

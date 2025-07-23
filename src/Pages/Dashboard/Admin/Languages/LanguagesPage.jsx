@@ -22,7 +22,6 @@ const LanguagesPage = ({ refetch, setUpdate }) => {
   const { changeState, loadingChange, responseChange } = useChangeState();
   const { deleteData, loadingDelete, responseDelete } = useDelete();
   const { t, i18n } = useTranslation();
-  const dispatch = useDispatch();
 
   const [languages, setLanguages] = useState([]);
   const [openDelete, setOpenDelete] = useState(null);
@@ -231,8 +230,8 @@ const LanguagesPage = ({ refetch, setUpdate }) => {
                     key={page}
                     onClick={() => handlePageChange(page)}
                     className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
-                      ? "bg-mainColor text-white"
-                      : " text-mainColor"
+                        ? "bg-mainColor text-white"
+                        : " text-mainColor"
                       }`}
                   >
                     {page}

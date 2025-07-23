@@ -1,41 +1,40 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useGet } from "../../../../../Hooks/useGet";
 import { useParams } from "react-router-dom";
 import { LoaderLogin } from "../../../../../Components/Components";
-import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
 const InvoiceOrderPage = () => {
-  const user = useSelector((state) => state.user);
   const { orderId } = useParams();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+
+  const [invoiceData, setInvoiceData] = useState([]);
+  const userRole = localStorage.getItem("role") || "admin";
 
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const apiEndpoint =
+    userRole === "branch"
+      ? `${apiUrl}/branch/online_order/invoice/${orderId}`
+      : `${apiUrl}/admin/order/invoice/${orderId}`;
+
   const {
     refetch: refetchInvoiceOrder,
     loading: loadingInvoiceOrder,
     data: dataInvoiceOrder,
-  } = useGet({ url: `${apiUrl}/admin/order/invoice/${orderId}` });
-
-  const [invoiceData, setInvoiceData] = useState([]);
+  } = useGet({ url: apiEndpoint });
 
   useEffect(() => {
-    refetchInvoiceOrder(); // Refetch data when the component mounts
+    refetchInvoiceOrder();
   }, [refetchInvoiceOrder]);
 
   useEffect(() => {
     if (dataInvoiceOrder && dataInvoiceOrder.order) {
       setInvoiceData(dataInvoiceOrder.order);
     }
-    console.log("dataInvoiceOrder", dataInvoiceOrder); // Refetch data when the component mounts
   }, [dataInvoiceOrder]);
-  useEffect(() => {
-    console.log("orderId", orderId); // Refetch data when the component mounts
-  }, [orderId]);
 
   let totalAddonPrice = 0;
   let totalItemPrice = 0;
-
   return (
     <>
       {invoiceData.length === 0 ? (
@@ -310,7 +309,7 @@ const InvoiceOrderPage = () => {
             <div>
               {invoiceData.order_details.map((orderDetail, detailIndex) => (
                 <div key={detailIndex}>
-                  {orderDetail.addons.map((addonItem, addonIndex) => {
+                  {orderDetail.addons.map((addonItem) => {
                     // Add the price of each addon to the total
                     totalAddonPrice += addonItem.addon.price * addonItem.count;
                     return;

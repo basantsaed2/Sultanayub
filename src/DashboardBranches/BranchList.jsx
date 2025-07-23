@@ -1,11 +1,9 @@
-import  { useEffect, useState } from "react";
-import { usePost } from "../../../../Hooks/usePostJson";
-import {
-  LoaderLogin,
-  SearchBar,
-  SubmitButton,
-} from "../../../../Components/Components";
-import { useAuth } from "../../../../Context/Auth";
+import { useEffect, useState } from "react";
+import { usePost } from "../Hooks/usePostJson";
+import LoaderLogin from "../Components/Loaders/LoaderLogin"; // Assuming LoaderLogin.jsx
+import SearchBar from "../Components/AnotherComponents/SearchBar"; // Assuming SearchBar.jsx
+import SubmitButton from "../Components/Buttons/SubmitButton"; // Assuming SubmitButton.jsx
+import { useAuth } from "../Context/Auth";
 import { t } from "i18next";
 
 const DealOrderPage = () => {
@@ -16,7 +14,7 @@ const DealOrderPage = () => {
     loadingPost: loadingDealOrder,
     response: responseDealOrder,
   } = usePost({
-    url: `${apiUrl}/admin/dealOrder`,
+    url: `${apiUrl}/branch/deal`,
   });
 
   const {
@@ -24,7 +22,7 @@ const DealOrderPage = () => {
     loadingPost: loadingDealOrderAdd,
     response: responseDealOrderAdd,
   } = usePost({
-    url: `${apiUrl}/admin/dealOrder/add`,
+    url: `${apiUrl}/branch/deal/add`,
   });
 
   const [code, setCode] = useState("");
@@ -67,26 +65,27 @@ const DealOrderPage = () => {
     console.log("FormData:", ...formData.entries());
     postDealOrderAdd(formData, "Deal Approved Success");
   };
-const headers = [
-  t('DealImage'),
-  t('DealName'),
-  t('Description'),
-  t('StartDate'),
-  t('EndDate'),
-  t('price'),
-  t('action'),
-];
+
+  const headers = [
+    t("DealImage"),
+    t("DealName"),
+    t("Description"),
+    t("StartDate"),
+    t("EndDate"),
+    t("price"),
+    t("action"),
+  ];
 
   return (
     <section>
       <form onSubmit={handleSearch}>
         <div className="flex items-center justify-center w-full">
-          <div className="flex items-center justify-center w-full gap-x-4">
+          <div className="flex items-center justify-center w-full gap-x-4 pt-10">
             <div className="w-3/4">
               <SearchBar
                 value={code}
                 handleChange={(e) => setCode(e.target.value)}
-                                                        placeholder={t("Enterthecode")}
+                placeholder={t("Enter the code")}
               />
             </div>
             <div>
@@ -140,11 +139,13 @@ const headers = [
                     <td className="min-w-[80px] py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       <span
                         className="text-xl border-b-2 cursor-pointer text-mainColor border-mainColor font-TextFontSemiBold"
-                        onClick={() => setOpenDescriptionView(true)}
+                        onClick={() =>
+                          currentResponse?.data?.deal?.description &&
+                          setOpenDescriptionView(true)
+                        }
                       >
                         {t("View")}
                       </span>
-
                     </td>
                     <td className="min-w-[80px] py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {currentResponse.data.deal.start_date}
@@ -176,7 +177,8 @@ const headers = [
           )}
         </div>
       </form>
-            {/* Dialog for Description View */}
+
+      {/* Dialog for Description View */}
       {openDescriptionView && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">

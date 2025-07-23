@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import{ useEffect } from "react";
 import { LoaderLogin, TitlePage } from "../../../../Components/Components";
 import {
   ScheduleOrdersPage,
@@ -9,19 +9,25 @@ import { useGet } from "../../../../Hooks/useGet";
 import { useTranslation } from "react-i18next";
 
 const ScheduleOrdersLayout = () => {
-    const { t, i18n } = useTranslation();
-
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const { t } = useTranslation();
+
+  const role = localStorage.getItem("role"); // قراءة الدور من localStorage
+  const branchesUrl =
+    role === "branch"
+      ? `${apiUrl}/branch/online_order`
+      : `${apiUrl}/admin/order/branches`;
+
   const {
     refetch: refetchBranch,
     loading: loadingBranch,
     data: dataBranch,
   } = useGet({
-    url: `${apiUrl}/admin/order/branches`,
+    url: branchesUrl,
   });
 
   useEffect(() => {
-    refetchBranch(); // Refetch data when the component mounts
+    refetchBranch(); // إعادة جلب البيانات عند تحميل الصفحة
   }, [refetchBranch]);
   return (
     <>

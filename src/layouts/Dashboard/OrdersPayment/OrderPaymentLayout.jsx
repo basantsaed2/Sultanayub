@@ -1,11 +1,10 @@
-import React from "react";
 import { Outlet } from "react-router-dom";
 import { TitlePage } from "../../../Components/Components";
 import OrdersPaymentNav from "./OrdersPaymentNav";
 import { useTranslation } from "react-i18next";
 
 const OrderPaymentLayout = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <>

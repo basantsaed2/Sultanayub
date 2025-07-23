@@ -4,13 +4,13 @@ import { LoaderLogin, SearchBar } from '../../../../../Components/Components';
 import { BiSolidShow } from 'react-icons/bi';
 import { FaFileInvoice } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { FaRegCopy, FaWhatsapp } from "react-icons/fa";
+import { FaCopy, FaWhatsapp } from "react-icons/fa";
 import { useAuth } from "../../../../../Context/Auth"; // Make sure to import useAuth if required
 import { useTranslation } from "react-i18next";
 
 const FailedOrdersPage = () => {
   const auth = useAuth();
-  const { t, i18n } = useTranslation();
+                       const {  t,i18n } = useTranslation();
 
   const ordersFailed = useSelector((state) => state.ordersFailed);
   const [textSearch, setTextSearch] = useState('');
@@ -61,8 +61,8 @@ const FailedOrdersPage = () => {
           order.id.toString().startsWith(text) || // Matches if order.id starts with the text
           (order.user?.name || "-")
             .toLowerCase()
-            .includes(text.toLowerCase()) ||
-          (order.user?.phone || "-")
+            .includes(text.toLowerCase()) || 
+             (order.user?.phone || "-")
             .toLowerCase()
             .includes(text.toLowerCase())
       );
@@ -100,17 +100,6 @@ const FailedOrdersPage = () => {
     };
   }, [filteredOrders, currentPage]);
 
-  const handleCopy = (phone) => {
-    if (!phone) return;
-
-    navigator.clipboard
-      .writeText(phone)
-      .then(() => {
-        auth.toastSuccess("Phone number copied!"); // Use auth.toastSuccess()
-      })
-      .catch((err) => console.error("Failed to copy:", err));
-  };
-
   const scrollTable = (direction) => {
     if (tableContainerRef.current) {
       const scrollAmount = 300;
@@ -120,20 +109,20 @@ const FailedOrdersPage = () => {
       });
     }
   };
-  const headers = [
-    t('sl'),
-    t('orderId'),
-    t('deliveryDate'),
-    t('customerInfo'),
-    t('branch'),
-    t('totalAmount'),
-    t('orderStatus'),
-    t('orderType'),
-    t('actions'),
-  ];
+const headers = [
+  t('sl'),
+  t('orderId'),
+  t('deliveryDate'),
+  t('customerInfo'),
+  t('branch'),
+  t('totalAmount'),
+  t('orderStatus'),
+  t('orderType'),
+  t('actions'),
+];
   return (
     <>
-      <div className="relative flex flex-col w-full gap-y-3">
+     <div className="relative flex flex-col w-full gap-y-3">
         {/* Search Order */}
         <div className="sm:w-full lg:w-[70%] xl:w-[30%] mt-4">
           <SearchBar
@@ -211,111 +200,105 @@ const FailedOrdersPage = () => {
                   </tr>
                 </thead>
 
-                {/* Table Body */}
-                <tbody>
-                  {filteredOrders.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={headers.length}
-                        className="py-4 text-lg text-center text-mainColor font-TextFontMedium"
-                      >
-                        {t("Noordersfound")}
-                      </td>
-                    </tr>
-                  ) : (
-                    currentFilteredOrders.map((order, index) => (
-                      <tr key={index} className="border-b">
-                        {/* Row Index */}
-                        <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
-                          {(currentPage - 1) * filteredOrdersPerPage + index + 1}
+                  {/* Table Body */}
+                  <tbody>
+                    {filteredOrders.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={headers.length}
+                          className="py-4 text-lg text-center text-mainColor font-TextFontMedium"
+                        >
+                          {t("Noordersfound")}
                         </td>
+                      </tr>
+                    ) : (
+                      currentFilteredOrders.map((order, index) => (
+                        <tr key={index} className="border-b">
+                          {/* Row Index */}
+                          <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
+                            {(currentPage - 1) * filteredOrdersPerPage + index + 1}
+                          </td>
 
-                        {/* Order ID */}
-                        <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
-                          <Link
-                            to={`/dashboard/orders/details/${order.id}`}
-                            className="text-xl underline transition duration-200 ease-in-out text-secoundColor hover:text-mainColor font-TextFontMedium"
-                          >
-                            {order.id}
-                          </Link>
-                        </td>
+                          {/* Order ID */}
+                          <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
+                            <Link
+                              to={`/dashboard/orders/details/${order.id}`}
+                              className="text-xl underline transition duration-200 ease-in-out text-secoundColor hover:text-mainColor font-TextFontMedium"
+                            >
+                              {order.id}
+                            </Link>
+                          </td>
 
-                        {/* Order Date */}
-                        <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
-                          {order?.created_at
-                            ? new Date(order.created_at).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              hour12: true,
-                            })
-                            : ''}
-                        </td>
+                          {/* Order Date */}
+                          <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
+                            {order?.created_at
+                              ? new Date(order.created_at).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true,
+                              })
+                              : ''}
+                          </td>
 
-                        {/* User Information */}
-                        <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
-                          <div>{`${order.user?.f_name || "N/A"} ${order.user?.l_name || "-"}`}</div>
-                          <div className="flex items-center justify-center gap-2">
-                            {order.user?.phone ? (
-                              <>
-                                <FaWhatsapp className="w-5 h-5 text-green-600" />
-                                <a
-                                  href={`https://wa.me/${order.user.phone.replace(/[^0-9]/g, "")}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-black transition duration-200 hover:text-green-600"
-                                >
-                                  {order.user.phone}
-                                </a>
-                                <FaRegCopy
-                                  className="w-4 h-4 cursor-pointer text-gray-600 hover:text-blue-500"
-                                  onClick={() => handleCopy(order.user.phone)}
-                                  title="Copy number"
-                                />
-                              </>
-                            ) : (
-                              <span>{t("NoPhone")}</span>
-                            )}
-                          </div>
-                        </td>
+                          {/* User Information */}
+                          <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
+                            <div>{`${order.user?.f_name || "N/A"} ${order.user?.l_name || "-"}`}</div>
+                            <div className="flex items-center justify-center gap-2">
+                              {order.user?.phone ? (
+                                <>
+                                  <FaWhatsapp className="w-5 h-5 text-green-600" />
+                                  <a
+                                    href={`https://wa.me/${order.user.phone.replace(/[^0-9]/g, '')}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-black transition duration-200 hover:text-green-600"
+                                  >
+                                    {order.user.phone}
+                                  </a>
+                                </>
+                              ) : (
+                                <span>{t("NoPhone")}</span>
+                              )}
+                            </div>
+                          </td>
+                          {/* Branch */}
+                          <td className="px-4 py-2 text-sm text-center lg:text-base">
+                            <span className="px-2 py-1 rounded-md text-cyan-500 bg-cyan-200">
+                              {order.branch?.name || "-"} / {order.address?.zone.zone || "-"}
+                            </span>
+                          </td>
 
-                        {/* Branch */}
-                        <td className="px-4 py-2 text-sm text-center lg:text-base">
-                          <span className="px-2 py-1 rounded-md text-cyan-500 bg-cyan-200">
-                            {order.branch?.name || "-"} / {order.address?.zone.zone || "-"}
-                          </span>
-                        </td>
+                          {/* Order Amount */}
+                          <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
+                            {order?.amount || 0}
+                          </td>
 
-                        {/* Order Amount */}
-                        <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
-                          {order?.amount || 0}
-                        </td>
-
-
-                        {/* Order Payment */}
+                          
+                          {/* Order Payment */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order?.payment_method?.name || 0}
                         </td>
 
-                        {/* Order Status */}
-                        <td className="px-4 py-2 text-center">
-                          <span
-                            className={`rounded-md px-2 py-1 text-sm ${order?.order_status === 'pending'
-                              ? 'bg-amber-200 text-amber-500'
-                              : order?.order_status === 'confirmed'
-                                ? 'bg-green-200 text-green-500'
-                                : order?.order_status === 'canceled'
-                                  ? 'bg-red-200 text-red-500'
-                                  : 'bg-gray-200 text-gray-500'
-                              }`}
-                          >
-                            {order?.order_status || '-'}
-                          </span>
-                        </td>
+                          {/* Order Status */}
+                          <td className="px-4 py-2 text-center">
+                            <span
+                              className={`rounded-md px-2 py-1 text-sm ${order?.order_status === 'pending'
+                                ? 'bg-amber-200 text-amber-500'
+                                : order?.order_status === 'confirmed'
+                                  ? 'bg-green-200 text-green-500'
+                                  : order?.order_status === 'canceled'
+                                    ? 'bg-red-200 text-red-500'
+                                    : 'bg-gray-200 text-gray-500'
+                                }`}
+                            >
+                              {order?.order_status || '-'}
+                            </span>
+                          </td>
 
-                        {/* Status Operations */}
+                         {/* Status Operations */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order.operation_status || "-"}
                         </td>
@@ -324,45 +307,45 @@ const FailedOrdersPage = () => {
                           {order.admin?.name || "-"}
                         </td>
 
-                        {/* Order Type */}
-                        <td className="px-4 py-2 text-center">
-                          <span
-                            className={`rounded-md px-2 py-1 text-sm ${order?.order_type === 'delivery'
-                              ? 'bg-green-300 text-green-500'
-                              : order?.order_type === 'pickup'
-                                ? 'bg-blue-300 text-blue-500'
-                                : 'bg-gray-200 text-gray-500'
-                              }`}
-                          >
-                            {order?.order_type || '-'}
-                          </span>
-                        </td>
+                          {/* Order Type */}
+                          <td className="px-4 py-2 text-center">
+                            <span
+                              className={`rounded-md px-2 py-1 text-sm ${order?.order_type === 'delivery'
+                                ? 'bg-green-300 text-green-500'
+                                : order?.order_type === 'pickup'
+                                  ? 'bg-blue-300 text-blue-500'
+                                  : 'bg-gray-200 text-gray-500'
+                                }`}
+                            >
+                              {order?.order_type || '-'}
+                            </span>
+                          </td>
 
-                        {/* Actions */}
-                        <td className="px-4 py-2 text-center">
-                          <div className="flex items-center justify-center gap-2">
-                            <Link
-                              to={`/dashboard/orders/details/${order.id}`}
-                              aria-label="View Details"
-                              className="p-2 border-2 rounded-md border-mainColor "
-                            >
-                              <BiSolidShow className="text-xl text-mainColor" />
-                            </Link>
-                            <Link
-                              to={`/dashboard/orders/invoice/${order.id}`}
-                              aria-label="View Invoice"
-                              className="p-2 border-2 border-green-400 rounded-md "
-                            >
-                              <FaFileInvoice className="text-xl text-green-400" />
-                            </Link>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </>
+                          {/* Actions */}
+                          <td className="px-4 py-2 text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              <Link
+                                to={`/dashboard/orders/details/${order.id}`}
+                                aria-label="View Details"
+                                className="p-2 border-2 rounded-md border-mainColor "
+                              >
+                                <BiSolidShow className="text-xl text-mainColor" />
+                              </Link>
+                              <Link
+                                to={`/dashboard/orders/invoice/${order.id}`}
+                                aria-label="View Invoice"
+                                className="p-2 border-2 border-green-400 rounded-md "
+                              >
+                                <FaFileInvoice className="text-xl text-green-400" />
+                              </Link>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+               </>
           )}
         </div>
 

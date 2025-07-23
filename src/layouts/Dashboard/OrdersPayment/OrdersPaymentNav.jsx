@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import  { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from "react-i18next";
 
@@ -21,7 +21,7 @@ const OrdersPaymentNav = () => {
               setIsActiveOrdersPaymentPending(false)
               navigate('payment_history')
        }
-                        const {  t,i18n } = useTranslation();
+                        const {  t } = useTranslation();
 
        useEffect(() => {
 

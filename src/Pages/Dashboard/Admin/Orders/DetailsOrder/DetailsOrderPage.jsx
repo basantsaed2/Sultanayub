@@ -1,21 +1,21 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
-import { useGet } from "../../../../../Hooks/useGet";
+import { useGet } from "../../../../../Hooks/useGet"; // تأكد أن المسار صحيح
 import {
   DropDown,
   LoaderLogin,
   SearchBar,
   SubmitButton,
   TextInput,
-} from "../../../../../Components/Components";
+} from "../../../../../Components/Components"; // تأكد أن المسار صحيح
 import { FaClock, FaUser } from "react-icons/fa";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
-import { usePost } from "../../../../../Hooks/usePostJson";
-import { useChangeState } from "../../../../../Hooks/useChangeState";
-import { useAuth } from "../../../../../Context/Auth";
+import { usePost } from "../../../../../Hooks/usePostJson"; // تأكد أن المسار صحيح
+import { useChangeState } from "../../../../../Hooks/useChangeState"; // تأكد أن المسار صحيح
+import { useAuth } from "../../../../../Context/Auth"; // تأكد أن المسار صحيح
 import { useDispatch } from "react-redux";
-import { removeCanceledOrder } from "../../../../../Store/CreateSlices";
-import { useSelector } from "react-redux"; // Add this import
+import { removeCanceledOrder } from "../../../../../Store/CreateSlices"; // تأكد أن المسار صحيح
+import { useSelector } from "react-redux";
 import { FaFileInvoice, FaWhatsapp, FaCopy } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 
@@ -23,31 +23,33 @@ const DetailsOrderPage = () => {
   const StatusRef = useRef(null);
   const { orderId } = useParams();
   const location = useLocation();
-  const pathOrder = location.pathname;
-  const orderNumPath = pathOrder.split("/").pop();
-  const apiUrl = import.meta.env.VITE_API_BASE_URL;
-  const selectedLanguage = useSelector(state => state.language?.selected ?? 'en'); // Default to 'en' if no language is selected
+  const pathOrder = location.pathname.split("/").pop(); // استخدام pathOrder مباشرة من هنا
 
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const selectedLanguage = useSelector(state => state.language?.selected ?? 'en');
+
+  // استدعاء useGet
   const {
     refetch: refetchDetailsOrder,
     loading: loadingDetailsOrder,
     data: dataDetailsOrder,
-  } = useGet({ url: `${apiUrl}/admin/order/order/${orderNumPath}?locale=${selectedLanguage}` });
+  } = useGet({ url: `${apiUrl}/admin/order/order/${pathOrder}?locale=${selectedLanguage}` });
+
+  // باقي الـ Hooks
   const { postData, loadingPost, response } = usePost({
     url: `${apiUrl}/admin/order/delivery`,
   });
-  const { t, i18n } = useTranslation();
+  const { t} = useTranslation();
 
-  const { changeState, loadingChange, responseChange } = useChangeState();
-  const [detailsData, setDetailsData] = useState([]);
+  const { changeState, loadingChange } = useChangeState();
+  const [detailsData, setDetailsData] = useState(null); // ابدأ بـ null بدلاً من [] لتوضيح حالة عدم وجود بيانات بعد
   const [orderStatus, setOrderStatus] = useState([]);
   const [deliveries, setDeliveries] = useState([]);
   const [deliveriesFilter, setDeliveriesFilter] = useState([]);
-  const [showRefundConfirm, setShowRefundConfirm] = useState(false);
+  // const [showRefundConfirm, setShowRefundConfirm] = useState(false);
   const [showRefundModal, setShowRefundModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [selectedDeliveryId, setSelectedDeliveryId] = useState(null);
 
   const [showReason, setShowReason] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
@@ -57,7 +59,7 @@ const DetailsOrderPage = () => {
   const [orderStatusName, setOrderStatusName] = useState("");
   const [searchDelivery, setSearchDelivery] = useState("");
 
-  const [preparationTime, setPreparationTime] = useState({});
+  const [preparationTime, setPreparationTime] = useState(null); // ابدأ بـ null لتوضيح أن الوقت لم يُحدد بعد
 
   const [orderNumber, setOrderNumber] = useState("");
 
@@ -68,93 +70,192 @@ const DetailsOrderPage = () => {
   const [openReceipt, setOpenReceipt] = useState(null);
   const [openOrderNumber, setOpenOrderNumber] = useState(null);
   const [openDeliveries, setOpenDeliveries] = useState(null);
-  // State to hold computed values
+
   const [permission, setPermission] = useState([]);
   const dispatch = useDispatch();
-  const canceledOrders = useSelector((state) => state.canceledOrders); // Add this line
+  const canceledOrders = useSelector((state) => state.canceledOrders);
 
+  // === بداية التعديلات ===
+
+  // 1. دمج useEffects جلب البيانات
   useEffect(() => {
-    // Only remove if the order exists in canceled orders
-    console.log("canceledOrders", orderId);
-    const orderExists = canceledOrders.orders.includes(orderId);
-    console.log("orderExists", orderExists);
-    if (orderExists) {
+    // إزالة الطلب من قائمة الطلبات الملغاة في Redux إذا كان موجودًا
+    // يفضل مراجعة هذا المنطق: هل يجب إزالة الطلب بمجرد زيارته؟
+    // أم بعد عملية إلغاء ناجحة تتم من خلال هذا المكون؟
+    if (orderId && canceledOrders.orders.includes(orderId)) {
       dispatch(removeCanceledOrder(orderId));
     }
-    refetchDetailsOrder();
-  }, [orderId, location.pathname, dispatch, canceledOrders.orders]);
 
+    // جلب بيانات الطلب بناءً على orderId أو pathOrder أو اللغة المختارة
+    console.log("DetailsOrderPage: Triggering refetch for Order ID:", orderId, "Path:", pathOrder, "Language:", selectedLanguage);
+    refetchDetailsOrder();
+
+  }, [orderId, pathOrder, selectedLanguage, refetchDetailsOrder, dispatch, canceledOrders.orders]); // Dependencies: عندما يتغير أي من هذه، يتم جلب البيانات مرة أخرى
+
+  // 2. تحديث state المكونات بناءً على dataDetailsOrder
+  useEffect(() => {
+    if (dataDetailsOrder) {
+        // التحقق من وجود بيانات الطلب داخل dataDetailsOrder
+        if (dataDetailsOrder?.order) {
+            setDetailsData(dataDetailsOrder.order);
+            setOrderStatusName(dataDetailsOrder.order.order_status);
+
+            // تحويل حالات الطلب (order_status) لتناسب مكون DropDown
+            const formattedOrderStatus = (dataDetailsOrder.order_status || []).map(
+                (status) => ({ name: status })
+            );
+            setOrderStatus(formattedOrderStatus);
+
+            setDeliveries(dataDetailsOrder.deliveries || []);
+            setDeliveriesFilter(dataDetailsOrder.deliveries || []);
+            setPreparationTime(dataDetailsOrder.preparing_time || { days: 0, hours: 0, minutes: 0, seconds: 0 });
+        } else {
+            // لو dataDetailsOrder موجودة بس مفيهاش "order"، معناها مفيش طلب بالـ ID ده أو فاضي
+            setDetailsData(null); // عشان نعرض رسالة "لا توجد بيانات"
+            setPreparationTime(null); // صفر الوقت كمان
+        }
+    } else {
+        // لو dataDetailsOrder نفسها null أو undefined
+        setDetailsData(null);
+        setPreparationTime(null);
+    }
+    console.log("DetailsOrderPage: dataDetailsOrder updated:", dataDetailsOrder);
+  }, [dataDetailsOrder]);
+
+  // 3. تحديث أذونات المستخدم
   useEffect(() => {
     const computedPermission =
       auth?.userState?.user_positions?.roles?.map((role) => role.role) || [];
-    const ACTIONS =
-      auth?.userState?.user_positions?.roles?.map((role) => role.action) || [];
+    // لا يتم استخدام ACTIONS حالياً، لكن يمكنك الاحتفاظ بها إذا لزم الأمر
+    // const ACTIONS = auth?.userState?.user_positions?.roles?.map((role) => role.action) || [];
     setPermission(computedPermission);
 
-    // Log the computed values
+    // Logging للتتبع
     auth.userState.user_positions.roles.forEach((role, index) => {
       console.log(`Role #${index + 1}: ${role.role} | Actions: ${role.action}`);
     });
   }, [auth?.userState?.user_positions?.roles]);
-  useEffect(() => {
-    refetchDetailsOrder();
-  }, [orderNumPath]);
 
-  useEffect(() => {
-    refetchDetailsOrder(); // Refetch data when the component mounts or orderId or path changes
-  }, [refetchDetailsOrder, orderId, location.pathname]);
 
+  // 4. عداد الوقت لـ preparationTime (تم تعديل الـ dependency)
   useEffect(() => {
-    if (dataDetailsOrder && dataDetailsOrder?.order) {
-      setDetailsData(dataDetailsOrder?.order);
-      setOrderStatusName(dataDetailsOrder?.order?.order_status);
-      const formattedOrderStatus = dataDetailsOrder?.order_status.map(
-        (status) => ({ name: status })
-      );
-
-      setOrderStatus(formattedOrderStatus); // Update state with the transformed data
-      setDeliveries(dataDetailsOrder?.deliveries);
-      setDeliveriesFilter(dataDetailsOrder?.deliveries);
-      setPreparationTime(dataDetailsOrder?.preparing_time);
+    // لا تبدأ العداد إذا لم يكن preparationTime مهيئًا بقيم صحيحة
+    if (!preparationTime || (preparationTime.days === 0 && preparationTime.hours === 0 && preparationTime.minutes === 0 && preparationTime.seconds === 0)) {
+        console.log("Countdown not started: preparationTime is null or zero.", preparationTime);
+        return;
     }
 
-    console.log("dataDetailsOrder", dataDetailsOrder); // Refetch data when the component mounts
-    console.log("detailsData", detailsData); // Refetch data when the component mounts
-    console.log("OrderStatus", orderStatus); // Refetch data when the component mounts
-  }, [dataDetailsOrder]);
+    console.log("Countdown started with:", preparationTime);
+    const countdownInterval = setInterval(() => {
+      setPreparationTime((prevTime) => {
+        if (!prevTime) { // التحقق من وجود prevTime لتجنب الأخطاء
+          clearInterval(countdownInterval);
+          return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+        }
 
-  useEffect(() => {
-    console.log("orderId", orderId); // Refetch data when the component mounts
-  }, [orderId]);
+        let { days, hours, minutes, seconds } = prevTime;
 
+        let newSeconds = seconds - 1;
+        let newMinutes = minutes;
+        let newHours = hours;
+        let newDays = days;
+
+        if (newSeconds < 0) {
+          newSeconds = 59;
+          newMinutes -= 1;
+        }
+        if (newMinutes < 0) {
+          newMinutes = 59;
+          newHours -= 1;
+        }
+        if (newHours < 0) {
+          newHours = 23;
+          newDays -= 1;
+        }
+
+        // إيقاف العداد عندما يصل الوقت إلى الصفر أو أقل
+        if (newDays <= 0 && newHours <= 0 && newMinutes <= 0 && newSeconds <= 0) {
+          clearInterval(countdownInterval);
+          console.log("Countdown finished.");
+          return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+        }
+
+        return {
+          days: newDays,
+          hours: newHours,
+          minutes: newMinutes,
+          seconds: newSeconds,
+        };
+      });
+    }, 1000);
+
+    // دالة التنظيف لضمان إيقاف الـ interval عند إلغاء تحميل المكون أو تغيير الـ dependency
+    return () => {
+        console.log("Clearing countdown interval.");
+        clearInterval(countdownInterval);
+    };
+  }, [preparationTime]); // <=== dependency مهمة: العداد سيعاد تشغيله إذا تغيرت preparationTime
+
+  // === نهاية التعديلات ===
+
+  // دالة لتغيير حالة الطلب (نقلتها هنا لتكون متاحة بشكل صحيح)
+  const handleChangeStaus = useCallback(async (
+    orderId,
+    orderNumber,
+    orderStatus,
+    reason
+  ) => {
+    try {
+      const responseStatus = await changeState(
+        `${apiUrl}/admin/order/status/${orderId}`,
+        t("Changed Status Successfully."), // رسالة نجاح مترجمة
+        {
+          order_status: orderStatus,
+          order_number: orderNumber,
+          ...(orderStatus === "canceled" && { admin_cancel_reason: reason }),
+        }
+      );
+
+      if (responseStatus) {
+        refetchDetailsOrder(); // جلب البيانات المحدثة بعد تغيير الحالة بنجاح
+        setShowReason(false); // إخفاء حقل السبب إذا كان ظاهرًا
+        setShowCancelModal(false); // إغلاق مودال الإلغاء
+        setShowRefundModal(false); // إغلاق مودال الاسترجاع
+        setOpenOrderNumber(null); // إغلاق مودال رقم الطلب
+      }
+    } catch (error) {
+      console.error("Error changing status:", error);
+      if (error?.response?.data?.errors === "You can't change status") {
+        setShowStatusModal(true); // إظهار مودال الخطأ للمستخدم
+      }
+      auth.toastError(t("Failed to change status.")); // رسالة خطأ عامة
+    }
+  }, [apiUrl, changeState, refetchDetailsOrder, auth, t]); // إضافة الـ dependencies لـ useCallback
+
+  // باقي الدوال كما هي
   const timeString = dataDetailsOrder?.order?.date || "";
-  const [olderHours, olderMinutes] = timeString.split(":").map(Number); // Extract hours and minutes as numbers
+  const [olderHours, olderMinutes] = timeString.split(":").map(Number);
   const dateObj = new Date();
-  dateObj.setHours(olderHours, olderMinutes);
+  if (!isNaN(olderHours) && !isNaN(olderMinutes)) {
+    dateObj.setHours(olderHours, olderMinutes);
+  }
+
 
   const dayString = dataDetailsOrder?.order?.order_date || "";
-  const [olderyear, olderMonth, olderDay] = dayString.split("-").map(Number); // Extract year, month, and day as numbers
+  const [olderyear, olderMonth, olderDay] = dayString.split("-").map(Number);
   const dayObj = new Date();
-  dayObj.setFullYear(olderyear);
-  dayObj.setMonth(olderMonth - 1); // Months are zero-based in JavaScript Date
-  dayObj.setDate(olderDay);
+  if (!isNaN(olderyear) && !isNaN(olderMonth) && !isNaN(olderDay)) {
+    dayObj.setFullYear(olderyear);
+    dayObj.setMonth(olderMonth - 1);
+    dayObj.setDate(olderDay);
+  }
 
-  // Create a new Date object for the current date and time
   const time = new Date();
-
-  // Extract time components using Date methods
   const day = time.getDate();
   const hour = time.getHours();
   const minute = time.getMinutes();
   const second = time.getSeconds();
 
-  // If you need to modify the time object (not necessary here):
-  time.setDate(day);
-  time.setHours(hour);
-  time.setMinutes(minute);
-  time.setSeconds(second);
-
-  // Create an object with the extracted time values
   const initialTime = {
     currentDay: day,
     currentHour: hour,
@@ -163,17 +264,14 @@ const DetailsOrderPage = () => {
   };
 
   const handleChangeDeliveries = (e) => {
-    const value = e.target.value.toLowerCase(); // Normalize input value
+    const value = e.target.value.toLowerCase();
     setSearchDelivery(value);
 
     const filterDeliveries = deliveries.filter(
       (delivery) =>
-        (delivery.f_name + " " + delivery.l_name).toLowerCase().includes(value) // Concatenate and match
+        (delivery.f_name + " " + delivery.l_name).toLowerCase().includes(value)
     );
-
     setDeliveriesFilter(filterDeliveries);
-
-    console.log("filterDeliveries", filterDeliveries);
   };
 
   const handleAssignDelivery = (deliveryID, orderID, deliveryNumber) => {
@@ -184,17 +282,17 @@ const DetailsOrderPage = () => {
 
     postData(formData, t("Delivery has Assigned"));
   };
+
   useEffect(() => {
     if (response && response.status === 200) {
       setOrderStatusName("out_for_delivery");
       setSearchDelivery("");
       setOpenDeliveries(false);
-      setDeliveriesFilter(deliveries);
-      refetchDetailsOrder(); // Refetch to update the UI with new status and delivery info.
-
+      // بعد تعيين الدليفري، يجب أن تحدث بيانات الطلب لتعكس التغيير
+      refetchDetailsOrder();
     }
-    console.log("response", response);
-  }, [response]);
+    console.log("postData response", response);
+  }, [response, refetchDetailsOrder]); // أضف refetchDetailsOrder هنا
 
   const handleOpenReceipt = (id) => {
     setOpenReceipt(id);
@@ -218,11 +316,11 @@ const DetailsOrderPage = () => {
   const handleCloseDeliveries = () => {
     setOpenDeliveries(null);
   };
+
   const handleOpenOrderStatus = () => {
     const hasOrderPermission = auth.userState.user_positions.roles?.some(
       (perm) => perm.role === "Order"
     );
-    console.log("hasOrderPermission", hasOrderPermission);
     const hasValidAction = auth.userState.user_positions.roles?.some(
       (action) => action.action === "all" || action.action === "back_status"
     );
@@ -241,132 +339,53 @@ const DetailsOrderPage = () => {
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true);
-      navigator.clipboard
-        .writeText(text)
-        .then(() => {
-          auth.toastSuccess("Phone number copied!"); // Use auth.toastSuccess()
-        })
-      setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+      auth.toastSuccess(t("Phone number copied!")); // استخدام auth.toastSuccess()
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(err => {
+      console.error('Failed to copy text: ', err);
+      auth.toastError(t("Failed to copy phone number."));
     });
   };
 
   const handleSelectOrderStatus = (selectedOption) => {
-    console.log("selectedOption", selectedOption);
-
     const targetStatus = selectedOption.name;
 
-    // Define status transition rules
     const statusPermissions = {
       canceled: { requiresReason: true },
-      refund: {},
+      refund: { requiresConfirmation: true }, // أضفت requiresConfirmation للـ refund
+      // أضف حالات أخرى هنا إذا كانت تتطلب سلوكًا خاصًا
     };
 
-    if (statusPermissions[targetStatus]?.requiresReason) {
-      setShowCancelModal(true);
-      setOrderStatusName(targetStatus);
-    } else if (targetStatus === "refund") {
-      setShowRefundModal(true);
+    setIsOpenOrderStatus(false); // إغلاق الـ dropdown بعد الاختيار
+
+    if (targetStatus === "refund") {
+        setShowRefundModal(true); // إظهار مودال التأكيد للاسترجاع
+    } else if (statusPermissions[targetStatus]?.requiresReason) {
+        setShowCancelModal(true);
+        setOrderStatusName(targetStatus); // لتحديد نوع الإلغاء (canceled)
+    } else if (targetStatus === "processing" && !detailsData?.order_number) {
+        // لو الحالة "processing" ومفيش order_number، افتح مودال إدخال الرقم
+        handleOpenOrderNumber(detailsData.id);
     } else {
-      handleChangeStaus(detailsData.id, "", targetStatus, "");
+        // للحالات العادية التي لا تتطلب سبب أو تأكيد إضافي
+        handleChangeStaus(detailsData.id, detailsData?.order_number || "", targetStatus, "");
     }
   };
 
-  const handleOrderNumber = (id) => {
+
+  const handleOrderNumber = () => {
     if (!orderNumber) {
-      auth.toastError(t("please set your order Number"));
+      auth.toastError(t("Please set your order number"));
       return;
     }
-
-    handleChangeStaus(id, orderNumber, "processing", "");
-    setOpenOrderNumber(null);
+    handleChangeStaus(detailsData.id, orderNumber, "processing", "");
   };
-
-  // Move handleChangeStaus outside the function
-  const handleChangeStaus = async (
-    orderId,
-    orderNumber,
-    orderStatus,
-    reason
-  ) => {
-    try {
-      const responseStatus = await changeState(
-        `${apiUrl}/admin/order/status/${orderId}`,
-        `Changed Status Successes.`,
-        {
-          order_status: orderStatus,
-          order_number: orderNumber,
-          ...(orderStatus === "canceled" && { admin_cancel_reason: reason }), // Send reason if canceled
-        }
-      );
-
-      if (responseStatus) {
-        refetchDetailsOrder(); // Refetch the order details after successful status change
-        setShowReason(false);
-      }
-    } catch (error) {
-      console.error("Error changing status:", error);
-      if (error?.response?.data?.errors === "You can't change status") {
-        setShowStatusModal(true);
-      }
-    }
-  };
-
-  useEffect(() => {
-    const countdown = setInterval(() => {
-      setPreparationTime((prevTime) => {
-        if (!prevTime) return prevTime;
-
-        const { days, hours, minutes, seconds } = prevTime;
-
-        // Calculate the next time
-        let newSeconds = seconds - 1;
-        let newMinutes = minutes;
-        let newHours = hours;
-        let newDays = days;
-
-        if (newSeconds < 0) {
-          newSeconds = 59;
-          newMinutes -= 1;
-        }
-        if (newMinutes < 0) {
-          newMinutes = 59;
-          newHours -= 1;
-        }
-        if (newHours < 0) {
-          newHours = 23;
-          newDays -= 1;
-        }
-
-        // Stop the countdown if time reaches zero
-        if (
-          newDays <= 0 &&
-          newHours <= 0 &&
-          newMinutes <= 0 &&
-          newSeconds <= 0
-        ) {
-          clearInterval(countdown);
-          return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-        }
-
-        return {
-          days: newDays,
-          hours: newHours,
-          minutes: newMinutes,
-          seconds: newSeconds,
-        };
-      });
-    }, 1000);
-
-    // Clear interval on unmount
-    return () => clearInterval(countdown);
-  }, []); // Dependency array is empty to ensure the effect runs only once
 
   let totalAddonPrice = 0;
   let totalItemPrice = 0;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Close dropdown if clicked outside
       if (StatusRef.current && !StatusRef.current.contains(event.target)) {
         setIsOpenOrderStatus(false);
       }
@@ -378,1297 +397,905 @@ const DetailsOrderPage = () => {
     };
   }, []);
 
+  // === بداية الـ JSX (محتوى الـ UI) ===
   return (
     <>
-      {loadingDetailsOrder || loadingPost || loadingChange ? (
-        <div className="mx-auto">
+      {/* Debug Info: هذا الجزء للإصلاح المؤقت فقط، يمكنك إزالته بعد التأكد من حل المشكلة */}
+      <div style={{ position: 'fixed', top: 10, right: 10, background: 'rgba(0,0,0,0.7)', color: 'white', padding: '10px', borderRadius: '5px', zIndex: 1000 }}>
+          <p><strong>Debugging Info:</strong></p>
+          <p>loadingDetailsOrder: {loadingDetailsOrder ? 'True' : 'False'}</p>
+          <p>detailsData (is null?): {detailsData === null ? 'True' : 'False'}</p>
+          <p>detailsData.length: {detailsData ? Object.keys(detailsData).length : 0}</p> {/* لتحقق إذا كان object وليس array */}
+          <p>dataDetailsOrder (exists): {!!dataDetailsOrder ? 'True' : 'False'}</p>
+          {dataDetailsOrder?.order ? <p>dataDetailsOrder.order (exists): True</p> : <p>dataDetailsOrder.order (exists): False</p>}
+          <p>orderStatusName: {orderStatusName}</p>
+          <p>Preparation Time: {preparationTime ? `${preparationTime.hours || 0}:${preparationTime.minutes || 0}:${preparationTime.seconds || 0}` : 'N/A'}</p>
+          <p>Loading any Post/Change: {loadingPost || loadingChange ? 'True' : 'False'}</p>
+      </div>
+      {/* نهاية Debug Info */}
+
+
+      {/* Loader الرئيسي: يظهر أثناء جلب البيانات أو إرسال طلبات POST/Change */}
+      {(loadingDetailsOrder || loadingPost || loadingChange) ? (
+        <div className="mx-auto flex justify-center items-center h-[calc(100vh-100px)]">
           <LoaderLogin />
         </div>
       ) : (
         <>
-          {detailsData.length === 0 ? (
-            <div className="mx-auto">
-              <LoaderLogin />
+          {/* عرض رسالة "لا توجد بيانات" إذا لم يتم العثور على تفاصيل الطلب */}
+          {detailsData === null ? ( // تحقق من أن detailsData أصبحت null بعد المعالجة
+            <div className="flex items-center justify-center h-[calc(100vh-100px)]">
+              <p className="text-xl text-gray-600 font-TextFontBold">
+                {t("No order details found or order does not exist.")}
+              </p>
             </div>
           ) : (
+            // عرض تفاصيل الطلب إذا كانت البيانات متاحة
             <div className="flex items-start justify-between w-full gap-3 mb-24 sm:flex-col lg:flex-row">
               {/* Left Section */}
               <div className="sm:w-full lg:w-8/12">
                 <div className="w-full p-2 bg-white shadow-md rounded-xl ">
-                  {detailsData.length === 0 ? (
-                    <div>
-                      <LoaderLogin />
-                    </div>
-                  ) : (
-                    <div className="w-full">
-                      {/* Header */}
-                      <div className="w-full px-2 py-4 rounded-lg shadow md:px-4 lg:px-4">
-                        {/* Header */}
-                        <div className="flex flex-col items-start justify-between pb-2 border-b border-gray-300">
-                          <div className="w-full">
-                            <div className="flex flex-wrap items-center justify-between w-full">
-                              <h1 className="text-2xl text-gray-800 font-TextFontMedium">
-                                {t("Order")}{" "}
-                                <span className="text-mainColor">
-                                  #{detailsData?.id || ""}
-                                </span>
-                              </h1>
-                              <div className="flex items-center justify-center gap-2 sm:w-full lg:w-6/12">
-                                <Link
-                                  to={`/dashboard/orders/details/${Number(orderNumPath) - 1
-                                    }`}
-                                  className="w-6/12 px-1 py-1 text-sm text-center text-white transition-all duration-300 ease-in-out border-2 rounded-lg md:text-md bg-mainColor border-mainColor hover:bg-white hover:text-mainColor"
-                                >
-                                  {"<<"} {t("PrevOrder")}
-                                </Link>
-                                <Link
-                                  to={`/dashboard/orders/details/${Number(orderNumPath) + 1
-                                    }`}
-                                  className="w-6/12 px-1 py-1 text-sm text-center text-white transition-all duration-300 ease-in-out border-2 rounded-lg md:text-md bg-mainColor border-mainColor hover:bg-white hover:text-mainColor"
-                                >
-                                  {t("NextOrder")} {">>"}
-                                </Link>
-                              </div>
-                            </div>
-                            {detailsData?.address && (
-                              <p className="mt-1 text-sm text-gray-700">
-                                <span className="font-TextFontSemiBold">
-                                  {t("Zone")}:
-                                </span>{" "}
-                                {detailsData?.address?.zone?.zone || ""}
-                              </p>
-                            )}
-                            <p className="mt-1 text-sm text-gray-700">
-                              <span className="font-TextFontSemiBold">
-                                {t("Branch")}:
-                              </span>{" "}
-                              {detailsData?.branch?.name || ""}
-                            </p>
-                            <p className="mt-1 text-sm text-gray-700">
-                              <span className="font-TextFontSemiBold">
-                                {t("OrderTime")}:
-                              </span>{" "}
-                              {detailsData?.date || ""}
-                            </p>
-                            <p className="mt-1 text-sm text-gray-700">
-                              <span className="font-TextFontSemiBold">
-                                {t("OrderDate")}:
-                              </span>{" "}
-                              {detailsData?.order_date || ""}
-                            </p>
-                            <p className="mt-1 text-sm text-gray-700">
-                              <span className="font-TextFontSemiBold">
-                                {t("Schedule")}:
-                              </span>{" "}
-                              {detailsData?.schedule?.name || "-"}
-                            </p>
-                            <p className="mt-1 text-sm text-gray-700">
-                              <span className="font-TextFontSemiBold">
-                                {t("Source")}:
-                              </span>{" "}
-                              {detailsData?.source || "-"}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Order Information */}
-                        <div className="flex items-start justify-center w-full gap-4 sm:flex-col xl:flex-row">
-                          <div className="p-2 bg-white rounded-md shadow-md sm:w-full xl:w-6/12">
-                            <p className="text-gray-800 text-md">
-                              <span className="font-TextFontSemiBold text-mainColor">
-                                {t("Status")}:
-                              </span>{" "}
-                              {detailsData?.order_status || ""}
-                            </p>
-                            <p className="text-gray-800 text-md">
-                              <span className="font-TextFontSemiBold text-mainColor">
-                                {t("PaymentMethod")}:
-                              </span>{" "}
-                              {detailsData?.payment_method?.name || ""}
-                            </p>
-                            {detailsData?.payment_method?.name ===
-                              "Visa Master Card" && (
-                                <>
-                                  <p className="text-gray-800 text-md">
-                                    <span className="font-TextFontSemiBold text-mainColor">
-                                      {t("PaymentStatus")}:
-                                    </span>{" "}
-                                    {detailsData?.status_payment || ""}
-                                  </p>
-                                  <p className="text-gray-800 text-md">
-                                    <span className="font-TextFontSemiBold text-mainColor">
-                                      {t("Transaction ID")}:
-                                    </span>{" "}
-                                    {detailsData?.transaction_id || ""}
-                                  </p>
-                                </>
-                              )}
-                          </div>
-                          <div className="p-2 bg-white rounded-md shadow-md sm:w-full xl:w-6/12">
-                            <p className="text-gray-800 text-md">
-                              <span className="font-TextFontSemiBold text-mainColor">
-                                {t("OrderType")}:
-                              </span>{" "}
-                              <span
-                                className={`px-2 py-1 rounded-full text-md ${detailsData?.order_type === "take_away"
-                                  ? "text-green-700 bg-green-100" // Green text with light green bg
-                                  : "text-blue-700 bg-blue-100" // Adjust for delivery (blue as example)
+                  {/* هنا لا تحتاج لـ LoaderLogin آخر، لأننا بالفعل تجاوزنا مرحلة التحميل الرئيسية */}
+                  <div className="w-full">
+                    {/* Header */}
+                    <div className="w-full px-2 py-4 rounded-lg shadow md:px-4 lg:px-4">
+                      <div className="flex flex-col items-start justify-between pb-2 border-b border-gray-300">
+                        <div className="w-full">
+                          <div className="flex flex-wrap items-center justify-between w-full">
+                            <h1 className="text-2xl text-gray-800 font-TextFontMedium">
+                              {t("Order")}{" "}
+                              <span className="text-mainColor">
+                                #{detailsData?.id || ""}
+                              </span>
+                            </h1>
+                            <div className="flex items-center justify-center gap-2 sm:w-full lg:w-6/12">
+                              <Link
+                                to={`/dashboard/orders/details/${Number(pathOrder) - 1
                                   }`}
+                                className="w-6/12 px-1 py-1 text-sm text-center text-white transition-all duration-300 ease-in-out border-2 rounded-lg md:text-md bg-mainColor border-mainColor hover:bg-white hover:text-mainColor"
                               >
-                                {detailsData?.order_type || ""}
-                              </span>{" "}
-                            </p>
-                            <p className="text-gray-800 text-md">
-                              <span className="font-TextFontSemiBold text-mainColor">
-                                {t("OrderNote")}:
-                              </span>{" "}
-                              {detailsData?.notes || "No Notes"}
-                            </p>
-                            {detailsData?.payment_method?.id !== 2 && (
-                              <p className="text-gray-800 text-md">
-                                <span className="font-TextFontSemiBold text-mainColor">
-                                  {t("OrderRecipt")}:
-                                </span>
-                                {detailsData?.receipt ? (
-                                  <>
-                                    <span
-                                      className="ml-2 underline cursor-pointer text-mainColor font-TextFontMedium"
-                                      onClick={() =>
-                                        handleOpenReceipt(detailsData.id)
-                                      }
-                                    >
-                                      {t("Receipt")}
-                                    </span>
-
-                                    {openReceipt === detailsData.id && (
-                                      <Dialog
-                                        open={true}
-                                        onClose={handleCloseReceipt}
-                                        className="relative z-10"
-                                      >
-                                        <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
-                                        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                                          <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
-                                            <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-4xl">
-                                              <div className="flex items-center justify-center w-full p-5">
-                                                <img
-                                                  src={
-                                                    detailsData?.receipt
-                                                      ? `data:image/jpeg;base64,${detailsData?.receipt}`
-                                                      : ""
-                                                  }
-                                                  className="max-h-[80vh] object-center object-contain shadow-md rounded-2xl"
-                                                  alt="Receipt"
-                                                />
-                                              </div>
-                                              <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-x-3">
-                                                <button
-                                                  type="button"
-                                                  onClick={handleCloseReceipt}
-                                                  className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md bg-mainColor font-TextFontMedium sm:mt-0 sm:w-auto"
-                                                >
-                                                  {t("Close")}
-                                                </button>
-                                              </div>
-                                            </DialogPanel>
-                                          </div>
-                                        </div>
-                                      </Dialog>
-                                    )}
-                                  </>
-                                ) : (
-                                  <span className="ml-2 text-gray-800 underline text-md font-TextFontMedium">
-                                    {t("NoRecipt")}
-                                  </span>
-                                )}
-                              </p>
-                            )}
+                                {"<<"} {t("PrevOrder")}
+                              </Link>
+                              <Link
+                                to={`/dashboard/orders/details/${Number(pathOrder) + 1
+                                  }`}
+                                className="w-6/12 px-1 py-1 text-sm text-center text-white transition-all duration-300 ease-in-out border-2 rounded-lg md:text-md bg-mainColor border-mainColor hover:bg-white hover:text-mainColor"
+                              >
+                                {t("NextOrder")} {">>"}
+                              </Link>
+                            </div>
                           </div>
+                          {detailsData?.address && (
+                            <p className="mt-1 text-sm text-gray-700">
+                              <span className="font-TextFontSemiBold">
+                                {t("Zone")}:
+                              </span>{" "}
+                              {detailsData?.address?.zone?.zone || ""}
+                            </p>
+                          )}
+                          <p className="mt-1 text-sm text-gray-700">
+                            <span className="font-TextFontSemiBold">
+                              {t("Branch")}:
+                            </span>{" "}
+                            {detailsData?.branch?.name || ""}
+                          </p>
+                          <p className="mt-1 text-sm text-gray-700">
+                            <span className="font-TextFontSemiBold">
+                              {t("OrderTime")}:
+                            </span>{" "}
+                            {detailsData?.date || ""}
+                          </p>
+                          <p className="mt-1 text-sm text-gray-700">
+                            <span className="font-TextFontSemiBold">
+                              {t("OrderDate")}:
+                            </span>{" "}
+                            {detailsData?.order_date || ""}
+                          </p>
+                          <p className="mt-1 text-sm text-gray-700">
+                            <span className="font-TextFontSemiBold">
+                              {t("Schedule")}:
+                            </span>{" "}
+                            {detailsData?.schedule?.name || "-"}
+                          </p>
                         </div>
                       </div>
 
-                      {/* Combined Orders Table */}
-                      <div className="p-2 my-3 bg-white border border-gray-200 rounded-lg shadow-lg">
-                        {/* Table Header */}
-                        <h2 className="mb-2 text-2xl font-bold text-gray-800">
-                          {t("Order Items")}
-                        </h2>
-
-                        {/* Table wrapped in a horizontal scroll container */}
-                        <div className="overflow-x-auto">
-                          <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gradient-to-r from-[#9E090F] to-[#D1191C] text-white">
-                              <tr>
-                                <th className="px-2 py-2 max-w-[30px] text-xs font-medium tracking-wider text-left uppercase border-gray-300">
-                                  #
-                                </th>
-                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
-                                  {t("Image")}
-                                </th>
-                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
-                                  {t("Products")}
-                                </th>
-                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
-                                  {t("variation")}
-                                </th>
-                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
-                                  {t("Addons")}
-                                </th>
-                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
-                                  {t("Excludes")}
-                                </th>
-                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
-                                  {t("Extra")}
-                                </th>
-                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase">
-                                  {t("Notes")}
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                              {(detailsData?.order_details || []).map(
-                                (order, orderIndex) => (
-                                  <tr
-                                    key={`order-${orderIndex}`}
-                                    className="hover:bg-gray-50"
+                      {/* Order Information */}
+                      <div className="flex items-start justify-center w-full gap-4 sm:flex-col xl:flex-row">
+                        <div className="p-2 bg-white rounded-md shadow-md sm:w-full xl:w-6/12">
+                          <p className="text-gray-800 text-md">
+                            <span className="font-TextFontSemiBold text-mainColor">
+                              {t("Status")}:
+                            </span>{" "}
+                            {detailsData?.order_status || ""}
+                          </p>
+                          <p className="text-gray-800 text-md">
+                            <span className="font-TextFontSemiBold text-mainColor">
+                              {t("PaymentMethod")}:
+                            </span>{" "}
+                            {detailsData?.payment_method?.name || ""}
+                          </p>
+                          {detailsData?.payment_method?.name ===
+                            "Visa Master Card" && (
+                              <>
+                                <p className="text-gray-800 text-md">
+                                  <span className="font-TextFontSemiBold text-mainColor">
+                                    {t("PaymentStatus")}:
+                                  </span>{" "}
+                                  {detailsData?.status_payment || ""}
+                                </p>
+                                <p className="text-gray-800 text-md">
+                                  <span className="font-TextFontSemiBold text-mainColor">
+                                    {t("Transaction ID")}:
+                                  </span>{" "}
+                                  {detailsData?.transaction_id || ""}
+                                </p>
+                              </>
+                            )}
+                        </div>
+                        <div className="p-2 bg-white rounded-md shadow-md sm:w-full xl:w-6/12">
+                          <p className="text-gray-800 text-md">
+                            <span className="font-TextFontSemiBold text-mainColor">
+                              {t("OrderType")}:
+                            </span>{" "}
+                            <span
+                              className={`px-2 py-1 rounded-full text-md ${detailsData?.order_type === "take_away"
+                                ? "text-green-700 bg-green-100"
+                                : "text-blue-700 bg-blue-100"
+                                }`}
+                            >
+                              {detailsData?.order_type || ""}
+                            </span>{" "}
+                          </p>
+                          <p className="text-gray-800 text-md">
+                            <span className="font-TextFontSemiBold text-mainColor">
+                              {t("OrderNote")}:
+                            </span>{" "}
+                            {detailsData?.notes || "No Notes"}
+                          </p>
+                          {detailsData?.payment_method?.id !== 2 && (
+                            <p className="text-gray-800 text-md">
+                              <span className="font-TextFontSemiBold text-mainColor">
+                                {t("OrderRecipt")}:
+                              </span>
+                              {detailsData?.receipt ? (
+                                <>
+                                  <span
+                                    className="ml-2 underline cursor-pointer text-mainColor font-TextFontMedium"
+                                    onClick={() =>
+                                      handleOpenReceipt(detailsData.id)
+                                    }
                                   >
-                                    {/* Order Number Column */}
-                                    <td className="px-2 py-1 font-semibold whitespace-normal border-r border-gray-300">
-                                      {orderIndex + 1}
-                                    </td>
+                                    {t("Receipt")}
+                                  </span>
 
-                                    {/* Products Column: Name, Price, Quantity */}
-                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                      {order.product.map((prod, prodIndex) => (
-                                        <div
-                                          key={`prod-${prodIndex}`}
-                                          className="mb-3"
-                                        >
-                                          {/* Image */}
-                                          {prod.product.image_link && (
-                                            <img
-                                              src={prod.product.image_link}
-                                              alt={prod.product.name}
-                                              className="w-14 h-14 object-cover rounded border border-gray-300"
-                                            />
-                                          )}
-                                          <div className="font-semibold text-gray-800">
-                                            {prod.product.name}
-                                          </div>
-                                          <div className="text-sm text-gray-600">
-                                            {t("Price")}: {prod.product.price}
-                                          </div>
-                                          <div className="text-sm text-gray-600">
-                                            {t("Qty")}: {prod.count}
-                                          </div>
+                                  {openReceipt === detailsData.id && (
+                                    <Dialog
+                                      open={true}
+                                      onClose={handleCloseReceipt}
+                                      className="relative z-10"
+                                    >
+                                      <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                                      <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                                        <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                                          <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-4xl">
+                                            <div className="flex items-center justify-center w-full p-5">
+                                              <img
+                                                src={
+                                                  detailsData?.receipt
+                                                    ? `data:image/jpeg;base64,${detailsData?.receipt}`
+                                                    : ""
+                                                }
+                                                className="max-h-[80vh] object-center object-contain shadow-md rounded-2xl"
+                                                alt="Receipt"
+                                              />
+                                            </div>
+                                            <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-x-3">
+                                              <button
+                                                type="button"
+                                                onClick={handleCloseReceipt}
+                                                className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md bg-mainColor font-TextFontMedium sm:mt-0 sm:w-auto"
+                                              >
+                                                {t("Close")}
+                                              </button>
+                                            </div>
+                                          </DialogPanel>
                                         </div>
-                                      ))}
-                                    </td>
+                                      </div>
+                                    </Dialog>
+                                  )}
+                                </>
+                              ) : (
+                                <span className="ml-2 text-gray-800 underline text-md font-TextFontMedium">
+                                  {t("NoRecipt")}
+                                </span>
+                              )}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
 
-                                    {/* Variations Column: Name and Type */}
-                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                      {order.variations &&
-                                        order.variations.length > 0 ? (
-                                        order.variations.map(
-                                          (variation, varIndex) => (
-                                            <div
-                                              key={`variation-${varIndex}`}
-                                              className="mb-3"
-                                            >
-                                              <div className="font-semibold text-gray-800">
-                                                {variation.variation?.name}
-                                              </div>
-                                              <div className="text-xs text-gray-500">
-                                                {t("Type")}:{" "}
-                                                {variation.options &&
-                                                  variation.options.length > 0 ? (
-                                                  variation.options.map(
-                                                    (option, optIndex) => (
-                                                      <span
-                                                        key={`option-${optIndex}`}
-                                                        className="mr-1"
-                                                      >
-                                                        {option.name}
-                                                        {optIndex <
-                                                          variation.options
-                                                            .length -
-                                                          1
-                                                          ? ", "
-                                                          : ""}
-                                                      </span>
-                                                    )
-                                                  )
-                                                ) : (
-                                                  <span>-</span>
-                                                )}
-                                              </div>
+                    {/* Combined Orders Table */}
+                    <div className="p-2 my-3 bg-white border border-gray-200 rounded-lg shadow-lg">
+                      {/* Table Header */}
+                      <h2 className="mb-2 text-2xl font-bold text-gray-800">
+                        {t("Order Items")}
+                      </h2>
+
+                      {/* Table wrapped in a horizontal scroll container */}
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gradient-to-r from-[#9E090F] to-[#D1191C] text-white">
+                            <tr>
+                              <th className="px-2 py-2 max-w-[30px] text-xs font-medium tracking-wider text-left uppercase border-gray-300">
+                                #
+                              </th>
+                              <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
+                                {t("Products")}
+                              </th>
+                              <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
+                                {t("variation")}
+                              </th>
+                              <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
+                                {t("Addons")}
+                              </th>
+                              <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
+                                {t("Excludes")}
+                              </th>
+                              <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
+                                {t("Extra")}
+                              </th>
+                              <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase">
+                                {t("Notes")}
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {(detailsData?.order_details || []).map(
+                              (order, orderIndex) => (
+                                <tr
+                                  key={`order-${orderIndex}`}
+                                  className="hover:bg-gray-50"
+                                >
+                                  {/* Order Number Column */}
+                                  <td className="px-2 py-1 font-semibold whitespace-normal border-r border-gray-300">
+                                    {orderIndex + 1}
+                                  </td>
+
+                                  {/* Products Column: Name, Price, Quantity */}
+                                  <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
+                                    {order.product.map((prod, prodIndex) => (
+                                      <div
+                                        key={`prod-${prodIndex}`}
+                                        className="mb-3"
+                                      >
+                                        <div className="font-semibold text-gray-800">
+                                          {prod.product.name}
+                                        </div>
+                                        <div className="text-sm text-gray-600">
+                                          {t("Price")}: {prod.product.price}
+                                        </div>
+                                        <div className="text-sm text-gray-600">
+                                          {t("Qty")}: {prod.count}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </td>
+
+                                  {/* Variations Column: Name and Type */}
+                                  <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
+                                    {order.variations &&
+                                      order.variations.length > 0 ? (
+                                      order.variations.map(
+                                        (variation, varIndex) => (
+                                          <div
+                                            key={`variation-${varIndex}`}
+                                            className="mb-3"
+                                          >
+                                            <div className="font-semibold text-gray-800">
+                                              {variation.variation?.name}
                                             </div>
-                                          )
-                                        )
-                                      ) : (
-                                        <span className="text-gray-500">-</span>
-                                      )}
-                                    </td>
-
-                                    {/* Addons Column: Name, Price, Count */}
-                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                      {order.addons &&
-                                        order.addons.length > 0 ? (
-                                        order.addons.map(
-                                          (addon, addonIndex) => (
-                                            <div
-                                              key={`addon-${addonIndex}`}
-                                              className="mb-3"
-                                            >
-                                              <div className="font-semibold text-gray-800">
-                                                {addon.addon.name}
-                                              </div>
-                                              <div className="text-sm text-gray-500">
-                                                {t("Price")}:{" "}
-                                                {addon.addon.price}
-                                              </div>
-                                              <div className="text-sm text-gray-500">
-                                                {t("Count")}: {addon.count || 0}
-                                              </div>
-                                            </div>
-                                          )
-                                        )
-                                      ) : (
-                                        <span className="text-gray-500">-</span>
-                                      )}
-                                    </td>
-
-                                    {/* Excludes Column: Name */}
-                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                      {order.excludes &&
-                                        order.excludes.length > 0 ? (
-                                        order.excludes.map(
-                                          (exclude, excludeIndex) => (
-                                            <div
-                                              key={`exclude-${excludeIndex}`}
-                                              className="mb-3"
-                                            >
-                                              <div className="font-semibold text-gray-800">
-                                                {exclude.name}
-                                              </div>
-                                            </div>
-                                          )
-                                        )
-                                      ) : (
-                                        <span className="text-gray-500">-</span>
-                                      )}
-                                    </td>
-
-                                    {/* Extras Column: Name and Price */}
-                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                      {order.extras && order.extras.length > 0 ? (
-                                        order.extras.map((extra, extraIndex) => (
-                                          <div key={`extra-${extraIndex}`} className="mb-3">
-                                            <div className="font-semibold text-gray-800">{extra.name}</div>
                                             <div className="text-xs text-gray-500">
-                                              {t("Price")}:{" "}
-                                              {extra.price ? (
-                                                <span>
-                                                  {extra.price} {t("currency")} {/* Adjust currency as needed */}
-                                                </span>
+                                              {t("Type")}:{" "}
+                                              {variation.options &&
+                                                variation.options.length > 0 ? (
+                                                variation.options.map(
+                                                  (option, optIndex) => (
+                                                    <span
+                                                      key={`option-${optIndex}`}
+                                                      className="mr-1"
+                                                    >
+                                                      {option.name}
+                                                      {optIndex <
+                                                        variation.options
+                                                          .length -
+                                                        1
+                                                        ? ", "
+                                                        : ""}
+                                                    </span>
+                                                  )
+                                                )
                                               ) : (
                                                 <span>-</span>
                                               )}
                                             </div>
                                           </div>
-                                        ))
-                                      ) : (
-                                        <span className="text-gray-500">-</span>
-                                      )}
-                                    </td>
+                                        )
+                                      )
+                                    ) : (
+                                      <span className="text-gray-500">-</span>
+                                    )}
+                                  </td>
 
-                                    {/* Notes Column: Styled Card for Product Notes */}
-                                    <td className="px-2 py-1 whitespace-normal">
-                                      {order.product.map((prod, prodIndex) => (
+                                  {/* Addons Column: Name, Price, Count */}
+                                  <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
+                                    {order.addons &&
+                                      order.addons.length > 0 ? (
+                                      order.addons.map(
+                                        (addon, addonIndex) => (
+                                          <div
+                                            key={`addon-${addonIndex}`}
+                                            className="mb-3"
+                                          >
+                                            <div className="font-semibold text-gray-800">
+                                              {addon.addon?.name}
+                                            </div>
+                                            <div className="text-sm text-gray-600">
+                                              {t("Price")}: {addon.price}
+                                            </div>
+                                            <div className="text-sm text-gray-600">
+                                              {t("Qty")}: {addon.count}
+                                            </div>
+                                          </div>
+                                        )
+                                      )
+                                    ) : (
+                                      <span className="text-gray-500">-</span>
+                                    )}
+                                  </td>
+
+                                  {/* Excludes Column */}
+                                  <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
+                                    {order.excludes &&
+                                      order.excludes.length > 0 ? (
+                                      order.excludes.map(
+                                        (exclude, excludeIndex) => (
+                                          <div
+                                            key={`exclude-${excludeIndex}`}
+                                            className="mb-3"
+                                          >
+                                            <div className="font-semibold text-gray-800">
+                                              {exclude.name}
+                                            </div>
+                                          </div>
+                                        )
+                                      )
+                                    ) : (
+                                      <span className="text-gray-500">-</span>
+                                    )}
+                                  </td>
+
+                                  {/* Extra Column */}
+                                  <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
+                                    {order.extra && order.extra.length > 0 ? (
+                                      order.extra.map((extra, extraIndex) => (
                                         <div
-                                          key={`note-${prodIndex}`}
+                                          key={`extra-${extraIndex}`}
                                           className="mb-3"
                                         >
-                                          {prod.notes ? (
-                                            <div className="relative p-2 text-sm text-gray-700 border-l-4 border-red-400 rounded-md shadow-sm bg-red-50">
-                                              <div className="flex items-start">
-                                                <p className="line-clamp-3">
-                                                  {prod.notes}
-                                                </p>
-                                              </div>
-                                            </div>
-                                          ) : (
-                                            <span className="text-gray-500">
-                                              {t("No notes")}
-                                            </span>
-                                          )}
+                                          <div className="font-semibold text-gray-800">
+                                            {extra.name}
+                                          </div>
+                                          <div className="text-sm text-gray-600">
+                                            {t("Price")}: {extra.price}
+                                          </div>
                                         </div>
-                                      ))}
-                                    </td>
-                                  </tr>
-                                )
-                              )}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
+                                      ))
+                                    ) : (
+                                      <span className="text-gray-500">-</span>
+                                    )}
+                                  </td>
 
-                      {/* Order Summary */}
-                      <div className="flex flex-col p-2 my-2 gap-y-1">
-                        <p className="flex items-center justify-between w-full">
-                          {(detailsData?.order_details || []).forEach(
-                            (orderDetail) => {
-                              // Sum extras prices
-                              orderDetail.extras.forEach((extraItem) => {
-                                totalItemPrice += extraItem.price;
-                              });
-
-                              // Sum product prices (price * count)
-                              orderDetail.product.forEach((productItem) => {
-                                totalItemPrice +=
-                                  productItem.product.price * productItem.count;
-                              });
-
-                              // Sum variations' options prices
-                              // orderDetail.variations.forEach((variation) => {
-                              //   variation.options.forEach((optionItem) => {
-                              //     totalItemPrice += optionItem.price;
-                              //   });
-                              // });
-                            }
-                          )}
-                          {/* Display total items price */}
-                          {t("ItemsPrice")}:<span>{totalItemPrice}</span>
-                        </p>
-
-                        <p className="flex items-center justify-between w-full">
-                          {t("Tax/VAT")}:
-                          <span>{detailsData?.total_tax || 0}</span>
-                        </p>
-                        <p className="flex items-center justify-between w-full">
-                          {(detailsData?.order_details || []).forEach(
-                            (orderDetail) => {
-                              orderDetail.addons.forEach((addonItem) => {
-                                // Add the price of each addon to the total
-                                totalAddonPrice +=
-                                  addonItem.addon.price * addonItem.count;
-                              });
-                            }
-                          )}
-
-                          <span>{t("AddonsPrice")}:</span>
-                          <span>{totalAddonPrice}</span>
-                        </p>
-                        <p className="flex items-center justify-between w-full">
-                          {t("Subtotal")}:
-                          <span>{totalItemPrice + totalAddonPrice}</span>
-                        </p>
-                        <p className="flex items-center justify-between w-full">
-                          {t("ExtraDiscount")}:{" "}
-                          <span>{detailsData?.total_discount || 0}</span>
-                        </p>
-                        <p className="flex items-center justify-between w-full">
-                          {t("CouponDiscount")}:
-                          <span> {detailsData?.coupon_discount || 0}</span>
-                        </p>
-                        <p className="flex items-center justify-between w-full">
-                          {t("DeliveryFee")}:
-                          <span> {detailsData?.address?.zone?.price || 0}</span>
-                        </p>
-                        <p className="flex items-center justify-between w-full text-lg font-TextFontSemiBold">
-                          {t("Total")}:<span>{detailsData?.amount}</span>
-                        </p>
+                                  {/* Notes Column */}
+                                  <td className="px-3 py-1 whitespace-normal">
+                                    <span className="text-gray-500">
+                                      {order.notes || "-"}
+                                    </span>
+                                  </td>
+                                </tr>
+                              )
+                            )}
+                            {/* Calculation Row */}
+                            <tr>
+                              <td colSpan="6" className="text-right px-3 py-2 font-bold text-gray-800">
+                                {t("Subtotal")}:
+                              </td>
+                              <td className="px-3 py-2 text-gray-800">
+                                {detailsData?.sub_total_price || "0.00"} {t("JOD")}
+                              </td>
+                            </tr>
+                            {detailsData?.delivery_fees > 0 && (
+                                <tr>
+                                <td colSpan="6" className="text-right px-3 py-2 font-bold text-gray-800">
+                                    {t("Delivery Fees")}:
+                                </td>
+                                <td className="px-3 py-2 text-gray-800">
+                                    {detailsData?.delivery_fees || "0.00"} {t("JOD")}
+                                </td>
+                                </tr>
+                            )}
+                            {detailsData?.discount_value > 0 && (
+                                <tr>
+                                <td colSpan="6" className="text-right px-3 py-2 font-bold text-gray-800">
+                                    {t("Discount")}:
+                                </td>
+                                <td className="px-3 py-2 text-gray-800">
+                                    -{detailsData?.discount_value || "0.00"} {t("JOD")}
+                                </td>
+                                </tr>
+                            )}
+                            <tr className="bg-gray-100">
+                              <td colSpan="6" className="text-right px-3 py-2 font-bold text-gray-900 text-lg">
+                                {t("Total")}:
+                              </td>
+                              <td className="px-3 py-2 text-gray-900 text-lg font-bold">
+                                {detailsData?.total_price || "0.00"} {t("JOD")}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
 
               {/* Right Section */}
               <div className="sm:w-full lg:w-4/12">
-                <div className="w-full p-4 bg-white shadow-md rounded-xl">
-                  <div className="flex items-center text-lg gap-x-2 font-TextFontSemiBold">
-                    <span>
-                      <FaUser className="text-mainColor" />
-                    </span>
-                    {t("Customer Information")}
-                  </div>
-                  <p className="text-sm">
-                    {t("Name")}: {detailsData?.user?.f_name || "-"}{" "}
-                    {detailsData?.user?.l_name || "-"}
-                  </p>
-                  <p className="text-sm">
-                    {t("Orders")}: {detailsData?.user?.count_orders || "-"}
-                  </p>
-                  <p className="flex items-center gap-2 text-sm">
-                    Contact:
-                    {detailsData?.user?.phone && (
-                      <>
-                        <a
-                          href={`https://wa.me/${detailsData.user.phone.replace(/[^0-9]/g, "")}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 text-black transition duration-200 hover:text-green-600"
-                        >
-                          <FaWhatsapp className="w-5 h-5 text-green-600" />
-                          {detailsData.user.phone}
-                        </a>
-                        <button
-                          onClick={() => copyToClipboard(detailsData.user.phone)}
-                          className="text-gray-500 hover:text-blue-500"
-                          title={copied ? "Copied!" : "Copy Number"}
-                        >
-                          <FaCopy />
-                        </button>
-                      </>
-                    )}
-                  </p>
-                  <p className="text-sm">
-                    {t("Email")}: {detailsData?.user?.email || "-"}
-                  </p>
-
-                  {detailsData.order_type === "delivery" && (
-                    <>
-                      <p className="text-sm">
-                        {t("BuildNum")}:{" "}
-                        {detailsData?.address?.building_num || "-"}
-                      </p>
-                      <p className="text-sm">
-                        {t("Floor")}: {detailsData?.address?.floor_num || "-"}
-                      </p>
-                      <p className="text-sm">
-                        {t("House")}: {detailsData?.address?.apartment || "-"}
-                      </p>
-                      <p className="text-sm">
-                        {t("Road")}: {detailsData?.address?.street || "-"}
-                      </p>
-                      <p className="pb-2 text-sm text-center">
-                        {detailsData?.address?.address || "-"}
-                      </p>
-                      {detailsData?.address?.additional_data ||
-                        ("" && (
-                          <p className="pt-2 text-sm text-center border-t-2">
-                            {detailsData?.address?.additional_data || "-"}
-                          </p>
-                        ))}
-                      {detailsData?.address?.map && (
-                        <p className="text-sm line-clamp-3">
-                          {t("LocationMap")}:
-                          <a
-                            href={detailsData?.address?.map}
-                            className="ml-1 underline text-mainColor font-TextFontMedium"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {detailsData?.address?.map?.length > 30
-                              ? `${detailsData?.address?.map?.slice(0, 30)}...`
-                              : detailsData?.address?.map}
-                          </a>
-                        </p>
-                      )}
-                    </>
-                  )}
-                </div>
-
-                <div className="w-full p-4 mt-4 bg-white shadow-md rounded-xl">
-                  <div className="flex flex-col gap-y-2">
-                    <span className="text-lg font-TextFontSemiBold">
-                      {t("Change Order Status")}
-                    </span>
-
-                    <div className="flex flex-col gap-3">
-                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        {/* Define status order for comparison */}
-                        {(() => {
-                          const statusOrder = [
-                            "pending",
-                            "processing",
-                            "confirmed",
-                            "out_for_delivery",
-                            "delivered",
-                            // 'canceled',
-                            // 'refund',
-                            // 'returned',
-                            // 'faild_to_deliver'
-                          ];
-                          // ccccccccc
-                          const currentStatus = detailsData?.order_status;
-                          const currentIndex =
-                            statusOrder.indexOf(currentStatus);
-
-                          // Define all possible statuses
-                          const allStatuses = [
-                            {
-                              name: "pending",
-                              label: "Pending",
-                              icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
-                            },
-                            {
-                              name: "processing",
-                              label: "Accept",
-                              icon: "M5 13l4 4L19 7",
-                            },
-                            {
-                              name: "confirmed",
-                              label: "Processing",
-                              icon: "M5 13l4 4L19 7",
-                            },
-                            {
-                              name: "out_for_delivery",
-                              label: "Out for Delivery",
-                              icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
-                            },
-                            {
-                              name: "delivered",
-                              label: "Delivered",
-                              icon: "M5 13l4 4L19 7",
-                            },
-                            {
-                              name: "faild_to_deliver",
-                              label: "Failed to Deliver",
-                              icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z",
-                            },
-                            {
-                              name: "returned",
-                              label: "Returned",
-                              icon: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15",
-                            },
-                            {
-                              name: "canceled",
-                              label: "Canceled",
-                              icon: "M6 18L18 6M6 6l12 12",
-                            },
-                            {
-                              name: "refund",
-                              label: "Refund",
-                              icon: "M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z",
-                            },
-                          ];
-
-                          // Filter statuses based on current status
-                          const filteredStatuses = allStatuses.filter(
-                            (status) => {
-                              if (currentStatus === "delivered") {
-                                // Exclude 'canceled' and 'returned' when status is 'delivered'
-                                return !["canceled"].includes(status.name);
-                              } else if (currentStatus === "canceled") {
-                                // Exclude 'delivered', 'faild_to_deliver', and 'returned' when status is 'canceled'
-                                return ![
-                                  "delivered",
-                                  "faild_to_deliver",
-                                  "returned",
-                                ].includes(status.name);
-                              } else if (currentStatus === "refund") {
-                                // Exclude 'delivered', 'faild_to_deliver', and 'returned' when status is 'canceled'
-                                return !["canceled"].includes(status.name);
-                              }
-                              return true; // Include all statuses for other cases
-                            }
-                          );
-
-                          return filteredStatuses.map((status) => {
-                            const statusIndex = statusOrder.indexOf(
-                              status.name
-                            );
-                            const isCurrent = currentStatus === status.name;
-                            const isPrevious =
-                              statusIndex !== -1 && currentIndex > statusIndex;
-                            const isNext =
-                              statusIndex !== -1 && currentIndex < statusIndex;
-
-                            const isCancel = status.name === "canceled";
-                            const isReturn = status.name === "returned";
-                            const isFailed = status.name === "faild_to_deliver";
-
-                            // Determine if button should be disabled
-                            let isDisabled = false;
-
-                            // For normal flow statuses
-                            if (statusOrder.includes(status.name)) {
-                              // Enable if exactly one step forward or backward (except pending)
-                              isDisabled = !(
-                                statusIndex === currentIndex + 1 ||
-                                (statusIndex === currentIndex - 1 &&
-                                  status.name !== "pending")
-                              );
-                            }
-                            // For returned status
-                            else if (isReturn) {
-                              isDisabled = ![
-                                "out_for_delivery",
-                                "delivered",
-                              ].includes(currentStatus);
-                            }
-                            // For failed delivery status
-                            else if (isFailed) {
-                              isDisabled = currentStatus !== "out_for_delivery";
-                            }
-
-                            return (
-                              <button
-                                key={status.name}
-                                onClick={() =>
-                                  !isDisabled &&
-                                  handleSelectOrderStatus({ name: status.name })
-                                }
-                                disabled={isDisabled}
-                                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all relative
-              ${isCurrent
-                                    ? "bg-blue-100 border-blue-500 text-blue-900 shadow-md"
-                                    : isPrevious
-                                      ? "bg-green-50 border-green-300 text-green-800"
-                                      : isDisabled
-                                        ? "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
-                                        : "bg-white border-gray-200 hover:bg-gray-50 text-gray-700"
-                                  }
-            `}
-                              >
-                                <svg
-                                  className="w-5 h-5"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d={status.icon}
-                                  />
-                                </svg>
-                                {status.label}
-
-                                {/* Checkmark for completed statuses */}
-                                {isPrevious && (
-                                  <span className="absolute text-green-500 top-2 right-2">
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      className="w-4 h-4"
-                                      viewBox="0 0 20 20"
-                                      fill="currentColor"
-                                    >
-                                      <path
-                                        fillRule="evenodd"
-                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                        clipRule="evenodd"
-                                      />
-                                    </svg>
-                                  </span>
-                                )}
-
-                                {/* Current status indicator */}
-                                {isCurrent && (
-                                  <span className="absolute top-0 right-0 flex w-3 h-3 -mt-1 -mr-1">
-                                    <span className="absolute inline-flex w-full h-full bg-blue-400 rounded-full opacity-75 animate-ping"></span>
-                                    <span className="relative inline-flex w-3 h-3 bg-blue-500 rounded-full"></span>
-                                  </span>
-                                )}
-                              </button>
-                            );
-                          });
-                        })()}
-                      </div>
-                    </div>
-
-                    {/* Reason Input Modal */}
-                    {showReason && (
-                      <div className="p-4 mt-4 border border-gray-200 rounded-lg bg-gray-50">
-                        <label className="block mb-2 text-sm font-medium text-gray-700">
-                          {t("Enter Cancel Reason")}:
-                        </label>
-                        <input
-                          type="text"
-                          value={cancelReason}
-                          onChange={(e) => setCancelReason(e.target.value)}
-                          placeholder="Enter reason for cancellation"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainColor"
-                        />
-                        <div className="flex gap-2 mt-3">
-                          <button
-                            onClick={() => {
-                              setShowReason(false);
-                              setCancelReason("");
-                            }}
-                            className="px-4 py-2 text-gray-800 transition bg-gray-200 rounded-lg hover:bg-gray-300"
-                          >
-                            {t("Cancel")}
-                          </button>
-                          <button
-                            onClick={() => {
-                              if (!cancelReason.trim()) {
-                                auth.toastError(
-                                  t("Please enter a cancellation reason")
-                                );
-                                return;
-                              }
-                              handleChangeStaus(
-                                detailsData.id,
-                                "",
-                                orderStatusName,
-                                cancelReason
-                              );
-                              setCancelReason("");
-                            }}
-                            className="px-4 py-2 text-white transition bg-red-600 rounded-lg hover:bg-red-700"
-                          >
-                            {t("Confirm Cancellation")}
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Show existing cancellation reasons if they exist */}
-                    {detailsData.order_status === "canceled" && (
-                      <div className="p-4 mt-4 bg-gray-100 rounded-lg">
-                        {detailsData.admin_cancel_reason && (
-                          <div className="mb-3">
-                            <p className="font-medium text-gray-800">
-                              {t("Admin Cancellation Reason")}:
-                            </p>
-                            <p className="text-gray-600">
-                              {detailsData.admin_cancel_reason}
-                            </p>
-                          </div>
-                        )}
-                        {detailsData.customer_cancel_reason && (
-                          <div>
-                            <p className="font-medium text-gray-800">
-                              {t("Customer Cancellation Reason")}:
-                            </p>
-                            <p className="text-gray-600">
-                              {detailsData.customer_cancel_reason}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    {/* Cancel Reason Modal */}
-                    <Dialog
-                      open={showCancelModal}
-                      onClose={() => setShowCancelModal(false)}
-                      className="relative z-50"
-                    >
-                      <DialogBackdrop className="fixed inset-0 bg-black bg-opacity-30" />
-                      <div className="fixed inset-0 flex items-center justify-center p-4">
-                        <DialogPanel className="w-full max-w-md p-6 bg-white shadow-xl rounded-xl">
-                          <div className="mb-4">
-                            <h3 className="text-lg font-medium text-gray-900">
-                              {t("Cancel Order")}
-                            </h3>
-                            <p className="mt-1 text-sm text-gray-500">
-                              {t("Confirm Cancellation")}                            </p>
-                          </div>
-
-                          <textarea
-                            value={cancelReason}
-                            onChange={(e) => setCancelReason(e.target.value)}
-                            placeholder="Enter cancellation reason..."
-                            className="w-full p-2 border border-gray-300 rounded-md focus:border-mainColor focus:ring-mainColor"
-                            rows={3}
-                          />
-
-                          <div className="flex justify-end mt-4 space-x-3">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setShowCancelModal(false);
-                                setCancelReason("");
-                              }}
-                              className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
-                            >
-                              {t("Cancel")}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (!cancelReason.trim()) {
-                                  auth.toastError(
-                                    t("Please enter a cancellation reason")
-                                  );
-                                  return;
-                                }
-                                handleChangeStaus(
-                                  detailsData.id,
-                                  "",
-                                  orderStatusName,
-                                  cancelReason
-                                );
-                                setShowCancelModal(false);
-                                setCancelReason("");
-                              }}
-                              className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-                            >
-                              {t("Confirm Cancellation")}
-                            </button>
-                          </div>
-                        </DialogPanel>
-                      </div>
-                    </Dialog>
-
-                    {/* Refund Confirmation Modal */}
-                    <Dialog
-                      open={showRefundModal}
-                      onClose={() => setShowRefundModal(false)}
-                      className="relative z-50"
-                    >
-                      <DialogBackdrop className="fixed inset-0 bg-black bg-opacity-30" />
-                      <div className="fixed inset-0 flex items-center justify-center p-4">
-                        <DialogPanel className="w-full max-w-md p-6 bg-white shadow-xl rounded-xl">
-                          <div className="mb-4">
-                            <h3 className="text-lg font-medium text-gray-900">
-                              {t("Confirm Refund")}
-                            </h3>
-                            <p className="mt-1 text-sm text-gray-500">
-                              {t('Are you sure you want to refund this order?')}
-                            </p>
-                          </div>
-
-                          <div className="flex justify-end mt-4 space-x-3">
-                            <button
-                              type="button"
-                              onClick={() => setShowRefundModal(false)}
-                              className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
-                            >
-                              {t("No, Cancel")}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                handleChangeStaus(
-                                  detailsData.id,
-                                  "",
-                                  "refund",
-                                  ""
-                                );
-                                setShowRefundModal(false);
-                              }}
-                              className="px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md bg-mainColor hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                              {t("Yes, Refund")}
-                            </button>
-                          </div>
-                        </DialogPanel>
-                      </div>
-                    </Dialog>
-                  </div>
-                </div>
-
-                {(detailsData.order_type === 'delivery') && (detailsData.order_status === 'processing' || detailsData.order_status === 'confirmed' || detailsData.order_status === 'out_for_delivery') && (
-                  <button
-                    className="w-full bg-mainColor text-white py-2 rounded-md mt-4"
-                    onClick={() => handleOpenDeliviers(detailsData.id)}
-                  >
-                    {t("Assign Delivery Man")}
-                  </button>
-                )}
-
-                {/* Delivery man selection */}
-                {openDeliveries === detailsData.id && (
-                  <Dialog open={true} onClose={handleCloseDeliveries} className="relative z-10">
-                    <DialogBackdrop className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-                    <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                      <div className="flex min-h-full items-end justify-center text-center sm:items-center sm:p-0">
-                        <DialogPanel
-                          className="relative sm:w-full sm:max-w-2xl pt-4 transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all h-[90vh]" // Increased height with h-[80vh]
-                        >
-                          <div className="mb-2 px-2">
-                            <SearchBar
-                              placeholder="Search Delivery"
-                              value={searchDelivery}
-                              handleChange={handleChangeDeliveries}
-                            />
-                          </div>
-                          <div className="px-4 flex flex-col gap-3 overflow-y-auto max-h-[70vh]"> {/* Adjusted max-height for content */}
-                            {deliveriesFilter.length === 0 ? (
-                              <div className="text-center font-TextFontMedium text-mainColor">
-                                {t("Not Found Delivery")}
-                              </div>
-                            ) : (
-                              deliveriesFilter.map((delivery) => (
-                                <div
-                                  className="border-2 flex items-center justify-between border-gray-400 p-2 rounded-2xl"
-                                  key={`${delivery.id}-${detailsData.id}`}
-                                >
-                                  <label className="flex items-center gap-2">
-                                    <input
-                                      type="radio"
-                                      name="delivery"
-                                      value={delivery.id}
-                                      checked={selectedDeliveryId === delivery.id}
-                                      onChange={() => setSelectedDeliveryId(delivery.id)}
-                                      className="form-radio"
-                                    />
-                                    <span className="font-TextFontRegular text-xl">
-                                      {delivery?.f_name || '-'} {delivery?.l_name || '-'}
-                                    </span>
-                                  </label>
-                                </div>
-                              ))
-                            )}
-                          </div>
-                          {/* Dialog Footer */}
-                          <div className="px-4 py-3 sm:flex sm:flex-row-reverse gap-x-3">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (!selectedDeliveryId) {
-                                  auth.toastError(t("Please select a delivery person"));
-                                  return;
-                                }
-                                handleAssignDelivery(selectedDeliveryId, detailsData.id, detailsData.order_number);
-                              }}
-                              className="inline-flex w-full justify-center rounded-md bg-mainColor px-6 py-3 text-sm font-TextFontMedium text-white shadow-sm sm:w-auto hover:bg-mainColor-dark focus:outline-none"
-                            >
-                              {t("Submit")}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={handleCloseDeliveries}
-                              className="mt-3 inline-flex w-full justify-center rounded-md bg-gray-300 px-6 py-3 text-sm font-TextFontMedium text-gray-800 shadow-sm sm:mt-0 sm:w-auto hover:bg-gray-400 focus:outline-none"
-                            >
-                              {t("Close")}
-                            </button>
-                          </div>
-                        </DialogPanel>
-                      </div>
-                    </div>
-                  </Dialog>
-                )}
-
-                <div className="p-4 mt-4 bg-white rounded-lg shadow-sm order-status-history">
-                  <h3 className="mb-4 text-lg font-semibold text-gray-800 history-title">
-                    {t("Order Status History")}
-                  </h3>
-                  <div className="space-y-4 timeline">
-                    {dataDetailsOrder.log_order.map((log, index) => (
-                      <div
-                        key={log.id}
-                        className={`timeline-item relative pl-6 ${index === 0 ? "first-item" : ""
-                          }`}
+                <div className="p-2 bg-white shadow-md rounded-xl">
+                  {/* Customer Information */}
+                  <div className="p-2 my-2 bg-white rounded-md shadow-md">
+                    <h2 className="mb-2 text-2xl font-bold text-gray-800">
+                      {t("Customer Information")}
+                    </h2>
+                    <p className="text-gray-800 text-md">
+                      <span className="font-TextFontSemiBold text-mainColor">
+                        <FaUser className="inline-block mb-1" /> {t("Name")}:
+                      </span>{" "}
+                      {detailsData?.user?.f_name || ""}{" "}
+                      {detailsData?.user?.l_name || ""}
+                    </p>
+                    <p className="text-gray-800 text-md">
+                      <span className="font-TextFontSemiBold text-mainColor">
+                        {t("Phone")}:
+                      </span>{" "}
+                      {detailsData?.user?.phone || ""}
+                      <span
+                        className="ml-2 cursor-pointer"
+                        onClick={() => copyToClipboard(detailsData?.user?.phone || "")}
                       >
-                        {/* Timeline marker */}
-                        <div className="absolute left-0 w-3 h-3 bg-blue-500 border-2 border-white rounded-full shadow timeline-marker top-2"></div>
-
-                        {/* Timeline content */}
-                        <div className="p-3 rounded-lg timeline-content bg-gray-50">
-                          <div className="flex items-center gap-2 mb-1 status-change">
-                            <span className="px-2 py-1 text-sm text-gray-700 bg-gray-200 rounded from-status">
-                              {log.from_status === "processing"
-                                ? "Accepted"
-                                : log.from_status === "confirmed"
-                                  ? "Processing"
-                                  : log.from_status.replace(/_/g, " ")}
-                            </span>
-                            <span className="text-gray-400 arrow">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="w-4 h-4"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M13 5l7 7-7 7M5 5l7 7-7 7"
-                                />
-                              </svg>
-                            </span>
-
-                            <span className="px-2 py-1 text-sm text-gray-700 bg-gray-200 rounded from-status">
-                              {log.to_status === "processing"
-                                ? "Accepted"
-                                : log.to_status === "confirmed"
-                                  ? "Processing"
-                                  : log.to_status.replace(/_/g, " ")}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center justify-between text-xs text-gray-500 meta-info">
-                            <span className="changed-by">
-                              {t("Changed by")}:{" "}
-                              <span className="font-medium">
-                                {log.admin.name}
-                              </span>
-                            </span>
-                            <span className="change-date">
-                              {new Date(log.created_at).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Timeline connector (except for last item) */}
-                        {index !== dataDetailsOrder.log_order.length - 1 && (
-                          <div className="timeline-connector absolute left-[5px] top-5 bottom-0 w-px bg-gray-300"></div>
-                        )}
-                      </div>
-                    ))}
+                        <FaCopy className="inline-block text-gray-600 hover:text-mainColor" />
+                      </span>
+                      <a
+                        href={`https://wa.me/${detailsData?.user?.phone}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ml-2 text-green-500 hover:text-green-700"
+                      >
+                        <FaWhatsapp className="inline-block" />
+                      </a>
+                    </p>
+                    <p className="text-gray-800 text-md">
+                      <span className="font-TextFontSemiBold text-mainColor">
+                        {t("Email")}:
+                      </span>{" "}
+                      {detailsData?.user?.email || ""}
+                    </p>
                   </div>
-                </div>
 
-                {/* Food Preparation Time */}
-                {(detailsData.order_status === "pending" ||
-                  detailsData.order_status === "confirmed" ||
-                  detailsData.order_status === "processing" ||
-                  detailsData.order_status === "out_for_delivery") && (
-                    <div className="w-full p-4 mt-4 bg-white shadow-md rounded-xl">
-                      <h3 className="text-lg font-TextFontSemiBold">
-                        {t("Food Preparation Time")}
-                      </h3>
-                      <div className="flex items-center">
-                        <FaClock className="mr-2 text-gray-500" />
-                        {preparationTime ? (
-                          <>
-                            <span
-                              className={
-                                olderHours +
-                                  preparationTime.hours -
-                                  initialTime.currentHour <=
-                                  0 ||
-                                  olderDay +
-                                  preparationTime.days -
-                                  initialTime.currentDay <=
-                                  0
-                                  ? "text-red-500"
-                                  : "text-cyan-400"
-                              }
-                            >
-                              {olderHours +
-                                preparationTime.hours -
-                                initialTime.currentHour <=
-                                0 ? (
-                                <>
-                                  {olderDay +
-                                    preparationTime.days -
-                                    initialTime.currentDay}
-                                  d{" "}
-                                  {initialTime.currentHour -
-                                    (olderHours + preparationTime.hours)}
-                                  h{" "}
-                                  {olderMinutes +
-                                    preparationTime.minutes -
-                                    initialTime.currentMinute}
-                                  m {preparationTime.seconds}s Over
-                                </>
-                              ) : (
-                                <>
-                                  {initialTime.currentDay - olderDay}d{" "}
-                                  {preparationTime.hours}h{" "}
-                                  {olderMinutes +
-                                    preparationTime.minutes -
-                                    initialTime.currentMinute}
-                                  m {preparationTime.seconds}s Left
-                                </>
-                              )}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="text-gray-400">
-                            {t("Preparing time not available")}
-                          </span>
-                        )}
-                      </div>
+                  {/* Delivery Information (conditional) */}
+                  {detailsData?.delivery && (
+                    <div className="p-2 my-2 bg-white rounded-md shadow-md">
+                      <h2 className="mb-2 text-2xl font-bold text-gray-800">
+                        {t("Delivery Information")}
+                      </h2>
+                      <p className="text-gray-800 text-md">
+                        <span className="font-TextFontSemiBold text-mainColor">
+                          <FaUser className="inline-block mb-1" /> {t("Name")}:
+                        </span>{" "}
+                        {detailsData?.delivery?.f_name || ""}{" "}
+                        {detailsData?.delivery?.l_name || ""}
+                      </p>
+                      <p className="text-gray-800 text-md">
+                        <span className="font-TextFontSemiBold text-mainColor">
+                          {t("Phone")}:
+                        </span>{" "}
+                        {detailsData?.delivery?.phone || ""}
+                      </p>
+                      <p className="text-gray-800 text-md">
+                        <span className="font-TextFontSemiBold text-mainColor">
+                          {t("Email")}:
+                        </span>{" "}
+                        {detailsData?.delivery?.email || ""}
+                      </p>
                     </div>
                   )}
 
-                {detailsData.delivery_id !== null && (
-                  <div className="w-full p-4 mt-2 bg-white shadow-md rounded-xl">
-                    <div className="flex items-center text-lg gap-x-2 font-TextFontSemiBold">
-                      <span>
-                        <FaUser className="text-mainColor" />
-                      </span>
-                      {t("DeliveryMan")}
+                  {/* Address Information (conditional) */}
+                  {detailsData?.address && (
+                    <div className="p-2 my-2 bg-white rounded-md shadow-md">
+                      <h2 className="mb-2 text-2xl font-bold text-gray-800">
+                        {t("Address Information")}
+                      </h2>
+                      <p className="text-gray-800 text-md">
+                        <span className="font-TextFontSemiBold text-mainColor">
+                          {t("Address")}:
+                        </span>{" "}
+                        {detailsData?.address?.address || ""}
+                      </p>
+                      <p className="text-gray-800 text-md">
+                        <span className="font-TextFontSemiBold text-mainColor">
+                          {t("Building")}:
+                        </span>{" "}
+                        {detailsData?.address?.building || ""}
+                      </p>
+                      <p className="text-gray-800 text-md">
+                        <span className="font-TextFontSemiBold text-mainColor">
+                          {t("Flat")}:
+                        </span>{" "}
+                        {detailsData?.address?.flat || ""}
+                      </p>
                     </div>
-                    <p className="text-sm">
-                      {t("Name")}: {detailsData?.delivery?.f_name || "-"}{" "}
-                      {detailsData?.delivery?.l_name || "-"}
-                    </p>
-                    <p className="text-sm">
-                      {t('Orders')}: {detailsData?.delivery?.count_orders || "-"}
-                    </p>
-                    <p className="text-sm">
-                      {t("Contact")}: {detailsData?.delivery?.phone || "-"}
-                    </p>
-                    <p className="text-sm">
-                      {t("Email")}: {detailsData?.delivery?.email || "-"}
+                  )}
+
+                  {/* Preparation Time */}
+                  <div className="p-2 my-2 bg-white rounded-md shadow-md">
+                    <h2 className="mb-2 text-2xl font-bold text-gray-800">
+                      {t("Preparation Time")}
+                    </h2>
+                    <p className="text-gray-800 text-md">
+                      <span className="font-TextFontSemiBold text-mainColor">
+                        <FaClock className="inline-block mb-1" /> {t("Remaining Time")}:
+                      </span>{" "}
+                      {preparationTime ? (
+                        `${preparationTime.days || 0}d ${preparationTime.hours || 0}h ${preparationTime.minutes || 0}m ${preparationTime.seconds || 0}s`
+                      ) : (
+                        t("Not Available")
+                      )}
                     </p>
                   </div>
-                )}
-              </div>
 
-              {/* Processing Order Modal */}
-              {showStatusModal && (
-                <div className="fixed inset-0 z-50 overflow-y-auto">
-                  <div className="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-                    {/* Background overlay */}
-                    <div
-                      className="fixed inset-0 transition-opacity"
-                      aria-hidden="true"
-                      onClick={() => setShowStatusModal(false)}
-                    >
-                      <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+                  {/* Order Actions */}
+                  <div className="p-2 my-2 bg-white rounded-md shadow-md">
+                    <h2 className="mb-2 text-2xl font-bold text-gray-800">
+                      {t("Order Actions")}
+                    </h2>
+                    {/* Order Status Dropdown */}
+                    <div className="relative" ref={StatusRef}>
+                      <DropDown
+                        label={t("Change Order Status")}
+                        options={orderStatus}
+                        onSelect={handleSelectOrderStatus}
+                        isOpen={isOpenOrderStatus}
+                        onToggle={handleOpenOrderStatus}
+                        onOpen={handleOpenOptionOrderStatus}
+                        selectedOption={{ name: orderStatusName }}
+                      />
                     </div>
-
-                    {/* Modal container */}
-                    <span
-                      className="hidden sm:inline-block sm:align-middle sm:h-screen"
-                      aria-hidden="true"
-                    >
-                      &#8203;
-                    </span>
-
-                    {/* Modal content */}
-                    <div className="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                      <div className="px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
-                        <div className="sm:flex sm:items-start">
-                          <div className="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-red-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
-                            <svg
-                              className="w-6 h-6 text-red-600"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                              />
-                            </svg>
-                          </div>
-                          <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                            <h3 className="text-lg font-medium leading-6 text-gray-900">
-                              {t("Order in Use by Another Person")}
-                            </h3>
-                            <div className="mt-2">
-                              <p className="text-sm text-gray-500">
-                                {t("Someone else is currently working on this order. Please wait until they finish before proceeding to avoid conflicts or duplication.")}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:flex-row-reverse">
-                        <button
-                          type="button"
-                          onClick={() => setShowStatusModal(false)}
-                          className="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white border border-transparent rounded-md shadow-sm bg-mainColor hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm"
-                        >
-                          {t("Ok")}
-                        </button>
-                      </div>
-                    </div>
+                    {/* Assign Delivery Button */}
+                    <SubmitButton
+                      name={t("Assign Delivery")}
+                      onClick={() => handleOpenDeliviers(detailsData.id)}
+                      className="mt-3"
+                    />
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           )}
         </>
       )}
+
+      {/* Modals */}
+      {/* Refund Confirmation Modal */}
+      <Dialog
+        open={showRefundModal}
+        onClose={() => setShowRefundModal(false)}
+        className="relative z-10"
+      >
+        <DialogBackdrop
+          transition
+          className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity data-[closed]:opacity-0 data-[enter]:opacity-100 data-[leave]:opacity-0"
+        />
+        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <DialogPanel
+              transition
+              className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:translate-y-0 data-[enter]:opacity-100 data-[leave]:translate-y-4 data-[leave]:opacity-0 sm:my-8 sm:w-full sm:max-w-lg"
+            >
+              <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <FaFileInvoice className="h-6 w-6 text-red-600" aria-hidden="true" />
+                  </div>
+                  <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                    <h3 className="text-base font-semibold leading-6 text-gray-900">
+                      {t("Confirm Refund")}
+                    </h3>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500">
+                        {t("Are you sure you want to refund this order? This action cannot be undone.")}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                <button
+                  type="button"
+                  className="inline-flex w-full justify-center rounded-md bg-mainColor px-3 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90 sm:ml-3 sm:w-auto"
+                  onClick={() => {
+                    handleChangeStaus(detailsData.id, "", "refund", "");
+                    setShowRefundModal(false);
+                  }}
+                >
+                  {t("Confirm")}
+                </button>
+                <button
+                  type="button"
+                  className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                  onClick={() => setShowRefundModal(false)}
+                >
+                  {t("Cancel")}
+                </button>
+              </div>
+            </DialogPanel>
+          </div>
+        </div>
+      </Dialog>
+
+      {/* Cancel Order Modal */}
+      <Dialog
+        open={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        className="relative z-10"
+      >
+        <DialogBackdrop
+          transition
+          className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity data-[closed]:opacity-0 data-[enter]:opacity-100 data-[leave]:opacity-0"
+        />
+        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <DialogPanel
+              transition
+              className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:translate-y-0 data-[enter]:opacity-100 data-[leave]:translate-y-4 data-[leave]:opacity-0 sm:my-8 sm:w-full sm:max-w-lg"
+            >
+              <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <FaFileInvoice className="h-6 w-6 text-red-600" aria-hidden="true" />
+                  </div>
+                  <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                    <h3 className="text-base font-semibold leading-6 text-gray-900">
+                      {t("Reason for Cancelation")}
+                    </h3>
+                    <div className="mt-2">
+                      <TextInput
+                        placeholder={t("Enter reason")}
+                        type="text"
+                        name="cancel_reason"
+                        value={cancelReason}
+                        onChange={(e) => setCancelReason(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                <button
+                  type="button"
+                  className="inline-flex w-full justify-center rounded-md bg-mainColor px-3 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90 sm:ml-3 sm:w-auto"
+                  onClick={() => {
+                    if (cancelReason.trim()) {
+                      handleChangeStaus(detailsData.id, "", orderStatusName, cancelReason);
+                      setShowCancelModal(false);
+                      setCancelReason("");
+                    } else {
+                      auth.toastError(t("Reason cannot be empty."));
+                    }
+                  }}
+                >
+                  {t("Confirm")}
+                </button>
+                <button
+                  type="button"
+                  className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                  onClick={() => {
+                    setShowCancelModal(false);
+                    setCancelReason("");
+                  }}
+                >
+                  {t("Cancel")}
+                </button>
+              </div>
+            </DialogPanel>
+          </div>
+        </div>
+      </Dialog>
+
+      {/* Assign Delivery Modal */}
+      <Dialog
+        open={openDeliveries === detailsData.id}
+        onClose={handleCloseDeliveries}
+        className="relative z-10"
+      >
+        <DialogBackdrop
+          transition
+          className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity data-[closed]:opacity-0 data-[enter]:opacity-100 data-[leave]:opacity-0"
+        />
+        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <DialogPanel
+              transition
+              className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:translate-y-0 data-[enter]:opacity-100 data-[leave]:translate-y-4 data-[leave]:opacity-0 sm:my-8 sm:w-full sm:max-w-lg"
+            >
+              <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <FaUser className="h-6 w-6 text-blue-600" aria-hidden="true" />
+                  </div>
+                  <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                    <h3 className="text-base font-semibold leading-6 text-gray-900">
+                      {t("Assign Delivery")}
+                    </h3>
+                    <div className="mt-2">
+                      <SearchBar
+                        label={t("Search Delivery")}
+                        value={searchDelivery}
+                        onChange={handleChangeDeliveries}
+                      />
+                      <div className="max-h-60 overflow-y-auto mt-2 border rounded-md p-2">
+                        {deliveriesFilter.length > 0 ? (
+                          deliveriesFilter.map((delivery) => (
+                            <div
+                              key={delivery.id}
+                              className="flex items-center justify-between p-2 my-1 border rounded-md"
+                            >
+                              <span>{delivery.f_name} {delivery.l_name}</span>
+                              <button
+                                className="bg-mainColor text-white px-3 py-1 rounded-md text-sm hover:opacity-90"
+                                onClick={() => handleAssignDelivery(delivery.id, detailsData.id, detailsData.order_number)}
+                              >
+                                {t("Assign")}
+                              </button>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-center text-gray-500">{t("No deliveries found.")}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                <button
+                  type="button"
+                  className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                  onClick={handleCloseDeliveries}
+                >
+                  {t("Close")}
+                </button>
+              </div>
+            </DialogPanel>
+          </div>
+        </div>
+      </Dialog>
+
+      {/* Order Number Modal (for 'processing' status if no order_number) */}
+      <Dialog
+        open={openOrderNumber === detailsData.id}
+        onClose={handleCloseOrderNumber}
+        className="relative z-10"
+      >
+        <DialogBackdrop
+          transition
+          className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity data-[closed]:opacity-0 data-[enter]:opacity-100 data-[leave]:opacity-0"
+        />
+        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <DialogPanel
+              transition
+              className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:translate-y-0 data-[enter]:opacity-100 data-[leave]:translate-y-4 data-[leave]:opacity-0 sm:my-8 sm:w-full sm:max-w-lg"
+            >
+              <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <FaFileInvoice className="h-6 w-6 text-blue-600" aria-hidden="true" />
+                  </div>
+                  <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                    <h3 className="text-base font-semibold leading-6 text-gray-900">
+                      {t("Enter Order Number")}
+                    </h3>
+                    <div className="mt-2">
+                      <TextInput
+                        placeholder={t("Order Number")}
+                        type="text"
+                        name="order_number"
+                        value={orderNumber}
+                        onChange={(e) => setOrderNumber(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                <button
+                  type="button"
+                  className="inline-flex w-full justify-center rounded-md bg-mainColor px-3 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90 sm:ml-3 sm:w-auto"
+                  onClick={handleOrderNumber}
+                >
+                  {t("Confirm")}
+                </button>
+                <button
+                  type="button"
+                  className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                  onClick={handleCloseOrderNumber}
+                >
+                  {t("Cancel")}
+                </button>
+              </div>
+            </DialogPanel>
+          </div>
+        </div>
+      </Dialog>
+      {/* Show Status Modal (Error) */}
+      <Dialog
+        open={showStatusModal}
+        onClose={() => setShowStatusModal(false)}
+        className="relative z-10"
+      >
+        <DialogBackdrop
+          transition
+          className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity data-[closed]:opacity-0 data-[enter]:opacity-100 data-[leave]:opacity-0"
+        />
+        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <DialogPanel
+              transition
+              className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:translate-y-0 data-[enter]:opacity-100 data-[leave]:translate-y-4 data-[leave]:opacity-0 sm:my-8 sm:w-full sm:max-w-lg"
+            >
+              <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <FaFileInvoice className="h-6 w-6 text-red-600" aria-hidden="true" />
+                  </div>
+                  <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                    <h3 className="text-base font-semibold leading-6 text-gray-900">
+                      {t("Status Change Error")}
+                    </h3>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500">
+                        {t("You cannot change the status to this option.")}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                <button
+                  type="button"
+                  className="inline-flex w-full justify-center rounded-md bg-mainColor px-3 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90 sm:ml-3 sm:w-auto"
+                  onClick={() => setShowStatusModal(false)}
+                >
+                  {t("Ok")}
+                </button>
+              </div>
+            </DialogPanel>
+          </div>
+        </div>
+      </Dialog>
     </>
   );
 };

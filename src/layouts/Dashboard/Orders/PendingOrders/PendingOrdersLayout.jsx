@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import  { useEffect } from "react";
 import { LoaderLogin, TitlePage } from "../../../../Components/Components";
 import {
   PendingOrdersPage,
@@ -9,38 +9,44 @@ import { OrdersComponent } from "../../../../Store/CreateSlices";
 import { useTranslation } from "react-i18next";
 
 const PendingOrdersLayout = () => {
+  const { t } = useTranslation();
+
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const userRole = localStorage.getItem("role") || "admin";
+
+  // اختار الرابط المناسب حسب الدور
+  const apiEndpoint =
+    userRole === "branch"
+      ? `${apiUrl}/branch/online_order`
+      : `${apiUrl}/admin/order/branches`;
+
   const {
     refetch: refetchBranch,
     loading: loadingBranch,
     data: dataBranch,
   } = useGet({
-    url: `${apiUrl}/admin/order/branches`,
+    url: apiEndpoint,
   });
-  const { t, i18n } = useTranslation();
 
   useEffect(() => {
-    refetchBranch(); // Refetch data when the component mounts
+    refetchBranch(); // Refetch when component mounts
   }, [refetchBranch]);
 
   return (
     <>
       <OrdersComponent />
       <div className="flex flex-col w-full mb-0">
-                            <TitlePage text={t('PendingOrders')} />
+        <TitlePage text={t("PendingOrders")} />
         {loadingBranch ? (
-          <>
-            <div className="flex items-center justify-center w-full">
-              <LoaderLogin />
-            </div>
-          </>
+          <div className="flex items-center justify-center w-full">
+            <LoaderLogin />
+          </div>
         ) : (
           <>
             <SelectDateRangeSection
               typPage={"pending"}
               branchsData={dataBranch}
             />
-
             <PendingOrdersPage />
           </>
         )}

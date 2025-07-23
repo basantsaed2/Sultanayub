@@ -4,7 +4,7 @@ import { LoaderLogin, SearchBar } from '../../../../../Components/Components';
 import { BiSolidShow } from 'react-icons/bi';
 import { FaFileInvoice } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { FaRegCopy, FaWhatsapp } from "react-icons/fa";
+import { FaCopy, FaWhatsapp } from "react-icons/fa";
 import { useAuth } from "../../../../../Context/Auth"; // Make sure to import useAuth if required
 
 const ScheduleOrdersPage = () => {
@@ -94,17 +94,6 @@ const ScheduleOrdersPage = () => {
                      resizeObserver.disconnect();
               };
        }, [filteredOrders, currentPage]);
-
-       const handleCopy = (phone) => {
-              if (!phone) return;
-
-              navigator.clipboard
-                     .writeText(phone)
-                     .then(() => {
-                            auth.toastSuccess("Phone number copied!"); // Use auth.toastSuccess()
-                     })
-                     .catch((err) => console.error("Failed to copy:", err));
-       };
 
        const scrollTable = (direction) => {
               if (tableContainerRef.current) {
@@ -254,32 +243,26 @@ const ScheduleOrdersPage = () => {
                                                                                     </td>
 
                                                                                     {/* User Information */}
-                                                                                    <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
+                                                                                    <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
                                                                                            <div>{`${order.user?.f_name || "N/A"} ${order.user?.l_name || "-"}`}</div>
                                                                                            <div className="flex items-center justify-center gap-2">
                                                                                                   {order.user?.phone ? (
                                                                                                          <>
                                                                                                                 <FaWhatsapp className="w-5 h-5 text-green-600" />
                                                                                                                 <a
-                                                                                                                       href={`https://wa.me/${order.user.phone.replace(/[^0-9]/g, "")}`}
+                                                                                                                       href={`https://wa.me/${order.user.phone.replace(/[^0-9]/g, '')}`}
                                                                                                                        target="_blank"
                                                                                                                        rel="noopener noreferrer"
-                                                                                                                       className="text-black transition duration-200 hover:text-green-600"
+                                                                                                                       className="text-black hover:text-green-600 transition duration-200"
                                                                                                                 >
                                                                                                                        {order.user.phone}
                                                                                                                 </a>
-                                                                                                                <FaRegCopy
-                                                                                                                       className="w-4 h-4 cursor-pointer text-gray-600 hover:text-blue-500"
-                                                                                                                       onClick={() => handleCopy(order.user.phone)}
-                                                                                                                       title="Copy number"
-                                                                                                                />
                                                                                                          </>
                                                                                                   ) : (
-                                                                                                         <span>{t("NoPhone")}</span>
+                                                                                                         <span>No Phone</span>
                                                                                                   )}
                                                                                            </div>
                                                                                     </td>
-                                                                                    
                                                                                     {/* Branch */}
                                                                                     <td className="px-4 py-2 text-center text-sm lg:text-base">
                                                                                            <span className="text-cyan-500 bg-cyan-200 rounded-md px-2 py-1">

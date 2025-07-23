@@ -3,11 +3,10 @@ import { LoaderLogin, SearchBar } from "../../../../../Components/Components";
 import { useSelector } from "react-redux";
 import { BiSolidShow } from "react-icons/bi";
 import { Link } from "react-router-dom";
-import { FaFileInvoice, FaWhatsapp, FaRegCopy } from "react-icons/fa";
+import { FaFileInvoice, FaWhatsapp } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 
 const AllOrdersPage = () => {
-
   const ordersAll = useSelector((state) => state.ordersAll);
   const [textSearch, setTextSearch] = useState("");
   const [filteredOrders, setFilteredOrders] = useState([]);
@@ -23,7 +22,7 @@ const AllOrdersPage = () => {
     (currentPage - 1) * filteredOrdersPerPage,
     currentPage * filteredOrdersPerPage
   );
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   // handle page change
   const handlePageChange = (pageNumber) => {
@@ -33,7 +32,10 @@ const AllOrdersPage = () => {
   useEffect(() => {
     if (Array.isArray(ordersAll.data)) {
       setFilteredOrders(ordersAll.data);
-    } 
+      console.log("ordersAll", ordersAll.data);
+    } else {
+      console.log("ordersAll data is not an array or is undefined");
+    }
   }, [ordersAll.data]);
 
   const handleFilterData = (e) => {
@@ -56,16 +58,16 @@ const AllOrdersPage = () => {
           (order.user?.name || "-")
             .toLowerCase()
             .includes(text.toLowerCase()) ||
-          (order.user?.phone || "-")
-            .toLowerCase()
-            .includes(text.toLowerCase())
+          (order.user?.phone || "-").toLowerCase().includes(text.toLowerCase())
       );
 
       setFilteredOrders(filter); // Update state
       console.log("Filtered orders:", filter); // Debugging
     }
   };
-  const handleCopy = (phone) => {
+  {
+    /**
+         const handleCopy = (phone) => {
     if (!phone) return;
 
     navigator.clipboard
@@ -74,7 +76,8 @@ const AllOrdersPage = () => {
         auth.toastSuccess("Phone number copied!"); // Use auth.toastSuccess()
       })
       .catch((err) => console.error("Failed to copy:", err));
-  };
+  }; */
+  }
 
   const tableContainerRef = useRef(null);
   const tableRef = useRef(null);
@@ -108,26 +111,25 @@ const AllOrdersPage = () => {
     if (tableContainerRef.current) {
       const scrollAmount = 300;
       tableContainerRef.current.scrollBy({
-        left: direction === 'right' ? scrollAmount : -scrollAmount,
-        behavior: 'smooth'
+        left: direction === "right" ? scrollAmount : -scrollAmount,
+        behavior: "smooth",
       });
     }
   };
   const headers = [
-    t("sl"),               // SL - الرقم التسلسلي
-    t("orderId"),          // Order ID - رقم الطلب
-    t("deliveryDate"),     // Delivery Date - تاريخ التوصيل
-    t("customerInfo"),     // Customer Info - معلومات العميل
-    t("branch"),           // Branch - الفرع
-    t("totalPrice"),       // Total Price - السعر الإجمالي
-    t("paymentMethod"),    // Payment Method - طريقة الدفع
-    t("orderStatus"),      // Order Status - حالة الطلب
+    t("sl"), // SL - الرقم التسلسلي
+    t("orderId"), // Order ID - رقم الطلب
+    t("deliveryDate"), // Delivery Date - تاريخ التوصيل
+    t("customerInfo"), // Customer Info - معلومات العميل
+    t("branch"), // Branch - الفرع
+    t("totalPrice"), // Total Price - السعر الإجمالي
+    t("paymentMethod"), // Payment Method - طريقة الدفع
+    t("orderStatus"), // Order Status - حالة الطلب
     t("operationsStatus"), // Operations Status - حالة العمليات
-    t("operationsAdmin"),  // Operations Admin - مسؤول العمليات
-    t("orderType"),        // Order Type - نوع الطلب
-    t("actions"),          // Actions - الإجراءات
+    t("operationsAdmin"), // Operations Admin - مسؤول العمليات
+    t("orderType"), // Order Type - نوع الطلب
+    t("actions"), // Actions - الإجراءات
   ];
-
 
   return (
     <>
@@ -145,42 +147,80 @@ const AllOrdersPage = () => {
         {showScrollHint && (
           <div className="sticky top-0 z-10 flex items-center justify-between py-2 mb-2 bg-white shadow-sm">
             <button
-              onClick={() => scrollTable('left')}
+              onClick={() => scrollTable("left")}
               className="p-2 transition bg-gray-100 rounded-full hover:bg-gray-200"
               aria-label="Scroll left"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
               </svg>
             </button>
 
             {filteredOrders.length > 0 && (
               <div className="flex flex-wrap items-center justify-center gap-x-4">
                 {currentPage !== 1 && (
-                  <button type='button' className='px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium' onClick={() => setCurrentPage(currentPage - 1)}>{t("Prev")}</button>
-                )}
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                   <button
-                    key={page}
-                    onClick={() => handlePageChange(page)}
-                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page ? 'bg-mainColor text-white' : ' text-mainColor'}`}
+                    type="button"
+                    className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
+                    onClick={() => setCurrentPage(currentPage - 1)}
                   >
-                    {page}
+                    {t("Prev")}
                   </button>
-                ))}
+                )}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${
+                        currentPage === page
+                          ? "bg-mainColor text-white"
+                          : " text-mainColor"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  )
+                )}
                 {totalPages !== currentPage && (
-                  <button type='button' className='px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium' onClick={() => setCurrentPage(currentPage + 1)}>{t("Next")}</button>
+                  <button
+                    type="button"
+                    className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                  >
+                    {t("Next")}
+                  </button>
                 )}
               </div>
             )}
 
             <button
-              onClick={() => scrollTable('right')}
+              onClick={() => scrollTable("right")}
               className="p-2 transition bg-gray-100 rounded-full hover:bg-gray-200"
               aria-label="Scroll right"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
             </button>
           </div>
@@ -244,39 +284,39 @@ const AllOrdersPage = () => {
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order?.created_at
                             ? new Date(order.created_at).toLocaleDateString(
-                              "en-US",
-                              {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                hour12: true,
-                              }
-                            )
+                                "en-US",
+                                {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  hour12: true,
+                                }
+                              )
                             : "-"}
                         </td>
 
                         {/* User Information */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
-                          <div>{`${order.user?.f_name || "N/A"} ${order.user?.l_name || "-"}`}</div>
+                          <div>{`${order.user?.f_name || "N/A"} ${
+                            order.user?.l_name || "-"
+                          }`}</div>
                           <div className="flex items-center justify-center gap-2">
                             {order.user?.phone ? (
                               <>
                                 <FaWhatsapp className="w-5 h-5 text-green-600" />
                                 <a
-                                  href={`https://wa.me/${order.user.phone.replace(/[^0-9]/g, "")}`}
+                                  href={`https://wa.me/${order.user.phone.replace(
+                                    /[^0-9]/g,
+                                    ""
+                                  )}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="text-black transition duration-200 hover:text-green-600"
                                 >
                                   {order.user.phone}
                                 </a>
-                                <FaRegCopy
-                                  className="w-4 h-4 cursor-pointer text-gray-600 hover:text-blue-500"
-                                  onClick={() => handleCopy(order.user.phone)}
-                                  title="Copy number"
-                                />
                               </>
                             ) : (
                               <span>{t("NoPhone")}</span>
@@ -287,7 +327,8 @@ const AllOrdersPage = () => {
                         {/* Branch */}
                         <td className="px-4 py-2 text-sm text-center lg:text-base">
                           <span className="px-2 py-1 rounded-md text-cyan-500 bg-cyan-200">
-                            {order.branch?.name || "-"} / {order.address?.zone.zone || "-"}
+                            {order.branch?.name || "-"} /{" "}
+                            {order.address?.zone.zone || "-"}
                           </span>
                         </td>
 
@@ -304,20 +345,22 @@ const AllOrdersPage = () => {
                         {/* Order Status */}
                         <td className="px-4 py-2 text-center">
                           <span
-                            className={`rounded-md px-2 py-1 text-sm ${order?.order_status === "pending"
-                              ? "bg-amber-200 text-amber-500"
-                              : order?.order_status === "confirmed"
+                            className={`rounded-md px-2 py-1 text-sm ${
+                              order?.order_status === "pending"
+                                ? "bg-amber-200 text-amber-500"
+                                : order?.order_status === "confirmed"
                                 ? "bg-green-200 text-green-500"
                                 : order?.order_status === "canceled"
-                                  ? "bg-red-200 text-red-500"
-                                  : "bg-gray-200 text-gray-500"
-                              }`}
+                                ? "bg-red-200 text-red-500"
+                                : "bg-gray-200 text-gray-500"
+                            }`}
                           >
-                            {
-                              order?.order_status === "processing" ? "Accepted" :
-                                order?.order_status === "confirmed" ? t("Processing") :
-                                  order?.order_status || "-"
-                            }                          </span>
+                            {order?.order_status === "processing"
+                              ? "Accepted"
+                              : order?.order_status === "confirmed"
+                              ? t("Processing")
+                              : order?.order_status || "-"}{" "}
+                          </span>
                         </td>
 
                         {/* Status Operations */}
@@ -332,12 +375,13 @@ const AllOrdersPage = () => {
                         {/* Order Type */}
                         <td className="px-4 py-2 text-center">
                           <span
-                            className={`rounded-md px-2 py-1 text-sm ${order?.order_type === "delivery"
-                              ? "bg-green-300 text-green-500"
-                              : order?.order_type === "pickup"
+                            className={`rounded-md px-2 py-1 text-sm ${
+                              order?.order_type === "delivery"
+                                ? "bg-green-300 text-green-500"
+                                : order?.order_type === "pickup"
                                 ? "bg-blue-300 text-blue-500"
                                 : "bg-gray-200 text-gray-500"
-                              }`}
+                            }`}
                           >
                             {order?.order_type || "-"}
                           </span>

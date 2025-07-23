@@ -7,7 +7,7 @@ export const useGet = ({ url }) => {
     const auth = useAuth();
     const user = useSelector(state => state.userProject);
     const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     const fetchData = useCallback(async () => {
         setLoading(true);

@@ -58,7 +58,7 @@ import {
   CustomersLayout,
   EditCustomersLayout,
   BusinessSetupLayout,
-  EditRoleLayout,
+  // EditRoleLayout,
   RolesLayout,
   AdminsLayout,
   EditAdminLayout,
@@ -78,7 +78,16 @@ import {
 import ProtectedLogin from "./ProtectedData/ProtectedLogin";
 import NotFoundPage from "./Pages/NotFoundPage/NotFoundPage";
 import App from "./App";
-import { BusinessSettingsPage, CustomerLoginPage, EditRolePage, MainBranchSetupPage, OrdersPage, OrdersPaymentHistoryPage, OrdersPaymentPendingPage, RestaurantTimeSlotPage } from "./Pages/Pages";
+import {
+  BusinessSettingsPage,
+  CustomerLoginPage,
+  EditRolePage,
+  MainBranchSetupPage,
+  OrdersPage,
+  OrdersPaymentHistoryPage,
+  OrdersPaymentPendingPage,
+  RestaurantTimeSlotPage,
+} from "./Pages/Pages";
 import LogOrders from "./Pages/Dashboard/Admin/Orders/LogOrders/LogOrders";
 import EditEmailPage from "./Pages/Dashboard/Admin/Setting/Email/EditEmail";
 import GroupLayout from "./layouts/Dashboard/Setting/Group/GroupLayout";
@@ -86,23 +95,25 @@ import EditGroupLayout from "./layouts/Dashboard/Setting/Group/EditGroupLayout";
 import ExtraLayout from "./layouts/Dashboard/Setting/Extra/ExtraLayout";
 import EditExtraLayout from "./layouts/Dashboard/Setting/Extra/EditExtraLayout";
 import AppSetupLayout from "./layouts/Dashboard/Setting/AppSetup/AppSetupLayout";
+import BranchList from "./DashboardBranches/BranchList";
+import BranchCustomer from "./DashboardBranches/BranchCustomer/BranchCustomer";
+import BranchCustomerAdd from"./DashboardBranches/BranchCustomer/BranchCustomerAdd";
+import BranchAddressAdd from "./DashboardBranches/BranchCustomer/BranchAddressAdd";
+import BranchOffer from "./DashboardBranches/BranchOffer";
+// import BranchOrders from "./DashboardBranches/BranchOrders/BranchOrders";
 //import ToggleItems from "./Pages/Dashboard/Admin/ProductSetup/ToggleItems";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
-}
+};
 const SettingLayout = () => {
   return <Outlet />;
-}
+};
 const OrderLayout = () => {
-  return (
-    <Outlet />
-  );
+  return <Outlet />;
 };
 const AppBranchCategoryLayout = () => {
-  return (
-    <Outlet />
-  );
+  return <Outlet />;
 };
 
 export const router = createBrowserRouter([
@@ -112,10 +123,10 @@ export const router = createBrowserRouter([
     element: <ProtectedLogin />,
     children: [
       {
-        path: '',
+        path: "",
         element: <LoginLayout />,
-      }
-    ]
+      },
+    ],
   },
 
   /* Forget Password User */
@@ -124,213 +135,346 @@ export const router = createBrowserRouter([
     element: <ProtectedLogin />,
     children: [
       {
-        path: '',
+        path: "",
         element: <ForgetPassLayout />,
-      }
-    ]
+      },
+    ],
   },
-  {/** 
+
+  
+    /** 
     {
     path: "/product/:id",
     element: <ToggleItems />
   },
-  */},
+  */
+{
+  path: "/branch",
+  element: <ProtectedLogin />,
+  children: [
+    {
+      path: "",
+      element: <App />,
+      children: [
+        {
+          path: "",
+          element: <BranchList />,
+        },
+        {
+          path: "customer",
+          children: [
+            {
+              path:"",
+              index: true, 
+              element: <BranchCustomer />, 
+            }, 
+            {
+              path:"add",
+              element:<BranchCustomerAdd/>
+
+            },
+            {
+              path: "address-add", 
+              element: <BranchAddressAdd />, 
+            },
+            {
+              path:"edit-address/:id",
+              element:<BranchAddressAdd/>
+            },
+          ],
+        },
+        {
+          path:"order-offers",
+          children: [
+            {
+              path:"",
+              index: true, 
+              element: <BranchOffer />, 
+            }, 
+            {
+              path:"add",
+              element:<BranchCustomerAdd/>
+
+            },
+            {
+              path: "address-add", 
+              element: <BranchAddressAdd />, 
+            },
+            {
+              path:"edit-address/:id",
+              element:<BranchAddressAdd/>
+            },
+          ],
+
+        },
+          {
+            path: "orders",
+            element: <OrderLayout />,
+            children: [
+              /* All orders */
+              {
+                path: "all",
+                element: <AllOrdersLayout />,
+              },
+              {
+                path: "pending",
+                element: <PendingOrdersLayout />,
+              },
+              {
+                path: "confirmed",
+                element: <ConfirmedOrdersLayout />,
+              },
+              {
+                path: "processing",
+                element: <ProcessingOrdersLayout />,
+              },
+              {
+                path: "out_for_delivery",
+                element: <OutForDeliveryOrdersLayout />,
+              },
+              {
+                path: "delivered",
+                element: <DeliveredOrdersLayout />,
+              },
+              {
+                path: "returned",
+                element: <ReturnedOrdersLayout />,
+              },
+              {
+                path: "refund",
+                element: <RefundOrdersLayout />,
+              },
+              {
+                path: "failed",
+                element: <FailedOrdersLayout />,
+              },
+              {
+                path: "canceled",
+                element: <CanceledOrdersLayout />,
+              },
+              {
+                path: "schedule",
+                element: <ScheduleOrdersLayout />,
+              },
+              {
+                path: "log",
+                element: <LogOrders />,
+              },
+
+              /* Details Order */
+              {
+                path: "details/:orderId",
+                element: <DetailsOrderLayout />,
+              },
+              /* Invoice Order */
+              {
+                path: "invoice/:orderId",
+                element: <InvoiceOrderLayout />,
+              },
+            ],
+          },
+
+      ],
+    },
+  ],
+},
   /* Dashboard or main app routes after login */
   {
     path: "/dashboard",
     element: <ProtectedLogin />,
     children: [
       {
-        path: '',
+        path: "",
         element: <App />,
         children: [
           {
-            path: '',
-            element: <DashboardLayout />
+            path: "",
+            element: <DashboardLayout />,
           },
           {
-            path: 'addons',
+            path: "addons",
             children: [
               {
-                path: '',
+                path: "",
                 element: <AddonsLayout />,
               },
               {
-                path: 'edit/:addonId',
+                path: "edit/:addonId",
                 element: <EditAddonsLayout />,
-              }
-            ]
+              },
+            ],
           },
           {
-            path: 'category',
+            path: "category",
             children: [
               {
-                path: '',
+                path: "",
                 element: <CategoryLayout />,
               },
               {
-                path: 'edit/:categoryId',
+                path: "edit/:categoryId",
                 element: <EditCategoryLayout />,
-              }
-            ]
+              },
+            ],
           },
           {
-            path: 'banners',
+            path: "banners",
             children: [
               {
-                path: '',
+                path: "",
                 element: <BannersLayout />,
               },
               {
-                path: 'edit/:bannerId',
+                path: "edit/:bannerId",
                 element: <EditBannerLayout />,
-              }
-            ]
+              },
+            ],
           },
 
           {
-            path: 'setup_product',
+            path: "setup_product",
             element: <ProductSetupLayout />,
             children: [
               {
-                path: 'product',
+                path: "product",
                 element: <ProductLayout />,
               },
               {
-                path: 'product/add',
+                path: "product/add",
                 element: <AddProductLayout />,
               },
               {
-                path: 'product/edit/:productId',
+                path: "product/edit/:productId",
                 element: <EditProductLayout />,
-              }
-            ]
+              },
+            ],
           },
           {
-            path: 'branches',
+            path: "branches",
             children: [
               {
-                path: '',
+                path: "",
                 element: <BranchesLayout />,
               },
               {
-                path: 'edit/:branchId',
+                path: "edit/:branchId",
                 element: <EditBranchLayout />,
               },
               {
-                path: 'branch_category/:branchId',
+                path: "branch_category/:branchId",
                 element: <AppBranchCategoryLayout />,
                 children: [
                   {
-                    path: '',
+                    path: "",
                     element: <BranchCategoryLayout />,
                   },
                   {
-                    path: 'category_product/:productId',
+                    path: "category_product/:productId",
                     element: <CategoryProductLayout />,
                   },
                   {
-                    path: 'product_variation/:variationId',
+                    path: "product_variation/:variationId",
                     element: <ProductVariationLayout />,
                   },
                   {
-                    path: 'variation_option/:optionId',
+                    path: "variation_option/:optionId",
                     element: <VariationOptionLayout />,
-                  }
-                ]
-              }
-            ]
+                  },
+                ],
+              },
+            ],
           },
           {
-            path: 'setting',
+            path: "setting",
             element: <SettingLayout />,
             children: [
               {
-                path: 'roles',
+                path: "roles",
                 children: [
                   {
-                    path: '',
+                    path: "",
                     element: <RolesLayout />,
                   },
                   {
-                    path: 'add',
-                    element: <AddRoleLayout />
+                    path: "add",
+                    element: <AddRoleLayout />,
                   },
                   {
                     path: "edit/:roleId",
-                    element: <EditRolePage />
-                  }]
+                    element: <EditRolePage />,
+                  },
+                ],
               },
               {
-                path: 'payment_method',
+                path: "payment_method",
                 children: [
                   {
-                    path: '',
+                    path: "",
                     children: [
                       {
                         index: true,
                         element: <PaymentMethodLayout />,
                       },
                       {
-                        path: 'edit/:paymentMethodId',
-                        element: <EditPaymentMethodLayout />
-                      }
-                    ]
+                        path: "edit/:paymentMethodId",
+                        element: <EditPaymentMethodLayout />,
+                      },
+                    ],
                   },
-                ]
+                ],
               },
               {
-                path: 'menu',
+                path: "menu",
                 children: [
                   {
-                    path: '',
+                    path: "",
                     children: [
                       {
                         index: true,
                         element: <MenuLayout />,
                       },
-                    ]
+                    ],
                   },
-                ]
+                ],
               },
               {
-                path: 'automatic_payment',
+                path: "automatic_payment",
                 children: [
                   {
-                    path: '',
+                    path: "",
                     element: <AutomaticPaymentLayout />,
                   },
                   // {
                   //   path: 'edit/:cityId',
                   //   element: <EditCityLayout />,
                   // }
-                ]
+                ],
               },
               {
-                path: 'cities',
+                path: "cities",
                 children: [
                   {
-                    path: '',
+                    path: "",
                     element: <CitiesLayout />,
                   },
                   {
-                    path: 'edit/:cityId',
+                    path: "edit/:cityId",
                     element: <EditCityLayout />,
-                  }
-                ]
+                  },
+                ],
               },
               {
-                path: 'schedule_time',
+                path: "schedule_time",
                 children: [
                   {
-                    path: '',
+                    path: "",
                     element: <ScheduleTimeLayout />,
                   },
                   {
-                    path: 'edit/:scheduleId',
+                    path: "edit/:scheduleId",
                     element: <EditScheduleTimeLayout />,
-                  }
-                ]
+                  },
+                ],
               },
               // {
               //   path: 'branches',
@@ -368,338 +512,338 @@ export const router = createBrowserRouter([
               //   ]
               // },
               {
-                path: 'zones',
+                path: "zones",
                 children: [
                   {
-                    path: '',
+                    path: "",
                     element: <ZonesLayout />,
                   },
                   {
-                    path: 'edit/:zoneId',
+                    path: "edit/:zoneId",
                     element: <EditZoneLayout />,
-                  }
-                ]
+                  },
+                ],
               },
               {
-                path: 'groups',
+                path: "groups",
                 children: [
                   {
-                    path: '',
+                    path: "",
                     element: <GroupLayout />,
                   },
                   {
-                    path: 'edit/:groupId',
+                    path: "edit/:groupId",
                     element: <EditGroupLayout />,
                   },
                   {
-                    path: 'view/:groupExtraId',
+                    path: "view/:groupExtraId",
                     element: <Outlet />,
                     children: [
                       {
                         path: "",
-                        element: <ExtraLayout />
+                        element: <ExtraLayout />,
                       },
                       {
-                        path: 'edit/:groupEditExtraId',
+                        path: "edit/:groupEditExtraId",
                         element: <EditExtraLayout />,
                       },
-                    ]
-                  }
-                ]
+                    ],
+                  },
+                ],
               },
               {
-                path: 'order_type',
+                path: "order_type",
                 element: <OrderTypeLayout />,
               },
               {
-                path: 'resturant_time',
+                path: "resturant_time",
                 element: <ResturantTimeLayout />,
               },
               {
-                path: 'cancel_time',
+                path: "cancel_time",
                 element: <CancelTimeLayout />,
               },
               {
-                path: 'delivery_time',
+                path: "delivery_time",
                 element: <DeliveryTimeLayout />,
               },
               {
-                path: 'sound',
+                path: "sound",
                 element: <SongLayout />,
               },
               {
-                path: 'cancelation_notification',
+                path: "cancelation_notification",
                 element: <CancelationNotificationLayout />,
               },
               {
-                path: 'policy_support',
+                path: "policy_support",
                 element: <PolicySupportLayout />,
               },
               {
-                path: 'app_setup',
+                path: "app_setup",
                 element: <AppSetupLayout />,
               },
-            ]
+            ],
           },
           {
-            path: 'taxes',
+            path: "taxes",
             children: [
               {
-                path: 'all_taxes',
+                path: "all_taxes",
                 children: [
                   {
-                    path: '',
+                    path: "",
                     element: <TaxesLayout />,
                   },
                   {
-                    path: 'edit/:taxId',
+                    path: "edit/:taxId",
                     element: <EditTaxLayout />,
-                  }
-                ]
+                  },
+                ],
               },
               {
-                path: 'tax_type',
+                path: "tax_type",
                 element: <TaxTypeLayout />,
               },
-            ]
+            ],
           },
           {
-            path: 'orders_payment',
+            path: "orders_payment",
             element: <OrdersPaymentLayout />,
 
             children: [
               {
-                path: 'payment_pending',
+                path: "payment_pending",
                 element: <OrdersPaymentPendingPage />,
               },
               {
-                path: 'payment_history',
+                path: "payment_history",
                 element: <OrdersPaymentHistoryPage />,
               },
-            ]
+            ],
           },
           {
-            path: 'delivery_man',
+            path: "delivery_man",
             children: [
               {
-                path: '',
+                path: "",
                 element: <DeliveryManLayout />,
               },
               {
-                path: 'edit/:deliveryManId',
+                path: "edit/:deliveryManId",
                 element: <EditDeliveryManLayout />,
-              }
-            ]
+              },
+            ],
           },
           {
-            path: 'users',
+            path: "users",
             children: [
               {
-                path: 'admins',
+                path: "admins",
                 children: [
                   {
-                    path: '',
+                    path: "",
                     element: <AdminsLayout />,
                   },
                   {
-                    path: 'edit/:adminId',
+                    path: "edit/:adminId",
                     element: <EditAdminLayout />,
-                  }
-                ]
+                  },
+                ],
               },
               {
-                path: 'customers',
+                path: "customers",
                 children: [
                   {
-                    path: '',
+                    path: "",
                     element: <CustomersLayout />,
                   },
                   {
-                    path: 'edit/:customerId',
+                    path: "edit/:customerId",
                     element: <EditCustomersLayout />,
-                  }
-                ]
+                  },
+                ],
               },
-            ]
+            ],
           },
           {
-            path: 'business_setup',
+            path: "business_setup",
             element: <BusinessSetupLayout />,
 
             children: [
               {
-                path: 'business_settings',
+                path: "business_settings",
                 element: <BusinessSettingsPage />,
               },
               {
-                path: 'main_branch_setup',
+                path: "main_branch_setup",
                 element: <MainBranchSetupPage />,
               },
               {
-                path: 'restaurant_time_slot',
+                path: "restaurant_time_slot",
                 element: <RestaurantTimeSlotPage />,
               },
               {
-                path: 'customer_login',
+                path: "customer_login",
                 element: <CustomerLoginPage />,
               },
               {
-                path: 'orders',
+                path: "orders",
                 element: <OrdersPage />,
               },
-            ]
+            ],
           },
           {
-            path: 'deals',
+            path: "deals",
             children: [
               {
-                path: '',
+                path: "",
                 element: <DealsLayout />,
               },
               {
-                path: 'edit/:dealId',
+                path: "edit/:dealId",
                 element: <EditDealLayout />,
-              }
-            ]
+              },
+            ],
           },
           {
-            path: 'offers',
+            path: "offers",
             children: [
               {
-                path: '',
+                path: "",
                 element: <OffersLayout />,
               },
               {
-                path: 'edit/:offerId',
+                path: "edit/:offerId",
                 element: <EditOfferLayout />,
-              }
-            ]
+              },
+            ],
           },
           {
-            path: 'coupon',
+            path: "coupon",
             children: [
               {
-                path: '',
+                path: "",
                 element: <CouponLayout />,
               },
               {
-                path: 'edit/:couponId',
+                path: "edit/:couponId",
                 element: <EditCouponLayout />,
-              }
-            ]
+              },
+            ],
           },
           {
-            path: 'languages',
+            path: "languages",
             children: [
               {
-                path: '',
+                path: "",
                 element: <LanguagesLayout />,
               },
-            ]
+            ],
           },
           {
-            path: 'discount',
+            path: "discount",
             children: [
               {
-                path: '',
+                path: "",
                 element: <DiscountLayout />,
               },
               {
-                path: 'edit/:discountId',
+                path: "edit/:discountId",
                 element: <EditDiscountLayout />,
-              }
-            ]
+              },
+            ],
           },
           {
-            path: 'deal_order',
+            path: "deal_order",
             element: <DealOrderLayout />,
           },
           {
-            path: 'buy_offer',
+            path: "buy_offer",
             element: <BuyOfferLayout />,
           },
 
-
           {
-            path: 'emails',
+            path: "emails",
             children: [
               {
-                path: '',
+                path: "",
                 element: <EmailLayout />,
               },
               {
                 path: "edit/:emailId",
-                element: <EditEmailPage />
-              }]
+                element: <EditEmailPage />,
+              },
+            ],
           },
 
           {
-            path: 'orders',
+            path: "orders",
             element: <OrderLayout />,
             children: [
               /* All orders */
               {
-                path: 'all',
-                element: <AllOrdersLayout />
+                path: "all",
+                element: <AllOrdersLayout />,
               },
               {
-                path: 'pending',
-                element: <PendingOrdersLayout />
+                path: "pending",
+                element: <PendingOrdersLayout />,
               },
               {
-                path: 'confirmed',
-                element: <ConfirmedOrdersLayout />
+                path: "confirmed",
+                element: <ConfirmedOrdersLayout />,
               },
               {
-                path: 'processing',
-                element: <ProcessingOrdersLayout />
+                path: "processing",
+                element: <ProcessingOrdersLayout />,
               },
               {
-                path: 'out_for_delivery',
-                element: <OutForDeliveryOrdersLayout />
+                path: "out_for_delivery",
+                element: <OutForDeliveryOrdersLayout />,
               },
               {
-                path: 'delivered',
-                element: <DeliveredOrdersLayout />
+                path: "delivered",
+                element: <DeliveredOrdersLayout />,
               },
               {
-                path: 'returned',
-                element: <ReturnedOrdersLayout />
+                path: "returned",
+                element: <ReturnedOrdersLayout />,
               },
               {
-                path: 'refund',
-                element: <RefundOrdersLayout />
+                path: "refund",
+                element: <RefundOrdersLayout />,
               },
               {
-                path: 'failed',
-                element: <FailedOrdersLayout />
+                path: "failed",
+                element: <FailedOrdersLayout />,
               },
               {
-                path: 'canceled',
-                element: <CanceledOrdersLayout />
+                path: "canceled",
+                element: <CanceledOrdersLayout />,
               },
               {
-                path: 'schedule',
-                element: <ScheduleOrdersLayout />
+                path: "schedule",
+                element: <ScheduleOrdersLayout />,
               },
               {
-                path: 'log',
-                element: <LogOrders />
+                path: "log",
+                element: <LogOrders />,
               },
 
               /* Details Order */
               {
-                path: 'details/:orderId',
-                element: <DetailsOrderLayout />
+                path: "details/:orderId",
+                element: <DetailsOrderLayout />,
               },
               /* Invoice Order */
               {
-                path: 'invoice/:orderId',
-                element: <InvoiceOrderLayout />
+                path: "invoice/:orderId",
+                element: <InvoiceOrderLayout />,
               },
-            ]
+            ],
           },
-        ]
+        ],
       },
     ],
   },

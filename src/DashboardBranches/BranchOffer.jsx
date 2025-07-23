@@ -1,14 +1,12 @@
-import  { useEffect, useState } from "react";
-import { usePost } from "../../../../Hooks/usePostJson";
-import {
-  LoaderLogin,
-  SearchBar,
-  SubmitButton,
-} from "../../../../Components/Components";
-import { useAuth } from "../../../../Context/Auth";
+import { useEffect, useState } from "react";
+import { usePost } from "../Hooks/usePostJson";
+import LoaderLogin from "../Components/Loaders/LoaderLogin"; // Assuming LoaderLogin.jsx
+import SearchBar from "../Components/AnotherComponents/SearchBar"; // Assuming SearchBar.jsx
+import SubmitButton from "../Components/Buttons/SubmitButton"; // Assuming SubmitButton.jsx
+import { useAuth } from "../Context/Auth";
 import { t } from "i18next";
 
-const DealOrderPage = () => {
+const BranchOffer = () => {
   const auth = useAuth();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const {
@@ -16,7 +14,7 @@ const DealOrderPage = () => {
     loadingPost: loadingDealOrder,
     response: responseDealOrder,
   } = usePost({
-    url: `${apiUrl}/admin/dealOrder`,
+    url: `${apiUrl}/branch/offer/check_order`,
   });
 
   const {
@@ -24,11 +22,11 @@ const DealOrderPage = () => {
     loadingPost: loadingDealOrderAdd,
     response: responseDealOrderAdd,
   } = usePost({
-    url: `${apiUrl}/admin/dealOrder/add`,
+    url: `${apiUrl}/branch/offer/approve_offer`,
   });
 
   const [code, setCode] = useState("");
-  const [openDescriptionView, setOpenDescriptionView] = useState(false);
+  // const [openDescriptionView, setOpenDescriptionView] = useState(false);
   const [currentResponse, setCurrentResponse] = useState(null);
 
   useEffect(() => {
@@ -59,34 +57,35 @@ const DealOrderPage = () => {
     postDealOrder(formData);
   };
 
-  const handleApprove = (dealId, userId) => {
+  const handleApprove = (offerId) => {
     const formData = new FormData();
-    formData.append("deal_id", dealId);
-    formData.append("user_id", userId);
+    formData.append("offer_order_id", offerId);
+    // formData.append("user_id", userId);
 
     console.log("FormData:", ...formData.entries());
     postDealOrderAdd(formData, "Deal Approved Success");
   };
-const headers = [
-  t('DealImage'),
-  t('DealName'),
-  t('Description'),
-  t('StartDate'),
-  t('EndDate'),
-  t('price'),
-  t('action'),
-];
+
+  const headers = [
+    t("OfferImage"),
+    t("Product"),
+    // t("Description"),
+    // t("Date"),
+    // t("EndDate"),
+    t("Points"),
+    t("action"),
+  ];
 
   return (
     <section>
       <form onSubmit={handleSearch}>
         <div className="flex items-center justify-center w-full">
-          <div className="flex items-center justify-center w-full gap-x-4">
+          <div className="flex items-center justify-center w-full gap-x-4 pt-10">
             <div className="w-3/4">
               <SearchBar
                 value={code}
                 handleChange={(e) => setCode(e.target.value)}
-                                                        placeholder={t("Enterthecode")}
+                placeholder={t("Enter the code")}
               />
             </div>
             <div>
@@ -103,7 +102,7 @@ const headers = [
             <div className="flex items-center justify-center w-full h-56 mt-10">
               <LoaderLogin />
             </div>
-          ) : currentResponse?.data?.faild === "Code is expired" ? (
+          ) : currentResponse?.offer?.faild === "Code is expired" ? (
             <span className="mx-auto mt-5 text-xl font-TextFontMedium text-mainColor">
               {t("Code Is Expired")}
             </span>
@@ -127,33 +126,35 @@ const headers = [
                     <td className="min-w-[80px] py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       <div className="flex justify-center">
                         <img
-                          src={currentResponse.data.deal.image_link}
+                          src={currentResponse.data.offer.offer.image_link}
                           className="rounded-full bg-mainColor min-w-14 min-h-14 max-w-14 max-h-14"
                           loading="lazy"
-                          alt="Deal"
+                          alt="offer"
                         />
                       </div>
                     </td>
                     <td className="min-w-[80px] py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                      {currentResponse.data.deal.title}
+                      {currentResponse.data.offer.offer.product}
                     </td>
-                    <td className="min-w-[80px] py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                    {/* <td className="min-w-[80px] py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       <span
                         className="text-xl border-b-2 cursor-pointer text-mainColor border-mainColor font-TextFontSemiBold"
-                        onClick={() => setOpenDescriptionView(true)}
+                        onClick={() =>
+                          currentResponse?.data?.offer?.offer.description &&
+                          setOpenDescriptionView(true)
+                        }
                       >
                         {t("View")}
                       </span>
-
-                    </td>
+                    </td> */}
+                    {/* <td className="min-w-[80px] py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                      {currentResponse.data.offer.date}
+                    </td> */}
+                    {/* <td className="min-w-[80px] py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                      {currentResponse.data.offer.offer.end_date}
+                    </td> */}
                     <td className="min-w-[80px] py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                      {currentResponse.data.deal.start_date}
-                    </td>
-                    <td className="min-w-[80px] py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                      {currentResponse.data.deal.end_date}
-                    </td>
-                    <td className="min-w-[80px] py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                      {currentResponse.data.deal.price}
+                      {currentResponse.data.offer.offer.points}
                     </td>
                     <td className="min-w-[80px] py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       <button
@@ -161,8 +162,8 @@ const headers = [
                         className="px-4 py-2 text-xl text-white duration-300 bg-green-400 font-TextFontRegular rounded-xl hover:bg-green-500"
                         onClick={() =>
                           handleApprove(
-                            currentResponse.data.deal.id,
-                            currentResponse.data.user.id
+                            currentResponse.data.offer.id,
+                            // currentResponse.offer.user.id
                           )
                         }
                       >
@@ -176,7 +177,8 @@ const headers = [
           )}
         </div>
       </form>
-            {/* Dialog for Description View */}
+
+      {/* Dialog for Description View
       {openDescriptionView && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
@@ -184,7 +186,7 @@ const headers = [
               {t("Description")}
             </h2>
             <p className="text-thirdColor text-base mb-6">
-              {currentResponse?.data?.deal?.description || t("No description available")}
+              {currentResponse?.offer?.offer?.description || t("No description available")}
             </p>
             <div className="flex justify-end">
               <button
@@ -197,9 +199,9 @@ const headers = [
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </section>
   );
 };
 
-export default DealOrderPage;
+export default BranchOffer;

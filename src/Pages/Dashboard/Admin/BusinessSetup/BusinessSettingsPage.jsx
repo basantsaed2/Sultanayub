@@ -24,7 +24,7 @@ import { useAuth } from "../../../../Context/Auth";
 const BusinessSettingsPage = () => {
   const LogoRef = useRef();
   const IconRef = useRef();
-               const { t, i18n } = useTranslation();
+               const { t } = useTranslation();
 
   const auth = useAuth();
   const CountriesRef = useRef();

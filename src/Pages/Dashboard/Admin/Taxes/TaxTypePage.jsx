@@ -1,12 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import  { useEffect, useRef, useState } from "react";
 import { useGet } from "../../../../Hooks/useGet";
 import { usePost } from "../../../../Hooks/usePostJson";
 import {
   DropDown,
   LoaderLogin,
-  StaticLoader,
   SubmitButton,
-  TextInput,
 } from "../../../../Components/Components";
 import { useTranslation } from "react-i18next";
 
@@ -22,7 +20,7 @@ const TaxTypePage = () => {
   const { postData, loadingPost, response } = usePost({
     url: `${apiUrl}/admin/settings/tax_update`,
   });
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const dropDownType = useRef();
   const [taxType, setTaxType] = useState("");
