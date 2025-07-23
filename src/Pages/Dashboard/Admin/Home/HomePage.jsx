@@ -69,6 +69,7 @@ const HomePage = () => {
     ordersFailed: dataOrders?.faild_to_deliver || 0,
     ordersCanceled: dataOrders?.canceled || 0,
     ordersSchedule: dataOrders?.scheduled || 0,
+    ordersRefund:dataOrders?.refund || 0,
   };
 
   return (

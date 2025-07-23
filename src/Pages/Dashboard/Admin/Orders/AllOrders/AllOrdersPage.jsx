@@ -33,10 +33,7 @@ const AllOrdersPage = () => {
   useEffect(() => {
     if (Array.isArray(ordersAll.data)) {
       setFilteredOrders(ordersAll.data);
-      console.log("ordersAll", ordersAll.data);
-    } else {
-      console.log("ordersAll data is not an array or is undefined");
-    }
+    } 
   }, [ordersAll.data]);
 
   const handleFilterData = (e) => {

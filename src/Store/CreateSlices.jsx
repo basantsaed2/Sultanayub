@@ -338,13 +338,12 @@ const languageSlice = createSlice({
 // Fetch and dispatch orders
 export const OrdersComponent = () => {
        const dispatch = useDispatch();
-       const { refetch: refetchOrders, data: dataOrders, loading, error } = useGet({
+       const { refetch: refetchOrders, data: dataOrders, loading} = useGet({
               url: `${apiUrl}/admin/order`,
        });
 
        // Log data to debug
        useEffect(() => {
-              console.log("Fetching orders...");
               refetchOrders();
               dispatch(ordersAllSlice.actions.setLoading(loading));
               dispatch(ordersPendingSlice.actions.setLoading(loading));
@@ -363,7 +362,6 @@ export const OrdersComponent = () => {
 
 
        useEffect(() => {
-              console.log("Fetched dataOrders:", dataOrders);  // Log the data from the API response
               if (dataOrders && Array.isArray(dataOrders.orders)) {
                      dispatch(ordersAllSlice.actions.setOrdersAll(dataOrders.orders));
                      dispatch(ordersPendingSlice.actions.setOrdersPending(dataOrders.pending));
