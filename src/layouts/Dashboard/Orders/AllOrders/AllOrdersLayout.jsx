@@ -39,19 +39,53 @@ const AllOrdersLayout = () => {
     refetchBranch(); // Refetch data when the component mounts
   }, [refetchBranch]);
 
+  // const counters = {
+  //   ordersAll: ordersAllCount.length,
+  //   ordersPending: ordersPendingCount.length,
+  //   ordersConfirmed: ordersConfirmedCount.length,
+  //   ordersProcessing: ordersProcessingCount.length,
+  //   ordersOutForDelivery: ordersOutForDeliveryCount.length,
+  //   ordersDelivered: ordersDeliveredCount.length,
+  //   ordersReturned: ordersReturnedCount.length,
+  //   ordersFailed: ordersFailedCount.length,
+  //   ordersCanceled: ordersCanceledCount.length,
+  //   ordersSchedule: ordersScheduleCount.length,
+  //   ordersRefund:ordersRefundCount.length,
+  // }
+
   const counters = {
     ordersAll: ordersAllCount.length,
-    ordersPending: ordersPendingCount.length,
-    ordersConfirmed: ordersConfirmedCount.length,
-    ordersProcessing: ordersProcessingCount.length,
-    ordersOutForDelivery: ordersOutForDeliveryCount.length,
-    ordersDelivered: ordersDeliveredCount.length,
-    ordersReturned: ordersReturnedCount.length,
-    ordersFailed: ordersFailedCount.length,
-    ordersCanceled: ordersCanceledCount.length,
-    ordersSchedule: ordersScheduleCount.length,
-    ordersRefund:ordersRefundCount.length,
-  }
+    ordersPending: ordersAllCount.filter(
+      (order) => order.order_status === "pending"
+    ).length,
+    ordersConfirmed: ordersAllCount.filter(
+      (order) => order.order_status === "confirmed"
+    ).length,
+    ordersProcessing: ordersAllCount.filter(
+      (order) => order.order_status === "processing"
+    ).length,
+    ordersOutForDelivery: ordersAllCount.filter(
+      (order) => order.order_status === "out_for_delivery"
+    ).length,
+    ordersDelivered: ordersAllCount.filter(
+      (order) => order.order_status === "delivered"
+    ).length,
+    ordersReturned: ordersAllCount.filter(
+      (order) => order.order_status === "returned"
+    ).length,
+    ordersRefund: ordersAllCount.filter(
+      (order) => order.order_status === "refund"
+    ).length,
+    ordersFailed: ordersAllCount.filter(
+      (order) => order.order_status === "failed_to_deliver"
+    ).length,
+    ordersCanceled: ordersAllCount.filter(
+      (order) => order.order_status === "canceled"
+    ).length,
+    ordersSchedule: ordersAllCount.filter(
+      (order) => order.order_status === "scheduled"
+    ).length,
+  };
 
   return (
     <>
