@@ -4,13 +4,13 @@ import { LoaderLogin, SearchBar } from '../../../../../Components/Components';
 import { BiSolidShow } from 'react-icons/bi';
 import { FaFileInvoice } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { FaCopy, FaWhatsapp } from "react-icons/fa";
+import { FaRegCopy, FaWhatsapp } from "react-icons/fa";
 import { useAuth } from "../../../../../Context/Auth"; // Make sure to import useAuth if required
 import { useTranslation } from "react-i18next";
 
 const ReturnedOrdersPage = () => {
   const auth = useAuth();
-                 const {  t,i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const ordersReturned = useSelector((state) => state.ordersReturned);
   const [textSearch, setTextSearch] = useState('');
@@ -101,6 +101,17 @@ const ReturnedOrdersPage = () => {
     };
   }, [filteredOrders, currentPage]);
 
+  const handleCopy = (phone) => {
+    if (!phone) return;
+
+    navigator.clipboard
+      .writeText(phone)
+      .then(() => {
+        auth.toastSuccess("Phone number copied!"); // Use auth.toastSuccess()
+      })
+      .catch((err) => console.error("Failed to copy:", err));
+  };
+
   const scrollTable = (direction) => {
     if (tableContainerRef.current) {
       const scrollAmount = 300;
@@ -110,19 +121,19 @@ const ReturnedOrdersPage = () => {
       });
     }
   };
-const headers = [
-  t('sl'),
-  t('order_id'),
-  t('customer_info'),
-  t('branch'),
-  t('total_amount'),
-  t('payment_method'),
-  t('order_status'),
-  t('operations_status'),
-  t('operations_admin'),
-  t('order_type'),
-  t('actions')
-];
+  const headers = [
+    t('sl'),
+    t('order_id'),
+    t('customer_info'),
+    t('branch'),
+    t('total_amount'),
+    t('payment_method'),
+    t('order_status'),
+    t('operations_status'),
+    t('operations_admin'),
+    t('order_type'),
+    t('actions')
+  ];
 
   return (
     <>
@@ -211,7 +222,7 @@ const headers = [
                         colSpan={headers.length}
                         className="py-4 text-lg text-center text-mainColor font-TextFontMedium"
                       >
-                          {t("Noordersfound")}
+                        {t("Noordersfound")}
                       </td>
                     </tr>
                   ) : (
@@ -254,19 +265,25 @@ const headers = [
                               <>
                                 <FaWhatsapp className="w-5 h-5 text-green-600" />
                                 <a
-                                  href={`https://wa.me/${order.user.phone.replace(/[^0-9]/g, '')}`}
+                                  href={`https://wa.me/${order.user.phone.replace(/[^0-9]/g, "")}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="text-black transition duration-200 hover:text-green-600"
                                 >
                                   {order.user.phone}
                                 </a>
+                                <FaRegCopy
+                                  className="w-4 h-4 cursor-pointer text-gray-600 hover:text-blue-500"
+                                  onClick={() => handleCopy(order.user.phone)}
+                                  title="Copy number"
+                                />
                               </>
                             ) : (
-                                <span>{t("NoPhone")}</span>
+                              <span>{t("NoPhone")}</span>
                             )}
                           </div>
                         </td>
+
                         {/* Branch */}
                         <td className="px-4 py-2 text-sm text-center lg:text-base">
                           <span className="px-2 py-1 rounded-md text-cyan-500 bg-cyan-200">

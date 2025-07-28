@@ -4,7 +4,7 @@ import { LoaderLogin, SearchBar } from "../../../../../Components/Components";
 import { BiSolidShow } from "react-icons/bi";
 import { FaFileInvoice } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { FaCopy, FaWhatsapp } from "react-icons/fa";
+import { FaRegCopy, FaWhatsapp } from "react-icons/fa";
 import { useAuth } from "../../../../../Context/Auth"; // Make sure to import useAuth if required
 import { useTranslation } from "react-i18next";
 
@@ -98,6 +98,17 @@ const CanceledOrdersPage = () => {
     };
   }, [filteredOrders, currentPage]);
 
+  const handleCopy = (phone) => {
+    if (!phone) return;
+
+    navigator.clipboard
+      .writeText(phone)
+      .then(() => {
+        auth.toastSuccess("Phone number copied!"); // Use auth.toastSuccess()
+      })
+      .catch((err) => console.error("Failed to copy:", err));
+  };
+
   const scrollTable = (direction) => {
     if (tableContainerRef.current) {
       const scrollAmount = 300;
@@ -169,11 +180,10 @@ const CanceledOrdersPage = () => {
                     <button
                       key={page}
                       onClick={() => handlePageChange(page)}
-                      className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${
-                        currentPage === page
-                          ? "bg-mainColor text-white"
-                          : " text-mainColor"
-                      }`}
+                      className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
+                        ? "bg-mainColor text-white"
+                        : " text-mainColor"
+                        }`}
                     >
                       {page}
                     </button>
@@ -243,7 +253,7 @@ const CanceledOrdersPage = () => {
                         colSpan={headers.length}
                         className="py-4 text-lg text-center text-mainColor font-TextFontMedium"
                       >
-                          {t("Noordersfound")}
+                        {t("Noordersfound")}
                       </td>
                     </tr>
                   ) : (
@@ -270,42 +280,42 @@ const CanceledOrdersPage = () => {
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order?.created_at
                             ? new Date(order.created_at).toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                  hour12: true,
-                                }
-                              )
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true,
+                              }
+                            )
                             : ""}
                         </td>
 
                         {/* User Information */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
-                          <div>{`${order.user?.f_name || "N/A"} ${
-                            order.user?.l_name || "-"
-                          }`}</div>
+                          <div>{`${order.user?.f_name || "N/A"} ${order.user?.l_name || "-"}`}</div>
                           <div className="flex items-center justify-center gap-2">
                             {order.user?.phone ? (
                               <>
                                 <FaWhatsapp className="w-5 h-5 text-green-600" />
                                 <a
-                                  href={`https://wa.me/${order.user.phone.replace(
-                                    /[^0-9]/g,
-                                    ""
-                                  )}`}
+                                  href={`https://wa.me/${order.user.phone.replace(/[^0-9]/g, "")}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="text-black transition duration-200 hover:text-green-600"
                                 >
                                   {order.user.phone}
                                 </a>
+                                <FaRegCopy
+                                  className="w-4 h-4 cursor-pointer text-gray-600 hover:text-blue-500"
+                                  onClick={() => handleCopy(order.user.phone)}
+                                  title="Copy number"
+                                />
                               </>
                             ) : (
-                                <span>{t("NoPhone")}</span>
+                              <span>{t("NoPhone")}</span>
                             )}
                           </div>
                         </td>
@@ -330,15 +340,14 @@ const CanceledOrdersPage = () => {
                         {/* Order Status */}
                         <td className="px-4 py-2 text-center">
                           <span
-                            className={`rounded-md px-2 py-1 text-sm ${
-                              order?.order_status === "pending"
-                                ? "bg-amber-200 text-amber-500"
-                                : order?.order_status === "confirmed"
+                            className={`rounded-md px-2 py-1 text-sm ${order?.order_status === "pending"
+                              ? "bg-amber-200 text-amber-500"
+                              : order?.order_status === "confirmed"
                                 ? "bg-green-200 text-green-500"
                                 : order?.order_status === "canceled"
-                                ? "bg-red-200 text-red-500"
-                                : "bg-gray-200 text-gray-500"
-                            }`}
+                                  ? "bg-red-200 text-red-500"
+                                  : "bg-gray-200 text-gray-500"
+                              }`}
                           >
                             {order?.order_status || "-"}
                           </span>
@@ -356,13 +365,12 @@ const CanceledOrdersPage = () => {
                         {/* Order Type */}
                         <td className="px-4 py-2 text-center">
                           <span
-                            className={`rounded-md px-2 py-1 text-sm ${
-                              order?.order_type === "delivery"
-                                ? "bg-green-300 text-green-500"
-                                : order?.order_type === "pickup"
+                            className={`rounded-md px-2 py-1 text-sm ${order?.order_type === "delivery"
+                              ? "bg-green-300 text-green-500"
+                              : order?.order_type === "pickup"
                                 ? "bg-blue-300 text-blue-500"
                                 : "bg-gray-200 text-gray-500"
-                            }`}
+                              }`}
                           >
                             {order?.order_type || "-"}
                           </span>

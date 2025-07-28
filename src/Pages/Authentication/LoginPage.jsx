@@ -22,12 +22,8 @@ const LoginPage = () => {
 
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
-  const { postData, loadingPost, response, error } = usePost({
+  const { postData, loadingPost, response } = usePost({
     url: `${apiUrl}/api/admin/auth/login`,
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    }
   }); // Destructure as an object
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -48,9 +44,6 @@ const LoginPage = () => {
       password,
     };
 
-    console.log("Login payload:", payload);
-    console.log("API URL:", `${apiUrl}/api/admin/auth/login`);
-    
     postData(payload); // Call postData with formData
   };
 
@@ -58,50 +51,14 @@ const LoginPage = () => {
     if (response) {
       console.log("response", response);
 
-      // التحقق من وجود البيانات المطلوبة
-      if (response.data && response.data.admin && response.data.token) {
-        auth.login(response.data.admin);
+      auth.login(response.data.admin);
 
-        // تخزين التوكن في localStorage بعد تسجيل الدخول
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("role", response.data.role);
+      // تخزين التوكن في localStorage بعد تسجيل الدخول
+      localStorage.setItem("token", response.data.token); // تخزين التوكن بعد تسجيل الدخول
 
-        // التوجيه بناءً على الدور
-        const userRole = response.data.role;
-        
-        if (userRole === 'admin') {
-          navigate("/dashboard", { replace: true });
-        } else if (userRole === 'branch') {
-          navigate("/branch", { replace: true });
-        } else {
-          // في حالة وجود أدوار أخرى، يمكن إضافة المزيد من الشروط
-          // أو توجيه إلى صفحة افتراضية
-          navigate("/dashboard", { replace: true });
-        }
-      } else {
-        console.error("Response structure is invalid:", response);
-        auth.toastError(t("Login failed. Please try again."));
-      }
+      navigate("/dashboard", { replace: true });
     }
-    
-    // التعامل مع الأخطاء
-    if (error) {
-      console.error("Login error:", error);
-      
-      // التحقق من نوع الخطأ
-      if (error.response) {
-        // خطأ من الـ server
-        const errorMessage = error.response.data?.message || "Login failed";
-        auth.toastError(t(errorMessage));
-      } else if (error.request) {
-        // مشكلة في الـ network
-        auth.toastError(t("Network error. Please check your connection."));
-      } else {
-        // خطأ عام
-        auth.toastError(t("Login failed. Please try again."));
-      }
-    }
-  }, [response, error, navigate, auth, t]);
+  }, [response]);
 
   return (
     <>

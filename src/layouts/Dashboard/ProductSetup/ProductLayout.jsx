@@ -1,3 +1,4 @@
+import React from 'react'
 import { AddButton, TitleSection } from '../../../Components/Components'
 import { ProductPage } from '../../../Pages/Pages'
 import { useNavigate } from 'react-router-dom'
@@ -5,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 const ProductLayout = () => {
        const navigate = useNavigate()
-                  const { t } = useTranslation();
+                  const { t, i18n } = useTranslation();
        
        return (
               <div className="flex flex-col items-start w-full gap-y-3">

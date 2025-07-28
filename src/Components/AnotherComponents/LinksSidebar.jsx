@@ -20,19 +20,14 @@ import {
 } from "react-icons/md";
 import { PiFlagBanner } from "react-icons/pi";
 import { IoLanguage } from "react-icons/io5";
-import {
-  BiSolidDiscount,
-  BiSolidOffer,
-  BiSolidCoupon,
-  BiSolidEnvelope,
-} from "react-icons/bi";
+import { BiSolidDiscount, BiSolidOffer, BiSolidCoupon, BiSolidEnvelope } from "react-icons/bi";
 import { HiReceiptTax } from "react-icons/hi";
 import { TbBorderAll, TbReportSearch } from "react-icons/tb";
 import { IoMdGitBranch } from "react-icons/io";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next"; // استيراد useTranslation
 
-// Admin routes configuration
-const adminRoutes = [
+// Route configuration
+const routes = [
   {
     name: "Home",
     path: "/dashboard",
@@ -46,51 +41,16 @@ const adminRoutes = [
     icon: OrderIcon,
     subRoutes: [
       { name: "All", path: "/dashboard/orders/all", countKey: "ordersAll" },
-      {
-        name: "Pending",
-        path: "/dashboard/orders/pending",
-        countKey: "ordersPending",
-      },
-      {
-        name: "Accept",
-        path: "/dashboard/orders/confirmed",
-        countKey: "ordersConfirmed",
-      },
-      {
-        name: "Processing",
-        path: "/dashboard/orders/processing",
-        countKey: "ordersProcessing",
-      },
-      {
-        name: "OutForDelivery",
-        path: "/dashboard/orders/out_for_delivery",
-        countKey: "ordersOutForDelivery",
-      },
-      {
-        name: "Delivered",
-        path: "/dashboard/orders/delivered",
-        countKey: "ordersDelivered",
-      },
-      {
-        name: "Returned",
-        path: "/dashboard/orders/returned",
-        countKey: "ordersReturned",
-      },
-      {
-        name: "Refund",
-        path: "/dashboard/orders/refund",
-        countKey: "ordersRefund",
-      },
-      {
-        name: "Failed",
-        path: "/dashboard/orders/failed",
-        countKey: "ordersFailed",
-      },
-      {
-        name: "Canceled",
-        path: "/dashboard/orders/canceled",
-        countKey: "ordersCanceled",
-      },
+      { name: "Pending", path: "/dashboard/orders/pending", countKey: "ordersPending" },
+      { name: "Accept", path: "/dashboard/orders/confirmed", countKey: "ordersConfirmed" },
+      { name: "Processing", path: "/dashboard/orders/processing", countKey: "ordersProcessing" },
+      { name: "OutForDelivery", path: "/dashboard/orders/out_for_delivery", countKey: "ordersOutForDelivery" },
+      { name: "Delivered", path: "/dashboard/orders/delivered", countKey: "ordersDelivered" },
+      { name: "Returned", path: "/dashboard/orders/returned", countKey: "ordersReturned" },
+      { name: "Refund", path: "/dashboard/orders/refund", countKey: "ordersRefund" },
+      { name: "Failed", path: "/dashboard/orders/failed", countKey: "ordersFailed" },
+      { name: "Canceled", path: "/dashboard/orders/canceled", countKey: "ordersCanceled" },
+      // { name: "Schedule", path: "/dashboard/orders/schedule", countKey: "ordersSchedule" },
       { name: "Log", path: "/dashboard/orders/log" },
     ],
     redirectTo: "/dashboard/orders/all",
@@ -154,11 +114,7 @@ const adminRoutes = [
     icon: FiUsers,
     subRoutes: [
       { name: "Admins", path: "/dashboard/users/admins", permission: "Admin" },
-      {
-        name: "Customers",
-        path: "/dashboard/users/customers",
-        permission: "Customer",
-      },
+      { name: "Customers", path: "/dashboard/users/customers", permission: "Customer" },
     ],
     redirectTo: "/dashboard/users/admins",
   },
@@ -176,10 +132,7 @@ const adminRoutes = [
     subRoutes: [
       { name: "Admin Roles", path: "/dashboard/setting/roles" },
       { name: "Payment Method", path: "/dashboard/setting/payment_method" },
-      {
-        name: "Automatic Payment",
-        path: "/dashboard/setting/automatic_payment",
-      },
+      { name: "Automatic Payment", path: "/dashboard/setting/automatic_payment" },
       { name: "Cities", path: "/dashboard/setting/cities" },
       { name: "Zones", path: "/dashboard/setting/zones" },
       { name: "Groups", path: "/dashboard/setting/groups" },
@@ -190,10 +143,7 @@ const adminRoutes = [
       { name: "Delivery Time", path: "/dashboard/setting/delivery_time" },
       { name: "Sound", path: "/dashboard/setting/sound" },
       { name: "Menu", path: "/dashboard/setting/menu" },
-      {
-        name: "Cancelation Notification",
-        path: "/dashboard/setting/cancelation_notification",
-      },
+      { name: "Cancelation Notification", path: "/dashboard/setting/cancelation_notification" },
       { name: "Policy&Support", path: "/dashboard/setting/policy_support" },
       { name: "AppSetup", path: "/dashboard/setting/app_setup" },
     ],
@@ -255,136 +205,43 @@ const adminRoutes = [
   },
 ];
 
-// Branch routes configuration
-const branchRoutes = [
-  {
-    name: "Branches Deal",
-    path: "/branch",
-    permission: "Branch",
-    icon: TbReportSearch,
-  },
-  {
-    name: "Customers",
-    path: "/branch/customer",
-    permission: "Customer",
-    icon: FiUsers,
-  },
-  {
-    name: "Order Offers",
-    path: "/branch/order-offers",
-    permission: "OfferOrder",
-    icon: BiSolidOffer,
-  },
-  {
-    name: "Orders",
-    path: "/branch/orders",
-    permission: "Order",
-    icon: OrderIcon,
-    subRoutes: [
-      { name: "All", path: "/branch/orders/all", countKey: "ordersAll" },
-      {
-        name: "Pending",
-        path: "/branch/orders/pending",
-        countKey: "ordersPending",
-      },
-      {
-        name: "Accept",
-        path: "/branch/orders/confirmed",
-        countKey: "ordersConfirmed",
-      },
-      {
-        name: "Processing",
-        path: "/branch/orders/processing",
-        countKey: "ordersProcessing",
-      },
-      {
-        name: "OutForDelivery",
-        path: "/branch/orders/out_for_delivery",
-        countKey: "ordersOutForDelivery",
-      },
-      {
-        name: "Delivered",
-        path: "/branch/orders/delivered",
-        countKey: "ordersDelivered",
-      },
-      {
-        name: "Returned",
-        path: "/branch/orders/returned",
-        countKey: "ordersReturned",
-      },
-      {
-        name: "Refund",
-        path: "/branch/orders/refund",
-        countKey: "ordersRefund",
-      },
-      {
-        name: "Failed",
-        path: "/branch/orders/failed",
-        countKey: "ordersFailed",
-      },
-      {
-        name: "Canceled",
-        path: "/branch/orders/canceled",
-        countKey: "ordersCanceled",
-      },
-      { name: "Log", path: "/branch/orders/log" },
-    ],
-    redirectTo: "/branch/orders/all",
-  },
-];
-
 const LinksSidebar = () => {
   const auth = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const pathName = location.pathname;
   const hideSide = auth.hideSidebar;
-  const { t } = useTranslation();
+  const { t } = useTranslation(); // تهيئة useTranslation هنا
+  const { i18n } = useTranslation();
+  const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
+
 
   // Orders count from Redux
   const ordersAllCount = useSelector((state) => state.ordersAll.data);
   const ordersPendingCount = useSelector((state) => state.ordersPending.data);
-  const ordersConfirmedCount = useSelector(
-    (state) => state.ordersConfirmed.data
-  );
-  const ordersProcessingCount = useSelector(
-    (state) => state.ordersProcessing.data
-  );
-  const ordersOutForDeliveryCount = useSelector(
-    (state) => state.ordersOutForDelivery.data
-  );
-  const ordersDeliveredCount = useSelector(
-    (state) => state.ordersDelivered.data
-  );
-  const ordersReturnedCount = useSelector(
-    (state) => state.ordersReturned?.data || 0
-  );
-  const ordersRefundCount = useSelector(
-    (state) => state.ordersRefund?.data || 0
-  );
-  const ordersFailedCount = useSelector(
-    (state) => state.ordersFailed?.data || 0
-  );
-  const ordersCanceledCount = useSelector(
-    (state) => state.ordersCanceled?.data || 0
-  );
-  const ordersScheduleCount = useSelector(
-    (state) => state.ordersSchedule?.data || 0
-  );
+  const ordersConfirmedCount = useSelector((state) => state.ordersConfirmed.data);
+  const ordersProcessingCount = useSelector((state) => state.ordersProcessing.data);
+  const ordersOutForDeliveryCount = useSelector((state) => state.ordersOutForDelivery.data);
+  const ordersDeliveredCount = useSelector((state) => state.ordersDelivered.data);
+  const ordersReturnedCount = useSelector((state) => state.ordersReturned?.data || 0);
+  const ordersRefundCount = useSelector((state) => state.ordersRefund?.data || 0);
+  const ordersFailedCount = useSelector((state) => state.ordersFailed?.data || 0);
+  const ordersCanceledCount = useSelector((state) => state.ordersCanceled?.data || 0);
+  const ordersScheduleCount = useSelector((state) => state.ordersSchedule?.data || 0);
 
   const lengths = useMemo(
     () => ({
-      ordersAll: ordersAllCount?.length || 0,
-      ordersPending: ordersPendingCount?.length || 0,
-      ordersConfirmed: ordersConfirmedCount?.length || 0,
-      ordersProcessing: ordersProcessingCount?.length || 0,
-      ordersOutForDelivery: ordersOutForDeliveryCount?.length || 0,
-      ordersDelivered: ordersDeliveredCount?.length || 0,
-      ordersReturned: ordersReturnedCount?.length || 0,
-      ordersRefund: ordersRefundCount?.length || 0,
-      ordersFailed: ordersFailedCount?.length || 0,
-      ordersCanceled: ordersCanceledCount?.length || 0,
-      ordersSchedule: ordersScheduleCount?.length || 0,
+      ordersAll: ordersAllCount.length,
+      ordersPending: ordersPendingCount.length,
+      ordersConfirmed: ordersProcessingCount.length,
+      ordersProcessing: ordersConfirmedCount.length,
+      ordersOutForDelivery: ordersOutForDeliveryCount.length,
+      ordersDelivered: ordersDeliveredCount.length,
+      ordersReturned: ordersReturnedCount.length,
+      ordersRefund: ordersRefundCount.length,
+      ordersFailed: ordersFailedCount.length,
+      ordersCanceled: ordersCanceledCount.length,
+      ordersSchedule: ordersScheduleCount.length,
     }),
     [
       ordersAllCount,
@@ -407,47 +264,25 @@ const LinksSidebar = () => {
     const computedPermissions =
       auth?.userState?.user_positions?.roles?.map((role) => role.role) || [];
     setPermissions(computedPermissions);
+    console.log("Permissions:", computedPermissions);
   }, [auth?.userState?.user_positions?.roles]);
 
   // Active link state
   const [activeLink, setActiveLink] = useState({ name: "", subRoute: "" });
   const [hoveredLink, setHoveredLink] = useState("");
 
-  // Determine the role from localStorage
-  const role = localStorage.getItem("role");
-  const isAdmin = role === "admin" || role === "Admin";
-  
-  console.log("Role from localStorage:", role);
-  console.log("isAdmin:", isAdmin);
-
-  // Get current routes based on role
-  const currentRoutes = useMemo(() => {
-    console.log("Role:", role);
-    console.log("IsAdmin:", isAdmin);
-    const routes = isAdmin ? adminRoutes : branchRoutes;
-    console.log("Current Routes:", routes);
-    return routes;
-  }, [isAdmin, role]);
-
-  // Active link detection and highlighting
+  // Handle route changes
   useEffect(() => {
-    const currentRoute = currentRoutes.find((route) => {
-      // Check for exact match first
-      if (pathName === route.path) return true;
-
-      // Check for subRoutes
+    const currentRoute = routes.find((route) => {
       if (route.subRoutes) {
-        // Check if path starts with any sub-route path
-        if (route.subRoutes.some((sub) => pathName.startsWith(sub.path)))
-          return true;
-        // Check if path starts with the main route path followed by /details or /invoice
-        if (
+        return (
+          route.subRoutes.some((sub) => pathName.startsWith(sub.path)) ||
+          pathName === route.path ||
           pathName.startsWith(`${route.path}/details`) ||
           pathName.startsWith(`${route.path}/invoice`)
-        )
-          return true;
+        );
       }
-      return false;
+      return pathName === route.path;
     });
 
     if (currentRoute) {
@@ -459,71 +294,40 @@ const LinksSidebar = () => {
         name: currentRoute.name,
         subRoute: activeSubRoute || "",
       });
+
+      // Redirect to default sub-route if needed
+      if (
+        currentRoute.subRoutes &&
+        pathName === currentRoute.path &&
+        currentRoute.redirectTo
+      ) {
+        navigate(currentRoute.redirectTo);
+      }
     } else {
-      // Handle home routes explicitly
-      if (pathName === "/dashboard" || pathName === "/branch") {
-        const homeRoute = currentRoutes.find(route => 
-          route.path === pathName || 
-          (isAdmin && pathName === "/dashboard") ||
-          (!isAdmin && pathName === "/branch")
-        );
-        if (homeRoute) {
-          setActiveLink({ name: homeRoute.name, subRoute: "" });
-        }
-      } else {
-        // If no match, clear active link
-        setActiveLink({ name: "", subRoute: "" });
+      setActiveLink({ name: "Home", subRoute: "" });
+      if (pathName === "/dashboard") {
+        navigate("/dashboard");
       }
     }
-  }, [pathName, currentRoutes, isAdmin]);
+  }, [pathName, navigate]);
 
-  // Navigation handlers
-  // Main route click handler
-  const handleMainRouteClick = useCallback(
-    (e, route) => {
-      e.preventDefault(); // Prevent default Link behavior
-
-      const targetPath = route.redirectTo || route.path;
-
-      // Only navigate if the current path is different from the target path
-      if (pathName !== targetPath) {
-        navigate(targetPath);
-      }
+  // Handle link click
+  const handleClick = useCallback(
+    (routeName, subRouteName = "") => {
+      setActiveLink({ name: routeName, subRoute: subRouteName });
     },
-    [navigate, pathName]
-  );
-
-  // Sub route click handler
-  const handleSubRouteClick = useCallback(
-    (e, subRoute) => {
-      e.preventDefault(); // Prevent default Link behavior
-      navigate(subRoute.path);
-    },
-    [navigate]
+    []
   );
 
   // Filter routes based on permissions
   const filteredRoutes = useMemo(() => {
     const isSuperAdmin = auth?.userState?.user_positions?.name === "Super Admin";
-    console.log("Permissions:", permissions);
-    console.log("Current Routes before filtering:", currentRoutes);
-    
-    // For branch users, show all routes without permission check
-    if (!isAdmin) {
-      console.log("Branch user - showing all routes");
-      return currentRoutes;
-    }
-    
-    // For admin users, apply permission filtering
-    const filtered = currentRoutes.filter((route) => {
+    return routes.filter((route) => {
       if (isSuperAdmin) return true;
       if (!route.permission) return true;
       return permissions.includes(route.permission);
     });
-    
-    console.log("Filtered routes:", filtered);
-    return filtered;
-  }, [permissions, auth?.userState?.user_positions?.name, currentRoutes, isAdmin]);
+  }, [permissions, auth?.userState?.user_positions?.name]);
 
   // Render link
   const renderLink = (route) => {
@@ -534,10 +338,10 @@ const LinksSidebar = () => {
     return (
       <Link
         key={route.name}
-        to={route.redirectTo || route.path}
-        onMouseEnter={() => setHoveredLink(route.name)}
-        onMouseLeave={() => setHoveredLink("")}
-        onClick={(e) => handleMainRouteClick(e, route)}
+        to={route.path}
+        onMouseMove={() => setHoveredLink(route.name)}
+        onMouseOut={() => setHoveredLink("")}
+        onClick={() => handleClick(route.name)}
         className={`
           ${isActive ? "active" : ""}
           ${hideSide ? "justify-between" : "justify-center"}
@@ -548,9 +352,8 @@ const LinksSidebar = () => {
       >
         <div className="flex items-center gap-x-2">
           <Icon
-            className={`${
-              isActive || isHovered ? "text-[#9E090F]" : "text-[#fff]"
-            } text-2xl ${route.name === "Delivery Man" ? "text-3xl" : ""}`}
+            className={`${isActive || isHovered ? "text-[#9E090F]" : "text-[#fff]"
+              } text-2xl ${route.name === "Delivery Man" ? "text-3xl" : ""}`}
           />
           <span
             className={`
@@ -560,8 +363,7 @@ const LinksSidebar = () => {
               group-hover:text-mainColor
             `}
           >
-            {t(route.name)}
-          </span>
+            {t(route.name)}          </span>
         </div>
         {route.subRoutes && hideSide && (
           <IoIosArrowForward
@@ -576,59 +378,60 @@ const LinksSidebar = () => {
   };
 
   // Render sub-routes
-  const renderSubRoute = (sub) => {
-    const isSubActive = activeLink.subRoute === sub.name;
-    return (
-      <Link key={sub.name} to={sub.path} onClick={(e) => handleSubRouteClick(e, sub)}>
-        <li
-          className={`${
-            isSubActive ? "rounded-xl bg-white text-mainColor" : "text-white"
-          } text-xl font-TextFontLight rounded-xl pl-3 pr-2 py-1 flex items-center justify-between hover:bg-white transition-all duration-300 hover:text-mainColor`}
-        >
-          <span>{t(sub.name)}</span>
-          {sub.countKey && (
-            <span className="px-1 text-sm bg-cyan-300 text-cyan-700 font-TextFontMedium rounded-2xl">
-              {lengths[sub.countKey] || 0}
-            </span>
-          )}
-        </li>
-      </Link>
-    );
-  };
-
   const renderSubRoutes = (route) => {
     const isActive = activeLink.name === route.name;
     return (
       <div
-        className={`${
-          isActive && hideSide ? "max-h-[100rem]" : "max-h-0"
-        } overflow-hidden flex items-start justify-end w-full transition-all duration-700 mt-2`}
+        className={`
+          ${isActive && hideSide ? "max-h-[100rem]" : "max-h-0"}
+          overflow-hidden flex items-start justify-end w-full
+          transition-all duration-700 mt-2
+        `}
       >
         <ul className="flex flex-col w-full pl-2 list-disc gap-y-2">
           {route.subRoutes.map((sub) => {
+            // Skip sub-routes that require permissions the user doesn't have
             if (sub.permission && !permissions.includes(sub.permission)) {
               return null;
             }
-            return renderSubRoute(sub);
+            const isSubActive = activeLink.subRoute === sub.name;
+            return (
+              <Link
+                key={sub.name}
+                to={sub.path}
+                onClick={() => handleClick(route.name, sub.name)}
+              >
+                <li
+                  className={`
+                    ${isSubActive ? "rounded-xl bg-white text-mainColor" : "text-white"}
+                    text-xl font-TextFontLight rounded-xl pl-3 pr-2 py-1
+                    flex items-center justify-between
+                    hover:bg-white transition-all duration-300 hover:text-mainColor
+                  `}
+                >
+                  <span>{t(sub.name)}</span>
+                  {sub.countKey && (
+                    <span className="px-1 text-sm bg-cyan-300 text-cyan-700 font-TextFontMedium rounded-2xl">
+                      {lengths[sub.countKey] || 0}
+                    </span>
+                  )}
+                </li>
+              </Link>
+            );
           })}
         </ul>
       </div>
     );
   };
 
-  // Render all routes using the same logic
-  const renderAllRoutes = () => {
-    return filteredRoutes.map((route) => (
-      <div key={route.name} className="flex flex-col w-full">
-        {renderLink(route)}
-        {route.subRoutes && renderSubRoutes(route)}
-      </div>
-    ));
-  };
-
   return (
     <div className="flex flex-col items-center justify-start w-full LinksSidebar gap-y-3">
-      {renderAllRoutes()}
+      {filteredRoutes.map((route) => (
+        <div key={route.name} className="flex flex-col w-full">
+          {renderLink(route)}
+          {route.subRoutes && renderSubRoutes(route)}
+        </div>
+      ))}
     </div>
   );
 };

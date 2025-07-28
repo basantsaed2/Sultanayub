@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 const CartsOrderSection = ({ ordersNum }) => {
   const { t, i18n } = useTranslation();
 
-  console.log('ordersNum', ordersNum)
   return (
     <>
       <div className="flex flex-wrap items-start justify-center w-full gap-4 mt-4 sm:flex-col lg:flex-row">
@@ -32,7 +31,7 @@ const CartsOrderSection = ({ ordersNum }) => {
           route={'/dashboard/orders/out_for_delivery'}
           icon={<OutForDeliveryIcon />}
           title={t('OutForDelivery')}
-          count={ordersNum.OutForDelivery || 0}
+          count={ordersNum.ordersOutForDelivery || 0}
         />
         <Cart
           route={'/dashboard/orders/delivered'}
@@ -62,7 +61,7 @@ const CartsOrderSection = ({ ordersNum }) => {
           route={'/dashboard/orders/failed_to_deliver'}
           icon={<FailedToDeliverIcon />}
           title={t('FailedToDeliver')}
-          count={ordersNum.FailedToDeliver || 0}
+          count={ordersNum.ordersFailed || 0}
         />
       </div>
     </>

@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { usePost } from "../../../../Hooks/usePostJson";
 import {
   LoaderLogin,
@@ -6,6 +6,7 @@ import {
   SubmitButton,
 } from "../../../../Components/Components";
 import { useAuth } from "../../../../Context/Auth";
+import { Dialog } from "@headlessui/react";
 import { t } from "i18next";
 
 const DealOrderPage = () => {
@@ -144,7 +145,39 @@ const headers = [
                       >
                         {t("View")}
                       </span>
-
+                      {openDescriptionView && (
+                        <Dialog
+                          open={true}
+                          onClose={() => setOpenDescriptionView(false)}
+                          className="relative z-10"
+                        >
+                          <Dialog.Overlay className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                          <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                            <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                              <div className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-4xl">
+                                <div className="flex flex-wrap items-center justify-center w-full gap-4 px-4 my-4 sm:p-6 sm:pb-4">
+                                  <ul className="p-4 shadow-md rounded-xl">
+                                    <li className="mx-4 text-lg capitalize list-disc text-mainColor lg:text-xl font-TextFontSemiBold">
+                                      {currentResponse.data.deal.description}
+                                    </li>
+                                  </ul>
+                                </div>
+                                <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setOpenDescriptionView(false)
+                                    }
+                                    className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontMedium sm:mt-0 sm:w-auto hover:bg-mainColor-dark focus:outline-none"
+                                  >
+                                    {t('Close')}
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </Dialog>
+                      )}
                     </td>
                     <td className="min-w-[80px] py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {currentResponse.data.deal.start_date}
@@ -176,28 +209,6 @@ const headers = [
           )}
         </div>
       </form>
-            {/* Dialog for Description View */}
-      {openDescriptionView && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <h2 className="text-2xl font-TextFontSemiBold text-mainColor mb-4">
-              {t("Description")}
-            </h2>
-            <p className="text-thirdColor text-base mb-6">
-              {currentResponse?.data?.deal?.description || t("No description available")}
-            </p>
-            <div className="flex justify-end">
-              <button
-                type="button"
-                className="px-4 py-2 text-white bg-mainColor rounded-xl hover:bg-mainColor/90 duration-300"
-                onClick={() => setOpenDescriptionView(false)}
-              >
-                {t("Close")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 };

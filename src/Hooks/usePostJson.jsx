@@ -1,104 +1,75 @@
 import axios from "axios";
 import { useState } from "react";
-import { useAuth } from "../Context/Auth";
+import { useAuth } from "../Context/Auth"; // Make sure to import useAuth if required
 import { useSelector } from "react-redux";
 import { useTranslation } from 'react-i18next';
 
 export const usePost = ({ url, login = false, type = false }) => {
-  const auth = useAuth();
-  const user = useSelector(state => state.userProject); // Assuming this is used elsewhere if not directly in postData
-  const [loadingPost, setLoadingPost] = useState(false);
-  const [response, setResponse] = useState(null); // This will hold the raw axios response
-  const { t} = useTranslation();
+       const auth = useAuth();
+       const user = useSelector(state => state.userProject);
+       const [loadingPost, setLoadingPost] = useState(false);
+       const [response, setResponse] = useState(null);
+  const { t, i18n } = useTranslation();
 
-  const postData = async (data, name) => {
-    setLoadingPost(true);
-    setResponse(null); // Clear previous response
-    let result = { success: false, message: t("An unknown error occurred") }; // Default failure result
+       const postData = async (data, name) => {
+              setLoadingPost(true);
+              try {
+                     const token = auth?.userState?.token || '';
+                     const contentType = type ? 'application/json' : 'multipart/form-data';
+                     const config = !login && token
+                            ? {
+                                   headers: {
+                                          'Content-Type': contentType,
+                                          'Authorization': `Bearer ${token || ''}`,
+                                   },
+                            }
+                            : {
+                                   headers: { 'Content-Type': contentType },
+                            };
 
-    try {
-      const token = auth?.userState?.token || '';
-      const contentType = type ? 'application/json' : 'multipart/form-data';
-      const config = !login && token
-        ? {
-            headers: {
-              'Content-Type': contentType,
-              'Authorization': `Bearer ${token || ''}`,
-            },
-          }
-        : {
-            headers: { 'Content-Type': contentType },
-          };
+                     const response = await axios.post(url, data, config);
 
-      const axiosResponse = await axios.post(url, data, config); // Renamed to axiosResponse to avoid conflict
-
-      if (axiosResponse.status >= 200 && axiosResponse.status < 300) { // Check for 2xx status codes
-        setResponse(axiosResponse); // Store the full axios response
-        if (name) {
-          auth.toastSuccess(name); // Display success toast if a name is provided
-        }
-        // Return a standardized success object
-        result = {
-          success: true,
-          data: axiosResponse.data, // The actual data from the backend
-          message: axiosResponse.data?.message || t("Operation successful") // Use backend message or default
-        };
-      } else {
-        // This block might be less likely to hit if axios throws for non-2xx,
-        // but good for explicit handling if it doesn't always throw.
-        const errorMessage = axiosResponse.data?.message || axiosResponse.statusText || t("Failed to add customers");
-        auth.toastError(errorMessage);
-        result = {
-          success: false,
-          data: axiosResponse.data,
-          message: errorMessage
-        };
-      }
-    } catch (error) {
-      console.error('Error post JSON:', error);
-      // Handle Axios errors (e.g., network issues, 4xx/5xx responses)
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        const responseData = error.response.data;
-        if (responseData?.errors) {
-          if (typeof responseData.errors === 'object') {
-            Object.entries(responseData.errors).forEach(([field, messages]) => {
-              if (Array.isArray(messages)) {
-                messages.forEach(message => {
-                  auth.toastError(message);
-                });
-              } else {
-                auth.toastError(messages);
+                     if (response.status === 200) {
+                            setResponse(response);
+                            { name ? auth.toastSuccess(name) : '' }
+                            // auth.toastSuccess(name)
+                     }
               }
-            });
-          } else {
-            auth.toastError(responseData.errors);
-          }
-        } else if (responseData?.message) {
-          auth.toastError(responseData.message);
-        } else {
-          auth.toastError(responseData.message);
-        }
-        result = {
-          success: false,
-          data: responseData,
-          message: responseData.message || t("Failed to add customers")
-        };
-      } else if (error.request) {
-        // The request was made but no response was received
-        auth.toastError(t("No response from server. Please check your network."));
-        result = { success: false, message: t("Network error") };
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        auth.toastError(error.message || t("An unknown error occurred"));
-        result = { success: false, message: error.message || t("An unknown error occurred") };
-      }
-    } finally {
-      setLoadingPost(false);
-    }
-    return result; // Always return the result object
-  };
+              catch (error) {
+                     console.error('Error post JSON:', error);
+                   
+                     // Check if the error response contains 'errors' or just a message
+                     if (error?.response?.data?.errors) {
+                       // Check if errors are an object (field-based errors)
+                       if (typeof error.response.data.errors === 'object') {
+                         Object.entries(error.response.data.errors).forEach(([field, messages]) => {
+                           // If messages is an array, loop through them
+                           if (Array.isArray(messages)) {
+                             messages.forEach(message => {
+                               auth.toastError(message); // Display the error messages
+                             });
+                           } else {
+                             // If it's not an array, display the message directly
+                             auth.toastError(messages);
+                           }
+                         });
+                       } else {
+                         // If errors is not an object, assume it's just a message
+                         auth.toastError(error.response.data.errors);
+                       }
+                     } else if (error?.response?.data?.message) {
+                       // If there's a general message outside of the 'errors' object
+                       auth.toastError(error.response.data.message); // Display the general error message
+                     } else {
+                       // If no specific error messages are found, just display a fallback message
+                       auth.toastError(t("Anunknownerroroccurred"));
+                     }
+                   }
+                   
+              finally {
+                     setLoadingPost(false);
+              }
+       };
 
-  return { postData, loadingPost, response };
+       return { postData, loadingPost, response };
 };

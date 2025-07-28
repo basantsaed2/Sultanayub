@@ -1,4 +1,4 @@
-import  { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { LoaderLogin, TitlePage } from '../../../../Components/Components'
 import { ReturnedOrdersPage, SelectDateRangeSection } from '../../../../Pages/Pages'
 import { OrdersComponent } from '../../../../Store/CreateSlices'
@@ -6,26 +6,16 @@ import { useGet } from '../../../../Hooks/useGet'
 import { useTranslation } from 'react-i18next';
 
 const ReturnedOrdersLayout = () => {
-  const apiUrl = import.meta.env.VITE_API_BASE_URL;
-  const { t } = useTranslation();
+                  const { t, i18n } = useTranslation();
+       
+       const apiUrl = import.meta.env.VITE_API_BASE_URL;
+       const { refetch: refetchBranch, loading: loadingBranch, data: dataBranch } = useGet({
+              url: `${apiUrl}/admin/order/branches`
+       });
 
-  const role = localStorage.getItem("role"); // قراءة الدور من localStorage
-  const branchesUrl =
-    role === "branch"
-      ? `${apiUrl}/branch/online_order`
-      : `${apiUrl}/admin/order/branches`;
-
-  const {
-    refetch: refetchBranch,
-    loading: loadingBranch,
-    data: dataBranch,
-  } = useGet({
-    url: branchesUrl,
-  });
-
-  useEffect(() => {
-    refetchBranch(); // إعادة جلب البيانات عند تحميل الصفحة
-  }, [refetchBranch]);
+       useEffect(() => {
+              refetchBranch(); // Refetch data when the component mounts
+       }, [refetchBranch]);
        return (
               <>
                      <OrdersComponent />
