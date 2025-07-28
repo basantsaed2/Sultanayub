@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 
 const AllOrdersLayout = () => {
   const { t, i18n } = useTranslation();
+  const userRole = localStorage.getItem("role") || "admin";
 
   const ordersAllCount = useSelector((state) => state.ordersAll.data);
   const ordersAllCountLoading = useSelector((state) => state.ordersAll.loading);
@@ -27,12 +28,19 @@ const AllOrdersLayout = () => {
   const ordersScheduleCount = useSelector((state) => state.ordersSchedule.data);
 
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
+  const apiEndpoint =
+    userRole === "branch"
+      ? `${apiUrl}/branch/online_order`
+      : `${apiUrl}/admin/order/branches`;
+
   const {
     refetch: refetchBranch,
     loading: loadingBranch,
     data: dataBranch,
   } = useGet({
-    url: `${apiUrl}/admin/order/branches`,
+    url: apiEndpoint,
+    enabled: userRole === "branch" // Only enable this useGet for branch role
   });
 
   useEffect(() => {

@@ -79,7 +79,6 @@ const statusColors = {
 
 const RecentOrders = ({ recent_orders }) => {
   useEffect(() => {
-    console.log("Data order in recent orders: ", recent_orders);
   }, [recent_orders]);
   const {t}=useTranslation();
 

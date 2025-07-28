@@ -10,19 +10,25 @@ import { useTranslation } from "react-i18next";
 
 const CanceledOrdersLayout = () => {
   const { t, i18n } = useTranslation();
+  const userRole = localStorage.getItem("role") || "admin";  // إذا لم يكن موجود، سيتم تعيينه إلى admin بشكل افتراضي
 
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const apiEndpoint =
+    userRole === "branch" ? `${apiUrl}/branch/online_order` : `${apiUrl}/admin/order/branches`;
+
   const {
     refetch: refetchBranch,
     loading: loadingBranch,
     data: dataBranch,
   } = useGet({
-    url: `${apiUrl}/admin/order/branches`,
+    url: apiEndpoint,
+    enabled: userRole === "branch",
   });
 
   useEffect(() => {
     refetchBranch(); // Refetch data when the component mounts
   }, [refetchBranch]);
+  
   return (
     <>
       <OrdersComponent />

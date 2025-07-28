@@ -6,11 +6,21 @@ import { useGet } from '../../../../Hooks/useGet'
 import { useTranslation } from 'react-i18next';
 
 const ReturnedOrdersLayout = () => {
-                  const { t, i18n } = useTranslation();
-       
+       const { t, i18n } = useTranslation();
        const apiUrl = import.meta.env.VITE_API_BASE_URL;
-       const { refetch: refetchBranch, loading: loadingBranch, data: dataBranch } = useGet({
-              url: `${apiUrl}/admin/order/branches`
+       
+       const role = localStorage.getItem("role"); // قراءة الدور
+       const branchesUrl =
+              role === "branch"
+                     ? `${apiUrl}/branch/online_order/branches`
+                     : `${apiUrl}/admin/order/branches`;
+
+       const {
+              refetch: refetchBranch,
+              loading: loadingBranch,
+              data: dataBranch,
+       } = useGet({
+              url: branchesUrl,
        });
 
        useEffect(() => {

@@ -121,6 +121,8 @@ const BranchesPage = ({ refetch }) => {
     t("Address"),
     t("Phone"),
     t("PreparationTime"),
+    t("kitchen"),
+    t("Brista"),
     t("BranchCategory"),
     t("ActiveBranchPhone"),
     t("Status"),
@@ -188,6 +190,30 @@ const BranchesPage = ({ refetch }) => {
                     </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {branch?.food_preparion_time || "-"}
+                    </td>
+                    <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-blue-500 cursor-pointer">
+                      <Link
+                        to={`branch_kitchen/${branch.id}`}
+                        className="text-xl border-b-2 cursor-pointer text-mainColor border-mainColor font-TextFontSemiBold"
+                      >
+                        {t("Kitchens")}
+                      </Link>
+                    </td>
+                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-blue-500 cursor-pointer">
+                      <Link
+                        to={`branch_birsta/${branch.id}`}
+                        className="text-xl border-b-2 cursor-pointer text-mainColor border-mainColor font-TextFontSemiBold"
+                      >
+                        {t("Brista")}
+                      </Link>
+                    </td>
+                    <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-blue-500 cursor-pointer">
+                      <Link
+                        to={`branch_category/${branch.id}`}
+                        className="text-xl border-b-2 cursor-pointer text-mainColor border-mainColor font-TextFontSemiBold"
+                      >
+                        {t("View")}
+                      </Link>
                     </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-blue-500 cursor-pointer">
                       <Link
@@ -268,77 +294,76 @@ const BranchesPage = ({ refetch }) => {
               )}
             </tbody>
           </table>
-         {openReasonModal && (
-  <Dialog
-    open={true}
-    onClose={handleCloseReasonModal}
-    className="relative z-10"
-    aria-labelledby="reason-modal-title"
-    aria-describedby="reason-modal-description"
-  >
-    <DialogBackdrop className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity duration-300 ease-in-out" />
-    <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-      <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-        <DialogPanel className="relative w-full max-w-md transform overflow-hidden rounded-xl bg-white shadow-2xl transition-all duration-300 ease-in-out sm:my-8 sm:max-w-lg">
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-mainColor/10">
-            <div className="flex items-center gap-3">
-              <h3
-                id="reason-modal-title"
-                className="text-lg font-TextFontSemiBold text-mainColor"
-              >
-                {t("Enter Reason For Deactivation")}
-              </h3>
-            </div>
-            <button
-              type="button"
-              onClick={handleCloseReasonModal}
-              className="text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-mainColor rounded-full"
-              aria-label={t("Close")}
+          {openReasonModal && (
+            <Dialog
+              open={true}
+              onClose={handleCloseReasonModal}
+              className="relative z-10"
+              aria-labelledby="reason-modal-title"
+              aria-describedby="reason-modal-description"
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          <div className="px-6 py-5">
-            <p id="reason-modal-description" className="text-sm text-thirdColor">
-              {t("Please Provide Reason")} <span className="font-TextFontMedium">{openReasonModal?.name || "-"}</span>
-            </p>
-            <div className="mt-4">
-              <textarea
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                className={`w-full p-3 border rounded-md text-sm font-TextFontLight focus:ring-1 focus:ring-mainColor duration-200 ${
-                  !reason.trim() ? "border-red-300" : "border-gray-300"
-                }`}
-                rows="4"
-                placeholder={t("Type Reason Here")}
-                aria-describedby="reason-counter"
-                maxLength="500"
-              />
-            </div>
-          </div>
-          <div className="flex flex-row-reverse gap-4 px-6 py-4 bg-gray-50 border-t border-gray-200">
-            <button
-              onClick={handleSubmitReason}
-              disabled={!reason.trim()}
-              className="inline-flex justify-center px-6 py-2 text-sm text-white rounded-md bg-mainColor font-TextFontSemiBold shadow-sm hover:bg-mainColor/90 focus:outline-none focus:ring-2 focus:ring-mainColor disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-            >
-              {t("Submit")}
-            </button>
-            <button
-              type="button"
-              onClick={handleCloseReasonModal}
-              className="inline-flex justify-center px-6 py-2 text-sm text-gray-900 bg-white rounded-md font-TextFontMedium ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-mainColor transition-colors duration-200"
-            >
-              {t("Cancel")}
-            </button>
-          </div>
-        </DialogPanel>
-      </div>
-    </div>
-  </Dialog>
-)}
+              <DialogBackdrop className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity duration-300 ease-in-out" />
+              <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                  <DialogPanel className="relative w-full max-w-md transform overflow-hidden rounded-xl bg-white shadow-2xl transition-all duration-300 ease-in-out sm:my-8 sm:max-w-lg">
+                    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-mainColor/10">
+                      <div className="flex items-center gap-3">
+                        <h3
+                          id="reason-modal-title"
+                          className="text-lg font-TextFontSemiBold text-mainColor"
+                        >
+                          {t("Enter Reason For Deactivation")}
+                        </h3>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleCloseReasonModal}
+                        className="text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-mainColor rounded-full"
+                        aria-label={t("Close")}
+                      >
+                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                    <div className="px-6 py-5">
+                      <p id="reason-modal-description" className="text-sm text-thirdColor">
+                        {t("Please Provide Reason")} <span className="font-TextFontMedium">{openReasonModal?.name || "-"}</span>
+                      </p>
+                      <div className="mt-4">
+                        <textarea
+                          value={reason}
+                          onChange={(e) => setReason(e.target.value)}
+                          className={`w-full p-3 border rounded-md text-sm font-TextFontLight focus:ring-1 focus:ring-mainColor duration-200 ${!reason.trim() ? "border-red-300" : "border-gray-300"
+                            }`}
+                          rows="4"
+                          placeholder={t("Type Reason Here")}
+                          aria-describedby="reason-counter"
+                          maxLength="500"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-row-reverse gap-4 px-6 py-4 bg-gray-50 border-t border-gray-200">
+                      <button
+                        onClick={handleSubmitReason}
+                        disabled={!reason.trim()}
+                        className="inline-flex justify-center px-6 py-2 text-sm text-white rounded-md bg-mainColor font-TextFontSemiBold shadow-sm hover:bg-mainColor/90 focus:outline-none focus:ring-2 focus:ring-mainColor disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                      >
+                        {t("Submit")}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCloseReasonModal}
+                        className="inline-flex justify-center px-6 py-2 text-sm text-gray-900 bg-white rounded-md font-TextFontMedium ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-mainColor transition-colors duration-200"
+                      >
+                        {t("Cancel")}
+                      </button>
+                    </div>
+                  </DialogPanel>
+                </div>
+              </div>
+            </Dialog>
+          )}
           {branches.length > 0 && (
             <div className="flex flex-wrap items-center justify-center my-6 gap-x-4">
               {currentPage !== 1 && (
@@ -355,11 +380,10 @@ const BranchesPage = ({ refetch }) => {
                   <button
                     key={page}
                     onClick={() => handlePageChange(page)}
-                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${
-                      currentPage === page
-                        ? "bg-mainColor text-white"
-                        : " text-mainColor"
-                    }`}
+                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
+                      ? "bg-mainColor text-white"
+                      : " text-mainColor"
+                      }`}
                   >
                     {page}
                   </button>

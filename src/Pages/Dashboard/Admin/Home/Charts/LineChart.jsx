@@ -11,10 +11,6 @@ const LineChart = ({ title, data }) => {
   const labels = Object.keys(data);
   const values = Object.values(data);
 
-  useEffect(() => {
-    console.log("data line ", data);
-  }, [data]);
-
   // Prepare chart data
   const chartData = {
     labels: labels,

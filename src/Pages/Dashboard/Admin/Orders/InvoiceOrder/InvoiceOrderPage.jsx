@@ -11,11 +11,18 @@ const InvoiceOrderPage = () => {
   const { t, i18n } = useTranslation();
 
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const userRole = localStorage.getItem("role") || "admin";
+
+  const apiEndpoint =
+    userRole === "branch"
+      ? `${apiUrl}/branch/online_order/invoice/${orderId}`
+      : `${apiUrl}/admin/order/invoice/${orderId}`;
+
   const {
     refetch: refetchInvoiceOrder,
     loading: loadingInvoiceOrder,
     data: dataInvoiceOrder,
-  } = useGet({ url: `${apiUrl}/admin/order/invoice/${orderId}` });
+  } = useGet({ url: apiEndpoint });
 
   const [invoiceData, setInvoiceData] = useState([]);
 
@@ -68,15 +75,15 @@ const InvoiceOrderPage = () => {
               {invoiceData?.date || "-"}
             </p>
             <p>
-               <strong>{t("CustomerName")} : </strong>{" "}
+              <strong>{t("CustomerName")} : </strong>{" "}
               {invoiceData?.user?.f_name || "-"}{" "}
               {invoiceData?.user?.l_name || "-"}
             </p>
             <p>
-               <strong>{t("Phone")} : </strong> {invoiceData?.user?.phone || "-"}
+              <strong>{t("Phone")} : </strong> {invoiceData?.user?.phone || "-"}
             </p>
             <p>
-               <strong>{t("Address")} : </strong> {invoiceData?.address?.address || "-"}
+              <strong>{t("Address")} : </strong> {invoiceData?.address?.address || "-"}
             </p>
           </div>
 
@@ -121,7 +128,7 @@ const InvoiceOrderPage = () => {
               <table className="w-full mb-4 text-sm border-2 border-collapse border-black">
                 <thead>
                   <tr>
-                     <th className="p-2 border border-black">{t("QTY")}</th>
+                    <th className="p-2 border border-black">{t("QTY")}</th>
                     <th className="p-2 border border-black">{t("DESC")}</th>
                     <th className="p-2 border border-black">{t("Price")}</th>
                     <th className="p-2 border border-black">{t("Count")}</th>
@@ -153,7 +160,7 @@ const InvoiceOrderPage = () => {
               <table className="w-full mb-4 text-sm border-2 border-collapse border-black">
                 <thead>
                   <tr>
-                           <th className="p-2 border border-black">{t("QTY")}</th>
+                    <th className="p-2 border border-black">{t("QTY")}</th>
                     <th className="p-2 border border-black">{t("DESC")}</th>
                   </tr>
                 </thead>
@@ -177,7 +184,7 @@ const InvoiceOrderPage = () => {
               <table className="w-full mb-4 text-sm border-2 border-collapse border-black">
                 <thead>
                   <tr>
-                        <th className="p-2 border border-black">{t("QTY")}</th>
+                    <th className="p-2 border border-black">{t("QTY")}</th>
                     <th className="p-2 border border-black">{t("DESC")}</th>
                     <th className="p-2 border border-black">{t("Price")}</th>
                   </tr>
@@ -211,7 +218,7 @@ const InvoiceOrderPage = () => {
                     <thead>
                       <tr>
                         {/* <th className="p-2 border border-black">QTY</th> */}
-                 <th className="p-2 border border-black">{t("Name")}</th>
+                        <th className="p-2 border border-black">{t("Name")}</th>
                         <th className="p-2 border border-black">{t("Type")}</th>
                         <th className="p-2 border border-black">{t("Max")}</th>
                         <th className="p-2 border border-black">{t("Min")}</th>
@@ -247,7 +254,7 @@ const InvoiceOrderPage = () => {
                       <table className="w-full mb-4 text-sm border-2 border-collapse border-black">
                         <thead>
                           <tr>
-                           <th className="p-2 border border-black">{t("QTY")}</th>
+                            <th className="p-2 border border-black">{t("QTY")}</th>
                             <th className="p-2 border border-black">{t("Name")}</th>
                             <th className="p-2 border border-black">{t("Price")}</th>
                             <th className="p-2 border border-black">{t("Points")}</th>
@@ -339,7 +346,7 @@ const InvoiceOrderPage = () => {
               {invoiceData?.coupon_discount || 0}
             </p>
             <p>
-             <strong>{t("DeliveryFee")}: </strong>{" "}
+              <strong>{t("DeliveryFee")}: </strong>{" "}
               {invoiceData?.address?.zone?.price || 0}
             </p>
             <p className="text-lg semibold">
@@ -350,7 +357,7 @@ const InvoiceOrderPage = () => {
 
           {/* Footer */}
           <div className="text-sm text-center">
-              <p>{t("THANKYOU")}</p>
+            <p>{t("THANKYOU")}</p>
             <p>{t("copyrightreceived")} {invoiceData.user.name} {t("Food")}</p>
           </div>
         </div>

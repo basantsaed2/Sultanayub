@@ -66,7 +66,6 @@ const newOrdersSlice = createSlice({
        initialState: initialNewOrders,
        reducers: {
               setNewOrders: (state, action) => {
-                     console.log("Payload received:", action.payload);
                      return { ...state, ...action.payload }; // Merges payload into the existing state
               },
        },
@@ -77,7 +76,6 @@ const soundNotification = createSlice({
        initialState: initialSoundNotification,
        reducers: {
               setSoundNotification: (state, action) => {
-                     console.log("SoundNotificationSlice:", action.payload);
                      state.data = action.payload;
               },
        },
@@ -89,11 +87,9 @@ const userSlice = createSlice({
        initialState: initialUserState,
        reducers: {
               setUser: (state, action) => {
-                     console.log("Setting user:", action.payload);
                      return { ...state, ...action.payload };
               },
               removeUser: () => {
-                     console.log("Removing user");
                      return null;
               },
        },
@@ -105,11 +101,9 @@ const categorySlice = createSlice({
        initialState: initialCategoryState,
        reducers: {
               setCategory: (state, action) => {
-                     console.log("Setting Category:", action.payload);
                      return { ...state, ...action.payload };
               },
               removeCategory: () => {
-                     console.log("Removing Category");
                      return null;
               },
        },
@@ -121,12 +115,10 @@ const ordersAllSlice = createSlice({
        initialState: initialOrdersAllState,
        reducers: {
               setOrdersAll: (state, action) => {
-                     console.log("Setting Orders All:", action.payload);
                      state.data = action.payload; // Update orders data
                      state.loading = false; // Set loading to false when data is set
               },
               setLoading: (state, action) => {
-                     console.log("Setting Loading ordersAll State:", action.payload);
                      state.loading = action.payload; // Update loading state
               },
        },
@@ -137,12 +129,10 @@ const ordersPendingSlice = createSlice({
        initialState: initialOrdersPendingState,
        reducers: {
               setOrdersPending: (state, action) => {
-                     console.log("Setting Orders Pending:", action.payload);
                      state.data = action.payload; // Update orders data
                      state.loading = false; // Set loading to false when data is set
               },
               setLoading: (state, action) => {
-                     console.log("Setting Loading OrdersPending State:", action.payload);
                      state.loading = action.payload; // Update loading state
               },
        },
@@ -153,12 +143,10 @@ const ordersConfirmedSlice = createSlice({
        initialState: initialOrdersConfirmedState,
        reducers: {
               setOrdersConfirmed: (state, action) => {
-                     console.log("Setting Orders Confirmed:", action.payload);
                      state.data = action.payload; // Update orders data
                      state.loading = false; // Set loading to false when data is set
               },
               setLoading: (state, action) => {
-                     console.log("Setting Loading ordersConfirmed State:", action.payload);
                      state.loading = action.payload; // Update loading state
               },
        },
@@ -169,12 +157,10 @@ const ordersProcessingSlice = createSlice({
        initialState: initialOrdersProcessingState,
        reducers: {
               setOrdersProcessing: (state, action) => {
-                     console.log("Setting Orders Processing:", action.payload);
                      state.data = action.payload; // Update orders data
                      state.loading = false; // Set loading to false when data is set
               },
               setLoading: (state, action) => {
-                     console.log("Setting Loading ordersProcessing State:", action.payload);
                      state.loading = action.payload; // Update loading state
               },
        },
@@ -185,12 +171,10 @@ const ordersOutForDeliverySlice = createSlice({
        initialState: initialOrdersOutForDeliveryState,
        reducers: {
               setOrdersOutForDelivery: (state, action) => {
-                     console.log("Setting Orders Out For Delivery:", action.payload);
                      state.data = action.payload; // Update orders data
                      state.loading = false; // Set loading to false when data is set
               },
               setLoading: (state, action) => {
-                     console.log("Setting Loading ordersOutForDelivery State:", action.payload);
                      state.loading = action.payload; // Update loading state
               },
        },
@@ -201,12 +185,10 @@ const ordersDeliveredSlice = createSlice({
        initialState: initialOrdersDeliveredState,
        reducers: {
               setOrdersDelivered: (state, action) => {
-                     console.log("Setting Orders Delivered:", action.payload);
                      state.data = action.payload; // Update orders data
                      state.loading = false; // Set loading to false when data is set
               },
               setLoading: (state, action) => {
-                     console.log("Setting Loading ordersDelivered State:", action.payload);
                      state.loading = action.payload; // Update loading state
               },
        },
@@ -217,12 +199,10 @@ const ordersReturnedSlice = createSlice({
        initialState: initialOrdersReturnedState,
        reducers: {
               setOrdersReturned: (state, action) => {
-                     console.log("Setting Orders Returned:", action.payload);
                      state.data = action.payload; // Update orders data
                      state.loading = false; // Set loading to false when data is set
               },
               setLoading: (state, action) => {
-                     console.log("Setting Loading ordersReturned State:", action.payload);
                      state.loading = action.payload; // Update loading state
               },
        },
@@ -233,12 +213,10 @@ const ordersRefundSlice = createSlice({
        initialState: initialOrdersRefundState,
        reducers: {
               setOrdersRefund: (state, action) => {
-                     console.log("Setting Orders Refund:", action.payload);
                      state.data = action.payload; // Update orders data
                      state.loading = false; // Set loading to false when data is set
               },
               setLoading: (state, action) => {
-                     console.log("Setting Loading ordersRefund State:", action.payload);
                      state.loading = action.payload; // Update loading state
               },
        },
@@ -249,12 +227,10 @@ const ordersFailedSlice = createSlice({
        initialState: initialOrdersFailedState,
        reducers: {
               setOrdersFailed: (state, action) => {
-                     console.log("Setting Orders Failed:", action.payload);
                      state.data = action.payload; // Update orders data
                      state.loading = false; // Set loading to false when data is set
               },
               setLoading: (state, action) => {
-                     console.log("Setting Loading ordersFailed State:", action.payload);
                      state.loading = action.payload; // Update loading state
               },
        },
@@ -265,12 +241,10 @@ const ordersCanceledSlice = createSlice({
        initialState: initialOrdersCanceledState,
        reducers: {
               setOrdersCanceled: (state, action) => {
-                     console.log("Setting Orders Canceled:", action.payload);
                      state.data = action.payload; // Update orders data
                      state.loading = false; // Set loading to false when data is set
               },
               setLoading: (state, action) => {
-                     console.log("Setting Loading ordersCanceled State:", action.payload);
                      state.loading = action.payload; // Update loading state
               },
        },
@@ -281,12 +255,10 @@ const ordersScheduleSlice = createSlice({
        initialState: initialOrdersScheduleState,
        reducers: {
               setOrdersSchedule: (state, action) => {
-                     console.log("Setting Orders Schedule:", action.payload);
                      state.data = action.payload; // Update orders data
                      state.loading = false; // Set loading to false when data is set
               },
               setLoading: (state, action) => {
-                     console.log("Setting Loading ordersSchedule State:", action.payload);
                      state.loading = action.payload; // Update loading state
               },
        },
@@ -374,10 +346,7 @@ export const OrdersComponent = () => {
                      dispatch(ordersFailedSlice.actions.setOrdersFailed(dataOrders.faild_to_deliver));
                      dispatch(ordersCanceledSlice.actions.setOrdersCanceled(dataOrders.canceled));
                      dispatch(ordersScheduleSlice.actions.setOrdersSchedule(dataOrders.scheduled));
-                     console.log("Data orders", dataOrders);
-              } else {
-                     console.log("Data is not in the expected format:", dataOrders);
-              }
+              } 
        }, [dataOrders]);
 
 
@@ -393,12 +362,8 @@ export const OrdersComponent = () => {
 // });
 
 // useEffect(() => {
-//        console.log("Fetched dataOrders:", dataOrders);  // Log the data from the API response
 //        if (dataOrders && Array.isArray(dataOrders.orders)) {
 //               dispatch(newOrdersSlice.actions.setNewOrders(dataOrders.orders));
-//               console.log("Data orders", dataOrders);
-//        } else {
-//               console.log("Data is not in the expected format:", dataOrders);
 //        }
 // }, [dataOrders]);
 

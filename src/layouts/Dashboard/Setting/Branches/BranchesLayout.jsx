@@ -1,19 +1,22 @@
 import React, { useState } from 'react'
-import { TitlePage, TitleSection } from '../../../../Components/Components'
+import { AddButton, TitlePage, TitleSection } from '../../../../Components/Components'
 import { AddBranchSection, BranchesPage } from '../../../../Pages/Pages'
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 const BranchesLayout = () => {
        const [update, setUpdate] = useState(false)
-                  const { t, i18n } = useTranslation();
-       
+       const { t, i18n } = useTranslation();
+       const navigate= useNavigate();
+
        return (
-              <>
-                     <TitlePage text={t('AddNewBranch')} />
-                     <AddBranchSection update={update} setUpdate={setUpdate} />
-                     <TitleSection text={t('BranchesTable')} />
+              <div className='flex flex-col gap-3' >
+                     <div className='flex justify-between mt-5'>
+                            <TitleSection text={t('BranchesTable')} />
+                            <AddButton handleClick={()=>navigate("add")}/>
+                     </div>
                      <BranchesPage refetch={update} />
-              </>
+              </div>
        )
 }
 

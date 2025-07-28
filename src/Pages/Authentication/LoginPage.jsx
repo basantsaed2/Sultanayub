@@ -49,14 +49,22 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (response) {
-      console.log("response", response);
 
       auth.login(response.data.admin);
 
+      const userRole = response.data.role;
+
       // تخزين التوكن في localStorage بعد تسجيل الدخول
       localStorage.setItem("token", response.data.token); // تخزين التوكن بعد تسجيل الدخول
+      localStorage.setItem("role", response.data.role);
 
-      navigate("/dashboard", { replace: true });
+      if (userRole === 'admin') {
+        navigate("/dashboard", { replace: true });
+      } else if (userRole === 'branch') {
+        navigate("/branch", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
     }
   }, [response]);
 

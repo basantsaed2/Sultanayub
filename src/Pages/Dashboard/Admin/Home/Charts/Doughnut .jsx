@@ -15,7 +15,6 @@ const DonutChart = ({ ordersData }) => {
        if (ordersData) {
            setTotalOrders(ordersData.orders || 0);
            totalOrdersRef.current = ordersData.orders || 0;  // Update the ref value immediately
-           console.log("Total Orders:", ordersData.orders);
        }
    }, [ordersData]);
    

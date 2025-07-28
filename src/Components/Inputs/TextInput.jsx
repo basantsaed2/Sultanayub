@@ -1,6 +1,6 @@
 
 
-const TextInput = ({ value,name, onChange, placeholder, backgound = 'white', placeholderSize = false, borderColor = "none", paddinLeft = 'pl-2', paddinRight = 'pr-2' }) => {
+const TextInput = ({ value, name, onChange, placeholder, backgound = 'white', placeholderSize = false, borderColor = "none", paddinLeft = 'pl-2', paddinRight = 'pr-2' }) => {
        return (
               <>
                      <div className="w-full h-12">
@@ -14,6 +14,7 @@ const TextInput = ({ value,name, onChange, placeholder, backgound = 'white', pla
                                    font-TextFontRegular  bg-${backgound} text-2xl text-thirdColor
                                    valueInput`}
                                    placeholder={placeholder}
+                                   autoComplete="new-password"
                             />
                      </div>
 

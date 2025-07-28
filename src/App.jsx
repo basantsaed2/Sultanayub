@@ -87,7 +87,6 @@ const App = () => {
   useEffect(() => {
     if (dataSong && dataSong.notification_sound) {
       dispatch(setSoundNotification(dataSong.notification_sound));
-      console.log('Fetched song from API At App:', dataSong.notification_sound);
     }
   }, [dataSong, dispatch]);
 
@@ -96,7 +95,6 @@ const App = () => {
   // Update `orderCounts` when a response is received
   useEffect(() => {
     if (response?.data?.new_orders !== undefined) {
-      console.log('Response received:', response);
       setOrderCounts(response.data.new_orders);
       setOrderId(response.data.order_id)
     }
@@ -109,10 +107,7 @@ const App = () => {
 
       if (soundNotification && soundNotification.data) {
         playNotificationSound(soundNotification.data);
-        console.log('Playing sound notification.');
-      } else {
-        console.log('No sound notification available.');
-      }
+      } 
     }
   }, [orderCounts, soundNotification, dispatch]);
 

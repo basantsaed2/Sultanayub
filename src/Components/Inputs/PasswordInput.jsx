@@ -36,6 +36,7 @@ const PasswordInput = ({
                                    value={value}
                                    onChange={onChange}
                                    required={required}
+                                   autoComplete="new-password"
                             />
                             {show ? (
                                    <IoMdEye

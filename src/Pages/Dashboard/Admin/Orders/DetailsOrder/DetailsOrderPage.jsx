@@ -603,9 +603,6 @@ const DetailsOrderPage = () => {
                                   #
                                 </th>
                                 <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
-                                  {t("Image")}
-                                </th>
-                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
                                   {t("Products")}
                                 </th>
                                 <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
@@ -656,7 +653,7 @@ const DetailsOrderPage = () => {
                                             {prod.product.name}
                                           </div>
                                           <div className="text-sm text-gray-600">
-                                            {t("Price")}: {prod.product.price}
+                                            {t("Price")}: {prod.product.price_after_discount ?prod.product.price_after_discount : prod.product.price }
                                           </div>
                                           <div className="text-sm text-gray-600">
                                             {t("Qty")}: {prod.count}

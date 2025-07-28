@@ -11,9 +11,6 @@ const ProtectedLogin = () => {
               const currentPath = location.pathname.split('?')[0];
               const isAuthRoute = currentPath === '/' || currentPath === '/forget_password';
 
-              console.log('firstPath', isAuthRoute);
-              console.log('auth', auth);
-
               if (auth?.userState && isAuthRoute) {
                      // If logged in and accessing public route, redirect to dashboard
                      navigate('/dashboard', { replace: true });

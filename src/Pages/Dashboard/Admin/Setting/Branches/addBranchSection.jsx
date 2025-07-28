@@ -10,6 +10,7 @@ import {
   Switch,
   TextInput,
   TimeInput,
+  TitlePage,
   UploadInput,
 } from "../../../../../Components/Components";
 import { usePost } from "../../../../../Hooks/usePostJson";
@@ -17,7 +18,7 @@ import { useAuth } from "../../../../../Context/Auth";
 import { useGet } from "../../../../../Hooks/useGet";
 import { useTranslation } from "react-i18next";
 
-const AddBannerSection = ({ update, setUpdate }) => {
+const AddBannerSection = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const {
     refetch: refetchCities,
@@ -86,7 +87,6 @@ const AddBannerSection = ({ update, setUpdate }) => {
     if (dataCities) {
       setCities([{ id: "", name: t("Select City") }, ...dataCities.cities] || []);
     }
-    console.log("cities", cities);
   }, [dataCities]);
 
   const handleTap = (index) => {
@@ -146,7 +146,6 @@ const AddBannerSection = ({ update, setUpdate }) => {
       handleReset();
     }
     // refetchCategory()
-    setUpdate(!update);
   }, [response]);
 
   const handleTimeChange = (e) => {
@@ -294,7 +293,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
     {
       (activeBranch === 0 && notActiveReason) &&
         formData.append("block_reason", notActiveReason)
-    } 
+    }
     branchName.forEach((name, index) => {
       // Corrected the typo and added translation_id and translation_name
       formData.append(
@@ -319,7 +318,8 @@ const AddBannerSection = ({ update, setUpdate }) => {
           </div>
         </>
       ) : (
-        <section>
+        <section className="flex flex-col mb-20">
+          <TitlePage text={t("AddNewBranch")} />
           <form onSubmit={handleBranchAdd}>
             {/* Taps */}
             <div className="flex items-center justify-start w-full py-2 gap-x-6">
@@ -337,7 +337,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
               ))}
             </div>
             {/* Content*/}
-            <div className="sm:py-3 lg:py-6">
+            <div className="py-3">
               {taps.map(
                 (tap, index) =>
                   currentTap === index && (
@@ -345,9 +345,9 @@ const AddBannerSection = ({ update, setUpdate }) => {
                       className="flex flex-wrap items-center justify-start w-full gap-4 sm:flex-col lg:flex-row"
                       key={tap.id}
                     >
-                      <div className="flex flex-wrap items-center justify-start w-full gap-4 sm:flex-col lg:flex-row">
+                      <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                         {/* Branch Name */}
-                        <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                        <div className="w-full flex flex-col items-start justify-center gap-y-1">
                           <span className="text-xl font-TextFontRegular text-thirdColor">
                             {t("Name")} {tap.name}:
                           </span>
@@ -381,7 +381,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
                         {currentTap === 0 && (
                           <>
                             {/* Branch Address */}
-                            <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("BranchAddress")}:
                               </span>
@@ -394,7 +394,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
                               />
                             </div>
                             {/* Branch Phone */}
-                            <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("BranchPhone")}:
                               </span>
@@ -405,7 +405,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
                               />
                             </div>
                             {/* Branch Email */}
-                            <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("BranchEmail")}:
                               </span>
@@ -417,7 +417,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
                               />
                             </div>
                             {/* Branch Password */}
-                            <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("BranchPassword")}:
                               </span>
@@ -431,7 +431,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
                               />
                             </div>
                             {/* Branch Coverage */}
-                            <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("BranchCoverage")}:
                               </span>
@@ -444,7 +444,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
                               />
                             </div>
                             {/* Cities */}
-                            <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("City")}:
                               </span>
@@ -460,7 +460,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
                               />
                             </div>
                             {/* Branch Latitude */}
-                            <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("BranchLatitude")}:
                               </span>
@@ -473,7 +473,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
                               />
                             </div>
                             {/* Branch Longitude */}
-                            <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("BranchLongitude")}:
                               </span>
@@ -486,7 +486,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
                               />
                             </div>
                             {/* Branch Preparion Time */}
-                            <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("FoodPreparationTime")}:
                               </span>
@@ -498,7 +498,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
                               />
                             </div>
                             {/* Branch Image */}
-                            <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("Image")}:
                               </span>
@@ -512,7 +512,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
                               />
                             </div>
                             {/* Banner Cover Image */}
-                            <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("CoverImage")}:
                               </span>
@@ -537,7 +537,7 @@ const AddBannerSection = ({ update, setUpdate }) => {
                             {/* Branch Not Active Reason */}
                             {
                               activeBranch === 0 && (
-                                <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                                <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                   <span className="text-xl font-TextFontRegular text-thirdColor">
                                     {t("BranchNotActiveReason")}:
                                   </span>

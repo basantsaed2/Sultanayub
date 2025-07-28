@@ -78,7 +78,7 @@ import {
 import ProtectedLogin from "./ProtectedData/ProtectedLogin";
 import NotFoundPage from "./Pages/NotFoundPage/NotFoundPage";
 import App from "./App";
-import { BusinessSettingsPage, CustomerLoginPage, EditRolePage, MainBranchSetupPage, OrdersPage, OrdersPaymentHistoryPage, OrdersPaymentPendingPage, RestaurantTimeSlotPage } from "./Pages/Pages";
+import { AddBranchSection, AddFinacialAccountPage, BusinessSettingsPage, CustomerLoginPage, EditFinacialAccountPage, EditRolePage, FinacialAccountPage, MainBranchSetupPage, OrdersPage, OrdersPaymentHistoryPage, OrdersPaymentPendingPage, RestaurantTimeSlotPage } from "./Pages/Pages";
 import LogOrders from "./Pages/Dashboard/Admin/Orders/LogOrders/LogOrders";
 import EditEmailPage from "./Pages/Dashboard/Admin/Setting/Email/EditEmail";
 import GroupLayout from "./layouts/Dashboard/Setting/Group/GroupLayout";
@@ -87,6 +87,14 @@ import ExtraLayout from "./layouts/Dashboard/Setting/Extra/ExtraLayout";
 import EditExtraLayout from "./layouts/Dashboard/Setting/Extra/EditExtraLayout";
 import AppSetupLayout from "./layouts/Dashboard/Setting/AppSetup/AppSetupLayout";
 //import ToggleItems from "./Pages/Dashboard/Admin/ProductSetup/ToggleItems";
+import BranchList from "./DashboardBranches/BranchList";
+import BranchCustomer from "./DashboardBranches/BranchCustomer/BranchCustomer";
+import BranchCustomerAdd from "./DashboardBranches/BranchCustomer/BranchCustomerAdd";
+import BranchAddressAdd from "./DashboardBranches/BranchCustomer/BranchAddressAdd";
+import BranchOffer from "./DashboardBranches/BranchOffer";
+import KitchenType from "./Pages/Dashboard/Admin/Setting/Branches/KitchenType/KitchenType";
+import AddKitchenType from "./Pages/Dashboard/Admin/Setting/Branches/KitchenType/AddKitchenType";
+import EditKitchenType from "./Pages/Dashboard/Admin/Setting/Branches/KitchenType/EditKitchenType";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -135,6 +143,139 @@ export const router = createBrowserRouter([
     element: <ToggleItems />
   },
   */},
+
+  /* Dashboard Branch or main app routes after login */
+  {
+    path: "/branch",
+    element: <ProtectedLogin />,
+    children: [
+      {
+        path: "",
+        element: <App />,
+        children: [
+          {
+            path: "",
+            element: <BranchList />,
+          },
+          {
+            path: "customer",
+            children: [
+              {
+                path: "",
+                index: true,
+                element: <BranchCustomer />,
+              },
+              {
+                path: "add",
+                element: <BranchCustomerAdd />
+
+              },
+              {
+                path: "address-add",
+                element: <BranchAddressAdd />,
+              },
+              {
+                path: "edit-address/:id",
+                element: <BranchAddressAdd />
+              },
+            ],
+          },
+          {
+            path: "order-offers",
+            children: [
+              {
+                path: "",
+                index: true,
+                element: <BranchOffer />,
+              },
+              {
+                path: "add",
+                element: <BranchCustomerAdd />
+
+              },
+              {
+                path: "address-add",
+                element: <BranchAddressAdd />,
+              },
+              {
+                path: "edit-address/:id",
+                element: <BranchAddressAdd />
+              },
+            ],
+
+          },
+          {
+            path: "orders",
+            element: <OrderLayout />,
+            children: [
+              /* All orders */
+              {
+                path: "all",
+                element: <AllOrdersLayout />,
+              },
+              {
+                path: "pending",
+                element: <PendingOrdersLayout />,
+              },
+              {
+                path: "confirmed",
+                element: <ConfirmedOrdersLayout />,
+              },
+              {
+                path: "processing",
+                element: <ProcessingOrdersLayout />,
+              },
+              {
+                path: "out_for_delivery",
+                element: <OutForDeliveryOrdersLayout />,
+              },
+              {
+                path: "delivered",
+                element: <DeliveredOrdersLayout />,
+              },
+              {
+                path: "returned",
+                element: <ReturnedOrdersLayout />,
+              },
+              {
+                path: "refund",
+                element: <RefundOrdersLayout />,
+              },
+              {
+                path: "failed",
+                element: <FailedOrdersLayout />,
+              },
+              {
+                path: "canceled",
+                element: <CanceledOrdersLayout />,
+              },
+              {
+                path: "schedule",
+                element: <ScheduleOrdersLayout />,
+              },
+              {
+                path: "log",
+                element: <LogOrders />,
+              },
+
+              /* Details Order */
+              {
+                path: "details/:orderId",
+                element: <DetailsOrderLayout />,
+              },
+              /* Invoice Order */
+              {
+                path: "invoice/:orderId",
+                element: <InvoiceOrderLayout />,
+              },
+            ],
+          },
+
+        ],
+      },
+    ],
+  },
+
   /* Dashboard or main app routes after login */
   {
     path: "/dashboard",
@@ -214,8 +355,48 @@ export const router = createBrowserRouter([
                 element: <BranchesLayout />,
               },
               {
+                path: 'add',
+                element: <AddBranchSection />,
+              },
+              {
                 path: 'edit/:branchId',
                 element: <EditBranchLayout />,
+              },
+              {
+                path: 'branch_kitchen/:branchId',
+                element: <Outlet />,
+                children: [
+                  {
+                    path: '',
+                    element: <KitchenType />,
+                  },
+                  {
+                    path: 'add',
+                    element: <AddKitchenType />,
+                  },
+                  {
+                    path: 'edit/:kitchenId',
+                    element: <EditKitchenType />,
+                  },
+                ]
+              },
+              {
+                path: 'branch_birsta/:branchId',
+                element: <Outlet />,
+                children: [
+                  {
+                    path: '',
+                    element: <KitchenType />,
+                  },
+                  {
+                    path: 'add',
+                    element: <AddKitchenType />,
+                  },
+                  {
+                    path: 'edit/:birstaId',
+                    element: <EditKitchenType />,
+                  },
+                ]
               },
               {
                 path: 'branch_category/:branchId',
@@ -274,6 +455,28 @@ export const router = createBrowserRouter([
                       {
                         path: 'edit/:paymentMethodId',
                         element: <EditPaymentMethodLayout />
+                      }
+                    ]
+                  },
+                ]
+              },
+              {
+                path: 'financial_account',
+                children: [
+                  {
+                    path: '',
+                    children: [
+                      {
+                        index: true,
+                        element: <FinacialAccountPage />,
+                      },
+                      {
+                        path: 'add',
+                        element: <AddFinacialAccountPage />
+                      },
+                      {
+                        path: 'edit/:financialId',
+                        element: <EditFinacialAccountPage />
                       }
                     ]
                   },

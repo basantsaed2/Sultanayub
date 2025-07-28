@@ -39,12 +39,13 @@ const HomePage = () => {
   const [offers, setOffers] = useState([])
   const [topSelling, SetTopSelling] = useState([])
   const [topCustomers, setTopCustomers] = useState({})
+  const [showSMSMessage, setShowSMSMessage] = useState(false);
 
   useEffect(() => {
     refetchChart();
     refetchBranch();
     refetchOrders();
-  }, [refetchChart, refetchBranch , refetchOrders]);
+  }, [refetchChart, refetchBranch, refetchOrders]);
 
   useEffect(() => {
     if (dataCharts) {
@@ -58,6 +59,12 @@ const HomePage = () => {
     }
   }, [dataCharts, dataHome, order_statistics]);
 
+  useEffect(() => {
+    if (dataOrders?.msg_package !== false) {
+      setShowSMSMessage(true);
+    }
+  }, [dataOrders]);
+
   const counters = {
     ordersAll: dataOrders?.orders || 0,
     ordersPending: dataOrders?.pending || 0,
@@ -69,14 +76,56 @@ const HomePage = () => {
     ordersFailed: dataOrders?.faild_to_deliver || 0,
     ordersCanceled: dataOrders?.canceled || 0,
     ordersSchedule: dataOrders?.scheduled || 0,
-    ordersRefund:dataOrders?.refund || 0,
+    ordersRefund: dataOrders?.refund || 0,
+  };
+
+  const renderSMSMessageCard = () => {
+    if (!showSMSMessage || !dataOrders?.msg_package) return null;
+
+    return (
+      <div className="w-full rounded-xl bg-white py-3 px-4 border border-gray-300 shadow-lg mb-6">
+        <div className="flex items-center justify-between pb-1 mb-4 border-b-2">
+          <h3 className="text-xl font-TextFontSemiBold text-mainColor">
+            {t("SMS Package")}
+          </h3>
+        </div>
+
+        <div className="w-full flex flex-col gap-y-4 pb-2">
+          <div className="flex items-center justify-between w-full p-4 border-b-2 border-gray-300 shadow-md rounded-xl">
+            <div className="flex flex-col items-start">
+              <p className="text-gray-500 font-TextFontMedium">
+                {t("Available Messages")}
+              </p>
+              <p className="text-lg font-TextFontSemiBold text-mainColor">
+                {dataOrders.msg_package?.msg_number}
+              </p>
+            </div>
+
+            <div className="flex flex-col items-end">
+              <p className="text-gray-500 font-TextFontMedium">
+                {t("Validity Period")}
+              </p>
+              <div className="text-right">
+                <p className="text-sm font-TextFontMedium text-mainColor">
+                  {t("From")}: {dataOrders.msg_package?.from}
+                </p>
+                <p className="text-sm font-TextFontMedium text-mainColor">
+                  {t("To")}: {dataOrders.msg_package?.to}
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    );
   };
 
   return (
     <>
       <OrdersComponent />
       <div className="flex flex-col w-full mb-0">
-        { (loadingBranch || loadingOrders ) ? (
+        {(loadingBranch || loadingOrders) ? (
           <>
             <div className="flex items-center justify-center w-full">
               <LoaderLogin />
@@ -97,8 +146,9 @@ const HomePage = () => {
                   orders={orders}
                 />
                 <div className="flex flex-wrap items-center justify-between w-full gap-5">
+                  {renderSMSMessageCard()}
+
                   <FooterCard title={t("TopSellingProducts")} link="/dashboard/setup_product/product" layout={"TopSelling"} topCustomers={topCustomers} topSelling={topSelling} offers={offers} />
-                  {/* <FooterCard title={"Most Rated Products"} link="/dashboard/setup_product/product" /> */}
                   <FooterCard title={t("Deals")} link="/dashboard/deals" layout={"Deals"} topCustomers={topCustomers} topSelling={topSelling} offers={offers} />
                   <FooterCard title={t("TopCustomer")} link="/dashboard/users/customers" layout={"default"} topCustomers={topCustomers} topSelling={topSelling} offers={offers} />
                 </div>

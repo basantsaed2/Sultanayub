@@ -31,9 +31,14 @@ const SelectDateRangeSection = ({ typPage, branchsData }) => {
   const { t, i18n } = useTranslation();
 
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const role = localStorage.getItem("role"); // Access role safely
 
+  // Dynamically set the API URL based on the user's role
   const { postData, loadingPost, response } = usePost({
-    url: `${apiUrl}/admin/order/order_filter_date`,
+    url:
+      role === "branch"
+        ? `${apiUrl}/branch/online_order/order_filter_date`
+        : `${apiUrl}/admin/order/order_filter_date`,
   });
 
   const dropDownBranch = useRef();
@@ -137,20 +142,8 @@ const SelectDateRangeSection = ({ typPage, branchsData }) => {
         default:
           console.error("Invalid typPage:", typPage);
       }
-    } else {
-      console.log("No response received yet.");
     }
-    console.log("response", response);
   }, [response, typPage, dispatch]);
-
-  useEffect(() => {
-    console.log("Full API Response:", response);
-
-    if (response && response.data && Array.isArray(response.data.orders)) {
-      console.log("Orders Count:", response.data.orders.length);
-      console.log("First Order (if any):", response.data.orders[0]);
-    }
-  }, [response]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -211,11 +204,6 @@ const SelectDateRangeSection = ({ typPage, branchsData }) => {
       formData.set("type", selectedType);
     }
 
-    console.log("FormData being sent:");
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
-
     postData(formData);
   };
 
@@ -251,7 +239,7 @@ const SelectDateRangeSection = ({ typPage, branchsData }) => {
 
           <div className="sm:w-full lg:w-[23%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-             {t("Order Type")}:
+              {t("Order Type")}:
             </span>
             <DropDown
               ref={dropDownType}

@@ -10,14 +10,21 @@ import { useTranslation } from "react-i18next";
 
 const RefundOrdersLayout = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const { t, i18n } = useTranslation();
+
+  const role = localStorage.getItem("role"); // قراءة الدور
+  const branchesUrl =
+    role === "branch"
+      ? `${apiUrl}/branch/online_order/branches`
+      : `${apiUrl}/admin/order/branches`;
+
   const {
     refetch: refetchBranch,
     loading: loadingBranch,
     data: dataBranch,
   } = useGet({
-    url: `${apiUrl}/admin/order/branches`,
+    url: branchesUrl,
   });
-  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     refetchBranch(); // Refetch data when the component mounts

@@ -68,7 +68,6 @@ const Navbar = () => {
   useEffect(() => {
     if (dataCancelation && dataCancelation.orders) {
       setCancelationStatuses(dataCancelation.orders);
-      console.log('Cancellation Data:', dataCancelation);
     }
   }, [dataCancelation]);
 
@@ -258,7 +257,7 @@ const Navbar = () => {
                 )}
               </button>
               {notificationOpen && (
-                <div className="absolute right-0 z-40 w-64 py-1 mt-2 overflow-y-auto bg-white rounded-md shadow-lg max-h-80">
+                <div className="absolute right-0 top-8 z-40 w-64 py-1 mt-2 overflow-y-auto bg-white rounded-md shadow-lg max-h-80">
                   {canceledOrders.orders.length === 0 ? (
                     <div className="px-4 py-2 text-gray-700">{t("No Waiting Orders")}</div>
                   ) : (

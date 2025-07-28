@@ -32,6 +32,10 @@ export { default as EditRolePage } from "./Dashboard/Admin/Setting/Roles/EditRol
 export { default as PaymentMethodPage } from "./Dashboard/Admin/Setting/PaymentMethod/PaymentMethodPage";
 export { default as AddPaymentMethodSection } from "./Dashboard/Admin/Setting/PaymentMethod/AddPaymentMethodSection";
 export { default as EditPaymentMethodPage } from "./Dashboard/Admin/Setting/PaymentMethod/EditPaymentMethodPage";
+//Financial Account
+export { default as FinacialAccountPage } from "./Dashboard/Admin/Setting/FinacialAccount/FinacialAccountPage";
+export { default as AddFinacialAccountPage } from "./Dashboard/Admin/Setting/FinacialAccount/AddFinacialAccountPage";
+export { default as EditFinacialAccountPage } from "./Dashboard/Admin/Setting/FinacialAccount/EditFinacialAccountPage";
 // Setting -> Menu
 export { default as MenuPage } from "./Dashboard/Admin/Setting/Menu/MenuPage";
 export { default as AddMenuPage } from "./Dashboard/Admin/Setting/Menu/AddMenuPage";
