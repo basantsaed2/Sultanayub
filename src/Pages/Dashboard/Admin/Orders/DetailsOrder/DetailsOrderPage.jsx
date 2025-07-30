@@ -653,7 +653,7 @@ const DetailsOrderPage = () => {
                                             {prod.product.name}
                                           </div>
                                           <div className="text-sm text-gray-600">
-                                            {t("Price")}: {prod.product.price_after_discount ?prod.product.price_after_discount : prod.product.price }
+                                            {t("Price")}: { prod.product.price }
                                           </div>
                                           <div className="text-sm text-gray-600">
                                             {t("Qty")}: {prod.count}
