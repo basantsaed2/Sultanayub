@@ -20,9 +20,12 @@ const KitchenType = () => {
     const { t } = useTranslation();
     const [branchType, setBranchType] = useState([]);
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [openDelete, setOpenDelete] = useState(null);
     const [openProductModal, setOpenProductModal] = useState(null);
     const [selectedProducts, setSelectedProducts] = useState([]);
+    const [selectedCategories, setSelectedCategories] = useState([]);
+    const [filteredProducts, setFilteredProducts] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [openProductsModal, setOpenProductsModal] = useState(null);
     const typesPerPage = 20;
@@ -39,7 +42,7 @@ const KitchenType = () => {
     });
     const { deleteData, loadingDelete } = useDelete();
     const { changeState } = useChangeState();
-    const { postData, loadingPost } = usePost({
+    const { postData, loadingPost, response } = usePost({
         url: `${apiUrl}/admin/pos/kitchens/select_product`,
     });
 
@@ -70,8 +73,28 @@ const KitchenType = () => {
     useEffect(() => {
         if (dataList && dataList.products) {
             setProducts(dataList.products);
+            setCategories(dataList.category);
+            setFilteredProducts(dataList.products); // Initially show all products
         }
     }, [dataList]);
+
+    // Filter products based on selected categories
+    useEffect(() => {
+        if (selectedCategories.length > 0) {
+            const filtered = products.filter((product) =>
+                selectedCategories.some((category) => category.id === product.category_id)
+            );
+            setFilteredProducts(filtered);
+        } else {
+            setFilteredProducts(products); // Show all products if no categories selected
+        }
+    }, [selectedCategories, products]);
+
+    useEffect(() => {
+            if (!loadingPost && response) {
+            handleCloseProductModal();
+            }
+        }, [response, loadingPost]);
 
     const handleChangeStatus = async (id, name, status) => {
         const response = await changeState(
@@ -93,7 +116,6 @@ const KitchenType = () => {
     const handleCloseProductsModal = () => {
         setOpenProductsModal(null);
     };
-
 
     const handleOpenDelete = (item) => {
         setOpenDelete(item);
@@ -117,33 +139,43 @@ const KitchenType = () => {
     const handleOpenProductModal = (kitchenId) => {
         setOpenProductModal(kitchenId);
         setSelectedProducts([]);
+        setSelectedCategories([]);
+        setFilteredProducts(products); // Reset to all products when opening modal
     };
 
     const handleCloseProductModal = () => {
         setOpenProductModal(null);
         setSelectedProducts([]);
+        setSelectedCategories([]);
     };
 
     const handleAddProducts = async () => {
-        if (!selectedProducts.length) {
-            return;
-        }
-
         const formData = new FormData();
         formData.append("kitchen_id", openProductModal);
-        selectedProducts.forEach((product, index) => {
-            formData.append(`product_id[${index}]`, product.id);
-        });
 
-        const success = await postData(
+        // Append product IDs or empty array
+        if (selectedProducts.length > 0) {
+            selectedProducts.forEach((product, index) => {
+                formData.append(`product_id[${index}]`, product.id);
+            });
+        } else {
+            formData.append("product_id[]", ""); // Empty array representation
+        }
+
+        // Append category IDs or empty array
+        if (selectedCategories.length > 0) {
+            selectedCategories.forEach((category, index) => {
+                formData.append(`category_id[${index}]`, category.id);
+            });
+        } else {
+            formData.append("category_id[]", ""); // Empty array representation
+        }
+
+        postData(
             formData,
             t("ProductsAddedSuccess", { type: t(isBirsta ? "Birsta" : "Kitchen") })
         );
-        if (success) {
-            handleCloseProductsModal();
-        }
     };
-
     const headers = [
         "#",
         t("Name"),
@@ -316,31 +348,57 @@ const KitchenType = () => {
                                                         <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
                                                         <div className="fixed inset-0 z-20 w-screen overflow-y-auto">
                                                             <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
-                                                                <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-md">
-                                                                    <div className="px-4 pt-5 pb-4 sm:p-6">
-                                                                        <DialogTitle as="h3" className="text-lg font-TextFontSemiBold text-mainColor">
+                                                                <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg">
+                                                                    <div className="px-6 pt-6 pb-5 sm:p-4">
+                                                                        <DialogTitle as="h3" className="text-xl font-TextFontSemiBold text-mainColor mb-4">
                                                                             {t("AddProductsTo", { name: type.name })}
                                                                         </DialogTitle>
-                                                                        <div className="mt-4">
-                                                                            <MultiSelect
-                                                                                value={selectedProducts}
-                                                                                onChange={(e) => setSelectedProducts(e.value)}
-                                                                                options={products}
-                                                                                optionLabel="name"
-                                                                                display="chip"
-                                                                                placeholder={t("SelectProducts")}
-                                                                                className="w-full p-1 text-mainColor"
-                                                                                filter
-                                                                                maxSelectedLabels={3}
-                                                                            />
+                                                                        <div className="flex flex-col gap-4">
+                                                                            <div>
+                                                                                <label className="block text-sm font-TextFontMedium text-gray-700 mb-1">
+                                                                                    {t("SelectCategories")}
+                                                                                </label>
+                                                                                <MultiSelect
+                                                                                    value={selectedCategories}
+                                                                                    onChange={(e) => setSelectedCategories(e.value)}
+                                                                                    options={categories}
+                                                                                    optionLabel="name"
+                                                                                    display="chip"
+                                                                                    placeholder={t("SelectCategories")}
+                                                                                    className="w-full bg-white text-mainColor border border-gray-300 rounded-md focus:ring-2 focus:ring-mainColor focus:border-mainColor"
+                                                                                    filter
+                                                                                    maxSelectedLabels={3}
+                                                                                />
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-sm font-TextFontMedium text-gray-700 mb-1">
+                                                                                    {t("SelectProducts")}
+                                                                                </label>
+                                                                                <MultiSelect
+                                                                                    value={selectedProducts}
+                                                                                    onChange={(e) => setSelectedProducts(e.value)}
+                                                                                    options={filteredProducts}
+                                                                                    optionLabel="name"
+                                                                                    display="chip"
+                                                                                    placeholder={selectedCategories.length > 0 ? t("SelectProducts") : t("SelectProductsOrCategory")}
+                                                                                    className="w-full bg-white text-mainColor border border-gray-300 rounded-md focus:ring-2 focus:ring-mainColor focus:border-mainColor"
+                                                                                    filter
+                                                                                    maxSelectedLabels={3}
+                                                                                    disabled={loadingPost}
+                                                                                />
+                                                                            </div>
                                                                         </div>
                                                                     </div>
-                                                                    <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                                                                    <div className="px-6 py-4 sm:flex sm:flex-row-reverse gap-3 bg-gray-50 rounded-b-lg">
                                                                         <SubmitButton
-                                                                            text={t("Submit")}
+                                                                            text={loadingPost ? t("Submitting") : t("Submit")}
                                                                             rounded="rounded-md"
                                                                             handleClick={handleAddProducts}
                                                                             disabled={loadingPost || !selectedProducts.length}
+                                                                            bgColor="bg-mainColor"
+                                                                            hoverBgColor="hover:bg-mainColor-dark"
+                                                                            Size="text-xl"
+                                                                            className="px-6 py-2 text-sm font-TextFontSemiBold"
                                                                         />
                                                                         <StaticButton
                                                                             text={t("Cancel")}
@@ -350,6 +408,8 @@ const KitchenType = () => {
                                                                             border="border-2"
                                                                             borderColor="border-gray-300"
                                                                             rounded="rounded-md"
+                                                                            Size="text-xl"
+                                                                            className="px-6 py-2 text-sm font-TextFontMedium"
                                                                         />
                                                                     </div>
                                                                 </DialogPanel>

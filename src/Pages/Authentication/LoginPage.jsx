@@ -12,6 +12,7 @@ import { usePost } from "../../Hooks/usePostJson";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../Store/CreateSlices";
 import { useTranslation } from "react-i18next";
+import { requestPermission } from "../../NotificationHelper";
 
 const LoginPage = () => {
   const { t, i18n } = useTranslation();
@@ -28,23 +29,26 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e) => {
-    e.preventDefault(); // Use uppercase "D"
+ const handleLogin = async (e) => {  // Add async here
+  e.preventDefault();
 
-    if (!email) {
-      auth.toastError(t("Please Enter The Email"));
-      return;
-    }
-    if (!password) {
-      auth.toastError(t("Please Enter The Password"));
-      return;
-    }
-    const payload = {
-      email,
-      password,
-    };
+  if (!email) {
+    auth.toastError(t("Please Enter The Email"));
+    return;
+  }
+  if (!password) {
+    auth.toastError(t("Please Enter The Password"));
+    return;
+  }
 
-    postData(payload); // Call postData with formData
+  const fcmToken = await requestPermission();
+  const payload = {
+    email,
+    password,
+    fcm_token: fcmToken || null,
+  };
+
+  postData(payload);
   };
 
   useEffect(() => {

@@ -75,9 +75,7 @@ const DetailsOrderPage = () => {
 
   useEffect(() => {
     // Only remove if the order exists in canceled orders
-    console.log("canceledOrders", orderId);
     const orderExists = canceledOrders.orders.includes(orderId);
-    console.log("orderExists", orderExists);
     if (orderExists) {
       dispatch(removeCanceledOrder(orderId));
     }
@@ -90,11 +88,6 @@ const DetailsOrderPage = () => {
     const ACTIONS =
       auth?.userState?.user_positions?.roles?.map((role) => role.action) || [];
     setPermission(computedPermission);
-
-    // Log the computed values
-    auth.userState.user_positions.roles.forEach((role, index) => {
-      console.log(`Role #${index + 1}: ${role.role} | Actions: ${role.action}`);
-    });
   }, [auth?.userState?.user_positions?.roles]);
   useEffect(() => {
     refetchDetailsOrder();
@@ -117,15 +110,7 @@ const DetailsOrderPage = () => {
       setDeliveriesFilter(dataDetailsOrder?.deliveries);
       setPreparationTime(dataDetailsOrder?.preparing_time);
     }
-
-    console.log("dataDetailsOrder", dataDetailsOrder); // Refetch data when the component mounts
-    console.log("detailsData", detailsData); // Refetch data when the component mounts
-    console.log("OrderStatus", orderStatus); // Refetch data when the component mounts
   }, [dataDetailsOrder]);
-
-  useEffect(() => {
-    console.log("orderId", orderId); // Refetch data when the component mounts
-  }, [orderId]);
 
   const timeString = dataDetailsOrder?.order?.date || "";
   const [olderHours, olderMinutes] = timeString.split(":").map(Number); // Extract hours and minutes as numbers
@@ -172,8 +157,6 @@ const DetailsOrderPage = () => {
     );
 
     setDeliveriesFilter(filterDeliveries);
-
-    console.log("filterDeliveries", filterDeliveries);
   };
 
   const handleAssignDelivery = (deliveryID, orderID, deliveryNumber) => {
@@ -191,9 +174,7 @@ const DetailsOrderPage = () => {
       setOpenDeliveries(false);
       setDeliveriesFilter(deliveries);
       refetchDetailsOrder(); // Refetch to update the UI with new status and delivery info.
-
     }
-    console.log("response", response);
   }, [response]);
 
   const handleOpenReceipt = (id) => {
@@ -222,7 +203,6 @@ const DetailsOrderPage = () => {
     const hasOrderPermission = auth.userState.user_positions.roles?.some(
       (perm) => perm.role === "Order"
     );
-    console.log("hasOrderPermission", hasOrderPermission);
     const hasValidAction = auth.userState.user_positions.roles?.some(
       (action) => action.action === "all" || action.action === "back_status"
     );
@@ -251,8 +231,6 @@ const DetailsOrderPage = () => {
   };
 
   const handleSelectOrderStatus = (selectedOption) => {
-    console.log("selectedOption", selectedOption);
-
     const targetStatus = selectedOption.name;
 
     // Define status transition rules
@@ -304,7 +282,6 @@ const DetailsOrderPage = () => {
         setShowReason(false);
       }
     } catch (error) {
-      console.error("Error changing status:", error);
       if (error?.response?.data?.errors === "You can't change status") {
         setShowStatusModal(true);
       }

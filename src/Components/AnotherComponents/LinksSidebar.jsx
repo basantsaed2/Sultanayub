@@ -377,8 +377,8 @@ const LinksSidebar = () => {
     () => ({
       ordersAll: ordersAllCount?.length || 0,
       ordersPending: ordersPendingCount?.length || 0,
-      ordersConfirmed: ordersConfirmedCount?.length || 0,
-      ordersProcessing: ordersProcessingCount?.length || 0,
+      ordersConfirmed: ordersProcessingCount?.length || 0,
+      ordersProcessing: ordersConfirmedCount?.length || 0,
       ordersOutForDelivery: ordersOutForDeliveryCount?.length || 0,
       ordersDelivered: ordersDeliveredCount?.length || 0,
       ordersReturned: ordersReturnedCount?.length || 0,
