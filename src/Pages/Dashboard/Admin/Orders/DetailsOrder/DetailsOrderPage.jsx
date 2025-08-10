@@ -79,7 +79,6 @@ const DetailsOrderPage = () => {
     if (orderExists) {
       dispatch(removeCanceledOrder(orderId));
     }
-    refetchDetailsOrder();
   }, [orderId, location.pathname, dispatch, canceledOrders.orders]);
 
   useEffect(() => {
@@ -89,13 +88,10 @@ const DetailsOrderPage = () => {
       auth?.userState?.user_positions?.roles?.map((role) => role.action) || [];
     setPermission(computedPermission);
   }, [auth?.userState?.user_positions?.roles]);
-  useEffect(() => {
-    refetchDetailsOrder();
-  }, [orderNumPath]);
 
   useEffect(() => {
     refetchDetailsOrder(); // Refetch data when the component mounts or orderId or path changes
-  }, [refetchDetailsOrder, orderId, location.pathname]);
+  }, [refetchDetailsOrder, orderNumPath, orderId, location.pathname]);
 
   useEffect(() => {
     if (dataDetailsOrder && dataDetailsOrder?.order) {
@@ -630,7 +626,7 @@ const DetailsOrderPage = () => {
                                             {prod.product.name}
                                           </div>
                                           <div className="text-sm text-gray-600">
-                                            {t("Price")}: { prod.product.price }
+                                            {t("Price")}: {prod.product.price}
                                           </div>
                                           <div className="text-sm text-gray-600">
                                             {t("Qty")}: {prod.count}
@@ -702,7 +698,7 @@ const DetailsOrderPage = () => {
                                                 {addon.addon.price}
                                               </div>
                                               <div className="text-sm text-gray-500">
-                                                {t("Count")}: {addon.count || 0}
+                                                {t("Count")}: {addon.count * order.product[0]?.count || 0}
                                               </div>
                                             </div>
                                           )
@@ -825,7 +821,7 @@ const DetailsOrderPage = () => {
                               orderDetail.addons.forEach((addonItem) => {
                                 // Add the price of each addon to the total
                                 totalAddonPrice +=
-                                  addonItem.addon.price * addonItem.count;
+                                  addonItem.addon.price * addonItem.count * orderDetail.product[0]?.count;
                               });
                             }
                           )}
@@ -965,10 +961,8 @@ const DetailsOrderPage = () => {
                             // 'returned',
                             // 'faild_to_deliver'
                           ];
-                          // ccccccccc
                           const currentStatus = detailsData?.order_status;
-                          const currentIndex =
-                            statusOrder.indexOf(currentStatus);
+                          const currentIndex = statusOrder.indexOf(currentStatus);
 
                           // Define all possible statuses
                           const allStatuses = [
@@ -1020,35 +1014,25 @@ const DetailsOrderPage = () => {
                           ];
 
                           // Filter statuses based on current status
-                          const filteredStatuses = allStatuses.filter(
-                            (status) => {
-                              if (currentStatus === "delivered") {
-                                // Exclude 'canceled' and 'returned' when status is 'delivered'
-                                return !["canceled"].includes(status.name);
-                              } else if (currentStatus === "canceled") {
-                                // Exclude 'delivered', 'faild_to_deliver', and 'returned' when status is 'canceled'
-                                return ![
-                                  "delivered",
-                                  "faild_to_deliver",
-                                  "returned",
-                                ].includes(status.name);
-                              } else if (currentStatus === "refund") {
-                                // Exclude 'delivered', 'faild_to_deliver', and 'returned' when status is 'canceled'
-                                return !["canceled"].includes(status.name);
-                              }
-                              return true; // Include all statuses for other cases
+                          const filteredStatuses = allStatuses.filter((status) => {
+                            if (currentStatus === "delivered") {
+                              return !["canceled"].includes(status.name);
+                            } else if (currentStatus === "canceled") {
+                              // Exclude 'delivered', 'faild_to_deliver', and 'returned' when status is 'canceled'
+                              return !["delivered", "faild_to_deliver", "returned"].includes(
+                                status.name
+                              );
+                            } else if (currentStatus === "refund") {
+                              return !["canceled"].includes(status.name);
                             }
-                          );
+                            return true;
+                          });
 
                           return filteredStatuses.map((status) => {
-                            const statusIndex = statusOrder.indexOf(
-                              status.name
-                            );
+                            const statusIndex = statusOrder.indexOf(status.name);
                             const isCurrent = currentStatus === status.name;
-                            const isPrevious =
-                              statusIndex !== -1 && currentIndex > statusIndex;
-                            const isNext =
-                              statusIndex !== -1 && currentIndex < statusIndex;
+                            const isPrevious = statusIndex !== -1 && currentIndex > statusIndex;
+                            const isNext = statusIndex !== -1 && currentIndex < statusIndex;
 
                             const isCancel = status.name === "canceled";
                             const isReturn = status.name === "returned";
@@ -1059,19 +1043,20 @@ const DetailsOrderPage = () => {
 
                             // For normal flow statuses
                             if (statusOrder.includes(status.name)) {
-                              // Enable if exactly one step forward or backward (except pending)
-                              isDisabled = !(
-                                statusIndex === currentIndex + 1 ||
-                                (statusIndex === currentIndex - 1 &&
-                                  status.name !== "pending")
-                              );
+                              if (currentStatus === "pending") {
+                                // Allow transition to "processing" or "confirmed" from "pending"
+                                isDisabled = !["processing", "confirmed"].includes(status.name);
+                              } else {
+                                // Normal flow: enable one step forward or backward (except to pending)
+                                isDisabled = !(
+                                  statusIndex === currentIndex + 1 ||
+                                  (statusIndex === currentIndex - 1 && status.name !== "pending")
+                                );
+                              }
                             }
                             // For returned status
                             else if (isReturn) {
-                              isDisabled = ![
-                                "out_for_delivery",
-                                "delivered",
-                              ].includes(currentStatus);
+                              isDisabled = !["out_for_delivery", "delivered"].includes(currentStatus);
                             }
                             // For failed delivery status
                             else if (isFailed) {
@@ -1082,8 +1067,7 @@ const DetailsOrderPage = () => {
                               <button
                                 key={status.name}
                                 onClick={() =>
-                                  !isDisabled &&
-                                  handleSelectOrderStatus({ name: status.name })
+                                  !isDisabled && handleSelectOrderStatus({ name: status.name })
                                 }
                                 disabled={isDisabled}
                                 className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all relative
@@ -1143,7 +1127,6 @@ const DetailsOrderPage = () => {
                         })()}
                       </div>
                     </div>
-
                     {/* Reason Input Modal */}
                     {showReason && (
                       <div className="p-4 mt-4 border border-gray-200 rounded-lg bg-gray-50">
