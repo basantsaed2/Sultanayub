@@ -698,7 +698,7 @@ const DetailsOrderPage = () => {
                                                 {addon.addon.price}
                                               </div>
                                               <div className="text-sm text-gray-500">
-                                                {t("Count")}: {addon.count * order.product[0]?.count || 0}
+                                                {t("Count")}: {addon.count || 0}
                                               </div>
                                             </div>
                                           )
@@ -821,7 +821,7 @@ const DetailsOrderPage = () => {
                               orderDetail.addons.forEach((addonItem) => {
                                 // Add the price of each addon to the total
                                 totalAddonPrice +=
-                                  addonItem.addon.price * addonItem.count * orderDetail.product[0]?.count;
+                                  addonItem.addon.price * addonItem.count ;
                               });
                             }
                           )}
