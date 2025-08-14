@@ -191,6 +191,8 @@ const adminRoutes = [
       { name: "Delivery Time", path: "/dashboard/setting/delivery_time" },
       { name: "Sound", path: "/dashboard/setting/sound" },
       { name: "Menu", path: "/dashboard/setting/menu" },
+      { name: "Hall", path: "/dashboard/setting/hall_locations" },
+      { name: "Tables", path: "/dashboard/setting/hall_tables" },
       {
         name: "Cancelation Notification",
         path: "/dashboard/setting/cancelation_notification",

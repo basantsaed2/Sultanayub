@@ -83,6 +83,14 @@ export { default as EditExtraPage } from "./Dashboard/Admin/Setting/Extra/EditEx
 export { default as PolicySupportPage } from "./Dashboard/Admin/Setting/PolicySupport/PolicySupportPage";
 // Setting -> AppSetupPage
 export { default as AppSetupPage } from "./Dashboard/Admin/Setting/AppSetup/AppSetupPage";
+// Setting -> HallLocations
+export { default as HallLocations } from "./Dashboard/Admin/Setting/HallLocations/HallLocations";
+export { default as AddHallLocations } from "./Dashboard/Admin/Setting/HallLocations/AddHallLocations";
+export { default as EditHallLocations } from "./Dashboard/Admin/Setting/HallLocations/EditHallLocations";
+// Setting -> Tables
+export { default as TablesPage } from "./Dashboard/Admin/Setting/Tables/TablesPage";
+export { default as AddTablesSection } from "./Dashboard/Admin/Setting/Tables/AddTablesSection";
+export { default as EditTablesPage } from "./Dashboard/Admin/Setting/Tables/EditTablesPage";
 
 /* Texes */
 // Texes -> Taxes

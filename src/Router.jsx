@@ -78,7 +78,7 @@ import {
 import ProtectedLogin from "./ProtectedData/ProtectedLogin";
 import NotFoundPage from "./Pages/NotFoundPage/NotFoundPage";
 import App from "./App";
-import { AddBranchSection, AddFinacialAccountPage, BusinessSettingsPage, CustomerLoginPage, EditFinacialAccountPage, EditRolePage, FinacialAccountPage, MainBranchSetupPage, OrdersPage, OrdersPaymentHistoryPage, OrdersPaymentPendingPage, RestaurantTimeSlotPage } from "./Pages/Pages";
+import { AddBranchSection, AddFinacialAccountPage, AddHallLocations, BusinessSettingsPage, CustomerLoginPage, EditFinacialAccountPage, EditHallLocations, EditRolePage, FinacialAccountPage, HallLocations, MainBranchSetupPage, OrdersPage, OrdersPaymentHistoryPage, OrdersPaymentPendingPage, RestaurantTimeSlotPage } from "./Pages/Pages";
 import LogOrders from "./Pages/Dashboard/Admin/Orders/LogOrders/LogOrders";
 import EditEmailPage from "./Pages/Dashboard/Admin/Setting/Email/EditEmail";
 import GroupLayout from "./layouts/Dashboard/Setting/Group/GroupLayout";
@@ -95,6 +95,10 @@ import BranchOffer from "./DashboardBranches/BranchOffer";
 import KitchenType from "./Pages/Dashboard/Admin/Setting/Branches/KitchenType/KitchenType";
 import AddKitchenType from "./Pages/Dashboard/Admin/Setting/Branches/KitchenType/AddKitchenType";
 import EditKitchenType from "./Pages/Dashboard/Admin/Setting/Branches/KitchenType/EditKitchenType";
+import HallLocationsLayout from "./layouts/Dashboard/Setting/HallLocations/HallLocationsLayout";
+import TablesLayout from "./layouts/Dashboard/Setting/Tables/TablesLayout";
+import EditTablesLayout from "./layouts/Dashboard/Setting/Tables/EditTablesLayout";
+import EditHallLocationLayout from "./layouts/Dashboard/Setting/HallLocations/EditHallLocationLayout";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -570,6 +574,42 @@ export const router = createBrowserRouter([
               //     }
               //   ]
               // },
+              {
+                path: 'hall_locations',
+                children: [
+                  {
+                    path: '',
+                    children: [
+                      {
+                        index: true,
+                        element: <HallLocationsLayout />,
+                      },
+                      {
+                        path: 'edit/:hallId',
+                        element: <EditHallLocationLayout />
+                      }
+                    ]
+                  },
+                ]
+              },
+              {
+                path: 'hall_tables',
+                children: [
+                  {
+                    path: '',
+                    children: [
+                      {
+                        index: true,
+                        element: <TablesLayout />,
+                      },
+                      {
+                        path: 'edit/:tableId',
+                        element: <EditTablesLayout />
+                      }
+                    ]
+                  },
+                ]
+              },
               {
                 path: 'zones',
                 children: [
