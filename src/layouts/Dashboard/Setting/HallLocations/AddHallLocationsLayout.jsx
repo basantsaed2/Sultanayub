@@ -1,17 +1,17 @@
 import React from 'react'
 import { TitlePage } from '../../../../Components/Components'
 import { useTranslation } from 'react-i18next';
-import { EditHallLocations } from '../../../../Pages/Pages';
+import { AddHallLocations } from '../../../../Pages/Pages';
 
-const EditHallLocationLayout = () => {
+const AddHallLocationsLayout = () => {
                   const { t } = useTranslation();
        
        return (
               <>
-                     <TitlePage text={t('Edit Hall Locations')} />
-                     <EditHallLocations />
+                     <TitlePage text={t('Add Hall Locations')} />
+                     <AddHallLocations />
               </>
        )
 }
 
-export default EditHallLocationLayout;
+export default AddHallLocationsLayout;

@@ -33,7 +33,7 @@ const DropDown = forwardRef(({
                             <IoIosArrowDown className={`${openMenu ? "rotate-180" : "rotate-0"} text-thirdColor text-2xl transition-transform duration-300`} />
                      </button>
 
-                     <div className={`${openMenu ? "block" : "hidden"} scrollSection absolute w-full min-h-10 max-h-32 sm:top-16 bg-white rounded-xl shadow-lg overflow-y-scroll scrollDrop z-20`}> {/* Higher z-index */}
+                     <div className={`${openMenu ? "block" : "hidden"} scrollSection absolute w-full min-h-10 max-h-32 sm:top-16 bg-white rounded-xl shadow-lg overflow-y-scroll scrollDrop z-50`}> {/* Higher z-index */}
                             {options.map((option, index) => (
                                    <div
                                           key={`${option.id}-${index}`}

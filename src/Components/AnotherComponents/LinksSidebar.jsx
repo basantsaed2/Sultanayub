@@ -30,6 +30,8 @@ import { HiReceiptTax } from "react-icons/hi";
 import { TbBorderAll, TbReportSearch } from "react-icons/tb";
 import { IoMdGitBranch } from "react-icons/io";
 import { useTranslation } from "react-i18next";
+import { PiBaseballCap } from "react-icons/pi";
+import { PiClockUserFill } from "react-icons/pi";
 
 // Admin routes configuration
 const adminRoutes = [
@@ -162,6 +164,18 @@ const adminRoutes = [
     ],
     redirectTo: "/dashboard/users/admins",
   },
+    {
+    name: "Captain Order",
+    path: "/dashboard/captain_order",
+    permission: "captainOrder",
+    icon: PiBaseballCap,
+  },
+  {
+    name: "Waiter",
+    path: "/dashboard/waiter",
+    permission: "Waiter",
+    icon: PiClockUserFill,
+  },
   {
     name: "Branches",
     path: "/dashboard/branches",
@@ -199,6 +213,7 @@ const adminRoutes = [
       },
       { name: "Policy&Support", path: "/dashboard/setting/policy_support" },
       { name: "AppSetup", path: "/dashboard/setting/app_setup" },
+      { name: "Void Reason", path: "/dashboard/setting/void_reason" },
     ],
     redirectTo: "/dashboard/setting/roles",
   },
@@ -207,6 +222,12 @@ const adminRoutes = [
     path: "/dashboard/business_setup",
     permission: "Settings",
     icon: MdOutlineSettingsInputComposite,
+  },
+    {
+    name: "Reports",
+    path: "/dashboard/reports",
+    permission: "Reports",
+    icon: TbBorderAll,
   },
   {
     name: "Deals",

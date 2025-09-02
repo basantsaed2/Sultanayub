@@ -99,7 +99,8 @@ const TablesPage = ({ refetch }) => {
                                         colSpan={12}
                                         className="text-xl text-center text-mainColor font-TextFontMedium "
                                     >
-                                        {t("NotfindHalles")}                  </td>
+                                        {t("NotfindHalles")}
+                                    </td>
                                 </tr>
                             ) : (
                                 currentHalles.map(

@@ -116,6 +116,21 @@ export { default as CustomersPage } from "./Dashboard/Admin/Users/Customers/Cust
 export { default as AddCustomersSection } from "./Dashboard/Admin/Users/Customers/AddCustomersSection";
 export { default as EditCustomersPage } from "./Dashboard/Admin/Users/Customers/EditCustomersPage";
 
+/* Captain Order */
+export { default as CapitanOrder } from "./Dashboard/Admin/CapitanOrder/CapitanOrder";
+export { default as AddCaptianOrder } from "./Dashboard/Admin/CapitanOrder/AddCapitanOrder";
+export { default as EditCaptianOrder } from "./Dashboard/Admin/CapitanOrder/EditCapitanOrder";
+
+/* Waiter */
+export { default as Waiter } from "./Dashboard/Admin/Waiter/Waiter";
+export { default as AddWaiter } from "./Dashboard/Admin/Waiter/AddWaiter";
+export { default as EditWaiter } from "./Dashboard/Admin/Waiter/EditWaiter";
+
+/* Void Reason */
+export { default as VoidReason } from "./Dashboard/Admin/VoidReason/VoidReason";
+export { default as AddVoidReason } from "./Dashboard/Admin/VoidReason/AddVoidReason";
+export { default as EditVoidReason } from "./Dashboard/Admin/VoidReason/EditVoidReason";
+
 // Business Setup
 export { default as BusinessSettingsPage } from "./Dashboard/Admin/BusinessSetup/BusinessSettingsPage";
 export { default as MainBranchSetupPage } from "./Dashboard/Admin/BusinessSetup/MainBranchSetupPage";
@@ -168,4 +183,5 @@ export { default as FailedOrdersPage } from "./Dashboard/Admin/Orders/FailedOrde
 export { default as CanceledOrdersPage } from "./Dashboard/Admin/Orders/CanceledOrders/CanceledOrdersPage";
 export { default as ScheduleOrdersPage } from "./Dashboard/Admin/Orders/ScheduleOrders/ScheduleOrdersPage";
 export { default as RefundOrdersPage } from "./Dashboard/Admin/Orders/RefundOrders/RefundOrdersPage";
+
 

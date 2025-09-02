@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { TitlePage } from '../../../../Components/Components'
-import AddButton from '../../../../Components/Buttons/AddButton'
+import { TitlePage } from '../../../Components/Components'
+import AddButton from '../../../Components/Buttons/AddButton'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next';
-import { HallLocations } from '../../../../Pages/Pages';
+import { CapitanOrder } from '../../../Pages/Pages';
 
-const HallLocationsLayout = () => {
+const CaptianOrderLayout = () => {
     const [update, setUpdate] = useState(false)
     const { t } = useTranslation();
 
@@ -13,17 +13,17 @@ const HallLocationsLayout = () => {
         <>
             <div className='flex flex-col items-center justify-between md:flex-row'>
                 <div className='w-full md:w-1/2'>
-                    <TitlePage text={t('Hall Location Table')} />
+                    <TitlePage text={t('Captian Order Table')} />
                 </div>
                 <div className='flex justify-end w-full py-4 md:w-1/2'>
                     <Link to='add'>
-                        <AddButton Text={t("Add Hall Location")} />
+                        <AddButton Text={t("Add Captian Order")} />
                     </Link>
                 </div>
             </div>
-            <HallLocations update={update} setUpdate={setUpdate} />
+            <CapitanOrder update={update} setUpdate={setUpdate} />
         </>
     )
 }
 
-export default HallLocationsLayout;
+export default CaptianOrderLayout;

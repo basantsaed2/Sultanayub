@@ -69,6 +69,10 @@ export { default as MenuLayout } from "./Dashboard/Setting/Menu/MenuLayout";
 export { default as CancelationNotificationLayout } from "./Dashboard/Setting/CancelationNotification/CancelationNotificationLayout";
 //PolicySupportLayout
 export { default as PolicySupportLayout } from "./Dashboard/Setting/PolicySupport/PolicySupportLayout";
+//Hall Location
+export { default as HallLocationsLayout } from "./Dashboard/Setting/HallLocations/HallLocationsLayout";
+export { default as AddHallLocationsLayout } from "./Dashboard/Setting/HallLocations/AddHallLocationsLayout";
+export { default as EditHallLocationLayout } from "./Dashboard/Setting/HallLocations/EditHallLocationLayout";
 
 /*  Taxes */
 // Taxes -> Taxes
@@ -88,6 +92,21 @@ export { default as AdminsLayout } from "./Dashboard/Users/Admins/AdminsLayout";
 export { default as EditAdminLayout } from "./Dashboard/Users/Admins/EditAdminLayout";
 export { default as CustomersLayout } from "./Dashboard/Users/Customers/CustomersLayout";
 export { default as EditCustomersLayout } from "./Dashboard/Users/Customers/EditCustomersLayout";
+
+//Captain Order
+export { default as CaptianOrderLayout } from "./Dashboard/CaptianOrder/CaptianOrderLayout";
+export { default as EditCaptianOrderLayout } from "./Dashboard/CaptianOrder/EditCaptianOrderLayout";
+export { default as AddCaptianOrderLayout } from "./Dashboard/CaptianOrder/AddCaptianOrderLayout";
+
+//Waiter
+export { default as WaiterLayout } from "./Dashboard/Waiter/WaiterLayout";
+export { default as EditWaiterLayout } from "./Dashboard/Waiter/EditWaiterLayout";
+export { default as AddWaiterLayout } from "./Dashboard/Waiter/AddWaiterLayout";
+
+//Void Reason
+export { default as VoidReasonLayout } from "./Dashboard/VoidReason/VoidReasonLayout";
+export { default as EditVoidReasonLayout } from "./Dashboard/VoidReason/EditVoidReasonLayout";
+
 /* Business Setup */
 export { default as BusinessSetupLayout } from "./Dashboard/BusinessSetup/BusinessSetupLayout";
 /* Deals */

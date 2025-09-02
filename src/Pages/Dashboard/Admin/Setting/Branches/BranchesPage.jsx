@@ -125,7 +125,8 @@ const BranchesPage = ({ refetch }) => {
     t("Brista"),
     t("BranchCategory"),
     t("ActiveBranchPhone"),
-    t("Status"),
+    t("PhoneStatus"),
+     t("Status"),
     t("Action"),
   ];
 

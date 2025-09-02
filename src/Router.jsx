@@ -74,11 +74,20 @@ import {
   RefundOrdersLayout,
   CancelationNotificationLayout,
   PolicySupportLayout,
+  CaptianOrderLayout,
+  AddCaptianOrderLayout,
+  EditCaptianOrderLayout,
+  WaiterLayout,
+  AddWaiterLayout,
+  EditWaiterLayout,
+  VoidReasonLayout,
+  EditVoidReasonLayout,
+  AddHallLocationsLayout,
 } from "./layouts/Layouts";
 import ProtectedLogin from "./ProtectedData/ProtectedLogin";
 import NotFoundPage from "./Pages/NotFoundPage/NotFoundPage";
 import App from "./App";
-import { AddBranchSection, AddFinacialAccountPage, AddHallLocations, BusinessSettingsPage, CustomerLoginPage, EditFinacialAccountPage, EditHallLocations, EditRolePage, FinacialAccountPage, HallLocations, MainBranchSetupPage, OrdersPage, OrdersPaymentHistoryPage, OrdersPaymentPendingPage, RestaurantTimeSlotPage } from "./Pages/Pages";
+import { AddBranchSection, AddFinacialAccountPage, AddHallLocations, AddWaiter, BusinessSettingsPage, CustomerLoginPage, EditFinacialAccountPage, EditHallLocations, EditRolePage, FinacialAccountPage, HallLocations, MainBranchSetupPage, OrdersPage, OrdersPaymentHistoryPage, OrdersPaymentPendingPage, RestaurantTimeSlotPage } from "./Pages/Pages";
 import LogOrders from "./Pages/Dashboard/Admin/Orders/LogOrders/LogOrders";
 import EditEmailPage from "./Pages/Dashboard/Admin/Setting/Email/EditEmail";
 import GroupLayout from "./layouts/Dashboard/Setting/Group/GroupLayout";
@@ -99,6 +108,10 @@ import HallLocationsLayout from "./layouts/Dashboard/Setting/HallLocations/HallL
 import TablesLayout from "./layouts/Dashboard/Setting/Tables/TablesLayout";
 import EditTablesLayout from "./layouts/Dashboard/Setting/Tables/EditTablesLayout";
 import EditHallLocationLayout from "./layouts/Dashboard/Setting/HallLocations/EditHallLocationLayout";
+import Report from "./Pages/Dashboard/Admin/Reports/Report";
+import CaptianOrder from "./Pages/Dashboard/Admin/CapitanOrder/CapitanOrder";
+import AddCaptianOrder from "./Pages/Dashboard/Admin/CapitanOrder/AddCapitanOrder";
+import EditCaptianOrder from "./Pages/Dashboard/Admin/CapitanOrder/EditCapitanOrder";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -585,6 +598,10 @@ export const router = createBrowserRouter([
                         element: <HallLocationsLayout />,
                       },
                       {
+                        path: 'add',
+                        element: <AddHallLocationsLayout />,
+                      },
+                      {
                         path: 'edit/:hallId',
                         element: <EditHallLocationLayout />
                       }
@@ -681,6 +698,24 @@ export const router = createBrowserRouter([
               {
                 path: 'app_setup',
                 element: <AppSetupLayout />,
+              },
+              {
+                path: 'void_reason',
+                children: [
+                  {
+                    path: '',
+                    children: [
+                      {
+                        index: true,
+                        element: <VoidReasonLayout />,
+                      },
+                      {
+                        path: 'edit/:voidReasonId',
+                        element: <EditVoidReasonLayout />
+                      }
+                    ]
+                  },
+                ]
               },
             ]
           },
@@ -854,6 +889,10 @@ export const router = createBrowserRouter([
             ]
           },
           {
+            path: 'reports',
+            element: <Report />,
+          },
+          {
             path: 'deal_order',
             element: <DealOrderLayout />,
           },
@@ -942,6 +981,44 @@ export const router = createBrowserRouter([
               },
             ]
           },
+
+          {
+            path: "captain_order",
+            element: <Outlet />,
+            children: [
+              {
+                path: "",
+                element: <CaptianOrderLayout />
+              },
+              {
+                path: "add",
+                element: <AddCaptianOrderLayout />
+              },
+              {
+                path: "edit/:captainId",
+                element: <EditCaptianOrderLayout />
+              }
+            ]
+          },
+
+          {
+            path: "waiter",
+            element: <Outlet />,
+            children: [
+              {
+                path: "",
+                element: <WaiterLayout />
+              },
+              {
+                path: "add",
+                element: <AddWaiterLayout />
+              },
+              {
+                path: "edit/:waiterId",
+                element: <EditWaiterLayout />
+              }
+            ]
+          }
         ]
       },
     ],

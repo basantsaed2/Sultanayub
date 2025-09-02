@@ -1,17 +1,19 @@
-import React, { useEffect , useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     StaticButton,
     StaticLoader,
     SubmitButton,
     TextInput,
 } from "../../../../../Components/Components";
-import DropDown from "../../../../../Components/AnotherComponents/DropDown"; // Import the DropDown component
+import DropDown from "../../../../../Components/AnotherComponents/DropDown";
 import { usePost } from "../../../../../Hooks/usePostJson";
 import { useGet } from "../../../../../Hooks/useGet";
 import { useAuth } from "../../../../../Context/Auth";
 import { useTranslation } from "react-i18next";
+import LocationAreaPicker from "../../../../../Components/AnotherComponents/LocationAreaPicker"; // ✅ Import area picker
+import { useNavigate } from "react-router-dom";
 
-const AddHallLocations = ({ update, setUpdate }) => {
+const AddHallLocations = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const { refetch: refetchList, loading: loadingList, data: dataList } = useGet({
         url: `${apiUrl}/admin/caffe_location`,
@@ -21,11 +23,13 @@ const AddHallLocations = ({ update, setUpdate }) => {
     });
     const { t } = useTranslation();
     const { toastError } = useAuth();
+    const navigate =useNavigate();
 
     const [branches, setBranches] = useState([]);
     const [name, setName] = useState("");
-    const [selectedBranch, setSelectedBranch] = useState(null); // State for selected branch
-    const [openMenu, setOpenMenu] = useState(false); // State for dropdown menu open/close
+    const [selectedBranch, setSelectedBranch] = useState(null);
+    const [openMenu, setOpenMenu] = useState(false);
+    const [area, setArea] = useState([]); // ✅ multiple points
 
     useEffect(() => {
         refetchList();
@@ -37,29 +41,16 @@ const AddHallLocations = ({ update, setUpdate }) => {
         }
     }, [dataList]);
 
-
     useEffect(() => {
         if (!loadingPost && response) {
-            handleReset()
+            navigate(-1);
         }
-        setUpdate(!update)
-    }, [response])
+    }, [response]);
 
     const handleReset = () => {
         setName("");
         setSelectedBranch(null);
-    };
-
-    const handleOpen = () => {
-        setOpenMenu(!openMenu);
-    };
-
-    const handleOpenOption = () => {
-        setOpenMenu(false);
-    };
-
-    const handleSelectBranch = (option) => {
-        setSelectedBranch(option);
+        setArea([]);
     };
 
     const handleHallAdd = (e) => {
@@ -69,17 +60,21 @@ const AddHallLocations = ({ update, setUpdate }) => {
             toastError(t("Please Enter Hall Name"));
             return;
         }
-
         if (!selectedBranch) {
             toastError(t("selectBranch"));
+            return;
+        }
+        if (!area || area.length === 0) {
+            toastError(t("Please select area on the map"));
             return;
         }
 
         const formData = new FormData();
         formData.append("name", name);
-        formData.append("branch_id", selectedBranch.id); // Assuming branch has an id property
+        formData.append("branch_id", selectedBranch.id);
+        formData.append("location", JSON.stringify(area)); // ✅ send array of points
 
-        postData(formData,"Hall Add Sucess!"); // Submit the form data
+        postData(formData, "Hall Add Success!");
     };
 
     return (
@@ -89,11 +84,11 @@ const AddHallLocations = ({ update, setUpdate }) => {
                     <StaticLoader />
                 </div>
             ) : (
-                <section className="flex flex-col">
+                <section className="flex flex-col mb-20">
                     <form onSubmit={handleHallAdd}>
                         <div className="sm:py-3 lg:py-6">
                             <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                                {/* Name Input */}
+                                {/* Hall Name */}
                                 <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                     <span className="text-xl font-TextFontRegular text-thirdColor">
                                         {t("Hall Name")}:
@@ -110,15 +105,28 @@ const AddHallLocations = ({ update, setUpdate }) => {
                                         {t("BranchName")}:
                                     </span>
                                     <DropDown
-                                        options={branches} // Pass the branches array
-                                        stateoption={selectedBranch ? selectedBranch.name : t("Select Branch")} // Display selected branch or placeholder
+                                        options={branches}
+                                        stateoption={selectedBranch ? selectedBranch.name : t("Select Branch")}
                                         openMenu={openMenu}
-                                        handleOpen={handleOpen}
-                                        handleOpenOption={handleOpenOption}
-                                        onSelectOption={handleSelectBranch}
+                                        handleOpen={() => setOpenMenu(!openMenu)}
+                                        handleOpenOption={() => setOpenMenu(false)}
+                                        onSelectOption={setSelectedBranch}
                                         border={true}
                                     />
                                 </div>
+                            </div>
+
+                            {/* Map Area Picker */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1 mt-4">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Select Area on Map")}:
+                                </span>
+                                <LocationAreaPicker onAreaSelect={setArea} />
+                                {area.length > 0 && (
+                                    <p className="mt-2 text-sm text-gray-600">
+                                        Selected {area.length} points
+                                    </p>
+                                )}
                             </div>
                         </div>
 
