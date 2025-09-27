@@ -46,10 +46,10 @@ const LandingPage = () => {
             <a
               key={index}
               href={link.path}
-              className="bg-mainColor text-white p-6 rounded-xl flex items-center justify-center gap-4 hover:bg-opacity-90 transition-all duration-200 transform hover:scale-105"
+              className="bg-mainColor text-white p-6 rounded-xl flex items-center justify-center gap-2 hover:bg-opacity-90 transition-all duration-200 transform hover:scale-105"
             >
-              <span className="text-4xl">{link.icon}</span>
-              <span className="font-semibold text-lg md:text-xl lg:text-2xl">
+              <span className="text-2xl lg:text-3xl">{link.icon}</span>
+              <span className="font-semibold text-sm md:text-xl lg:text-2xl">
                 {link.title}
               </span>
             </a>

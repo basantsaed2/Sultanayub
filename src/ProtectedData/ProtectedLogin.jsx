@@ -1,4 +1,4 @@
-import  { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../Context/Auth';
 
@@ -9,14 +9,14 @@ const ProtectedLogin = () => {
 
        useEffect(() => {
               const currentPath = location.pathname.split('?')[0];
-              const isAuthRoute = currentPath === '/' || currentPath === '/forget_password';
+              const isAuthRoute = currentPath === '/' || currentPath === '/login' || currentPath === '/forget_password';
 
               if (auth?.userState && isAuthRoute) {
                      // If logged in and accessing public route, redirect to dashboard
                      navigate('/dashboard', { replace: true });
               } else if (!auth?.userState && !isAuthRoute) {
                      // If not logged in and accessing a protected route, redirect to login
-                     navigate('/', { state: { from: location }, replace: true });
+                     navigate('/login', { state: { from: location }, replace: true });
               }
        }, [auth]);
        // }, [auth, location.pathname, navigate]);
