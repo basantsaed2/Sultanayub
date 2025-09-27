@@ -34,7 +34,7 @@ const LandingPage = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-3 mb-4">
-            <RedLogo width={32} height={32}/>
+            <RedLogo width={32} height={32} />
             <h1 className="text-3xl font-bold text-gray-800">Food2Go</h1>
           </div>
           <p className="text-gray-600">Select your role to continue</p>
@@ -43,14 +43,16 @@ const LandingPage = () => {
         {/* Links Grid */}
         <div className="grid grid-cols-2 gap-y-6 gap-x-4 md:gap-x-12">
           {links.map((link, index) => (
-            <Link
-              to={link.path}
+            <a
               key={index}
-              className="bg-mainColor text-white p-6 rounded-xl flex items-center justify-center gap-2 hover:bg-opacity-90 transition-all duration-200 transform hover:scale-105"
+              href={link.href}
+              className="bg-mainColor text-white p-6 rounded-xl flex flex-col items-center justify-center gap-4 hover:bg-opacity-90 transition-all duration-200 transform hover:scale-105"
             >
-              <span className="text-2xl">{link.icon}</span>
-              <span className="font-semibold text-sm md:text-lg lg:text-2xl ">{link.title}</span>
-            </Link>
+              <span className="text-4xl">{link.icon}</span>
+              <span className="font-semibold text-lg md:text-xl lg:text-2xl">
+                {link.title}
+              </span>
+            </a>
           ))}
         </div>
 
