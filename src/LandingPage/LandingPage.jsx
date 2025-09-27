@@ -45,8 +45,8 @@ const LandingPage = () => {
           {links.map((link, index) => (
             <a
               key={index}
-              href={link.href}
-              className="bg-mainColor text-white p-6 rounded-xl flex flex-col items-center justify-center gap-4 hover:bg-opacity-90 transition-all duration-200 transform hover:scale-105"
+              href={link.path}
+              className="bg-mainColor text-white p-6 rounded-xl flex items-center justify-center gap-4 hover:bg-opacity-90 transition-all duration-200 transform hover:scale-105"
             >
               <span className="text-4xl">{link.icon}</span>
               <span className="font-semibold text-lg md:text-xl lg:text-2xl">
