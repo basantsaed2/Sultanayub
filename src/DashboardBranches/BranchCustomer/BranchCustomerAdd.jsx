@@ -28,7 +28,7 @@ const navigate = useNavigate();
   const [zones, setZones] = useState([]); // State to store zones data
 
   // Hook for posting new address data
-  const { postData } = usePost({
+  const { postData , loadingPost , response } = usePost({
     url: `${apiUrl}/branch/customer/add`,
   });
 
@@ -72,21 +72,8 @@ const navigate = useNavigate();
     }));
   };
 
-  const handleSubmitAdd = async (e) => {
-    e.preventDefault();
-    setAddLoading(true);
-
-    // Prepare data, converting map object to string or specific format if needed by backend
-    const dataToSend = {
-        ...newAddressData,
-        map: newAddressData.map.lat && newAddressData.map.lng 
-             ? `${newAddressData.map.lat},${newAddressData.map.lng}` // Example: "lat,lng" string
-             : null // Or handle as required by your API for no map
-    };
-
-    try {
-      const response = await postData(dataToSend); // Use dataToSend
-      if (response?.success) {
+  useEffect(() => {
+    if(response && response.data.success) {
         toast.success(t("Customers added successfully"));
         // Optionally reset form here if needed
         setNewAddressData({
@@ -103,16 +90,21 @@ const navigate = useNavigate();
           map: { lat: null, lng: null }
         });
         navigate("/branch/customer");
-      } else {
-        // Handle specific error messages from backend if available
-        const errorMessage = response?.message || t("Failed to add customers");
-        toast.error(errorMessage);
-      }
-    } catch (error) {
-      toast.error(t(`Error occurred while adding address: ${error.message}`));
-    } finally {
-      setAddLoading(false);
-    }
+      }}, [response]);
+
+  const handleSubmitAdd = async (e) => {
+    e.preventDefault();
+    setAddLoading(true);
+
+    // Prepare data, converting map object to string or specific format if needed by backend
+    const dataToSend = {
+        ...newAddressData,
+        map: newAddressData.map.lat && newAddressData.map.lng 
+             ? `${newAddressData.map.lat},${newAddressData.map.lng}` // Example: "lat,lng" string
+             : null // Or handle as required by your API for no map
+    };
+
+    postData(dataToSend); // Use dataToSend
   };
 
   return (

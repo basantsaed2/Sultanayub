@@ -25,26 +25,53 @@ const App = () => {
     document.documentElement.dir = dir;
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
-  
+
   const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
   const auth = useAuth();
   const hideSide = auth.hideSidebar;
   const [allCount, setAllCount] = useState(0);
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
-  
+
+  const role = localStorage.getItem("role"); // read role
+
+  // Count orders endpoint depends on role
+  const branchesUrl =
+    role === "branch"
+      ? `${apiUrl}/branch/online_order/count_orders`
+      : `${apiUrl}/admin/order/count`;
+
+  // Notification endpoint depends on role
+  const notificationUrl =
+    role === "branch"
+      ? `${apiUrl}/branch/online_order/notification`
+      : `${apiUrl}/admin/order/notification`;
+
+  // Sound notification is always admin (no branch endpoint given)
+  const notificationSoundUrl =
+    role === "admin"
+      ? `${apiUrl}/admin/settings/notification_sound`
+      : null ;// No sound for branch role
+
   const {
     refetch: refetchCountOrders,
     loading,
     data: dataCountOrders,
   } = useGet({
-    url: `${apiUrl}/admin/order/count`,
+    url: branchesUrl,
   });
-  
-  const { refetch: refetchSong, loading: loadingSong, data: dataSong } = useGet({
-    url: `${apiUrl}/admin/settings/notification_sound`,
+
+  const {
+    refetch: refetchSong,
+    loading: loadingSong,
+    data: dataSong,
+  } = useGet({
+    url: notificationSoundUrl,
   });
-  
-  const { postData, loadingPost, response } = usePost({ url: `${apiUrl}/admin/order/notification` });
+
+  const { postData, loadingPost, response } = usePost({
+    url: notificationUrl,
+  });
+
   const newOrders = useSelector((state) => state.newOrders);
   const soundNotification = useSelector((state) => state.soundNotification);
 
@@ -57,9 +84,9 @@ const App = () => {
   const playNotificationSound = (soundUrl) => {
     const audio = new Audio(soundUrl);
     audio.volume = 1.0;
-    
+
     const playPromise = audio.play();
-    
+
     if (playPromise !== undefined) {
       playPromise
         .then(_ => {
@@ -107,7 +134,7 @@ const App = () => {
 
       if (soundNotification && soundNotification.data) {
         playNotificationSound(soundNotification.data);
-      } 
+      }
     }
   }, [orderCounts, soundNotification, dispatch]);
 
@@ -122,7 +149,7 @@ const App = () => {
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    
+
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };

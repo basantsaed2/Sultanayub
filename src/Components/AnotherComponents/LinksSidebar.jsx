@@ -281,9 +281,15 @@ const adminRoutes = [
 
 // Branch routes configuration
 const branchRoutes = [
+   {
+    name: "Home",
+    path: "/branch",
+    permission: "Home",
+    icon: HomeIcon,
+  },
   {
     name: "Branches Deal",
-    path: "/branch",
+    path: "/branch/deals",
     permission: "Branch",
     icon: TbReportSearch,
   },

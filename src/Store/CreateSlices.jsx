@@ -298,25 +298,36 @@ const languageSlice = createSlice({
        initialState: initialLanguage,
        reducers: {
               setLanguage: (state, action) => {
-                state.selected = action.payload;
+                     state.selected = action.payload;
               },
               setLanguageData: (state, action) => {
-                state.data = action.payload;
-              }, 
+                     state.data = action.payload;
+              },
        }
 })
 
 
+
+const role = localStorage.getItem("role"); // قراءة الدور
+const branchesUrl =
+       role === "branch"
+              ? `${apiUrl}/branch/online_order`
+              : `${apiUrl}/admin/order`;
+
 // Fetch and dispatch orders
 export const OrdersComponent = () => {
        const dispatch = useDispatch();
-       const { refetch: refetchOrders, data: dataOrders, loading} = useGet({
-              url: `${apiUrl}/admin/order`,
+       const { refetch: refetchOrders, data: dataOrders, loading } = useGet({
+              url: branchesUrl
        });
+
+
+       useEffect(() => {
+              refetchOrders();
+       }, [refetchOrders]);
 
        // Log data to debug
        useEffect(() => {
-              refetchOrders();
               dispatch(ordersAllSlice.actions.setLoading(loading));
               dispatch(ordersPendingSlice.actions.setLoading(loading));
               dispatch(ordersConfirmedSlice.actions.setLoading(loading));
@@ -328,7 +339,7 @@ export const OrdersComponent = () => {
               dispatch(ordersFailedSlice.actions.setLoading(loading));
               dispatch(ordersCanceledSlice.actions.setLoading(loading));
               dispatch(ordersScheduleSlice.actions.setLoading(loading));
-       }, [refetchOrders]);
+       }, [loading, dispatch]);
 
 
 
@@ -346,8 +357,8 @@ export const OrdersComponent = () => {
                      dispatch(ordersFailedSlice.actions.setOrdersFailed(dataOrders.faild_to_deliver));
                      dispatch(ordersCanceledSlice.actions.setOrdersCanceled(dataOrders.canceled));
                      dispatch(ordersScheduleSlice.actions.setOrdersSchedule(dataOrders.scheduled));
-              } 
-       }, [dataOrders]);
+              }
+       }, [dataOrders, dispatch]);
 
 
 
@@ -387,7 +398,7 @@ export const { setOrdersRefund } = ordersRefundSlice.actions;
 export const { setOrdersFailed } = ordersFailedSlice.actions;
 export const { setOrdersCanceled } = ordersCanceledSlice.actions;
 export const { setOrdersSchedule } = ordersScheduleSlice.actions;
-export const { setLanguage ,setLanguageData } = languageSlice.actions;
+export const { setLanguage, setLanguageData } = languageSlice.actions;
 
 // Export reducers
 export const newOrdersReducer = newOrdersSlice.reducer;

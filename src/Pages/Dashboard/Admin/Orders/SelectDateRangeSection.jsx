@@ -24,14 +24,28 @@ import {
 } from "../../../../Store/CreateSlices";
 import { useAuth } from "../../../../Context/Auth";
 import { useTranslation } from "react-i18next";
+import { useGet } from "../../../../Hooks/useGet";
 
-const SelectDateRangeSection = ({ typPage, branchsData }) => {
+const SelectDateRangeSection = ({ typPage }) => {
   const dispatch = useDispatch();
   const auth = useAuth();
   const { t, i18n } = useTranslation();
 
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const role = localStorage.getItem("role"); // Access role safely
+
+  const branchesUrl =
+    role === "admin"
+      ? `${apiUrl}/admin/order/branches`
+      : null; // No branches for branch role
+
+  const {
+    refetch: refetchBranch,
+    loading: loadingBranch,
+    data: dataBranch,
+  } = useGet({
+    url: branchesUrl,
+  });
 
   // Dynamically set the API URL based on the user's role
   const { postData, loadingPost, response } = usePost({
@@ -70,6 +84,10 @@ const SelectDateRangeSection = ({ typPage, branchsData }) => {
     { id: "scheduled", name: t("scheduled") },
   ];
 
+  useEffect(() => {
+    refetchBranch(); // Refetch data when the component mounts
+  }, [refetchBranch]);
+
   const handleOpenDropdown = (type) => {
     if (type === "branch") {
       setIsOpenBranch(!isOpenBranch);
@@ -98,10 +116,10 @@ const SelectDateRangeSection = ({ typPage, branchsData }) => {
   };
 
   useEffect(() => {
-    if (branchsData?.branches) {
-      setBranchs(branchsData.branches);
+    if (dataBranch?.branches) {
+      setBranchs(dataBranch.branches);
     }
-  }, [branchsData]);
+  }, [dataBranch]);
 
   useEffect(() => {
     if (response !== null) {
@@ -187,8 +205,8 @@ const SelectDateRangeSection = ({ typPage, branchsData }) => {
     }
 
     const formData = new FormData();
-
-    if (branchId) {
+    // ✅ Only send branch_id if role is admin
+    if (role === "admin" && branchId) {
       formData.set("branch_id", branchId);
     }
 
@@ -221,21 +239,24 @@ const SelectDateRangeSection = ({ typPage, branchsData }) => {
           onSubmit={handleData}
           className="flex flex-wrap items-center justify-start w-full gap-4 px-3 py-3 pt-0 shadow-md sm:flex-col lg:flex-row rounded-xl"
         >
-          <div className="sm:w-full lg:w-[23%] flex flex-col items-start justify-center gap-y-1">
-            <span className="text-xl font-TextFontRegular text-thirdColor">
-              {t("SelectBranch")}:
-            </span>
-            <DropDown
-              ref={dropDownBranch}
-              handleOpen={() => handleOpenDropdown("branch")}
-              stateoption={stateBranch}
-              openMenu={isOpenBranch}
-              handleOpenOption={handleOpenOptionBranch}
-              options={branchs}
-              onSelectOption={handleSelectBranch}
-              border={false}
-            />
-          </div>
+          {/* ✅ Show branch dropdown only for admin */}
+          {role === "admin" && (
+            <div className="sm:w-full lg:w-[23%] flex flex-col items-start justify-center gap-y-1">
+              <span className="text-xl font-TextFontRegular text-thirdColor">
+                {t("SelectBranch")}:
+              </span>
+              <DropDown
+                ref={dropDownBranch}
+                handleOpen={() => handleOpenDropdown("branch")}
+                stateoption={stateBranch}
+                openMenu={isOpenBranch}
+                handleOpenOption={handleOpenOptionBranch}
+                options={branchs}
+                onSelectOption={handleSelectBranch}
+                border={false}
+              />
+            </div>
+          )}
 
           <div className="sm:w-full lg:w-[23%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">

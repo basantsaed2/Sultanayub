@@ -27,26 +27,6 @@ const AllOrdersLayout = () => {
   const ordersCanceledCount = useSelector((state) => state.ordersCanceled.data);
   const ordersScheduleCount = useSelector((state) => state.ordersSchedule.data);
 
-  const apiUrl = import.meta.env.VITE_API_BASE_URL;
-
-  const apiEndpoint =
-    userRole === "branch"
-      ? `${apiUrl}/branch/online_order`
-      : `${apiUrl}/admin/order/branches`;
-
-  const {
-    refetch: refetchBranch,
-    loading: loadingBranch,
-    data: dataBranch,
-  } = useGet({
-    url: apiEndpoint,
-    enabled: userRole === "branch" // Only enable this useGet for branch role
-  });
-
-  useEffect(() => {
-    refetchBranch(); // Refetch data when the component mounts
-  }, [refetchBranch]);
-
   // const counters = {
   //   ordersAll: ordersAllCount.length,
   //   ordersPending: ordersPendingCount.length,
@@ -100,7 +80,7 @@ const AllOrdersLayout = () => {
       <OrdersComponent />
       <div className="flex flex-col w-full mb-0">
         <TitlePage text={t("AllOrders")} />
-        {loadingBranch || ordersAllCountLoading ? (
+        {ordersAllCountLoading ? (
           <>
             <div className="flex items-center justify-center w-full">
               <LoaderLogin />
@@ -108,7 +88,7 @@ const AllOrdersLayout = () => {
           </>
         ) : (
           <>
-            <SelectDateRangeSection typPage={"all"} branchsData={dataBranch} />
+            <SelectDateRangeSection typPage={"all"}/>
 
             <CartsOrderSection ordersNum={counters} />
             <AllOrdersPage />

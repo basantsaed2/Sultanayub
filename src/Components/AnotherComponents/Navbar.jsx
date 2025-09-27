@@ -49,14 +49,20 @@ const Navbar = () => {
     }
   }, [i18n]);
 
-  // Get Cancellation Data
+  const role = localStorage.getItem("role");
+
+  // Only admins have cancellation settings
+  const cancelationUrl =
+    role === "admin" ? `${apiUrl}/admin/settings/cancelation` : null;
+
   const {
     refetch: refetchCancelation,
     loading: loadingCancelation,
     data: dataCancelation,
   } = useGet({
-    url: `${apiUrl}/admin/settings/cancelation`,
+    url: cancelationUrl,
   });
+
   const { changeState, loading: loadingChange } = useChangeState();
 
   // Fetch cancellation data
@@ -123,7 +129,7 @@ const Navbar = () => {
     auth.logout();
     dispatch(removeUser());
     dispatch(removeCategory());
-    navigate("/", { replace: true });
+    navigate("/login", { replace: true });
     localStorage.removeItem("token");
   };
 

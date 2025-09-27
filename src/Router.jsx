@@ -112,6 +112,7 @@ import Report from "./Pages/Dashboard/Admin/Reports/Report";
 import CaptianOrder from "./Pages/Dashboard/Admin/CapitanOrder/CapitanOrder";
 import AddCaptianOrder from "./Pages/Dashboard/Admin/CapitanOrder/AddCapitanOrder";
 import EditCaptianOrder from "./Pages/Dashboard/Admin/CapitanOrder/EditCapitanOrder";
+import LandingPage from "./LandingPage/LandingPage";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -131,9 +132,20 @@ const AppBranchCategoryLayout = () => {
 };
 
 export const router = createBrowserRouter([
+
+  {
+    patgh: "/",
+    element: <ProtectedLogin />,
+    children: [
+      {
+        path: '',
+        element: <LandingPage />,
+      }
+    ] 
+  },
   /* Login Admin */
   {
-    path: "/",
+    path: "/login",
     element: <ProtectedLogin />,
     children: [
       {
@@ -170,8 +182,12 @@ export const router = createBrowserRouter([
         path: "",
         element: <App />,
         children: [
+           {
+            path: '',
+            element: <DashboardLayout />
+          },
           {
-            path: "",
+            path: "deals",
             element: <BranchList />,
           },
           {

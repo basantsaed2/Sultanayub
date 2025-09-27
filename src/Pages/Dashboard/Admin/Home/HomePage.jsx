@@ -13,22 +13,28 @@ const HomePage = () => {
   const { t, i18n } = useTranslation();
 
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const role = localStorage.getItem("role"); // "admin" or "branch"
+
+  // ✅ Home chart
   const {
     refetch: refetchChart,
     loading: loadingChart,
     data: dataCharts,
   } = useGet({
-    url: `${apiUrl}/admin/home`,
+    url: role === "branch"
+      ? `${apiUrl}/branch/home`
+      : `${apiUrl}/admin/home`,
   });
+
+  // ✅ Orders summary
   const {
     refetch: refetchOrders,
     loading: loadingOrders,
     data: dataOrders,
   } = useGet({
-    url: `${apiUrl}/admin/home/orders`,
-  });
-  const { refetch: refetchBranch, loading: loadingBranch, data: dataBranch } = useGet({
-    url: `${apiUrl}/admin/order/branches`
+    url: role === "branch"
+      ? `${apiUrl}/branch/home/online_order`
+      : `${apiUrl}/admin/home/orders`,
   });
 
   const [dataHome, setDataHome] = useState([]);
@@ -43,9 +49,8 @@ const HomePage = () => {
 
   useEffect(() => {
     refetchChart();
-    refetchBranch();
     refetchOrders();
-  }, [refetchChart, refetchBranch, refetchOrders]);
+  }, [refetchChart , refetchOrders]);
 
   useEffect(() => {
     if (dataCharts) {
@@ -125,7 +130,7 @@ const HomePage = () => {
     <>
       <OrdersComponent />
       <div className="flex flex-col w-full mb-0">
-        {(loadingBranch || loadingOrders) ? (
+        {(loadingOrders) ? (
           <>
             <div className="flex items-center justify-center w-full">
               <LoaderLogin />
@@ -134,7 +139,7 @@ const HomePage = () => {
         ) : (
           <>
             <div className="flex flex-col items-start justify-center w-full gap-7 pb-28">
-              <SelectDateRangeSection typPage={'all'} branchsData={dataBranch} />
+              <SelectDateRangeSection typPage={'all'} />
 
               <CartsOrderSection ordersNum={counters} />
 
@@ -149,7 +154,7 @@ const HomePage = () => {
                   {renderSMSMessageCard()}
 
                   <FooterCard title={t("TopSellingProducts")} link="/dashboard/setup_product/product" layout={"TopSelling"} topCustomers={topCustomers} topSelling={topSelling} offers={offers} />
-                  <FooterCard title={t("Deals")} link="/dashboard/deals" layout={"Deals"} topCustomers={topCustomers} topSelling={topSelling} offers={offers} />
+                  {/* <FooterCard title={t("Deals")} link="/dashboard/deals" layout={"Deals"} topCustomers={topCustomers} topSelling={topSelling} offers={offers} /> */}
                   <FooterCard title={t("TopCustomer")} link="/dashboard/users/customers" layout={"default"} topCustomers={topCustomers} topSelling={topSelling} offers={offers} />
                 </div>
               </div>

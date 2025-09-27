@@ -37,7 +37,7 @@ export default function BranchAddressAddEdit() {
   const [zones, setZones] = useState([]);
 
   // Hook for posting/updating address data
-  const { postData } = usePost({
+  const { postData , loadingPost , response } = usePost({
     url: isEdit 
       ? `${apiUrl}/branch/address/update/${id}`
       : `${apiUrl}/branch/address/add`,
@@ -127,28 +127,8 @@ export default function BranchAddressAddEdit() {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setAddLoading(true);
-
-    // إعداد البيانات للإرسال
-    const dataToSend = {
-      ...newAddressData,
-      map: newAddressData.map.lat && newAddressData.map.lng 
-           ? `${newAddressData.map.lat},${newAddressData.map.lng}`
-           : null
-    };
-
-    // في حالة Add، تأكد من وجود customer_id
-    if (!isEdit && !dataToSend.customer_id) {
-      toast.error(t("Customer ID is required"));
-      setAddLoading(false);
-      return;
-    }
-
-    try {
-      const response = await postData(dataToSend);
-      if (response?.success) {
+  useEffect(() => {
+     if (response && response?.data.success) {
         toast.success(
           isEdit 
             ? t("Address updated successfully") 
@@ -172,17 +152,28 @@ export default function BranchAddressAddEdit() {
         }
         
         navigate("/branch/customer");
-      } else {
-        const errorMessage = response?.message || t(
-          isEdit ? "Failed to update address" : "Failed to add address"
-        );
-        toast.error(errorMessage);
-      }
-    } catch (error) {
-      toast.error(t(`Error occurred: ${error.message}`));
-    } finally {
+      }},[response]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setAddLoading(true);
+
+    // إعداد البيانات للإرسال
+    const dataToSend = {
+      ...newAddressData,
+      map: newAddressData.map.lat && newAddressData.map.lng 
+           ? `${newAddressData.map.lat},${newAddressData.map.lng}`
+           : null
+    };
+
+    // في حالة Add، تأكد من وجود customer_id
+    if (!isEdit && !dataToSend.customer_id) {
+      toast.error(t("Customer ID is required"));
       setAddLoading(false);
+      return;
     }
+
+     postData(dataToSend);
   };
 
   return (

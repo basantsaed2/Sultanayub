@@ -8,12 +8,10 @@ import { Provider } from 'react-redux';
 import { StoreApp } from './Store/Store.jsx';
 import './app.css';
 createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
     <Provider store={StoreApp}>
       <ContextProvider>
         <RouterProvider router={router} />
       </ContextProvider>
     </Provider>
-  </React.StrictMode>,
 );
 

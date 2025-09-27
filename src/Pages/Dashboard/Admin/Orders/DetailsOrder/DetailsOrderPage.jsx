@@ -28,14 +28,30 @@ const DetailsOrderPage = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const selectedLanguage = useSelector(state => state.language?.selected ?? 'en'); // Default to 'en' if no language is selected
 
+  const role = localStorage.getItem("role");
+
+  // ✅ Details Order endpoint
+  const detailsOrderUrl =
+    role === "branch"
+      ? `${apiUrl}/branch/online_order/order/${orderNumPath}?locale=${selectedLanguage}`
+      : `${apiUrl}/admin/order/order/${orderNumPath}?locale=${selectedLanguage}`;
+
   const {
     refetch: refetchDetailsOrder,
     loading: loadingDetailsOrder,
     data: dataDetailsOrder,
-  } = useGet({ url: `${apiUrl}/admin/order/order/${orderNumPath}?locale=${selectedLanguage}` });
+  } = useGet({ url: detailsOrderUrl });
+
+  // ✅ Delivery endpoint
+  const deliveryUrl =
+    role === "branch"
+      ? `${apiUrl}/branch/online_order/delivery`
+      : `${apiUrl}/admin/order/delivery`;
+
   const { postData, loadingPost, response } = usePost({
-    url: `${apiUrl}/admin/order/delivery`,
+    url: deliveryUrl,
   });
+
   const { t, i18n } = useTranslation();
 
   const { changeState, loadingChange, responseChange } = useChangeState();
@@ -263,8 +279,13 @@ const DetailsOrderPage = () => {
     reason
   ) => {
     try {
+      const statusUrl =
+        role === "branch"
+          ? `${apiUrl}/branch/online_order/status/${orderId}`
+          : `${apiUrl}/admin/order/status/${orderId}`;
+
       const responseStatus = await changeState(
-        `${apiUrl}/admin/order/status/${orderId}`,
+        statusUrl,
         `Changed Status Successes.`,
         {
           order_status: orderStatus,
@@ -272,7 +293,6 @@ const DetailsOrderPage = () => {
           ...(orderStatus === "canceled" && { admin_cancel_reason: reason }), // Send reason if canceled
         }
       );
-
       if (responseStatus) {
         refetchDetailsOrder(); // Refetch the order details after successful status change
         setShowReason(false);
@@ -821,7 +841,7 @@ const DetailsOrderPage = () => {
                               orderDetail.addons.forEach((addonItem) => {
                                 // Add the price of each addon to the total
                                 totalAddonPrice +=
-                                  addonItem.addon.price * addonItem.count ;
+                                  addonItem.addon.price * addonItem.count;
                               });
                             }
                           )}

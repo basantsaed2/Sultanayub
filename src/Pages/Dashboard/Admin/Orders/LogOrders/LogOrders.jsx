@@ -1,45 +1,43 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { usePost } from "../../../../../Hooks/usePostJson"; // ✅ reuse your post hook
 
 const LogOrders = () => {
   const [logData, setLogData] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [orderId, setOrderId] = useState("");
   const [selectedAdmin, setSelectedAdmin] = useState(null);
   const [showAdminModal, setShowAdminModal] = useState(false);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const role = localStorage.getItem("role");
+
+  // ✅ Choose endpoint based on role
+  const logUrl =
+    role === "branch"
+      ? `${apiUrl}/branch/online_order/order_log`
+      : `${apiUrl}/admin/order/log`;
+
+  const { postData, loadingPost, response } = usePost({
+    url: logUrl,
+    type: true, // use application/json
+  });
 
   const headers = ["SL", "Admin Name", "Date", "From-Status", "To-Status"];
 
-  const fetchLogs = (id) => {
-    if (!id) return;
+  useState(() => {
+    if (response && response.data && response.data.log_order) {
+      setLogData(response.data.log_order);
+    } else {
+      setLogData([]);
+    }}, [response]);
 
-    setLoading(true);
-    axios({
-      method: "post",
-      url: `${apiUrl}/admin/order/log?order_id=${id}`,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer 136|oxbdg9QVDeaeSETkO9y1Rurk1mZZFE3ywuZaTLMM0b11e7e1",
-      },
-    })
-      .then((res) => {
-        setLogData(res.data.log_order || []);
-      })
-      .catch((err) => {
-        console.log("Error:", err);
-        setLogData([]);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
-    fetchLogs(orderId);
+    if (!orderId) return;
+
+    const payload = { order_id: orderId };
+    postData(payload);
   };
 
   const handleAdminClick = (admin) => {
@@ -63,21 +61,22 @@ const LogOrders = () => {
             className="flex-1 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-mainColor"
           />
           <button
-            type='submit'
+            type="submit"
             className="px-4 py-2 text-white rounded bg-mainColor hover:bg-gray-700"
           >
             {t("Search")}
-
           </button>
         </form>
       </div>
 
       <div className="w-full overflow-x-auto">
-        {loading ? (
-          <p className="text-lg text-center text-gray-500">{t('Loading')}</p>
+        {loadingPost ? (
+          <p className="text-lg text-center text-gray-500">{t("Loading")}</p>
         ) : logData.length === 0 ? (
           <p className="text-center text-gray-500">
-            {orderId ? t("NologsfoundforthisorderID") : t("EnteranorderIDtosearch")}
+            {orderId
+              ? t("NologsfoundforthisorderID")
+              : t("EnteranorderIDtosearch")}
           </p>
         ) : (
           <table className="w-full border-collapse">
@@ -130,11 +129,26 @@ const LogOrders = () => {
             </div>
 
             <div className="space-y-3">
-              <p><span className="font-semibold">{t("Name")}:</span> {selectedAdmin.name}</p>
-              <p><span className="font-semibold">{t('Email')}:</span> {selectedAdmin.email}</p>
-              <p><span className="font-semibold">{t("Phone")}:</span> {selectedAdmin.phone}</p>
-              <p><span className="font-semibold">{t("Role")}:</span> {selectedAdmin.role}</p>
-              <p><span className="font-semibold">{t("Status")}:</span> {selectedAdmin.status === 1 ? t("Active") : t("Inactive")}</p>
+              <p>
+                <span className="font-semibold">{t("Name")}:</span>{" "}
+                {selectedAdmin.name}
+              </p>
+              <p>
+                <span className="font-semibold">{t("Email")}:</span>{" "}
+                {selectedAdmin.email}
+              </p>
+              <p>
+                <span className="font-semibold">{t("Phone")}:</span>{" "}
+                {selectedAdmin.phone}
+              </p>
+              <p>
+                <span className="font-semibold">{t("Role")}:</span>{" "}
+                {selectedAdmin.role}
+              </p>
+              <p>
+                <span className="font-semibold">{t("Status")}:</span>{" "}
+                {selectedAdmin.status === 1 ? t("Active") : t("Inactive")}
+              </p>
 
               {selectedAdmin.image && (
                 <div>
