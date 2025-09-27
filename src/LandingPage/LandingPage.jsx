@@ -19,12 +19,12 @@ const LandingPage = () => {
     {
       title: "Cashier",
       icon: <FaCashRegister />,
-      path: "/point-of-sale"
+      path: "/point-of-sale/login"
     },
     {
       title: "Kitchen/Barista",
       icon: <FaCoffee />,
-      path: "/kitchen"
+      path: "/kitchen/login"
     }
   ];
 
