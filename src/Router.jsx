@@ -133,19 +133,19 @@ const AppBranchCategoryLayout = () => {
 
 export const router = createBrowserRouter([
 
-  {
-    patgh: "/",
-    element: <ProtectedLogin />,
-    children: [
-      {
-        path: '',
-        element: <LandingPage />,
-      }
-    ] 
-  },
+  // {
+  //   patgh: "/",
+  //   element: <ProtectedLogin />,
+  //   children: [
+  //     {
+  //       path: '',
+  //       element: <LandingPage />,
+  //     }
+  //   ] 
+  // },
   /* Login Admin */
   {
-    path: "/login",
+    path: "/",
     element: <ProtectedLogin />,
     children: [
       {

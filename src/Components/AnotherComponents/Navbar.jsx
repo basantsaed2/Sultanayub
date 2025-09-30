@@ -129,7 +129,7 @@ const Navbar = () => {
     auth.logout();
     dispatch(removeUser());
     dispatch(removeCategory());
-    navigate("/login", { replace: true });
+    navigate("/", { replace: true });
     localStorage.removeItem("token");
   };
 

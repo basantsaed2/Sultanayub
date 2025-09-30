@@ -9,12 +9,12 @@ const LandingPage = () => {
     {
       title: "Admin",
       icon: <FaUserCog />,
-      path: "/login"
+      path: "/"
     },
     {
       title: "Branch",
       icon: <FaStore />,
-      path: "/login"
+      path: "/"
     },
     {
       title: "Cashier",
