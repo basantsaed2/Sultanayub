@@ -23,8 +23,9 @@ import { useAuth } from "../../../../Context/Auth";
 
 const BusinessSettingsPage = () => {
   const LogoRef = useRef();
+  const coverImageRef = useRef();
   const IconRef = useRef();
-               const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const auth = useAuth();
   const CountriesRef = useRef();
@@ -48,6 +49,9 @@ const BusinessSettingsPage = () => {
 
   const [logo, setLogo] = useState("");
   const [logoFile, setLogoFile] = useState(null);
+
+  const [coverImage, setCoverImage] = useState("");
+  const [coverImageFile, setCoverImageFile] = useState(null);
 
   const [icon, setIcon] = useState("");
   const [iconFile, setIconFile] = useState(null);
@@ -199,7 +203,7 @@ const BusinessSettingsPage = () => {
 
   useEffect(() => {
     if (dataCompany) {
-       console.log("data Company ",dataCompany );
+      console.log("data Company ", dataCompany);
 
       // setDataCurrency(dataCompany?.currency || []);
       // setDataCompanyInfo(dataCompany?.company_info || []);
@@ -211,6 +215,7 @@ const BusinessSettingsPage = () => {
       setCompanyAddress(dataCompany?.company_info?.address || '');
       setIcon(dataCompany?.company_info?.fav_icon_link || '');
       setLogo(dataCompany?.company_info?.logo_link || '');
+      setCoverImage(dataCompany?.company_info?.cover_app_image || '');
       setStateCountries(dataCompany?.company_info?.country || stateCountries);
       setSelectedCountry(dataCompany?.company_info?.country || selectedCountry)
 
@@ -355,6 +360,9 @@ const BusinessSettingsPage = () => {
     if (!logo) {
       auth.toastError(t("Please enter logo"));
     }
+    if (!coverImage) {
+      auth.toastError(t("Please enter cover app logo"));
+    }
     if (!icon) {
       auth.toastError(t("Please enter icon"));
     }
@@ -461,6 +469,8 @@ const BusinessSettingsPage = () => {
     formData.append("ios_switch", iosActive || 0);
 
     formData.append("logo", logo);
+    formData.append("cover_app_image", coverImage);
+
     formData.append("fav_icon", icon);
     formData.append("time_zone", JSON.stringify(selectedTimeZone?.name || ""));
 
@@ -571,15 +581,15 @@ const BusinessSettingsPage = () => {
     const isChecked = e.target.checked;
     setDeliverymanApp(isChecked ? 1 : 0);
   };
-  const handleClickOrderActive= (e) => {
+  const handleClickOrderActive = (e) => {
     const isChecked = e.target.checked;
     setOrderAcive(isChecked ? 1 : 0);
   };
-  const handleClickAndroidActive= (e) => {
+  const handleClickAndroidActive = (e) => {
     const isChecked = e.target.checked;
     setAndroidActive(isChecked ? 1 : 0);
   };
-  const handleClickIOSActive= (e) => {
+  const handleClickIOSActive = (e) => {
     const isChecked = e.target.checked;
     setIOSAcive(isChecked ? 1 : 0);
   };
@@ -657,6 +667,17 @@ const BusinessSettingsPage = () => {
     }
   };
 
+  // Cover Image handler
+  const handleCoverImage = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setCoverImageFile(file); // Assuming setLogoFile is defined elsewhere
+      setCoverImage(file.name); // Set the file name as the value for logo
+    } else {
+      setCoverImage(''); // Reset logo value if no file is selected
+    }
+  };
+
   // Icon handler
   const handleIcon = (e) => {
     const file = e.target.files[0];
@@ -669,6 +690,11 @@ const BusinessSettingsPage = () => {
   };
 
   const handleLogoClick = (ref) => {
+    if (ref.current) {
+      ref.current.click();
+    }
+  };
+  const handleCoverImageClick = (ref) => {
     if (ref.current) {
       ref.current.click();
     }
@@ -714,6 +740,8 @@ const BusinessSettingsPage = () => {
     setCompanyAddress("");
     setLogoFile("");
     setLogo("");
+    setCoverImage("");
+    setCoverImageFile("");
     setIconFile("");
     setStateCountries("Select Country");
     setSelectedCountry("");
@@ -757,7 +785,7 @@ const BusinessSettingsPage = () => {
           <div className="w-full">
             <TitleSection text={"System Maintenance"} />
             <p className="text-xl font-TextFontMedium text-secoundColor">
-{t("By")}
+              {t("By")}
             </p>
           </div>
           {/* Maintenance Mode */}
@@ -777,7 +805,7 @@ const BusinessSettingsPage = () => {
           {/* Company Name */}
           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-            {t("CompanyName")}:
+              {t("CompanyName")}:
             </span>
             <TextInput
               value={companyName}
@@ -797,7 +825,7 @@ const BusinessSettingsPage = () => {
             />
           </div>
           {/* Company Alternative Phone */}
-               <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
               {t("CompanyAlternativePhone")}:
             </span>
@@ -831,7 +859,7 @@ const BusinessSettingsPage = () => {
             />
           </div>
           {/* Company Address */}
-        <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
               {t("CompanyAddress")}:
             </span>
@@ -842,7 +870,7 @@ const BusinessSettingsPage = () => {
             />
           </div>
           {/* Logo */}
-           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">{t("Logo")}:</span>
             <UploadInput
               value={logo}
@@ -851,6 +879,18 @@ const BusinessSettingsPage = () => {
               handleFileChange={handleLogo}
               onChange={(e) => setLogo(e.target.value)}
               onClick={() => handleLogoClick(LogoRef)}
+            />
+          </div>
+          {/* CoverImage */}
+          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+            <span className="text-xl font-TextFontRegular text-thirdColor">{t("AppCoverImage")}:</span>
+            <UploadInput
+              value={coverImage}
+              uploadFileRef={coverImageRef}
+              placeholder={t("AppCoverImage")}
+              handleFileChange={handleCoverImage}
+              onChange={(e) => setCoverImage(e.target.value)}
+              onClick={() => handleCoverImageClick(coverImageRef)}
             />
           </div>
           {/* Icon */}
@@ -866,7 +906,7 @@ const BusinessSettingsPage = () => {
             />
           </div>
           {/* Company Android Link */}
-        <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">{t("FavIcon")}:</span>
             <UploadInput
               value={icon}
@@ -878,9 +918,9 @@ const BusinessSettingsPage = () => {
             />
           </div>
           {/* Company Ios Link */}
-           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-             {t("AppAndroidLink")}:
+              {t("AppAndroidLink")}:
             </span>
             <TextInput
               value={androidLink}
@@ -888,9 +928,9 @@ const BusinessSettingsPage = () => {
               placeholder={t("AppAndroidLink")}
             />
           </div>
-           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-               {t("AppIOSLink")}:
+              {t("AppIOSLink")}:
             </span>
             <TextInput
               value={iosLink}
@@ -900,33 +940,33 @@ const BusinessSettingsPage = () => {
           </div>
           <div className="sm:w-full lg:w-[30%] flex items-center gap-2 mt-8 justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">Order Active : </span>
-              <div>
-                <Switch
-                  checked={orderActive}
-                  handleClick={handleClickOrderActive}
-                />
-              </div>
+            <div>
+              <Switch
+                checked={orderActive}
+                handleClick={handleClickOrderActive}
+              />
             </div>
+          </div>
 
-            <div className="sm:w-full lg:w-[30%] flex items-center gap-2 mt-8 justify-center gap-y-1">
+          <div className="sm:w-full lg:w-[30%] flex items-center gap-2 mt-8 justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">Android  Active : </span>
-              <div>
-                <Switch
-                  checked={androidActive}
-                  handleClick={handleClickAndroidActive}
-                />
-              </div>
+            <div>
+              <Switch
+                checked={androidActive}
+                handleClick={handleClickAndroidActive}
+              />
             </div>
+          </div>
 
-            <div className="sm:w-full lg:w-[30%] flex items-center gap-2 mt-8 justify-center gap-y-1">
+          <div className="sm:w-full lg:w-[30%] flex items-center gap-2 mt-8 justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">IOS  Active : </span>
-              <div>
-                <Switch
-                  checked={iosActive}
-                  handleClick={handleClickIOSActive}
-                />
-              </div>
+            <div>
+              <Switch
+                checked={iosActive}
+                handleClick={handleClickIOSActive}
+              />
             </div>
+          </div>
 
           <TitleSection text={t("BusinessInformation")} />
 
@@ -1053,7 +1093,7 @@ const BusinessSettingsPage = () => {
               <div className="w-full">
                 <TitleSection text={t("Select System")} />
                 <p className="text-xl font-TextFontMedium text-secoundColor">
-                                   {t("Selectthesystems")}
+                  {t("Selectthesystems")}
 
                 </p>
               </div>
@@ -1084,7 +1124,7 @@ const BusinessSettingsPage = () => {
               {/* Customer App */}
               <div className="sm:w-full xl:w-[20%] flex items-center justify-start gap-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
-              {t("CustomerApp")}:
+                  {t("CustomerApp")}:
                 </span>
                 <div>
                   <Switch
@@ -1118,7 +1158,7 @@ const BusinessSettingsPage = () => {
               <div className="w-full">
                 <TitleSection text={t("Maintenance Date & Time")} />
                 <p className="text-xl font-TextFontMedium text-secoundColor">
-{t("Choosethemaintenance")}                </p>
+                  {t("Choosethemaintenance")}                </p>
               </div>
 
               {/* For 24 Hours */}
@@ -1169,7 +1209,7 @@ const BusinessSettingsPage = () => {
                   {/* Start Date */}
                   <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3">
                     <span className="text-xl font-TextFontRegular text-thirdColor">
-{t("StartDate")}:                    </span>
+                      {t("StartDate")}:                    </span>
                     <div>
                       <DateInput
                         value={startDate}
