@@ -215,7 +215,7 @@ const BusinessSettingsPage = () => {
       setCompanyAddress(dataCompany?.company_info?.address || '');
       setIcon(dataCompany?.company_info?.fav_icon_link || '');
       setLogo(dataCompany?.company_info?.logo_link || '');
-      setCoverImage(dataCompany?.company_info?.cover_app_image || '');
+      setCoverImage(dataCompany?.company_info?.cover_app_image_link || '');
       setStateCountries(dataCompany?.company_info?.country || stateCountries);
       setSelectedCountry(dataCompany?.company_info?.country || selectedCountry)
 
@@ -362,6 +362,7 @@ const BusinessSettingsPage = () => {
     }
     if (!coverImage) {
       auth.toastError(t("Please enter cover app logo"));
+      return;
     }
     if (!icon) {
       auth.toastError(t("Please enter icon"));
@@ -468,10 +469,10 @@ const BusinessSettingsPage = () => {
     formData.append("android_switch", androidActive || 0);
     formData.append("ios_switch", iosActive || 0);
 
-    formData.append("logo", logo);
-    formData.append("cover_app_image", coverImage);
+    formData.append("logo", logoFile);
+    formData.append("cover_app_image", coverImageFile);
 
-    formData.append("fav_icon", icon);
+    formData.append("fav_icon", iconFile);
     formData.append("time_zone", JSON.stringify(selectedTimeZone?.name || ""));
 
     formData.append("time_format", stateTimeFormat);
@@ -673,8 +674,6 @@ const BusinessSettingsPage = () => {
     if (file) {
       setCoverImageFile(file); // Assuming setLogoFile is defined elsewhere
       setCoverImage(file.name); // Set the file name as the value for logo
-    } else {
-      setCoverImage(''); // Reset logo value if no file is selected
     }
   };
 
@@ -895,18 +894,6 @@ const BusinessSettingsPage = () => {
           </div>
           {/* Icon */}
           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-            <span className="text-xl font-TextFontRegular text-thirdColor">Fav Icon:</span>
-            <UploadInput
-              value={icon}
-              uploadFileRef={IconRef}
-              placeholder="Fav Icon"
-              handleFileChange={handleIcon}
-              onChange={(e) => setIcon(e.target.value)}
-              onClick={() => handleIconClick(IconRef)}
-            />
-          </div>
-          {/* Company Android Link */}
-          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">{t("FavIcon")}:</span>
             <UploadInput
               value={icon}
@@ -917,7 +904,7 @@ const BusinessSettingsPage = () => {
               onClick={() => handleIconClick(IconRef)}
             />
           </div>
-          {/* Company Ios Link */}
+          {/* Company Android Link */}
           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
               {t("AppAndroidLink")}:
@@ -928,6 +915,7 @@ const BusinessSettingsPage = () => {
               placeholder={t("AppAndroidLink")}
             />
           </div>
+          {/* Company Ios Link */}
           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
               {t("AppIOSLink")}:
