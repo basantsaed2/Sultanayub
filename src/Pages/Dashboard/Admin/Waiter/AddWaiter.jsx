@@ -26,14 +26,15 @@ const AddWaiter = () => {
     } = useGet({ url: `${apiUrl}/admin/waiter` });
 
     const { t } = useTranslation();
-    const navigate =useNavigate();
+    const navigate = useNavigate();
 
     const [userName, setUserName] = useState("");
     const [password, setPassword] = useState("");
-    const [locations, setLocations] = useState([]);
+    const [allLocations, setAllLocations] = useState([]); // Store all locations
+    const [filteredLocations, setFilteredLocations] = useState([]); // Locations filtered by branch
     const [selectedLocations, setSelectedLocations] = useState([]);
     const [branches, setBranches] = useState([]);
-    const [selectedBranch, setSelectedBranch] = useState(null); // Single branch selection
+    const [selectedBranch, setSelectedBranch] = useState(null);
     const [status, setStatus] = useState(0);
 
     // Fetch branches and locations
@@ -43,10 +44,32 @@ const AddWaiter = () => {
 
     useEffect(() => {
         if (dataLists) {
-            setLocations(dataLists.cafe_locations || []);
+            setAllLocations(dataLists.cafe_locations || []);
             setBranches(dataLists.branches || []);
         }
     }, [dataLists]);
+
+    // Filter locations when branch changes
+    useEffect(() => {
+        if (selectedBranch && allLocations.length > 0) {
+            // Filter locations by branch_id
+            const filtered = allLocations.filter(
+                location => location.branch_id === selectedBranch.id
+            );
+            setFilteredLocations(filtered);
+            
+            // Clear selected locations when branch changes
+            setSelectedLocations([]);
+        } else {
+            setFilteredLocations([]);
+            setSelectedLocations([]);
+        }
+    }, [selectedBranch, allLocations]);
+
+    // Handle branch selection
+    const handleBranchChange = (e) => {
+        setSelectedBranch(e.value);
+    };
 
     // Handle status toggle
     const handleChangeStatus = () => {
@@ -60,6 +83,7 @@ const AddWaiter = () => {
         setStatus(0);
         setSelectedLocations([]);
         setSelectedBranch(null);
+        setFilteredLocations([]);
     };
 
     // Reset form after successful submission
@@ -73,15 +97,21 @@ const AddWaiter = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Validation: Check if branch is selected
+        if (!selectedBranch) {
+            alert(t("Please select a branch first"));
+            return;
+        }
+
         const formData = new FormData();
         formData.append("user_name", userName);
         formData.append("password", password);
         formData.append("status", status);
         if (selectedBranch) {
-            formData.append("branch_id", selectedBranch.id); // Send branch_id
+            formData.append("branch_id", selectedBranch.id);
         }
         selectedLocations.forEach((location, index) => {
-            formData.append(`locations[${index}]`, location.id); // Send location IDs as array
+            formData.append(`locations[${index}]`, location.id);
         });
 
         await postData(formData, t("Waiter Added Success!"));
@@ -121,7 +151,21 @@ const AddWaiter = () => {
                             placeholder={t("Password")}
                         />
                     </div>
-                    {/* Locations */}
+                    {/* Branch - Moved before Locations */}
+                    <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                        <span className="text-xl font-TextFontRegular text-thirdColor">
+                            {t("Branch")}:
+                        </span>
+                        <Dropdown
+                            value={selectedBranch}
+                            onChange={handleBranchChange}
+                            options={branches}
+                            optionLabel="name"
+                            placeholder={t("Select Branch")}
+                            className="w-full bg-white md:w-20rem"
+                        />
+                    </div>
+                    {/* Locations - Now depends on branch selection */}
                     <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                         <span className="text-xl font-TextFontRegular text-thirdColor">
                             {t("Locations")}:
@@ -129,26 +173,17 @@ const AddWaiter = () => {
                         <MultiSelect
                             value={selectedLocations}
                             onChange={(e) => setSelectedLocations(e.value)}
-                            options={locations}
+                            options={filteredLocations}
                             optionLabel="name"
                             display="chip"
-                            placeholder={t("Select Locations")}
+                            placeholder={
+                                selectedBranch 
+                                    ? t("Select Locations") 
+                                    : t("Please select a branch first")
+                            }
                             maxSelectedLabels={3}
                             className="w-full bg-white md:w-20rem"
-                        />
-                    </div>
-                    {/* Branch */}
-                    <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                        <span className="text-xl font-TextFontRegular text-thirdColor">
-                            {t("Branch")}:
-                        </span>
-                        <Dropdown
-                            value={selectedBranch}
-                            onChange={(e) => setSelectedBranch(e.value)}
-                            options={branches}
-                            optionLabel="name"
-                            placeholder={t("Select Branch")}
-                            className="w-full bg-white md:w-20rem"
+                            disabled={!selectedBranch} // Disable if no branch selected
                         />
                     </div>
                     {/* Status */}

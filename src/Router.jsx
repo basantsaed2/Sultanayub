@@ -113,6 +113,12 @@ import CaptianOrder from "./Pages/Dashboard/Admin/CapitanOrder/CapitanOrder";
 import AddCaptianOrder from "./Pages/Dashboard/Admin/CapitanOrder/AddCapitanOrder";
 import EditCaptianOrder from "./Pages/Dashboard/Admin/CapitanOrder/EditCapitanOrder";
 import LandingPage from "./LandingPage/LandingPage";
+import Cashier from "./Pages/Dashboard/Admin/Cashier/Cashier";
+import AddCashier from "./Pages/Dashboard/Admin/Cashier/AddCashier";
+import EditCashier from "./Pages/Dashboard/Admin/Cashier/EditCashier";
+import CashierMan from "./Pages/Dashboard/Admin/CashierMan/CashierMan";
+import AddCashierMan from "./Pages/Dashboard/Admin/CashierMan/AddCashierMan";
+import EditCashierMan from "./Pages/Dashboard/Admin/CashierMan/EditCashierMan";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -1034,7 +1040,44 @@ export const router = createBrowserRouter([
                 element: <EditWaiterLayout />
               }
             ]
+          },
+          {
+            path: "cashier",
+            element:<Outlet/>,
+            children: [
+              {
+                path:'',
+                element:<Cashier/>
+              },
+              {
+                path:'add',
+                element: <AddCashier/>
+              },
+              {
+                path:'edit/:cashierId',
+                element: <EditCashier/>
+              }
+            ]
+          },
+          {
+            path: "cashier_man",
+            element:<Outlet/>,
+            children: [
+              {
+                path:'',
+                element:<CashierMan/>
+              },
+              {
+                path:'add',
+                element: <AddCashierMan/>
+              },
+              {
+                path:'edit/:cashierManId',
+                element: <EditCashierMan/>
+              }
+            ]
           }
+
         ]
       },
     ],

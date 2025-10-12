@@ -12,6 +12,7 @@ import { RiVipDiamondLine } from "react-icons/ri";
 import { CiSettings } from "react-icons/ci";
 import { useSelector } from "react-redux";
 import { FiUsers } from "react-icons/fi";
+import { FaUsersCog , FaCashRegister } from "react-icons/fa";
 import {
   MdOutlineDeliveryDining,
   MdDiscount,
@@ -175,6 +176,18 @@ const adminRoutes = [
     path: "/dashboard/waiter",
     permission: "Waiter",
     icon: PiClockUserFill,
+  },
+   {
+    name: "Cashier",
+    path: "/dashboard/cashier",
+    permission: "cashier",
+    icon: FaCashRegister,
+  },
+  {
+    name: "Cashier Man",
+    path: "/dashboard/cashier_man",
+    permission: "cashier_man",
+    icon: FaUsersCog,
   },
   {
     name: "Branches",

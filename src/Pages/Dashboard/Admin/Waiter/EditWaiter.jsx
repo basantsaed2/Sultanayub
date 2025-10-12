@@ -28,24 +28,61 @@ const EditWaiter = () => {
 
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
-  const [locations, setLocations] = useState([]);
+  const [allLocations, setAllLocations] = useState([]); // Store all locations
+  const [filteredLocations, setFilteredLocations] = useState([]); // Locations filtered by branch
   const [selectedLocations, setSelectedLocations] = useState([]);
   const [branches, setBranches] = useState([]);
-  const [selectedBranch, setSelectedBranch] = useState(null); // Single branch selection
+  const [selectedBranch, setSelectedBranch] = useState(null);
   const [status, setStatus] = useState(0);
 
   // Fetch branches and locations
   useEffect(() => {
     refetchLists();
     refetchWaiter();
-  }, [refetchLists , refetchWaiter]);
+  }, [refetchLists, refetchWaiter]);
 
   useEffect(() => {
     if (dataLists) {
-      setLocations(dataLists.cafe_locations || []);
+      setAllLocations(dataLists.cafe_locations || []);
       setBranches(dataLists.branches || []);
     }
   }, [dataLists]);
+
+  // Filter locations when branch changes
+  useEffect(() => {
+    if (selectedBranch && allLocations.length > 0) {
+      // Filter locations by branch_id
+      const filtered = allLocations.filter(
+        location => location.branch_id === selectedBranch.id
+      );
+      setFilteredLocations(filtered);
+    } else {
+      setFilteredLocations([]);
+    }
+  }, [selectedBranch, allLocations]);
+
+  // Handle branch selection
+  const handleBranchChange = (e) => {
+    const branch = e.value;
+    setSelectedBranch(branch);
+    
+    // If branch changes, filter locations and clear selected locations if they don't belong to the new branch
+    if (branch && allLocations.length > 0) {
+      const filtered = allLocations.filter(
+        location => location.branch_id === branch.id
+      );
+      setFilteredLocations(filtered);
+      
+      // Filter selected locations to only keep those that belong to the new branch
+      const validSelectedLocations = selectedLocations.filter(
+        location => location.branch_id === branch.id
+      );
+      setSelectedLocations(validSelectedLocations);
+    } else {
+      setFilteredLocations([]);
+      setSelectedLocations([]);
+    }
+  };
 
   // Populate form with existing waiter data
   useEffect(() => {
@@ -54,24 +91,23 @@ const EditWaiter = () => {
       setUserName(waiter.user_name || "");
       setStatus(waiter.status || 0);
       setSelectedBranch(waiter.branch || null);
-      setSelectedLocations(waiter.locations || []);
+      
+      // Set selected locations after branch is set
+      if (waiter.branch && waiter.locations) {
+        setSelectedLocations(waiter.locations || []);
+      }
     } 
   }, [dataWaiter]);
 
-  // Handle image upload
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageFile(file);
-      setImage(file.name);
+  // When branch and all locations are loaded, filter locations for the selected branch
+  useEffect(() => {
+    if (selectedBranch && allLocations.length > 0 && dataWaiter) {
+      const filtered = allLocations.filter(
+        location => location.branch_id === selectedBranch.id
+      );
+      setFilteredLocations(filtered);
     }
-  };
-
-  const handleImageClick = (ref) => {
-    if (ref.current) {
-      ref.current.click();
-    }
-  };
+  }, [selectedBranch, allLocations, dataWaiter]);
 
   // Handle status toggle
   const handleChangeStatus = () => {
@@ -85,6 +121,7 @@ const EditWaiter = () => {
     setStatus(0);
     setSelectedLocations([]);
     setSelectedBranch(null);
+    setFilteredLocations([]);
   };
 
   // Reset form after successful submission
@@ -98,15 +135,26 @@ const EditWaiter = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validation: Check if branch is selected
+    if (!selectedBranch) {
+      alert(t("Please select a branch first"));
+      return;
+    }
+
     const formData = new FormData();
     formData.append("user_name", userName);
-    formData.append("password", password);
+    
+    // Only append password if it's provided (for updates)
+    if (password) {
+      formData.append("password", password);
+    }
+    
     formData.append("status", status);
     if (selectedBranch) {
-      formData.append("branch_id", selectedBranch.id); // Send branch_id
+      formData.append("branch_id", selectedBranch.id);
     }
     selectedLocations.forEach((location, index) => {
-      formData.append(`locations[${index}]`, location.id); // Send location IDs as array
+      formData.append(`locations[${index}]`, location.id);
     });
 
     await postData(formData, t("Waiter Updated Success!"));
@@ -145,8 +193,25 @@ const EditWaiter = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t("Password")}
             />
+            <span className="text-sm text-gray-500">
+              {t("Leave empty to keep current password")}
+            </span>
           </div>
-          {/* Locations */}
+          {/* Branch - Moved before Locations */}
+          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+            <span className="text-xl font-TextFontRegular text-thirdColor">
+              {t("Branch")}:
+            </span>
+            <Dropdown
+              value={selectedBranch}
+              onChange={handleBranchChange}
+              options={branches}
+              optionLabel="name"
+              placeholder={t("Select Branch")}
+              className="w-full bg-white md:w-20rem"
+            />
+          </div>
+          {/* Locations - Now depends on branch selection */}
           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
               {t("Locations")}:
@@ -154,26 +219,17 @@ const EditWaiter = () => {
             <MultiSelect
               value={selectedLocations}
               onChange={(e) => setSelectedLocations(e.value)}
-              options={locations}
+              options={filteredLocations}
               optionLabel="name"
               display="chip"
-              placeholder={t("Select Locations")}
+              placeholder={
+                selectedBranch 
+                  ? t("Select Locations") 
+                  : t("Please select a branch first")
+              }
               maxSelectedLabels={3}
               className="w-full bg-white md:w-20rem"
-            />
-          </div>
-          {/* Branch */}
-          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-            <span className="text-xl font-TextFontRegular text-thirdColor">
-              {t("Branch")}:
-            </span>
-            <Dropdown
-              value={selectedBranch}
-              onChange={(e) => setSelectedBranch(e.value)}
-              options={branches}
-              optionLabel="name"
-              placeholder={t("Select Branch")}
-              className="w-full bg-white md:w-20rem"
+              disabled={!selectedBranch} // Disable if no branch selected
             />
           </div>
           {/* Status */}
