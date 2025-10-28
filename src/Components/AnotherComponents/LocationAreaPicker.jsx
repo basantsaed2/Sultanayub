@@ -24,7 +24,6 @@ const LocationAreaPicker = ({ onAreaSelect, initialArea = [] }) => {
       setAreaPoints(initialArea);
       hasInitialized.current = true;
       
-      // Draw initial polygon after a short delay to ensure map is ready
       setTimeout(() => {
         if (featureGroupRef.current) {
           const latlngs = initialArea.map(point => [point.lat, point.lng]);
@@ -36,11 +35,10 @@ const LocationAreaPicker = ({ onAreaSelect, initialArea = [] }) => {
         }
       }, 100);
     }
-  }, [initialArea]); // Only run when initialArea changes
+  }, [initialArea]);
 
   const _onCreated = useCallback((e) => {
     const layer = e.layer;
-    console.log("Layer created:", layer);
     
     if (layer instanceof L.Polygon || layer instanceof L.Rectangle) {
       let latlngs;
@@ -56,19 +54,15 @@ const LocationAreaPicker = ({ onAreaSelect, initialArea = [] }) => {
         lng: point.lng,
       }));
       
-      console.log("Points extracted:", points);
-      
       setAreaPoints(points);
       onAreaSelect(points);
       
-      // Clear and re-add to ensure only one polygon exists
       featureGroupRef.current.clearLayers();
       featureGroupRef.current.addLayer(layer);
     }
   }, [onAreaSelect]);
 
   const _onDeleted = useCallback((e) => {
-    console.log("Layer deleted");
     setAreaPoints([]);
     onAreaSelect([]);
   }, [onAreaSelect]);
@@ -90,7 +84,6 @@ const LocationAreaPicker = ({ onAreaSelect, initialArea = [] }) => {
           lng: point.lng,
         }));
         
-        console.log("Points after edit:", points);
         setAreaPoints(points);
         onAreaSelect(points);
       }
@@ -102,12 +95,17 @@ const LocationAreaPicker = ({ onAreaSelect, initialArea = [] }) => {
     : [31.2001, 29.9187];
 
   return (
-    <div className="location-area-picker">
+    <div className="location-area-picker" style={{ position: 'relative', zIndex: 0 }}>
       <MapContainer
         center={center}
         zoom={13}
-        style={{ height: "400px", width: "100%", borderRadius: "10px" }}
-        whenReady={() => console.log("Map is ready")}
+        style={{ 
+          height: "400px", 
+          width: "100%", 
+          borderRadius: "10px",
+          position: 'relative',
+          zIndex: 0
+        }}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
