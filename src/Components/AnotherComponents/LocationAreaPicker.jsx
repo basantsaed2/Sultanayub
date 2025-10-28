@@ -1,76 +1,165 @@
-import React, { useEffect, useState, useRef } from "react";
-import { MapContainer, TileLayer, FeatureGroup, Polygon } from "react-leaflet";
+import React, { useEffect, useState, useRef, useCallback } from "react";
+import { MapContainer, TileLayer, FeatureGroup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import L from "leaflet";
 
+// Fix for leaflet icons in React
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
+
 const LocationAreaPicker = ({ onAreaSelect, initialArea = [] }) => {
   const [areaPoints, setAreaPoints] = useState(initialArea);
   const featureGroupRef = useRef();
+  const hasInitialized = useRef(false);
 
-  // Update areaPoints when initialArea changes
+  // Initialize with initialArea only once
   useEffect(() => {
-    setAreaPoints(initialArea);
-  }, [initialArea]);
-
-  // Clear existing layers and draw initial polygon
-  useEffect(() => {
-    if (featureGroupRef.current && initialArea.length > 0) {
-      featureGroupRef.current.clearLayers(); // Clear existing layers
-      const latlngs = initialArea.map((point) => [point.lat, point.lng]);
-      L.polygon(latlngs).addTo(featureGroupRef.current); // Add initial polygon
+    if (!hasInitialized.current && initialArea && initialArea.length > 0) {
+      setAreaPoints(initialArea);
+      hasInitialized.current = true;
+      
+      // Draw initial polygon after a short delay to ensure map is ready
+      setTimeout(() => {
+        if (featureGroupRef.current) {
+          const latlngs = initialArea.map(point => [point.lat, point.lng]);
+          L.polygon(latlngs, {
+            color: '#9700ff',
+            fillColor: '#9700ff',
+            fillOpacity: 0.2,
+          }).addTo(featureGroupRef.current);
+        }
+      }, 100);
     }
-  }, [initialArea]);
+  }, [initialArea]); // Only run when initialArea changes
 
-  const _onCreated = (e) => {
+  const _onCreated = useCallback((e) => {
     const layer = e.layer;
-    if (layer.getLatLngs) {
-      const latlngs = layer.getLatLngs()[0].map((point) => ({
+    console.log("Layer created:", layer);
+    
+    if (layer instanceof L.Polygon || layer instanceof L.Rectangle) {
+      let latlngs;
+      
+      if (layer instanceof L.Polygon) {
+        latlngs = layer.getLatLngs()[0];
+      } else if (layer instanceof L.Rectangle) {
+        latlngs = layer.getLatLngs()[0];
+      }
+      
+      const points = latlngs.map((point) => ({
         lat: point.lat,
         lng: point.lng,
       }));
-      setAreaPoints(latlngs);
-      onAreaSelect(latlngs); // Send updated points to parent
-      featureGroupRef.current.clearLayers(); // Clear previous layers
-      L.polygon(latlngs).addTo(featureGroupRef.current); // Redraw the new polygon
+      
+      console.log("Points extracted:", points);
+      
+      setAreaPoints(points);
+      onAreaSelect(points);
+      
+      // Clear and re-add to ensure only one polygon exists
+      featureGroupRef.current.clearLayers();
+      featureGroupRef.current.addLayer(layer);
     }
-  };
+  }, [onAreaSelect]);
 
-  // Calculate map center based on initialArea or default
-  const center =
-    initialArea.length > 0
-      ? [
-          initialArea[0].lat,
-          initialArea[0].lng,
-        ]
-      : [31.2001, 29.9187]; // Default center (Alexandria, Egypt)
+  const _onDeleted = useCallback((e) => {
+    console.log("Layer deleted");
+    setAreaPoints([]);
+    onAreaSelect([]);
+  }, [onAreaSelect]);
+
+  const _onEdited = useCallback((e) => {
+    const layers = e.layers;
+    layers.eachLayer((layer) => {
+      if (layer instanceof L.Polygon || layer instanceof L.Rectangle) {
+        let latlngs;
+        
+        if (layer instanceof L.Polygon) {
+          latlngs = layer.getLatLngs()[0];
+        } else if (layer instanceof L.Rectangle) {
+          latlngs = layer.getLatLngs()[0];
+        }
+        
+        const points = latlngs.map((point) => ({
+          lat: point.lat,
+          lng: point.lng,
+        }));
+        
+        console.log("Points after edit:", points);
+        setAreaPoints(points);
+        onAreaSelect(points);
+      }
+    });
+  }, [onAreaSelect]);
+
+  const center = areaPoints.length > 0 
+    ? [areaPoints[0].lat, areaPoints[0].lng]
+    : [31.2001, 29.9187];
 
   return (
-    <MapContainer
-      center={center}
-      zoom={13}
-      style={{ height: "400px", width: "100%", borderRadius: "10px", zIndex: "0" }}
-    >
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <FeatureGroup ref={featureGroupRef}>
-        <EditControl
-          position="topright"
-          onCreated={_onCreated}
-          draw={{
-            polygon: true,
-            polyline: false,
-            rectangle: true,
-            circle: false,
-            marker: false,
-            circlemarker: false,
-          }}
+    <div className="location-area-picker">
+      <MapContainer
+        center={center}
+        zoom={13}
+        style={{ height: "400px", width: "100%", borderRadius: "10px" }}
+        whenReady={() => console.log("Map is ready")}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
+        <FeatureGroup ref={featureGroupRef}>
+          <EditControl
+            position="topright"
+            onCreated={_onCreated}
+            onEdited={_onEdited}
+            onDeleted={_onDeleted}
+            draw={{
+              polygon: {
+                allowIntersection: false,
+                drawError: {
+                  color: "#e1e100",
+                  message: "<strong>Oh snap!</strong> you can't draw that!",
+                },
+                shapeOptions: {
+                  color: "#9700ff",
+                  fillColor: "#9700ff",
+                  fillOpacity: 0.2,
+                },
+              },
+              rectangle: {
+                shapeOptions: {
+                  color: "#9700ff",
+                  fillColor: "#9700ff",
+                  fillOpacity: 0.2,
+                },
+              },
+              polyline: false,
+              circle: false,
+              marker: false,
+              circlemarker: false,
+            }}
+          />
+        </FeatureGroup>
+      </MapContainer>
+      
+      <div className="mt-2 p-2 bg-gray-100 rounded">
+        <p className="text-sm text-gray-700">
+          <strong>Instructions:</strong> Click the draw polygon icon in the top right, 
+          then click on the map to create points. Close the polygon by clicking the first point.
+        </p>
         {areaPoints.length > 0 && (
-          <Polygon positions={areaPoints.map((point) => [point.lat, point.lng])} />
+          <p className="text-sm text-green-600 font-medium mt-1">
+            ✓ Area selected with {areaPoints.length} points
+          </p>
         )}
-      </FeatureGroup>
-    </MapContainer>
+      </div>
+    </div>
   );
 };
 
