@@ -131,6 +131,12 @@ import OrderPercentage from "./Pages/Dashboard/Admin/Setting/OrderPercentage/Ord
 import Recipes from "./Pages/Dashboard/Admin/ProductSetup/Recipes/Recipes";
 import AddRecipes from "./Pages/Dashboard/Admin/ProductSetup/Recipes/AddRecipes";
 import EditRecipes from "./Pages/Dashboard/Admin/ProductSetup/Recipes/EditRecipes";
+import DiscountModule from "./Pages/Dashboard/Admin/Setting/DiscountModule/DiscountModule";
+import AddDiscountModule from "./Pages/Dashboard/Admin/Setting/DiscountModule/AddDiscountModule";
+import EditDiscountModule from "./Pages/Dashboard/Admin/Setting/DiscountModule/EditDiscountModule";
+import DiscountCode from "./Pages/Dashboard/Admin/Setting/DiscountCode/DiscountCode";
+import AddDiscountCode from "./Pages/Dashboard/Admin/Setting/DiscountCode/AddDiscountCode";
+import EditDiscountCode from "./Pages/Dashboard/Admin/Setting/DiscountCode/EditDiscountCode";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -815,6 +821,28 @@ export const router = createBrowserRouter([
                   },
                 ]
               },
+              {
+                path: 'discount_code',
+                children: [
+                  {
+                    path: '',
+                    children: [
+                      {
+                        index: true,
+                        element: <DiscountCode />,
+                      },
+                      {
+                        path: 'add',
+                        element: <AddDiscountCode />,
+                      },
+                      {
+                        path: 'edit/:codeId',
+                        element: <EditDiscountCode />
+                      }
+                    ]
+                  },
+                ]
+              },
             ]
           },
           {
@@ -1173,6 +1201,28 @@ export const router = createBrowserRouter([
                 path: 'edit/:upsellingId',
                 element: <EditUpselling />
               }
+            ]
+          },
+          {
+            path: 'discount_module',
+            children: [
+              {
+                path: '',
+                children: [
+                  {
+                    index: true,
+                    element: <DiscountModule />,
+                  },
+                  {
+                    path: 'add',
+                    element: <AddDiscountModule />,
+                  },
+                  {
+                    path: 'edit/:moduleId',
+                    element: <EditDiscountModule />
+                  }
+                ]
+              },
             ]
           },
         ]

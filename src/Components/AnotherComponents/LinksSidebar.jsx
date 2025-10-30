@@ -223,6 +223,7 @@ const adminRoutes = [
       { name: "Tables", path: "/dashboard/setting/hall_tables" },
       { name: "Group Modules", path: "/dashboard/setting/group_modules" },
       { name: "Order Percentage", path: "/dashboard/setting/order_percentage" },
+      { name: "Discount Code", path: "/dashboard/setting/discount_code" },
       {
         name: "Cancelation Notification",
         path: "/dashboard/setting/cancelation_notification",
@@ -291,6 +292,12 @@ const adminRoutes = [
     name: "Discount",
     path: "/dashboard/discount",
     permission: "Discount",
+    icon: BiSolidDiscount,
+  },
+  {
+    name: "Discount Module",
+    path: "/dashboard/discount_module",
+    permission: "Discount Module",
     icon: BiSolidDiscount,
   },
   {
