@@ -119,6 +119,18 @@ import EditCashier from "./Pages/Dashboard/Admin/Cashier/EditCashier";
 import CashierMan from "./Pages/Dashboard/Admin/CashierMan/CashierMan";
 import AddCashierMan from "./Pages/Dashboard/Admin/CashierMan/AddCashierMan";
 import EditCashierMan from "./Pages/Dashboard/Admin/CashierMan/EditCashierMan";
+import CustomersDue from "./Pages/Dashboard/Admin/Users/CustomersDue/CustomersDue";
+import Upselling from "./Pages/Dashboard/Admin/Upselling/Upselling";
+import AddUpselling from "./Pages/Dashboard/Admin/Upselling/AddUpselling";
+import EditUpselling from "./Pages/Dashboard/Admin/Upselling/EditUpselling";
+import GroupModules from "./Pages/Dashboard/Admin/Setting/GroupModules/GroupModules";
+import GroupModuleProducts from "./Pages/Dashboard/Admin/Setting/GroupModules/GroupModuleProduct";
+import AddGroupModules from "./Pages/Dashboard/Admin/Setting/GroupModules/AddGroupModules";
+import EditGroupModules from "./Pages/Dashboard/Admin/Setting/GroupModules/EditGroupModules";
+import OrderPercentage from "./Pages/Dashboard/Admin/Setting/OrderPercentage/OrderPercentage";
+import Recipes from "./Pages/Dashboard/Admin/ProductSetup/Recipes/Recipes";
+import AddRecipes from "./Pages/Dashboard/Admin/ProductSetup/Recipes/AddRecipes";
+import EditRecipes from "./Pages/Dashboard/Admin/ProductSetup/Recipes/EditRecipes";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -188,7 +200,7 @@ export const router = createBrowserRouter([
         path: "",
         element: <App />,
         children: [
-           {
+          {
             path: '',
             element: <DashboardLayout />
           },
@@ -374,7 +386,31 @@ export const router = createBrowserRouter([
             children: [
               {
                 path: 'product',
-                element: <ProductLayout />,
+                element: <Outlet />,
+                children: [
+                  {
+                    path: '',
+                    element: <ProductLayout />,
+                  },
+                  {
+                    path: 'recipes/:productId',
+                    element: <Outlet />,
+                    children: [
+                      {
+                        path: '',
+                        element: <Recipes />,
+                      },
+                      {
+                        path: 'add',
+                        element: <AddRecipes />,
+                      },
+                      {
+                        path: 'edit/:recipeId',
+                        element: <EditRecipes />,
+                      }
+                    ]
+                  }
+                ]
               },
               {
                 path: 'product/add',
@@ -739,6 +775,46 @@ export const router = createBrowserRouter([
                   },
                 ]
               },
+              {
+                path: 'group_modules',
+                children: [
+                  {
+                    path: '',
+                    children: [
+                      {
+                        index: true,
+                        element: <GroupModules />,
+                      },
+                      {
+                        path: 'products/:groupId',
+                        element: <GroupModuleProducts />,
+                      },
+                      {
+                        path: 'add',
+                        element: <AddGroupModules />
+                      },
+                      {
+                        path: 'edit/:groupId',
+                        element: <EditGroupModules />
+                      }
+                    ]
+                  },
+                ]
+              },
+              {
+                path: 'order_percentage',
+                children: [
+                  {
+                    path: '',
+                    children: [
+                      {
+                        index: true,
+                        element: <OrderPercentage />,
+                      },
+                    ]
+                  },
+                ]
+              },
             ]
           },
           {
@@ -819,6 +895,10 @@ export const router = createBrowserRouter([
                     element: <EditCustomersLayout />,
                   }
                 ]
+              },
+              {
+                path: "due_customers",
+                element: <CustomersDue />,
               },
             ]
           },
@@ -1043,41 +1123,58 @@ export const router = createBrowserRouter([
           },
           {
             path: "cashier",
-            element:<Outlet/>,
+            element: <Outlet />,
             children: [
               {
-                path:'',
-                element:<Cashier/>
+                path: '',
+                element: <Cashier />
               },
               {
-                path:'add',
-                element: <AddCashier/>
+                path: 'add',
+                element: <AddCashier />
               },
               {
-                path:'edit/:cashierId',
-                element: <EditCashier/>
+                path: 'edit/:cashierId',
+                element: <EditCashier />
               }
             ]
           },
           {
             path: "cashier_man",
-            element:<Outlet/>,
+            element: <Outlet />,
             children: [
               {
-                path:'',
-                element:<CashierMan/>
+                path: '',
+                element: <CashierMan />
               },
               {
-                path:'add',
-                element: <AddCashierMan/>
+                path: 'add',
+                element: <AddCashierMan />
               },
               {
-                path:'edit/:cashierManId',
-                element: <EditCashierMan/>
+                path: 'edit/:cashierManId',
+                element: <EditCashierMan />
               }
             ]
-          }
-
+          },
+          {
+            path: "upselling",
+            element: <Outlet />,
+            children: [
+              {
+                path: '',
+                element: <Upselling />
+              },
+              {
+                path: 'add',
+                element: <AddUpselling />
+              },
+              {
+                path: 'edit/:upsellingId',
+                element: <EditUpselling />
+              }
+            ]
+          },
         ]
       },
     ],

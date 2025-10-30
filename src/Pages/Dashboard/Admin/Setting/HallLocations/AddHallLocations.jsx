@@ -84,9 +84,9 @@ const AddHallLocations = () => {
                     <StaticLoader />
                 </div>
             ) : (
-                <section className="flex flex-col mb-20">
+                <section className="w-full flex flex-col mb-20">
                     <form onSubmit={handleHallAdd}>
-                        <div className="sm:py-3 lg:py-6">
+                        <div className="w-full sm:py-3 lg:py-6">
                             <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                                 {/* Hall Name */}
                                 <div className="w-full flex flex-col items-start justify-center gap-y-1">

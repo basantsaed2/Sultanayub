@@ -40,11 +40,11 @@ const EditCustomersPage = () => {
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerPassword, setCustomerPassword] = useState("");
-
   const [customerImage, setCustomerImage] = useState("");
   const [customerImageFile, setCustomerImageFile] = useState(null);
-
   const [customerStatus, setCustomerStatus] = useState(0);
+  const [customerDueStatus, setCustomerDueStatus] = useState(0);
+  const [customerMaxDue, setCustomerMaxDue] = useState("");
 
   useEffect(() => {
     refetchCustomer();
@@ -52,10 +52,9 @@ const EditCustomersPage = () => {
 
   useEffect(() => {
     if (dataCustomer && dataCustomer.customers) {
-      console.log("Customer Data:", dataCustomer);
       setCustomers(dataCustomer.customers);
     }
-  }, [dataCustomer]); // Only run this effect when `data` changes
+  }, [dataCustomer]);
 
   useEffect(() => {
     if (dataCustomer && dataCustomer.customer) {
@@ -64,13 +63,12 @@ const EditCustomersPage = () => {
       setCustomerLname(customer.l_name || "");
       setCustomerPhone(customer.phone || "");
       setCustomerImage(customer.image_link || "");
-      //   setCustomerImageFile(customer.image_link || null)
       setCustomerEmail(customer.email || "");
-      //   setDeliveryPassword(customer.password ||'')
       setCustomerStatus(customer.status || 0);
+      setCustomerDueStatus(customer.due_status || 0);
+      setCustomerMaxDue(customer.max_due || "");
     }
-    console.log("dataCustomer", dataCustomer);
-  }, [dataCustomer]); // Only run this effect when `data` changes
+  }, [dataCustomer]);
 
   const handleCustomerImageChange = (e) => {
     const file = e.target.files[0];
@@ -79,16 +77,19 @@ const EditCustomersPage = () => {
       setCustomerImage(file.name);
     }
   };
+
   const handleCustomerImageClick = (ref) => {
     if (ref.current) {
       ref.current.click();
     }
   };
+
   const handleCustomerStatus = () => {
-    const currentActive = customerStatus;
-    {
-      currentActive === 0 ? setCustomerStatus(1) : setCustomerStatus(0);
-    }
+    setCustomerStatus((prev) => (prev === 0 ? 1 : 0));
+  };
+
+  const handleCustomerDueStatus = () => {
+    setCustomerDueStatus((prev) => (prev === 0 ? 1 : 0));
   };
 
   const handleCancel = () => {
@@ -104,11 +105,13 @@ const EditCustomersPage = () => {
     setCustomerEmail("");
     setCustomerPassword("");
     setCustomerStatus(0);
+    setCustomerDueStatus(0);
+    setCustomerMaxDue("");
   };
 
   useEffect(() => {
-    if (!loadingPost) {
-      handleReset();
+    if (!loadingPost && response) {
+      handleCancel();
     }
     console.log(response);
   }, [response]);
@@ -128,10 +131,6 @@ const EditCustomersPage = () => {
       auth.toastError(t("please Enter The Phone"));
       return;
     }
-    // if (!customerImageFile) {
-    //        auth.toastError('please Enter Customer Photo')
-    //        return;
-    // }
     if (!customerEmail) {
       auth.toastError(t("please Enter The Email"));
       return;
@@ -140,10 +139,6 @@ const EditCustomersPage = () => {
       auth.toastError(t("please Enter '@' After The Email"));
       return;
     }
-    // if (!customerPassword) {
-    //        auth.toastError('please Enter The Password')
-    //        return;
-    // }
 
     const formData = new FormData();
 
@@ -151,8 +146,13 @@ const EditCustomersPage = () => {
     formData.append("l_name", customerLname);
     formData.append("phone", customerPhone);
     formData.append("email", customerEmail);
-    formData.append("password", customerPassword);
-    formData.append("status", customerStatus);
+    // Only append password if it is not empty
+    if (customerPassword) {
+      formData.append("password", customerPassword);
+    }
+    formData.append("status", customerStatus || 0);
+    formData.append("due_status", customerDueStatus || 0);
+    formData.append("max_due", customerMaxDue || "");
 
     if (!customerImageFile) {
       formData.append("image", customerImage);
@@ -189,7 +189,7 @@ const EditCustomersPage = () => {
             {/* Last Name */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
               <span className="text-xl font-TextFontRegular text-thirdColor">
-               {t("Last Name")}:
+                {t("Last Name")}:
               </span>
               <TextInput
                 value={customerLname}
@@ -237,7 +237,7 @@ const EditCustomersPage = () => {
             {/* Password */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
               <span className="text-xl font-TextFontRegular text-thirdColor">
-               {t("Password")}:
+                {t("Password")}:
               </span>
               <PasswordInput
                 backgound="white"
@@ -247,7 +247,7 @@ const EditCustomersPage = () => {
               />
             </div>
             {/* Customer Status */}
-            <div className="xl:w-[30%] flex items-center justify-start gap-x-4 ">
+            <div className="xl:w-[30%] flex items-center justify-start gap-x-4">
               <span className="text-xl font-TextFontRegular text-thirdColor">
                 {t("Customer Status")}:
               </span>
@@ -256,21 +256,46 @@ const EditCustomersPage = () => {
                 checked={customerStatus}
               />
             </div>
+            {/* Customer Due Status */}
+            <div className="xl:w-[30%] flex items-center justify-start gap-x-4">
+              <span className="text-xl font-TextFontRegular text-thirdColor">
+                {t("Customer Due Status")}:
+              </span>
+              <Switch
+                handleClick={handleCustomerDueStatus}
+                checked={customerDueStatus}
+              />
+            </div>
+            {/* Customer Max Due */}
+            {customerDueStatus ? (
+              <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Customer Max Due")}:
+                </span>
+                <NumberInput
+                  value={customerMaxDue}
+                  onChange={(e) => setCustomerMaxDue(e.target.value)}
+                  placeholder={t("Customer Max Due")}
+                />
+              </div>
+            ) : (
+              ""
+            )}
 
             {/* Buttons */}
             <div className="flex items-center justify-end w-full gap-x-4">
-              <div className="">
+              <div>
                 <StaticButton
                   text={t("Cancel")}
                   handleClick={handleCancel}
                   bgColor="bg-transparent"
                   Color="text-mainColor"
-                  border={"border-2"}
-                  borderColor={"border-mainColor"}
+                  border="border-2"
+                  borderColor="border-mainColor"
                   rounded="rounded-full"
                 />
               </div>
-              <div className="">
+              <div>
                 <SubmitButton
                   text={t("Edit")}
                   rounded="rounded-full"

@@ -12,7 +12,7 @@ const CustomersLayout = () => {
             <TitlePage text={t('AddCustomer')} />
             <AddCustomersSection update={update} setUpdate={setUpdate} />
             <TitleSection text={t('CustomerTable')} />
-            <CustomersPage update={update} setUpdate={setUpdate} />
+            <CustomersPage refetch={update} />
         </>
     )
 }

@@ -95,7 +95,7 @@ const LocationAreaPicker = ({ onAreaSelect, initialArea = [] }) => {
     : [31.2001, 29.9187];
 
   return (
-    <div className="location-area-picker" style={{ position: 'relative', zIndex: 0 }}>
+    <div className="location-area-picker" style={{ position: 'relative', zIndex: 0 ,width: '80%'}}>
       <MapContainer
         center={center}
         zoom={13}

@@ -87,6 +87,7 @@ const CustomersPage = ({ refetch, setUpdate }) => {
     if (success) {
       // Update Deliveries only if changeState succeeded
       setCustomers(customers.filter((customer) => customer.id !== id));
+      setUpdate(!refetch);
     }
     console.log("data customers", data);
   };
@@ -227,8 +228,8 @@ const CustomersPage = ({ refetch, setUpdate }) => {
                                         handleDelete(
                                           customer.id,
                                           customer?.f_name +
-                                            " " +
-                                            customer?.l_name
+                                          " " +
+                                          customer?.l_name
                                         )
                                       }
                                     >
@@ -273,11 +274,10 @@ const CustomersPage = ({ refetch, setUpdate }) => {
                   <button
                     key={page}
                     onClick={() => handlePageChange(page)}
-                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${
-                      currentPage === page
+                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
                         ? "bg-mainColor text-white"
                         : " text-mainColor"
-                    }`}
+                      }`}
                   >
                     {page}
                   </button>

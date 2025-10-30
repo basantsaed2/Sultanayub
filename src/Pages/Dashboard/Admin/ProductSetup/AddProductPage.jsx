@@ -58,6 +58,7 @@ const AddProductPage = () => {
   const taxRef = useRef();
   const productImageRef = useRef();
   const groupRef = useRef();
+  const unitRef = useRef();
 
   /* States */
   const [taps, setTaps] = useState([]);
@@ -76,6 +77,13 @@ const AddProductPage = () => {
   const [groups, setGroups] = useState([]);
   const [selectedGroups, setSelectedGroups] = useState([]);
   const [selectedExtras, setSelectedExtras] = useState({}); // Object to store extras for each group
+
+  // New states for weight functionality
+  const [weightStatus, setWeightStatus] = useState(0);
+  const [weightPoint, setWeightPoint] = useState("");
+  const [units, setUnits] = useState([]);
+  const [selectedUnit, setSelectedUnit] = useState("");
+  const [selectedUnitState, setSelectedUnitState] = useState(t("Selected Unit"));
 
   const [itemTypes, setItemTypes] = useState([
     { id: "", name: t("Selected Item Type") },
@@ -165,7 +173,6 @@ const AddProductPage = () => {
   const [productImage, setProductImage] = useState(null);
   const [productImageName, setProductImageName] = useState(t("Choose Photo"));
 
-
   // Product Group
   const [selectedGroupState, setSelectedGroupState] = useState(
     t("Selected Group")
@@ -174,6 +181,7 @@ const AddProductPage = () => {
 
   const [selectedOptionGroups, setSelectedOptionGroups] = useState({});
   const [selectedOptionExtras, setSelectedOptionExtras] = useState({});
+
   /* dropdown Status */
   const [isOPenProductCategory, setIsOPenProductCategory] = useState(false);
   const [isOPenProductSubCategory, setIsOPenProductSubCategory] = useState(false);
@@ -182,6 +190,7 @@ const AddProductPage = () => {
   const [isOPenProductDiscount, setIsOPenProductDiscount] = useState(false);
   const [isOPenProductTax, setIsOPenProductTax] = useState(false);
   const [isOPenProductGroup, setIsOPenProductGroup] = useState(false);
+  const [isOPenProductUnit, setIsOPenProductUnit] = useState(false);
 
   /* Refetch Data */
   useEffect(() => {
@@ -209,21 +218,45 @@ const AddProductPage = () => {
           ...dataCategory?.sub_categories,
         ] || []
       );
-      // setFilterSubCategories(dataCategory?.sub_categories || [])
       setAddons(dataCategory?.addons || []);
     }
     /* Set data to Discounts && Taxes */
     if (dataProduct) {
       setDiscounts(
-        [{ id: "", name: t("Select Discount") }, ...dataProduct?.discounts] ||
-        []
+        [{ id: "", name: t("Select Discount") }, ...dataProduct?.discounts] || []
       );
       setTaxes(
         [{ id: "", name: t("Select Tax") }, ...dataProduct?.taxes] || []
       );
       setGroups(dataProduct?.group || []);
+      // Get units from product data if available
+      if (dataProduct.units) {
+        setUnits([{ id: "", name: t("Select Unit") }, ...dataProduct.units]);
+      }
     }
   }, [dataTranslation, dataCategory, dataProduct]);
+
+  // Handle weight status change
+  const handleWeightStatusChange = () => {
+    setWeightStatus(prev => prev === 1 ? 0 : 1);
+    // Reset weight fields when toggling
+    setWeightPoint("");
+    setSelectedUnit("");
+    setSelectedUnitState(t("Selected Unit"));
+  };
+
+  // Handle unit selection
+  const handleSelectUnit = (option) => {
+    setSelectedUnit(option.id);
+    setSelectedUnitState(option.name);
+  };
+
+  const handleOpenUnit = () => {
+    handleCloseAllDropdowns();
+    setIsOPenProductUnit(!isOPenProductUnit);
+  };
+
+  const handleOpenOptionProductUnit = () => setIsOPenProductUnit(false);
 
   // Exclude Product
   const handleAddExclude = () => {
@@ -291,7 +324,6 @@ const AddProductPage = () => {
       prevVariations.filter((_, idx) => idx !== index)
     );
   };
-  // Option
 
   // Example for updating nested options array
   const updateVariationState = (
@@ -357,6 +389,7 @@ const AddProductPage = () => {
   const handleOpenOptionProductVariationType = () => {
     setOpenVariationIndex(null); // Close the dropdown
   };
+
   const handleCloseAllDropdowns = () => {
     setIsOPenProductCategory(false);
     setIsOPenProductSubCategory(false);
@@ -365,7 +398,9 @@ const AddProductPage = () => {
     setIsOPenProductDiscount(false);
     setIsOPenProductTax(false);
     setIsOPenProductGroup(false);
+    setIsOPenProductUnit(false);
   };
+
   const handleOpenCategory = () => {
     handleCloseAllDropdowns();
     setIsOPenProductCategory(!isOPenProductCategory);
@@ -403,7 +438,7 @@ const AddProductPage = () => {
     setProductVariations((prevProductVariations) =>
       prevProductVariations.map((ele, index) =>
         index === variationIndex
-          ? { ...ele, type: option.name, min: "", max: "" } // Update type with selected value
+          ? { ...ele, type: option.name, min: "", max: "" }
           : ele
       )
     );
@@ -414,12 +449,10 @@ const AddProductPage = () => {
     const filterSup = subCategories.filter(
       (sup) => sup.category_id === option.id
     );
-
     setFilterSubCategories([
       { id: "", name: "Selected Subcategory" },
       ...filterSup,
     ]);
-    console.log("filterSup", filterSup);
   };
   const handleSelectProductSubCategory = (option) => {
     setSelectedSubCategoryId(option.id);
@@ -428,7 +461,6 @@ const AddProductPage = () => {
   const handleSelectProductItemType = (option) => {
     setSelectedItemTypeName(option.id);
     setSelectedItemTypeState(option.name);
-    console.log("option", option);
   };
   const handleSelectProductStockType = (option) => {
     setSelectedStockTypeName(option.id);
@@ -436,12 +468,10 @@ const AddProductPage = () => {
     setProductStockNumber("");
   };
   const handleSelectProductDiscount = (option) => {
-    console.log("option", option);
     setSelectedDiscountId(option.id);
     setSelectedDiscountState(option.name);
   };
   const handleSelectProductTax = (option) => {
-    console.log("option", option);
     setSelectedTaxId(option.id);
     setSelectedTaxState(option.name);
   };
@@ -496,7 +526,9 @@ const AddProductPage = () => {
         taxRef.current &&
         !taxRef.current.contains(event.target) &&
         groupRef.current &&
-        !groupRef.current.contains(event.target)
+        !groupRef.current.contains(event.target) &&
+        unitRef.current &&
+        !unitRef.current.contains(event.target)
       ) {
         handleCloseAllDropdowns();
       }
@@ -513,7 +545,7 @@ const AddProductPage = () => {
         }
 
         if (!clickedInsideAnyVariation) {
-          setOpenVariationIndex(null); // Close the variation dropdown
+          setOpenVariationIndex(null);
         }
       }
     };
@@ -531,6 +563,7 @@ const AddProductPage = () => {
     setIsOPenProductTax,
     setOpenVariationIndex,
     setIsOPenProductGroup,
+    setIsOPenProductUnit,
   ]);
 
   // Go To Languages Tap About Product Names
@@ -591,6 +624,11 @@ const AddProductPage = () => {
     setProductTimeStatus(0);
     setProductImage(null);
     setProductImageName(t("Choose Photo"));
+    // Reset weight fields
+    setWeightStatus(0);
+    setWeightPoint("");
+    setSelectedUnit("");
+    setSelectedUnitState(t("Selected Unit"));
   };
 
   // Remove an option from a specific Option within a Variation
@@ -609,12 +647,10 @@ const AddProductPage = () => {
     );
   };
 
-
   // Handle group selection and auto-select all extras
   const handleGroupChange = (e) => {
-    const selected = e.value; // Array of selected group IDs
+    const selected = e.value;
     setSelectedGroups(selected);
-
     // Update selectedExtras: auto-select all extras for newly selected groups
     const updatedExtras = { ...selectedExtras };
     selected.forEach((groupId) => {
@@ -624,14 +660,12 @@ const AddProductPage = () => {
         updatedExtras[groupId] = extras.map((extra) => extra.id);
       }
     });
-
     // Remove extras for deselected groups
     Object.keys(updatedExtras).forEach((groupId) => {
       if (!selected.includes(Number(groupId))) {
         delete updatedExtras[groupId];
       }
     });
-
     setSelectedExtras(updatedExtras);
   };
 
@@ -656,33 +690,29 @@ const AddProductPage = () => {
       ...prev,
       [key]: selectedGroupIds,
     }));
-
     // Update selectedOptionExtras: auto-select all extras for newly selected groups
     const updatedExtras = { ...selectedOptionExtras[key] } || {};
     selectedGroupIds.forEach((groupId) => {
       if (!updatedExtras[groupId]) {
         const extras = getExtrasForGroup(groupId);
-        console.log(`Extras for group ${groupId} in variation ${key}:`, extras); // Debug
-        updatedExtras[groupId] = extras.map((extra) => extra.id); // Use 'id'
+        updatedExtras[groupId] = extras.map((extra) => extra.id);
       }
     });
-
     // Remove extras for deselected groups
     Object.keys(updatedExtras).forEach((groupId) => {
       if (!selectedGroupIds.includes(Number(groupId))) {
         delete updatedExtras[groupId];
       }
     });
-
     setSelectedOptionExtras((prev) => ({
       ...prev,
       [key]: updatedExtras,
     }));
   };
+
   // Handle extras selection for a specific group within a variation option
   const handleOptionExtrasChange = (variationIndex, optionIndex, groupId, selectedExtraIds) => {
     const key = `${variationIndex}-${optionIndex}`;
-    console.log(`Updating extras for ${key}, group ${groupId}:`, selectedExtraIds); // Debug
     setSelectedOptionExtras((prev) => ({
       ...prev,
       [key]: {
@@ -693,7 +723,7 @@ const AddProductPage = () => {
   };
 
   /* Add Product */
-  const handleproductAdd  = (e) => {
+  const handleproductAdd = (e) => {
     e.preventDefault();
 
     const formData = new FormData();
@@ -718,6 +748,12 @@ const AddProductPage = () => {
     formData.append("status", productStatus);
     formData.append("image", productImage);
 
+    // Add weight status and related fields
+    formData.append("weight_status", weightStatus);
+    if (weightStatus === 1) {
+      formData.append("weight_point", weightPoint);
+      formData.append("unit_id", selectedUnit);
+    }
     if (selectedAddonsId.length > 0) {
       const addonIds = selectedAddonsId.map((addon) => addon.id);
       addonIds.forEach((id, indexID) => {
@@ -739,30 +775,32 @@ const AddProductPage = () => {
       })
     }
 
-    if (Array.isArray(productExclude)) {
-      productExclude.forEach((exclude, index) => {
-        if (Array.isArray(exclude.names)) {
-          exclude.names.forEach((exName, exInd) => {
-            formData.append(`excludes[${index}][names][${exInd}][exclude_name]`, exName.exclude_name);
-            formData.append(`excludes[${index}][names][${exInd}][tranlation_id]`, exName.tranlation_id);
-            formData.append(`excludes[${index}][names][${exInd}][tranlation_name]`, exName.tranlation_name);
-          });
-        }
-      });
-    }
-    
+    // Only include exclude and extra sections if weight_status is not 1
+    if (weightStatus !== 1) {
+      if (Array.isArray(productExclude)) {
+        productExclude.forEach((exclude, index) => {
+          if (Array.isArray(exclude.names)) {
+            exclude.names.forEach((exName, exInd) => {
+              formData.append(`excludes[${index}][names][${exInd}][exclude_name]`, exName.exclude_name);
+              formData.append(`excludes[${index}][names][${exInd}][tranlation_id]`, exName.tranlation_id);
+              formData.append(`excludes[${index}][names][${exInd}][tranlation_name]`, exName.tranlation_name);
+            });
+          }
+        });
+      }
 
-    // Send only the selected extra IDs from selectedExtras for top-level extra
-    if (Object.keys(selectedExtras).length > 0) {
-      let extraIndex = 0;
-      Object.entries(selectedExtras).forEach(([groupId, extraIds]) => {
-        if (Array.isArray(extraIds)) {
-          extraIds.forEach((extraId) => {
-            formData.append(`extra[${extraIndex}][id]`, extraId);
-            extraIndex++;
-          });
-        }
-      });
+      // Send only the selected extra IDs from selectedExtras for top-level extra
+      if (Object.keys(selectedExtras).length > 0) {
+        let extraIndex = 0;
+        Object.entries(selectedExtras).forEach(([groupId, extraIds]) => {
+          if (Array.isArray(extraIds)) {
+            extraIds.forEach((extraId) => {
+              formData.append(`extra[${extraIndex}][id]`, extraId);
+              extraIndex++;
+            });
+          }
+        });
+      }
     }
 
     // Debug: Log selectedOptionExtras to verify its content
@@ -847,160 +885,6 @@ const AddProductPage = () => {
 
     postData(formData, t("Product Added Success"));
   };
-  // const handleproductAdd = (e) => {
-  //   e.preventDefault();
-
-  //   const formData = new FormData();
-  //   formData.append("category_id", selectedCategoryId);
-  //   formData.append("sub_category_id", selectedSubCategoryId);
-  //   formData.append("item_type", selectedItemTypeName);
-  //   formData.append("stock_type", selectedStockTypeName);
-  //   formData.append("number", productStockNumber);
-  //   formData.append("price", productPrice);
-  //   formData.append("discount_id", selectedDiscountId);
-  //   formData.append("tax_id", selectedTaxId);
-  //   formData.append("points", productPoint);
-
-  //   formData.append("product_time_status", productTimeStatus);
-  //   if (productStatusFrom) {
-  //     formData.append("from", productStatusFrom);
-  //   }
-  //   if (productStatusTo) {
-  //     formData.append("to", productStatusTo);
-  //   }
-  //   formData.append("recommended", productRecommended);
-  //   formData.append("status", productStatus);
-  //   formData.append("image", productImage);
-
-  //   if (selectedAddonsId.length > 0) {
-  //     const addonIds = selectedAddonsId.map((addon) => addon.id);
-  //     addonIds.forEach((id, indexID) => {
-  //       formData.append(`addons[${indexID}]`, id);
-  //     });
-  //   }
-
-  //   productNames.forEach((name, index) => {
-  //     formData.append(`product_names[${index}][product_name]`, name.product_name);
-  //     formData.append(`product_names[${index}][tranlation_id]`, name.tranlation_id);
-  //     formData.append(`product_names[${index}][tranlation_name]`, name.tranlation_name);
-  //   });
-
-  //   {
-  //     descriptionNames.forEach((name, index) => {
-  //       formData.append(`product_descriptions[${index}][product_description]`, name.description_name)
-  //       formData.append(`product_descriptions[${index}][tranlation_name]`, name.tranlation_name)
-  //       formData.append(`product_descriptions[${index}][tranlation_id]`, name.tranlation_id)
-  //     })
-  //   }
-
-  //   if (Array.isArray(productExclude)) {
-  //     productExclude.forEach((exclude, index) => {
-  //       if (Array.isArray(exclude.names)) {
-  //         exclude.names.forEach((exName, exInd) => {
-  //           formData.append(`excludes[${index}][names][${exInd}][exclude_name]`, exName.exclude_name);
-  //           formData.append(`excludes[${index}][names][${exInd}][tranlation_id]`, exName.tranlation_id);
-  //           formData.append(`excludes[${index}][names][${exInd}][tranlation_name]`, exName.tranlation_name);
-  //         });
-  //       }
-  //     });
-  //   }
-    
-
-  //   // Send only the selected extra IDs from selectedExtras for top-level extra
-  //   if (Object.keys(selectedExtras).length > 0) {
-  //     let extraIndex = 0;
-  //     Object.entries(selectedExtras).forEach(([groupId, extraIds]) => {
-  //       if (Array.isArray(extraIds)) {
-  //         extraIds.forEach((extraId) => {
-  //           formData.append(`extra[${extraIndex}][id]`, extraId);
-  //           extraIndex++;
-  //         });
-  //       }
-  //     });
-  //   }
-
-  //   // Debug: Log selectedOptionExtras to verify its content
-  //   console.log("selectedOptionExtras:", JSON.stringify(selectedOptionExtras, null, 2));
-
-  //   if (Array.isArray(productVariations)) {
-  //     productVariations.forEach((variation, indexVar) => {
-  //       console.log(`Processing variation index ${indexVar}`, variation);
-
-  //       /* Names */
-  //       if (Array.isArray(variation.names)) {
-  //         variation.names.forEach((name, index) => {
-  //           console.log(`Processing name at index ${index}:`, name);
-  //           formData.append(`variations[${indexVar}][names][${index}][name]`, name.name);
-  //           formData.append(`variations[${indexVar}][names][${index}][tranlation_name]`, name.tranlation_name);
-  //           formData.append(`variations[${indexVar}][names][${index}][tranlation_id]`, name.tranlation_id);
-  //         });
-  //       } else {
-  //         console.warn(`variation.names is not a valid array for variation index ${indexVar}`);
-  //       }
-
-  //       if (Array.isArray(variation.options)) {
-  //         variation.options.forEach((option, indexOption) => {
-  //           // Extra Option Handling using selectedOptionExtras
-  //           const extraKey = `${indexVar}-${indexOption}`;
-  //           const selectedExtrasForOption = selectedOptionExtras[extraKey] || {};
-  //           console.log(`Processing option ${indexVar}-${indexOption}, selectedExtrasForOption:`, selectedExtrasForOption);
-
-  //           if (Object.keys(selectedExtrasForOption).length > 0) {
-  //             let extraIndex = 0;
-  //             Object.values(selectedExtrasForOption).flat().forEach((extraId) => {
-  //               console.log(`Appending extra_index for ${extraKey}, extraIndex ${extraIndex}:`, extraId);
-  //               formData.append(
-  //                 `variations[${indexVar}][options][${indexOption}][extra]`,
-  //                 extraId !== undefined ? String(extraId) : ""
-  //               );
-  //               extraIndex++;
-  //             });
-  //           } else {
-  //             console.warn(`No extras found for option ${extraKey}`);
-  //           }
-
-  //           // Names Option Handling
-  //           if (Array.isArray(option.names) && option.names.length > 0) {
-  //             option.names.forEach((optionNa, indexOpNa) => {
-  //               formData.append(
-  //                 `variations[${indexVar}][options][${indexOption}][names][${indexOpNa}][name]`,
-  //                 optionNa.name && typeof optionNa.name === "string" ? optionNa.name : ""
-  //               );
-  //               formData.append(
-  //                 `variations[${indexVar}][options][${indexOption}][names][${indexOpNa}][tranlation_id]`,
-  //                 optionNa.tranlation_id !== undefined ? String(optionNa.tranlation_id) : ""
-  //               );
-  //               formData.append(
-  //                 `variations[${indexVar}][options][${indexOption}][names][${indexOpNa}][tranlation_name]`,
-  //                 typeof optionNa.tranlation_name === "string" ? optionNa.tranlation_name : ""
-  //               );
-  //             });
-  //           }
-
-  //           // Append other option-specific data
-  //           formData.append(`variations[${indexVar}][options][${indexOption}][price]`, option.price || 0);
-  //           formData.append(`variations[${indexVar}][options][${indexOption}][status]`, option.status);
-  //           formData.append(`variations[${indexVar}][options][${indexOption}][points]`, option.points || 0);
-  //         });
-  //       }
-
-  //       // Append general variation data
-  //       formData.append(`variations[${indexVar}][type]`, variation.type);
-  //       formData.append(`variations[${indexVar}][min]`, variation.min);
-  //       formData.append(`variations[${indexVar}][max]`, variation.max);
-  //       formData.append(`variations[${indexVar}][required]`, variation.required ? 1 : 0);
-  //     });
-  //   }
-
-  //   // Debug: Log only extra-related form data
-  //   for (const [key, value] of formData.entries()) {
-  //     if (key.includes("extra")) {
-  //       console.log(`${key}: ${value}`);
-  //     }
-  //   }
-
-  //   postData(formData, t("Product Added Success"));
-  // };
 
   useEffect(() => {
     if (response && response.status === 200) {
@@ -1057,25 +941,20 @@ const AddProductPage = () => {
                             {t("ProductName")} {tap.name}:
                           </span>
                           <TextInput
-                            value={productNames[index]?.product_name} // Access category_name property
+                            value={productNames[index]?.product_name}
                             onChange={(e) => {
-                              const inputValue = e.target.value; // Ensure this is a string
+                              const inputValue = e.target.value;
                               setProductNames((prev) => {
                                 const updatedProductNames = [...prev];
-
-                                // Ensure the array is long enough
                                 if (updatedProductNames.length <= index) {
-                                  updatedProductNames.length = index + 1; // Resize array
+                                  updatedProductNames.length = index + 1;
                                 }
-
-                                // Create or update the object at the current index
                                 updatedProductNames[index] = {
-                                  ...updatedProductNames[index], // Retain existing properties if any
-                                  tranlation_id: tap.id, // Use the ID from tap
-                                  product_name: inputValue, // Use the captured string value
-                                  tranlation_name: tap.name || "Default Name", // Use tap.name for tranlation_name
+                                  ...updatedProductNames[index],
+                                  tranlation_id: tap.id,
+                                  product_name: inputValue,
+                                  tranlation_name: tap.name || "Default Name",
                                 };
-
                                 return updatedProductNames;
                               });
                             }}
@@ -1089,25 +968,20 @@ const AddProductPage = () => {
                             {t("Product Description")} {tap.name}:
                           </span>
                           <TextInput
-                            value={descriptionNames[index]?.description_name} // Access category_name property
+                            value={descriptionNames[index]?.description_name}
                             onChange={(e) => {
-                              const inputValue = e.target.value; // Ensure this is a string
+                              const inputValue = e.target.value;
                               setDescriptionNames((prev) => {
                                 const updatedDescriptionNames = [...prev];
-
-                                // Ensure the array is long enough
                                 if (updatedDescriptionNames.length <= index) {
-                                  updatedDescriptionNames.length = index + 1; // Resize array
+                                  updatedDescriptionNames.length = index + 1;
                                 }
-
-                                // Create or update the object at the current index
                                 updatedDescriptionNames[index] = {
-                                  ...updatedDescriptionNames[index], // Retain existing properties if any
-                                  tranlation_id: tap.id, // Use the ID from tap
-                                  description_name: inputValue, // Use the captured string value
-                                  tranlation_name: tap.name || "Default Name", // Use tap.name for tranlation_name
+                                  ...updatedDescriptionNames[index],
+                                  tranlation_id: tap.id,
+                                  description_name: inputValue,
+                                  tranlation_name: tap.name || "Default Name",
                                 };
-
                                 return updatedDescriptionNames;
                               });
                             }}
@@ -1115,16 +989,55 @@ const AddProductPage = () => {
                           />
                         </div>
 
-                        {/* Conditional Rendering for First Tab Only */}
+                        {/* Weight Status Switch */}
+                        <div className="sm:w-full lg:w-[30%] flex items-center justify-start gap-x-3 lg:mt-6">
+                          <span className="text-xl font-TextFontRegular text-thirdColor">
+                            {t("Weight Status")}:
+                          </span>
+                          <Switch
+                            handleClick={handleWeightStatusChange}
+                            checked={weightStatus === 1}
+                          />
+                        </div>
                       </div>
                     )
                 )}
               </div>
             </div>
 
-            {/* Product Details */}
+            {/* Weight Fields */}
+            {weightStatus === 1 && (
+              <div className="flex items-start justify-start w-full gap-5 sm:flex-col lg:flex-row">
+                {/* Weight Point */}
+                <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                    {t("Weight Point")}:
+                  </span>
+                  <NumberInput
+                    value={weightPoint}
+                    onChange={(e) => setWeightPoint(e.target.value)}
+                    placeholder={t("Weight Point")}
+                  />
+                </div>
+                {/* Unit Selection */}
+                <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                    {t("Unit")}:
+                  </span>
+                  <DropDown
+                    ref={unitRef}
+                    handleOpen={handleOpenUnit}
+                    stateoption={selectedUnitState}
+                    openMenu={isOPenProductUnit}
+                    handleOpenOption={handleOpenOptionProductUnit}
+                    options={units}
+                    onSelectOption={handleSelectUnit}
+                  />
+                </div>
+              </div>
+            )}
 
-            {/* More Details */}
+            {/* Product Details */}
             <div className="flex items-start justify-start w-full gap-5 sm:flex-col lg:flex-row">
               {/* Product Category  */}
               <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
@@ -1163,7 +1076,7 @@ const AddProductPage = () => {
                 </span>
                 <MultiSelect
                   value={selectedAddonsId}
-                  onChange={(e) => setSelectedAddonsId(e.value)} // Assigns entire selected array
+                  onChange={(e) => setSelectedAddonsId(e.value)}
                   options={addons}
                   optionLabel="name"
                   display="chip"
@@ -1281,7 +1194,6 @@ const AddProductPage = () => {
 
             <div className="flex items-start justify-start w-full gap-5 mt-2 sm:flex-col lg:flex-row">
               {/* Product Image */}
-              {/* <div className="sm:w-full lg:w-[33%]  sm:flex-col lg:flex-row flex sm:items-start lg:items-center justify-start gap-x-3"> */}
               <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Product Image")}:
@@ -1306,7 +1218,6 @@ const AddProductPage = () => {
                       value={productStatusFrom ?? ""}
                       onChange={(e) => setProductStatusFrom(e.target.value)}
                     />
-                    {/* <input type="time" /> */}
                   </div>
 
                   <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
@@ -1355,164 +1266,167 @@ const AddProductPage = () => {
               </div>
             </div>
 
-            <div className="w-full p-6 bg-gray-50 rounded-2xl shadow-lg">
-              {/* Group MultiSelect */}
-              <div className="mb-6 w-full sm:w-full lg:w-[30%] ">
-                <label className="block text-lg font-semibold text-gray-700 mb-2">
-                  {t("Group Extra Names")}:
-                </label>
-                <MultiSelect
-                  value={selectedGroups}
-                  onChange={handleGroupChange}
-                  options={groups}
-                  optionLabel="name"
-                  optionValue="id"
-                  display="chip"
-                  placeholder={selectedGroupState}
-                  // maxSelectedLabels={3}
-                  className="w-full bg-white border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-200"
-                  panelClassName="bg-white border border-gray-200 rounded-lg shadow-lg"
-                />
-              </div>
+            {/* Only show exclude and extra sections if weight_status is not 1 */}
+            {weightStatus !== 1 && (
+              <>
+                {/* Group and Extras Section */}
+                <div className="w-full p-6 bg-gray-50 rounded-2xl shadow-lg">
+                  {/* Group MultiSelect */}
+                  <div className="mb-6 w-full sm:w-full lg:w-[30%] ">
+                    <label className="block text-lg font-semibold text-gray-700 mb-2">
+                      {t("Group Extra Names")}:
+                    </label>
+                    <MultiSelect
+                      value={selectedGroups}
+                      onChange={handleGroupChange}
+                      options={groups}
+                      optionLabel="name"
+                      optionValue="id"
+                      display="chip"
+                      placeholder={selectedGroupState}
+                      className="w-full bg-white border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-200"
+                      panelClassName="bg-white border border-gray-200 rounded-lg shadow-lg"
+                    />
+                  </div>
 
-              {/* Extras MultiSelects */}
-              {selectedGroups.length > 0 && (
-                <div className="space-y-6">
-                  {selectedGroups.map((groupId) => {
-                    const group = groups.find((g) => g.id === groupId);
-                    return (
-                      <div
-                        key={groupId}
-                        className="p-4 bg-white rounded-xl shadow-sm animate-fadeIn"
-                      >
-                        <label className="block text-lg font-semibold text-gray-700 mb-2">
-                          {t("Extra Names")} for {group?.name || 'Group'}:
-                        </label>
-                        <MultiSelect
-                          value={selectedExtras[groupId] || []}
-                          onChange={(e) => handleExtraChange(groupId, e.value)}
-                          options={getExtrasForGroup(groupId)}
-                          optionLabel="name"
-                          optionValue="id"
-                          display="chip"
-                          placeholder={t("Select Extras")}
-                          // maxSelectedLabels={5}
-                          className="w-full bg-white border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-200"
-                          panelClassName="bg-white border border-gray-200 rounded-lg shadow-lg"
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Exclude Names */}
-            <div className="flex flex-col items-start justify-start w-full gap-4 pb-4 border-b-4 border-gray-300">
-              {productExclude.length !== 0 && (
-                <div className="flex items-center justify-start w-full gap-x-6">
-                  {taps.map((tap, index) => (
-                    <span
-                      key={tap.id}
-                      onClick={() => handleExcludeNamesTap(index)}
-                      className={`${currentExcludeNamesTap === index
-                        ? "text-mainColor border-b-4 border-mainColor"
-                        : "text-thirdColor"
-                        }  pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
-                    >
-                      {tap.name}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <div className="w-full">
-                {taps.map(
-                  (tap, index) =>
-                    currentExcludeNamesTap === index && (
-                      <div
-                        className="flex flex-col items-center justify-center w-full gap-4"
-                        key={tap.id}
-                      >
-                        {(productExclude || []).map((ele, indexMap) => (
+                  {/* Extras MultiSelects */}
+                  {selectedGroups.length > 0 && (
+                    <div className="space-y-6">
+                      {selectedGroups.map((groupId) => {
+                        const group = groups.find((g) => g.id === groupId);
+                        return (
                           <div
-                            className="flex items-center justify-start w-full gap-5"
-                            key={`${tap.id}-${indexMap}`}
+                            key={groupId}
+                            className="p-4 bg-white rounded-xl shadow-sm animate-fadeIn"
                           >
-                            {/* Exclude Name Input */}
-                            <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                              <span className="text-xl font-TextFontRegular text-thirdColor">
-                                {t("ExcludeName")} {tap.name}:
-                              </span>
-                              <TextInput
-                                value={
-                                  ele.names.find(
-                                    (name) => name.tranlation_name === tap.name
-                                  )?.exclude_name
-                                }
-                                onChange={(e) => {
-                                  const updatedValue = e.target.value;
-                                  setProductExclude((prevProductExclude) =>
-                                    prevProductExclude.map((item, idx) =>
-                                      idx === indexMap
-                                        ? {
-                                          ...item,
-                                          names: item.names.map((name) =>
-                                            name.tranlation_name === tap.name
-                                              ? {
-                                                ...name,
-                                                exclude_name: updatedValue,
-                                              }
-                                              : name
-                                          ),
-                                        }
-                                        : item
-                                    )
-                                  );
-                                }}
-                                placeholder={t("ExcludeName")}
-                              />
-                            </div>
+                            <label className="block text-lg font-semibold text-gray-700 mb-2">
+                              {t("Extra Names")} for {group?.name || 'Group'}:
+                            </label>
+                            <MultiSelect
+                              value={selectedExtras[groupId] || []}
+                              onChange={(e) => handleExtraChange(groupId, e.value)}
+                              options={getExtrasForGroup(groupId)}
+                              optionLabel="name"
+                              optionValue="id"
+                              display="chip"
+                              placeholder={t("Select Extras")}
+                              className="w-full bg-white border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-200"
+                              panelClassName="bg-white border border-gray-200 rounded-lg shadow-lg"
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
 
-                            {/* Remove Button */}
+                {/* Exclude Names */}
+                <div className="flex flex-col items-start justify-start w-full gap-4 pb-4 border-b-4 border-gray-300">
+                  {productExclude.length !== 0 && (
+                    <div className="flex items-center justify-start w-full gap-x-6">
+                      {taps.map((tap, index) => (
+                        <span
+                          key={tap.id}
+                          onClick={() => handleExcludeNamesTap(index)}
+                          className={`${currentExcludeNamesTap === index
+                            ? "text-mainColor border-b-4 border-mainColor"
+                            : "text-thirdColor"
+                            }  pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
+                        >
+                          {tap.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <div className="w-full">
+                    {taps.map(
+                      (tap, index) =>
+                        currentExcludeNamesTap === index && (
+                          <div
+                            className="flex flex-col items-center justify-center w-full gap-4"
+                            key={tap.id}
+                          >
+                            {(productExclude || []).map((ele, indexMap) => (
+                              <div
+                                className="flex items-center justify-start w-full gap-5"
+                                key={`${tap.id}-${indexMap}`}
+                              >
+                                {/* Exclude Name Input */}
+                                <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("ExcludeName")} {tap.name}:
+                                  </span>
+                                  <TextInput
+                                    value={
+                                      ele.names.find(
+                                        (name) => name.tranlation_name === tap.name
+                                      )?.exclude_name
+                                    }
+                                    onChange={(e) => {
+                                      const updatedValue = e.target.value;
+                                      setProductExclude((prevProductExclude) =>
+                                        prevProductExclude.map((item, idx) =>
+                                          idx === indexMap
+                                            ? {
+                                              ...item,
+                                              names: item.names.map((name) =>
+                                                name.tranlation_name === tap.name
+                                                  ? {
+                                                    ...name,
+                                                    exclude_name: updatedValue,
+                                                  }
+                                                  : name
+                                              ),
+                                            }
+                                            : item
+                                        )
+                                      );
+                                    }}
+                                    placeholder={t("ExcludeName")}
+                                  />
+                                </div>
+
+                                {/* Remove Button */}
+                                {index === 0 && (
+                                  <div className="flex items-end mt-10">
+                                    <StaticButton
+                                      text={t("Remove")}
+                                      handleClick={() =>
+                                        handleRemoveExclude(indexMap)
+                                      }
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            ))}
                             {index === 0 && (
-                              <div className="flex items-end mt-10">
-                                <StaticButton
-                                  text={t("Remove")}
-                                  handleClick={() =>
-                                    handleRemoveExclude(indexMap)
+                              <div
+                                className={`w-full flex items-center ${productExclude.length === 0
+                                  ? "justify-center"
+                                  : "justify-start"
+                                  }`}
+                              >
+                                <ButtonAdd
+                                  isWidth={true}
+                                  Color="mainColor"
+                                  Text={
+                                    productExclude.length === 0
+                                      ? t("AddExclude")
+                                      : t("AddMoreExclude")
                                   }
+                                  handleClick={handleAddExclude}
                                 />
                               </div>
                             )}
                           </div>
-                        ))}
-                        {index === 0 && (
-                          <div
-                            className={`w-full flex items-center ${productExclude.length === 0
-                              ? "justify-center"
-                              : "justify-start"
-                              }`}
-                          >
-                            <ButtonAdd
-                              isWidth={true}
-                              Color="mainColor"
-                              Text={
-                                productExclude.length === 0
-                                  ? t("AddExclude")
-                                  : t("AddMoreExclude")
-                              }
-                              handleClick={handleAddExclude}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    )
-                )}
-              </div>
-            </div>
+                        )
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
 
-
-            {/* Product Variations */}
+            {/* Product Variations - Always show regardless of weight status */}
             <div className="flex flex-col items-start justify-start w-full gap-4 pb-4 border-b-4 border-gray-300">
               {productVariations.length !== 0 && (
                 <div className="flex items-center justify-start w-full gap-x-6">
@@ -1825,69 +1739,72 @@ const AddProductPage = () => {
                                                       checked={option.status === 1}
                                                     />
                                                   </div>
-                                                  <div className="w-full flex flex-col gap-4 sm:gap-6">
-                                                    {/* Group Selection */}
-                                                    <div className="w-full sm:w-full lg:w-[30%] flex flex-col items-start gap-y-2">
-                                                      <label className="text-lg font-semibold text-gray-800">
-                                                        {t("Select Group")}:
-                                                      </label>
-                                                     <MultiSelect
-                                                        value={selectedOptionGroups[`${indexVariation}-${indexOption}`] || []}
-                                                        onChange={(e) => handleOptionGroupChange(indexVariation, indexOption, e.value)}
-                                                        options={groups.map((group) => ({
-                                                          name: group.name,
-                                                          value: group.id,
-                                                        }))}
-                                                        optionLabel="name"
-                                                        optionValue="value"
-                                                        display="chip"
-                                                        placeholder={t("Select Groups")}
-                                                        className="w-full bg-white border border-gray-300 rounded-xl shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all duration-300 text-gray-700"
-                                                        filter
-                                                        filterPlaceholder={t("Search Groups")}
-                                                        maxSelectedLabels={3}
-                                                        aria-label={t("Select Groups")}
-                                                      />
-                                                    </div>
-
-                                                    {/* Extras Selection for Each Group */}
-                                                    {selectedOptionGroups[`${indexVariation}-${indexOption}`]?.length > 0 && (
-                                                      <div className="w-full items-start gap-y-3 bg-gray-50 p-4 rounded-xl shadow-sm">
+                                                  {/* Only show group and extras for variation options if weight_status is not 1 */}
+                                                  {weightStatus !== 1 && (
+                                                    <div className="w-full flex flex-col gap-4 sm:gap-6">
+                                                      {/* Group Selection */}
+                                                      <div className="w-full sm:w-full lg:w-[30%] flex flex-col items-start gap-y-2">
                                                         <label className="text-lg font-semibold text-gray-800">
-                                                          {t("Select Extras")}:
+                                                          {t("Select Group")}:
                                                         </label>
-                                                        <div className="w-full space-y-3">
-                                                          {selectedOptionGroups[`${indexVariation}-${indexOption}`].map((groupId) => {
-                                                            const group = groups.find((g) => g.id === groupId);
-                                                            return (
-                                                              <div
-                                                                key={groupId}
-                                                                className="w-full p-3 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
-                                                              >
-                                                                <label className="block text-sm font-medium text-gray-600 mb-1">
-                                                                  {t("Extras for")} {group?.name || t("Group")}:
-                                                                </label>
-                                                                <MultiSelect
-                                                                  value={selectedOptionExtras[`${indexVariation}-${indexOption}`]?.[groupId] || []}
-                                                                  onChange={(e) => handleOptionExtrasChange(indexVariation, indexOption, groupId, e.value)}
-                                                                  options={getExtrasForGroup(groupId)}
-                                                                  optionLabel="name"
-                                                                  optionValue="id" // Changed from "value" to "id"
-                                                                  display="chip"
-                                                                  placeholder={t("Select Extras")}
-                                                                  className="w-full bg-white border border-gray-300 rounded-xl shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all duration-300 text-gray-700"
-                                                                  filter
-                                                                  filterPlaceholder={t("Search Extras")}
-                                                                  maxSelectedLabels={5}
-                                                                  aria-label={`${t("Select Extras")} for ${group?.name || t("Group")}`}
-                                                                />
-                                                              </div>
-                                                            );
-                                                          })}
-                                                        </div>
+                                                        <MultiSelect
+                                                          value={selectedOptionGroups[`${indexVariation}-${indexOption}`] || []}
+                                                          onChange={(e) => handleOptionGroupChange(indexVariation, indexOption, e.value)}
+                                                          options={groups.map((group) => ({
+                                                            name: group.name,
+                                                            value: group.id,
+                                                          }))}
+                                                          optionLabel="name"
+                                                          optionValue="value"
+                                                          display="chip"
+                                                          placeholder={t("Select Groups")}
+                                                          className="w-full bg-white border border-gray-300 rounded-xl shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all duration-300 text-gray-700"
+                                                          filter
+                                                          filterPlaceholder={t("Search Groups")}
+                                                          maxSelectedLabels={3}
+                                                          aria-label={t("Select Groups")}
+                                                        />
                                                       </div>
-                                                    )}
-                                                  </div>
+
+                                                      {/* Extras Selection for Each Group */}
+                                                      {selectedOptionGroups[`${indexVariation}-${indexOption}`]?.length > 0 && (
+                                                        <div className="w-full items-start gap-y-3 bg-gray-50 p-4 rounded-xl shadow-sm">
+                                                          <label className="text-lg font-semibold text-gray-800">
+                                                            {t("Select Extras")}:
+                                                          </label>
+                                                          <div className="w-full space-y-3">
+                                                            {selectedOptionGroups[`${indexVariation}-${indexOption}`].map((groupId) => {
+                                                              const group = groups.find((g) => g.id === groupId);
+                                                              return (
+                                                                <div
+                                                                  key={groupId}
+                                                                  className="w-full p-3 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+                                                                >
+                                                                  <label className="block text-sm font-medium text-gray-600 mb-1">
+                                                                    {t("Extras for")} {group?.name || t("Group")}:
+                                                                  </label>
+                                                                  <MultiSelect
+                                                                    value={selectedOptionExtras[`${indexVariation}-${indexOption}`]?.[groupId] || []}
+                                                                    onChange={(e) => handleOptionExtrasChange(indexVariation, indexOption, groupId, e.value)}
+                                                                    options={getExtrasForGroup(groupId)}
+                                                                    optionLabel="name"
+                                                                    optionValue="id"
+                                                                    display="chip"
+                                                                    placeholder={t("Select Extras")}
+                                                                    className="w-full bg-white border border-gray-300 rounded-xl shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all duration-300 text-gray-700"
+                                                                    filter
+                                                                    filterPlaceholder={t("Search Extras")}
+                                                                    maxSelectedLabels={5}
+                                                                    aria-label={`${t("Select Extras")} for ${group?.name || t("Group")}`}
+                                                                  />
+                                                                </div>
+                                                              );
+                                                            })}
+                                                          </div>
+                                                        </div>
+                                                      )}
+                                                    </div>
+                                                  )}
                                                   {/* Remove Option Button */}
                                                   {ele.options.length > 1 && (
                                                     <div className="sm:w-full lg:w-[20%] flex items-center justify-center lg:mt-8">

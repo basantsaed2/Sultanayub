@@ -12,7 +12,7 @@ import { RiVipDiamondLine } from "react-icons/ri";
 import { CiSettings } from "react-icons/ci";
 import { useSelector } from "react-redux";
 import { FiUsers } from "react-icons/fi";
-import { FaUsersCog , FaCashRegister } from "react-icons/fa";
+import { FaUsersCog, FaCashRegister } from "react-icons/fa";
 import {
   MdOutlineDeliveryDining,
   MdDiscount,
@@ -162,10 +162,11 @@ const adminRoutes = [
         path: "/dashboard/users/customers",
         permission: "Customer",
       },
+      { name: "Due Customer", path: "/dashboard/users/due_customers" }
     ],
     redirectTo: "/dashboard/users/admins",
   },
-    {
+  {
     name: "Captain Order",
     path: "/dashboard/captain_order",
     permission: "captainOrder",
@@ -177,7 +178,7 @@ const adminRoutes = [
     permission: "Waiter",
     icon: PiClockUserFill,
   },
-   {
+  {
     name: "Cashier",
     path: "/dashboard/cashier",
     permission: "cashier",
@@ -220,6 +221,8 @@ const adminRoutes = [
       { name: "Menu", path: "/dashboard/setting/menu" },
       { name: "Hall", path: "/dashboard/setting/hall_locations" },
       { name: "Tables", path: "/dashboard/setting/hall_tables" },
+      { name: "Group Modules", path: "/dashboard/setting/group_modules" },
+      { name: "Order Percentage", path: "/dashboard/setting/order_percentage" },
       {
         name: "Cancelation Notification",
         path: "/dashboard/setting/cancelation_notification",
@@ -236,7 +239,13 @@ const adminRoutes = [
     permission: "Settings",
     icon: MdOutlineSettingsInputComposite,
   },
-    {
+  {
+    name: "Upselling",
+    path: "/dashboard/upselling",
+    permission: "Upselling",
+    icon: TbBorderAll,
+  },
+  {
     name: "Reports",
     path: "/dashboard/reports",
     permission: "Reports",
@@ -294,7 +303,7 @@ const adminRoutes = [
 
 // Branch routes configuration
 const branchRoutes = [
-   {
+  {
     name: "Home",
     path: "/branch",
     permission: "Home",

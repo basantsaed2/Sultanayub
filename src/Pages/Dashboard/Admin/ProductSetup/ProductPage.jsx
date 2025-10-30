@@ -3,17 +3,20 @@ import { useGet } from "../../../../Hooks/useGet";
 import { useDelete } from "../../../../Hooks/useDelete";
 import { LoaderLogin, SearchBar } from "../../../../Components/Components";
 import { DeleteIcon, EditIcon } from "../../../../Assets/Icons/AllIcons";
-import { Link } from "react-router-dom";
+import { Link , useNavigate } from "react-router-dom";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import ToggleItems from "./ToggleItems";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
+import { useChangeState } from "../../../../Hooks/useChangeState";
 
 const ProductPage = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const selectedLanguage = useSelector((state) => state.language?.selected ?? "en");
   const { t } = useTranslation();
+  const { changeState } = useChangeState();
+  const navigate = useNavigate();
 
   // State for main tabs
   const [activeTab, setActiveTab] = useState("products"); // "products" or "categories"
@@ -47,6 +50,11 @@ const ProductPage = () => {
   const [categories, setCategories] = useState([]);
   const [textSearch, setTextSearch] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
+
+  // Add state for price editing
+  const [openPriceEdit, setOpenPriceEdit] = useState(null);
+  const [newPrice, setNewPrice] = useState("");
+  const [loadingPriceUpdate, setLoadingPriceUpdate] = useState(false);
 
   const [openDescriptionView, setOpenDescriptionView] = useState(null);
   const [openAddonsView, setOpenAddonsView] = useState(null);
@@ -142,6 +150,40 @@ const ProductPage = () => {
     setOpenExtraView(null);
   };
 
+  // Price edit handlers
+  const handleOpenPriceEdit = (product) => {
+    setOpenPriceEdit(product);
+    setNewPrice(product?.price?.toString() || "");
+  };
+
+  const handleClosePriceEdit = () => {
+    setOpenPriceEdit(null);
+    setNewPrice("");
+  };
+
+  const handlePriceUpdate = async () => {
+    if (!openPriceEdit || !newPrice) return;
+
+    const success = await changeState(
+      `${apiUrl}/admin/product/update_price/${openPriceEdit.id}?price=${newPrice}`,
+      "Price updated successfully",
+      {} // empty data object since you're using query params
+    );
+
+    if (success) {
+      // Update local state
+      const updatedProducts = products.map(product =>
+        product.id === openPriceEdit.id
+          ? { ...product, price: parseFloat(newPrice) }
+          : product
+      );
+
+      setProducts(updatedProducts);
+      setFilteredProducts(updatedProducts);
+      handleClosePriceEdit();
+    }
+  };
+
   const handleOpenDelete = (item) => {
     setOpenDelete(item);
   };
@@ -163,6 +205,16 @@ const ProductPage = () => {
   const handleProductClick = (id) => {
     setSelectedProductId(id);
     setShowLayer(true);
+  };
+
+  // Navigate to Recipes page
+  const handleViewRecipes = (productId, productName) => {
+    navigate(`recipes/${productId}`, {
+      state: {
+        productId: productId,
+        productName: productName
+      }
+    });
   };
 
   const closeLayer = () => {
@@ -228,6 +280,7 @@ const ProductPage = () => {
     t("Price"),
     t("Image"),
     t("Category"),
+    t("Recipes"),
     t("Discount"),
     t("Action"),
   ];
@@ -278,7 +331,7 @@ const ProductPage = () => {
 
         {/* Scroll Controls */}
         {showScrollHint && (
-          <div className="sticky top-0 z-20 flex items-center justify-between py-2 mb-2 bg-white shadow-sm">
+          <div className="sticky top-0 z-10 flex items-center justify-between py-2 mb-2 bg-white shadow-sm">
             <button
               onClick={() => scrollTable("left")}
               className="p-2 transition bg-gray-100 rounded-full hover:bg-gray-200"
@@ -403,7 +456,10 @@ const ProductPage = () => {
                             >
                               {product.name}
                             </td>
-                            <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
+                            <td
+                              className="px-4 py-2 text-sm text-center text-red-800 lg:text-base underline cursor-pointer"
+                              onClick={() => handleOpenPriceEdit(product)}
+                            >
                               {product?.price || "-"}
                             </td>
                             <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
@@ -417,6 +473,15 @@ const ProductPage = () => {
                             </td>
                             <td onClick={() => handleOpenCategoryToggle(product.category_id)} className="px-4 py-2 text-sm text-center text-red-800 lg:text-base underline">
                               {product.category?.name || product.sub_category?.name || "-"}
+                            </td>
+                            <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                              <button
+                                type="button"
+                                onClick={() => handleViewRecipes(product.id, product.name)}
+                                className="text-mainColor hover:text-red-700 transition-colors underline text-sm sm:text-base"
+                              >
+                                {t("View Recipes")}
+                              </button>
                             </td>
                             <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                               {product.discount?.name || "-"}
@@ -613,6 +678,66 @@ const ProductPage = () => {
                             data-autofocus
                             onClick={handleCloseDelete}
                             className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
+                          >
+                            {t("Cancel")}
+                          </button>
+                        </div>
+                      </DialogPanel>
+                    </div>
+                  </div>
+                </Dialog>
+              )}
+
+              {/* Price Edit Modal */}
+              {openPriceEdit && (
+                <Dialog open={true} onClose={handleClosePriceEdit} className="relative z-10">
+                  <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                  <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                    <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                      <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-md">
+                        <div className="px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
+                          <div className="sm:flex sm:items-start">
+                            <div className="w-full mt-3 text-center sm:mt-0 sm:text-left">
+                              <h3 className="text-lg font-medium leading-6 text-gray-900 font-TextFontSemiBold">
+                                {t("Update Price")}
+                              </h3>
+                              <div className="mt-4">
+                                <p className="text-sm text-gray-500">
+                                  {t("Update price for")}: <strong>{openPriceEdit.name}</strong>
+                                </p>
+                                <div className="mt-4">
+                                  <label htmlFor="price" className="block text-sm font-medium text-gray-700">
+                                    {t("New Price")}
+                                  </label>
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    id="price"
+                                    value={newPrice}
+                                    onChange={(e) => setNewPrice(e.target.value)}
+                                    className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-mainColor focus:border-mainColor sm:text-sm"
+                                    placeholder="Enter new price"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                          <button
+                            type="button"
+                            disabled={loadingPriceUpdate || !newPrice}
+                            onClick={handlePriceUpdate}
+                            className="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white bg-mainColor border border-transparent rounded-md shadow-sm hover:bg-mainColor-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-mainColor sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {loadingPriceUpdate ? t("Updating...") : t("Update Price")}
+                          </button>
+                          <button
+                            type="button"
+                            disabled={loadingPriceUpdate}
+                            onClick={handleClosePriceEdit}
+                            className="inline-flex justify-center w-full px-4 py-2 mt-3 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-mainColor sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                           >
                             {t("Cancel")}
                           </button>

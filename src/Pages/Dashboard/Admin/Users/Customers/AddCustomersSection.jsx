@@ -34,6 +34,8 @@ const AddCustomersSection = ({ update, setUpdate }) => {
   const [customerImageFile, setCustomerImageFile] = useState(null);
 
   const [customerStatus, setCustomerStatus] = useState(0);
+  const [customerDueStatus, setCustomerDueStatus] = useState(0);
+  const [customerMaxDue, setCustomerMaxDue] = useState("");
 
   const handleCustomerImageChange = (e) => {
     const file = e.target.files[0];
@@ -53,6 +55,12 @@ const AddCustomersSection = ({ update, setUpdate }) => {
       currentActive === 0 ? setCustomerStatus(1) : setCustomerStatus(0);
     }
   };
+  const handleCustomerDueStatus = () => {
+    const currentActive = customerDueStatus;
+    {
+      currentActive === 0 ? setCustomerDueStatus(1) : setCustomerDueStatus(0);
+    }
+  };
 
   const handleReset = () => {
     setCustomerFname("");
@@ -63,10 +71,12 @@ const AddCustomersSection = ({ update, setUpdate }) => {
     setCustomerEmail("");
     setCustomerPassword("");
     setCustomerStatus(0);
+    setCustomerDueStatus(0);
+    setCustomerMaxDue("");
   };
 
   useEffect(() => {
-    if (!loadingPost) {
+    if (!loadingPost && response) {
       handleReset();
       setUpdate(!update);
     }
@@ -112,7 +122,9 @@ const AddCustomersSection = ({ update, setUpdate }) => {
     formData.append("image", customerImageFile);
     formData.append("email", customerEmail);
     formData.append("password", customerPassword);
-    formData.append("status", customerStatus);
+    formData.append("status", customerStatus || 0);
+    formData.append("due_status", customerDueStatus || 0);
+    formData.append("max_due", customerMaxDue || '');
 
     postData(formData, t("Customer Added Success"));
   };
@@ -210,6 +222,31 @@ const AddCustomersSection = ({ update, setUpdate }) => {
                 checked={customerStatus}
               />
             </div>
+            {/* Customer Due Status */}
+            <div className="xl:w-[30%] flex items-center justify-start gap-x-4 ">
+              <span className="text-xl font-TextFontRegular text-thirdColor">
+                {t("Customer Due Status")}:
+              </span>
+              <Switch
+                handleClick={handleCustomerDueStatus}
+                checked={customerDueStatus}
+              />
+            </div>
+            {/* Customer Max Due */}
+            {
+              customerDueStatus ? (
+                <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                    {t("Customer Max Due")}:
+                  </span>
+                  <NumberInput
+                    value={customerMaxDue}
+                    onChange={(e) => setCustomerMaxDue(e.target.value)}
+                    placeholder={t("Customer Max Due")}
+                  />
+                </div>
+              ): ''
+            }
 
             {/* Buttons */}
             <div className="flex items-center justify-end w-full gap-x-4">
