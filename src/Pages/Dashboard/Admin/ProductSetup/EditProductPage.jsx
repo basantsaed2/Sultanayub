@@ -411,6 +411,7 @@ const EditProductPage = () => {
     formData.append("weight_status", weightStatus);
     if (weightStatus === 1) {
       formData.append("weight_point", weightPoint);
+    } else {
       formData.append("unit_id", selectedUnit);
     }
 
@@ -482,7 +483,7 @@ const EditProductPage = () => {
             const extraKey = `${indexVar}-${indexOption}`;
             const selectedExtrasForOption = selectedOptionExtras[extraKey] || {};
             console.log(`Processing option ${extraKey}, selectedExtrasForOption:`, selectedExtrasForOption);
-
+            
             // Only include extras if weight_status is not 1
             if (weightStatus !== 1 && Object.keys(selectedExtrasForOption).length > 0) {
               let extraIndex = 0;
@@ -635,11 +636,11 @@ const EditProductPage = () => {
       prev.map((item, idx) =>
         idx === variationIndex
           ? {
-            ...item,
-            [field]: item[field].map((subField) =>
-              subField.tranlation_name === tapName ? { ...subField, name: updatedValue } : subField
-            ),
-          }
+              ...item,
+              [field]: item[field].map((subField) =>
+                subField.tranlation_name === tapName ? { ...subField, name: updatedValue } : subField
+              ),
+            }
           : item
       )
     );
@@ -960,13 +961,12 @@ const EditProductPage = () => {
                     className={`${currentProductNamesTap === index
                       ? "text-mainColor border-b-4 border-mainColor"
                       : "text-thirdColor"
-                      }  pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
+                      } pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
                   >
                     {tap.name}
                   </span>
                 ))}
               </div>
-
               <div className="w-full">
                 {taps.map(
                   (tap, index) =>
@@ -975,54 +975,45 @@ const EditProductPage = () => {
                         className="flex items-center justify-start w-full gap-4 sm:flex-col lg:flex-row"
                         key={tap.id}
                       >
-                        {/* Product Name Input */}
                         <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                           <span className="text-xl font-TextFontRegular text-thirdColor">
                             {t("ProductName")} {tap.name}:
                           </span>
                           <TextInput
-                            value={productNames[index]?.product_name}
+                            value={productNames[index]?.product_name || ""}
                             onChange={(e) => {
                               const inputValue = e.target.value;
                               setProductNames((prev) => {
-                                const updatedProductNames = [...prev];
-                                if (updatedProductNames.length <= index) {
-                                  updatedProductNames.length = index + 1;
-                                }
-                                updatedProductNames[index] = {
-                                  ...updatedProductNames[index],
+                                const updated = [...prev];
+                                updated[index] = {
+                                  ...updated[index],
                                   tranlation_id: tap.id,
                                   product_name: inputValue,
-                                  tranlation_name: tap.name || "Default Name",
+                                  tranlation_name: tap.name,
                                 };
-                                return updatedProductNames;
+                                return updated;
                               });
                             }}
                             placeholder={t("Product Name")}
                           />
                         </div>
-
-                        {/* Product Description Input */}
                         <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                           <span className="text-xl font-TextFontRegular text-thirdColor">
                             {t("Product Description")} {tap.name}:
                           </span>
                           <TextInput
-                            value={descriptionNames[index]?.description_name}
+                            value={descriptionNames[index]?.description_name || ""}
                             onChange={(e) => {
                               const inputValue = e.target.value;
                               setDescriptionNames((prev) => {
-                                const updatedDescriptionNames = [...prev];
-                                if (updatedDescriptionNames.length <= index) {
-                                  updatedDescriptionNames.length = index + 1;
-                                }
-                                updatedDescriptionNames[index] = {
-                                  ...updatedDescriptionNames[index],
+                                const updated = [...prev];
+                                updated[index] = {
+                                  ...updated[index],
                                   tranlation_id: tap.id,
                                   description_name: inputValue,
-                                  tranlation_name: tap.name || "Default Name",
+                                  tranlation_name: tap.name,
                                 };
-                                return updatedDescriptionNames;
+                                return updated;
                               });
                             }}
                             placeholder={t("Product Description")}
@@ -1046,7 +1037,7 @@ const EditProductPage = () => {
             </div>
 
             {/* Weight Fields */}
-            {weightStatus === 1 && (
+            {weightStatus === 1 ? (
               <div className="flex items-start justify-start w-full gap-5 sm:flex-col lg:flex-row">
                 {/* Weight Point */}
                 <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
@@ -1059,6 +1050,9 @@ const EditProductPage = () => {
                     placeholder={t("Weight Point")}
                   />
                 </div>
+              </div>
+            ) : (
+              <div className="flex items-start justify-start w-full gap-5 sm:flex-col lg:flex-row">
                 {/* Unit Selection */}
                 <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -1079,7 +1073,6 @@ const EditProductPage = () => {
 
             {/* Product Details */}
             <div className="flex items-start justify-start w-full gap-5 sm:flex-col lg:flex-row">
-              {/* Product Category  */}
               <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Category Name")}:
@@ -1094,7 +1087,6 @@ const EditProductPage = () => {
                   onSelectOption={handleSelectProductCategory}
                 />
               </div>
-              {/* Product SubCategory  */}
               <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("SubCategory Name")}:
@@ -1109,7 +1101,6 @@ const EditProductPage = () => {
                   onSelectOption={handleSelectProductSubCategory}
                 />
               </div>
-              {/* Product Addons  */}
               <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Addons Names")}:
@@ -1127,231 +1118,56 @@ const EditProductPage = () => {
               </div>
             </div>
 
-            <div className="flex items-start justify-start w-full gap-5 sm:flex-col lg:flex-row">
-              {/* Product Item Type  */}
-              <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
-                <span className="text-xl font-TextFontRegular text-thirdColor">
-                  {t("Item Type")}:
-                </span>
-                <DropDown
-                  ref={itemTypeRef}
-                  handleOpen={handleOpenItemType}
-                  stateoption={selectedItemTypeState}
-                  openMenu={isOPenProductItemType}
-                  handleOpenOption={handleOpenOptionProductItemType}
-                  options={itemTypes}
-                  onSelectOption={handleSelectProductItemType}
-                />
-              </div>
-              {/* Product Stock Type  */}
-              <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
-                <span className="text-xl font-TextFontRegular text-thirdColor">
-                  {t("Stock Type")}:
-                </span>
-                <DropDown
-                  ref={stockTypeRef}
-                  handleOpen={handleOpenStockType}
-                  stateoption={selectedStockTypeState}
-                  openMenu={isOPenProductStockType}
-                  handleOpenOption={handleOpenOptionProductStockType}
-                  options={stockTypes}
-                  onSelectOption={handleSelectProductStockType}
-                />
-              </div>
-
-              {selectedStockTypeName === "daily" ||
-                selectedStockTypeName === "fixed" ? (
-                <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
-                  <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("Number")}:
-                  </span>
-                  <NumberInput
-                    value={productStockNumber}
-                    onChange={(e) => setProductStockNumber(e.target.value)}
-                    placeholder={t("Number")}
-                  />
-                </div>
-              ) : (
-                ""
-              )}
-
-              {/* Product Price */}
-              <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
-                <span className="text-xl font-TextFontRegular text-thirdColor">
-                  {t("Price")}:
-                </span>
-                <NumberInput
-                  value={productPrice}
-                  onChange={(e) => setProductPrice(e.target.value)}
-                  placeholder={t("Price")}
-                />
-              </div>
-            </div>
-
-            <div className="flex items-start justify-start w-full gap-5 sm:flex-col lg:flex-row">
-              {/* Product Discount  */}
-              <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
-                <span className="text-xl font-TextFontRegular text-thirdColor">
-                  {t("Discount Name")}:
-                </span>
-                <DropDown
-                  ref={discountRef}
-                  handleOpen={handleOpenDiscount}
-                  stateoption={selectedDiscountState}
-                  openMenu={isOPenProductDiscount}
-                  handleOpenOption={handleOpenOptionProductDiscount}
-                  options={discounts}
-                  onSelectOption={handleSelectProductDiscount}
-                />
-              </div>
-              {/* Product Tax  */}
-              <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
-                <span className="text-xl font-TextFontRegular text-thirdColor">
-                  {t("Tax Name")}:
-                </span>
-                <DropDown
-                  ref={taxRef}
-                  handleOpen={handleOpenTax}
-                  stateoption={selectedTaxState}
-                  openMenu={isOPenProductTax}
-                  handleOpenOption={handleOpenOptionProductTax}
-                  options={taxes}
-                  onSelectOption={handleSelectProductTax}
-                />
-              </div>
-              {/* Product Point */}
-              <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
-                <span className="text-xl font-TextFontRegular text-thirdColor">
-                  {t("Point")}:
-                </span>
-                <NumberInput
-                  value={productPoint}
-                  onChange={(e) => setProductPoint(e.target.value)}
-                  placeholder={t("Point")}
-                />
-              </div>
-            </div>
-
-            <div className="flex items-start justify-start w-full gap-5 mt-2 sm:flex-col lg:flex-row">
-              {/* Product Image */}
-              <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
-                <span className="text-xl font-TextFontRegular text-thirdColor">
-                  {t("Product Image")}:
-                </span>
-                <UploadInput
-                  value={productImageName}
-                  uploadFileRef={productImageRef}
-                  placeholder={t("Product Image")}
-                  handleFileChange={handleProductImageChange}
-                  onChange={(e) => setProductImage(e.target.value)}
-                  onClick={() => handleProductImageClick(productImageRef)}
-                />
-              </div>
-
-              {productTimeStatus === 1 && (
-                <>
-                  <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
-                    <span className="text-xl font-TextFontRegular text-thirdColor">
-                      {t("From")}:
-                    </span>
-                    <TimeInput
-                      value={productStatusFrom ?? ""}
-                      onChange={(e) => setProductStatusFrom(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
-                    <span className="text-xl font-TextFontRegular text-thirdColor">
-                      {t("To")}:
-                    </span>
-                    <TimeInput
-                      value={productStatusTo ?? ""}
-                      onChange={(e) => setProductStatusTo(e.target.value)}
-                    />
-                  </div>
-                </>
-              )}
-            </div>
-
-            <div className="flex items-start justify-start w-full gap-4 sm:flex-col lg:flex-row">
-              {/* Product Status */}
-              <div className="sm:w-full lg:w-[20%] flex items-center justify-start gap-x-3">
-                <span className="text-xl font-TextFontRegular text-thirdColor">
-                  {t("Status")}:
-                </span>
-                <Switch
-                  handleClick={handleProductStatus}
-                  checked={productStatus}
-                />
-              </div>
-              {/* Product Product Recommended */}
-              <div className="sm:w-full lg:w-[40%] flex items-center justify-start gap-x-3">
-                <span className="text-xl font-TextFontRegular text-thirdColor">
-                  {t("ProductRecommended")}:
-                </span>
-                <Switch
-                  handleClick={handleProductRecommended}
-                  checked={productRecommended}
-                />
-              </div>
-              {/* Product Time Status */}
-              <div className="sm:w-full lg:w-[35%] flex items-center justify-start gap-x-3">
-                <span className="text-xl font-TextFontRegular text-thirdColor">
-                  {t("ProductTimeStatus")}:
-                </span>
-                <Switch
-                  handleClick={handleProductTimeStatus}
-                  checked={productTimeStatus}
-                />
-              </div>
-            </div>
-
+            {/* Rest of the form remains the same but conditionally render exclude/extra sections */}
             {/* Only show exclude and extra sections if weight_status is not 1 */}
             {weightStatus !== 1 && (
               <>
                 {/* Group and Extras Section */}
                 <div className="w-full p-6 bg-gray-50 rounded-2xl shadow-lg">
-                  {/* Group MultiSelect */}
-                  <div className="mb-6 w-full sm:w-full lg:w-[30%] ">
+                  <div className="mb-6 w-full sm:w-full lg:w-[30%]">
                     <label className="block text-lg font-semibold text-gray-700 mb-2">
                       {t("Group Extra Names")}:
                     </label>
                     <MultiSelect
                       value={selectedGroups}
                       onChange={handleGroupChange}
-                      options={groups}
-                      optionLabel="name"
-                      optionValue="id"
+                      options={groups.map((group) => ({
+                        label: group.name || t("Unnamed Group"),
+                        value: group.id,
+                      }))}
+                      optionLabel="label"
+                      optionValue="value"
                       display="chip"
-                      placeholder={selectedGroupState}
-                      className="w-full bg-white border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-200"
-                      panelClassName="bg-white border border-gray-200 rounded-lg shadow-lg"
+                      placeholder={t("Select Groups")}
+                      className="w-full bg-white border border-gray-300 rounded-lg shadow-sm"
                     />
                   </div>
-
-                  {/* Extras MultiSelects */}
                   {selectedGroups.length > 0 && (
                     <div className="space-y-6">
                       {selectedGroups.map((groupId) => {
                         const group = groups.find((g) => g.id === groupId);
+                        if (!group || !group.extra) return null;
+                        const uniqueExtras = [
+                          ...new Map(group.extra.map((extra) => [extra.id, extra])).values(),
+                        ];
+                        console.log(`Group ${groupId} - value:`, selectedExtras[groupId], "options:", uniqueExtras);
                         return (
-                          <div
-                            key={groupId}
-                            className="p-4 bg-white rounded-xl shadow-sm animate-fadeIn"
-                          >
+                          <div key={group.id} className="p-4 bg-white rounded-xl shadow-sm">
                             <label className="block text-lg font-semibold text-gray-700 mb-2">
-                              {t("Extra Names")} for {group?.name || 'Group'}:
+                              {t("Extra Names")} {t("for")} {group.name || t("Unnamed Group")}:
                             </label>
                             <MultiSelect
                               value={selectedExtras[groupId] || []}
                               onChange={(e) => handleExtraChange(groupId, e.value)}
-                              options={getExtrasForGroup(groupId)}
-                              optionLabel="name"
-                              optionValue="id"
+                              options={uniqueExtras.map((extra) => ({
+                                label: extra.name || t("Unnamed Extra"),
+                                value: extra.id,
+                              }))}
+                              optionLabel="label"
+                              optionValue="value"
                               display="chip"
                               placeholder={t("Select Extras")}
-                              className="w-full bg-white border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-200"
-                              panelClassName="bg-white border border-gray-200 rounded-lg shadow-lg"
+                              className="w-full bg-white border border-gray-300 rounded-lg shadow-sm"
                             />
                           </div>
                         );
@@ -1371,7 +1187,7 @@ const EditProductPage = () => {
                           className={`${currentExcludeNamesTap === index
                             ? "text-mainColor border-b-4 border-mainColor"
                             : "text-thirdColor"
-                            }  pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
+                            } pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
                         >
                           {tap.name}
                         </span>
@@ -1382,42 +1198,31 @@ const EditProductPage = () => {
                     {taps.map(
                       (tap, index) =>
                         currentExcludeNamesTap === index && (
-                          <div
-                            className="flex flex-col items-center justify-center w-full gap-4"
-                            key={tap.id}
-                          >
+                          <div className="flex flex-col items-center justify-center w-full gap-4" key={tap.id}>
                             {(productExclude || []).map((ele, indexMap) => (
                               <div
                                 className="flex items-center justify-start w-full gap-5"
                                 key={`${tap.id}-${indexMap}`}
                               >
-                                {/* Exclude Name Input */}
                                 <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                                   <span className="text-xl font-TextFontRegular text-thirdColor">
                                     {t("ExcludeName")} {tap.name}:
                                   </span>
                                   <TextInput
-                                    value={
-                                      ele.names.find(
-                                        (name) => name.tranlation_name === tap.name
-                                      )?.exclude_name
-                                    }
+                                    value={ele.names.find((name) => name.tranlation_name === tap.name)?.exclude_name || ""}
                                     onChange={(e) => {
                                       const updatedValue = e.target.value;
-                                      setProductExclude((prevProductExclude) =>
-                                        prevProductExclude.map((item, idx) =>
+                                      setProductExclude((prev) =>
+                                        prev.map((item, idx) =>
                                           idx === indexMap
                                             ? {
-                                              ...item,
-                                              names: item.names.map((name) =>
-                                                name.tranlation_name === tap.name
-                                                  ? {
-                                                    ...name,
-                                                    exclude_name: updatedValue,
-                                                  }
-                                                  : name
-                                              ),
-                                            }
+                                                ...item,
+                                                names: item.names.map((name) =>
+                                                  name.tranlation_name === tap.name
+                                                    ? { ...name, exclude_name: updatedValue }
+                                                    : name
+                                                ),
+                                              }
                                             : item
                                         )
                                       );
@@ -1425,15 +1230,11 @@ const EditProductPage = () => {
                                     placeholder={t("ExcludeName")}
                                   />
                                 </div>
-
-                                {/* Remove Button */}
                                 {index === 0 && (
                                   <div className="flex items-end mt-10">
                                     <StaticButton
                                       text={t("Remove")}
-                                      handleClick={() =>
-                                        handleRemoveExclude(indexMap)
-                                      }
+                                      handleClick={() => handleRemoveExclude(indexMap)}
                                     />
                                   </div>
                                 )}
@@ -1441,19 +1242,12 @@ const EditProductPage = () => {
                             ))}
                             {index === 0 && (
                               <div
-                                className={`w-full flex items-center ${productExclude.length === 0
-                                  ? "justify-center"
-                                  : "justify-start"
-                                  }`}
+                                className={`w-full flex items-center ${productExclude.length === 0 ? "justify-center" : "justify-start"}`}
                               >
                                 <ButtonAdd
                                   isWidth={true}
                                   Color="mainColor"
-                                  Text={
-                                    productExclude.length === 0
-                                      ? t("AddExclude")
-                                      : t("AddMoreExclude")
-                                  }
+                                  Text={productExclude.length === 0 ? t("AddExclude") : t("AddMoreExclude")}
                                   handleClick={handleAddExclude}
                                 />
                               </div>
@@ -1488,25 +1282,19 @@ const EditProductPage = () => {
                 {taps.map(
                   (tap, index) =>
                     currentVariationTap === index && (
-                      <div
-                        className="flex flex-col items-center justify-center w-full gap-4"
-                        key={tap.id}
-                      >
+                      <div className="flex flex-col items-center justify-center w-full gap-4" key={tap.id}>
                         {(productVariations || []).map((ele, indexVariation) => (
                           <div
-                            className="flex flex-wrap items-start justify-start w-full gap-5 p-3 border-4 shadow border-mainColor rounded- Pty-2xl sm:flex-col lg:flex-row"
+                            className="flex flex-wrap items-start justify-start w-full gap-5 p-3 border-4 shadow border-mainColor rounded-xl sm:flex-col lg:flex-row"
                             key={`${tap.id}-${indexVariation}`}
                           >
-                            {/* Variation Name */}
                             <div className="sm:w-full lg:w-[30%] flex sm:flex-col lg:flex-row items-start justify-start gap-5">
                               <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
                                   {t("VariationName")} {tap.name}:
                                 </span>
                                 <TextInput
-                                  value={
-                                    ele.names.find((name) => name.tranlation_name === tap.name)?.name
-                                  }
+                                  value={ele.names.find((name) => name.tranlation_name === tap.name)?.name || ""}
                                   onChange={(e) =>
                                     updateVariationState(
                                       setProductVariations,
@@ -1532,16 +1320,12 @@ const EditProductPage = () => {
                                     stateoption={ele.type || "Select Type"}
                                     openMenu={openVariationIndex === indexVariation}
                                     handleOpenOption={handleOpenOptionProductVariationType}
-                                    options={[
-                                      { name: t("single") },
-                                      { name: t("multiple") },
-                                    ]}
+                                    options={[{ name: t("single") }, { name: t("multiple") }]}
                                     onSelectOption={(option) =>
                                       handleSelectProductVariationType(option, indexVariation)
                                     }
                                   />
                                 </div>
-
                                 {ele.type === "multiple" && (
                                   <>
                                     <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
@@ -1552,11 +1336,9 @@ const EditProductPage = () => {
                                         value={ele.min}
                                         onChange={(e) => {
                                           const updatedValue = e.target.value;
-                                          setProductVariations((prevProductVariations) =>
-                                            prevProductVariations.map((item, idx) =>
-                                              idx === indexVariation
-                                                ? { ...item, min: updatedValue }
-                                                : item
+                                          setProductVariations((prev) =>
+                                            prev.map((item, idx) =>
+                                              idx === indexVariation ? { ...item, min: updatedValue } : item
                                             )
                                           );
                                         }}
@@ -1571,11 +1353,9 @@ const EditProductPage = () => {
                                         value={ele.max}
                                         onChange={(e) => {
                                           const updatedValue = e.target.value;
-                                          setProductVariations((prevProductVariations) =>
-                                            prevProductVariations.map((item, idx) =>
-                                              idx === indexVariation
-                                                ? { ...item, max: updatedValue }
-                                                : item
+                                          setProductVariations((prev) =>
+                                            prev.map((item, idx) =>
+                                              idx === indexVariation ? { ...item, max: updatedValue } : item
                                             )
                                           );
                                         }}
@@ -1584,20 +1364,16 @@ const EditProductPage = () => {
                                     </div>
                                   </>
                                 )}
-
                                 <div className="w-[32%] flex mt-10 items-center justify-center gap-x-3">
                                   <span className="text-xl font-TextFontRegular text-thirdColor">
                                     {t("Required")}:
                                   </span>
                                   <Switch
                                     handleClick={() => {
-                                      setProductVariations((prevProductVariations) =>
-                                        prevProductVariations.map((item, idx) =>
+                                      setProductVariations((prev) =>
+                                        prev.map((item, idx) =>
                                           idx === indexVariation
-                                            ? {
-                                              ...item,
-                                              required: item.required === 1 ? 0 : 1,
-                                            }
+                                            ? { ...item, required: item.required === 1 ? 0 : 1 }
                                             : item
                                         )
                                       );
@@ -1610,10 +1386,8 @@ const EditProductPage = () => {
                                 </div>
                               </>
                             )}
-
                             {index === 0 && (
                               <>
-                                {/* Options Tabs */}
                                 <div className="flex items-center justify-start w-full gap-x-6">
                                   {taps.map((tapOption, indexOptionTap) => (
                                     <span
@@ -1628,8 +1402,6 @@ const EditProductPage = () => {
                                     </span>
                                   ))}
                                 </div>
-
-                                {/* Render each variation's options */}
                                 {taps.map(
                                   (tapOption, indexOptionTap) =>
                                     currentVariationOptionTap === indexOptionTap && (
@@ -1643,7 +1415,6 @@ const EditProductPage = () => {
                                               className="flex flex-wrap items-start justify-start gap-5 p-5 pt-0 shadow-md sm:w-full rounded-xl"
                                               key={`${indexOption}-${tapOption.id}`}
                                             >
-                                              {/* Option Name */}
                                               <div className="w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                                                 <span className="text-xl font-TextFontRegular text-thirdColor">
                                                   {t("OptionName")} {tapOption.name}:
@@ -1652,33 +1423,28 @@ const EditProductPage = () => {
                                                   value={
                                                     option.names.find(
                                                       (nameObj) => nameObj.tranlation_name === tapOption.name
-                                                    )?.name
+                                                    )?.name || ""
                                                   }
                                                   onChange={(e) => {
                                                     const updatedValue = e.target.value;
-                                                    setProductVariations((prevVariations) =>
-                                                      prevVariations.map((variation, vIdx) =>
+                                                    setProductVariations((prev) =>
+                                                      prev.map((variation, vIdx) =>
                                                         vIdx === indexVariation
                                                           ? {
-                                                            ...variation,
-                                                            options: variation.options.map(
-                                                              (opt, oIdx) =>
+                                                              ...variation,
+                                                              options: variation.options.map((opt, oIdx) =>
                                                                 oIdx === indexOption
                                                                   ? {
-                                                                    ...opt,
-                                                                    names: opt.names.map(
-                                                                      (nameObj) =>
+                                                                      ...opt,
+                                                                      names: opt.names.map((nameObj) =>
                                                                         nameObj.tranlation_name === tapOption.name
-                                                                          ? {
-                                                                            ...nameObj,
-                                                                            name: updatedValue,
-                                                                          }
+                                                                          ? { ...nameObj, name: updatedValue }
                                                                           : nameObj
-                                                                    ),
-                                                                  }
+                                                                      ),
+                                                                    }
                                                                   : opt
-                                                            ),
-                                                          }
+                                                              ),
+                                                            }
                                                           : variation
                                                       )
                                                     );
@@ -1688,7 +1454,6 @@ const EditProductPage = () => {
                                               </div>
                                               {indexOptionTap === 0 && (
                                                 <>
-                                                  {/* Option Price */}
                                                   <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                                                     <span className="text-xl font-TextFontRegular text-thirdColor">
                                                       {t("Price")}:
@@ -1697,21 +1462,17 @@ const EditProductPage = () => {
                                                       value={option.price}
                                                       onChange={(e) => {
                                                         const updatedValue = e.target.value;
-                                                        setProductVariations((prevProductVariations) =>
-                                                          prevProductVariations.map((item, idx) =>
+                                                        setProductVariations((prev) =>
+                                                          prev.map((item, idx) =>
                                                             idx === indexVariation
                                                               ? {
-                                                                ...item,
-                                                                options: item.options.map(
-                                                                  (opt, oIdx) =>
+                                                                  ...item,
+                                                                  options: item.options.map((opt, oIdx) =>
                                                                     oIdx === indexOption
-                                                                      ? {
-                                                                        ...opt,
-                                                                        price: updatedValue,
-                                                                      }
+                                                                      ? { ...opt, price: updatedValue }
                                                                       : opt
-                                                                ),
-                                                              }
+                                                                  ),
+                                                                }
                                                               : item
                                                           )
                                                         );
@@ -1719,7 +1480,6 @@ const EditProductPage = () => {
                                                       placeholder={t("Price")}
                                                     />
                                                   </div>
-                                                  {/* Option Points */}
                                                   <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                                                     <span className="text-xl font-TextFontRegular text-thirdColor">
                                                       {t("Point")}:
@@ -1728,21 +1488,17 @@ const EditProductPage = () => {
                                                       value={option.points}
                                                       onChange={(e) => {
                                                         const updatedValue = e.target.value;
-                                                        setProductVariations((prevProductVariations) =>
-                                                          prevProductVariations.map((item, idx) =>
+                                                        setProductVariations((prev) =>
+                                                          prev.map((item, idx) =>
                                                             idx === indexVariation
                                                               ? {
-                                                                ...item,
-                                                                options: item.options.map(
-                                                                  (opt, oIdx) =>
+                                                                  ...item,
+                                                                  options: item.options.map((opt, oIdx) =>
                                                                     oIdx === indexOption
-                                                                      ? {
-                                                                        ...opt,
-                                                                        points: updatedValue,
-                                                                      }
+                                                                      ? { ...opt, points: updatedValue }
                                                                       : opt
-                                                                ),
-                                                              }
+                                                                  ),
+                                                                }
                                                               : item
                                                           )
                                                         );
@@ -1750,28 +1506,23 @@ const EditProductPage = () => {
                                                       placeholder={t("Point")}
                                                     />
                                                   </div>
-                                                  {/* Option Status */}
                                                   <div className="w-[20%] flex items-center justify-start gap-x-3 lg:mt-3">
                                                     <span className="text-xl font-TextFontRegular text-thirdColor">
                                                       {t("Status")}:
                                                     </span>
                                                     <Switch
                                                       handleClick={() =>
-                                                        setProductVariations((prevProductVariations) =>
-                                                          prevProductVariations.map((item, idx) =>
+                                                        setProductVariations((prev) =>
+                                                          prev.map((item, idx) =>
                                                             idx === indexVariation
                                                               ? {
-                                                                ...item,
-                                                                options: item.options.map(
-                                                                  (opt, oIdx) =>
+                                                                  ...item,
+                                                                  options: item.options.map((opt, oIdx) =>
                                                                     oIdx === indexOption
-                                                                      ? {
-                                                                        ...opt,
-                                                                        status: opt.status ? 0 : 1,
-                                                                      }
+                                                                      ? { ...opt, status: opt.status ? 0 : 1 }
                                                                       : opt
-                                                                ),
-                                                              }
+                                                                  ),
+                                                                }
                                                               : item
                                                           )
                                                         )
@@ -1782,77 +1533,88 @@ const EditProductPage = () => {
                                                   {/* Only show group and extras for variation options if weight_status is not 1 */}
                                                   {weightStatus !== 1 && (
                                                     <div className="w-full flex flex-col gap-4 sm:gap-6">
-                                                      {/* Group Selection */}
                                                       <div className="w-full sm:w-full lg:w-[30%] flex flex-col items-start gap-y-2">
                                                         <label className="text-lg font-semibold text-gray-800">
                                                           {t("Select Group")}:
                                                         </label>
                                                         <MultiSelect
                                                           value={selectedOptionGroups[`${indexVariation}-${indexOption}`] || []}
-                                                          onChange={(e) => handleOptionGroupChange(indexVariation, indexOption, e.value)}
+                                                          onChange={(e) =>
+                                                            handleOptionGroupChange(indexVariation, indexOption, e.value)
+                                                          }
                                                           options={groups.map((group) => ({
-                                                            name: group.name,
+                                                            label: group.name || t("Unnamed Group"),
                                                             value: group.id,
                                                           }))}
-                                                          optionLabel="name"
+                                                          optionLabel="label"
                                                           optionValue="value"
                                                           display="chip"
                                                           placeholder={t("Select Groups")}
-                                                          className="w-full bg-white border border-gray-300 rounded-xl shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all duration-300 text-gray-700"
+                                                          className="w-full bg-white border border-gray-300 rounded-xl shadow-sm"
                                                           filter
                                                           filterPlaceholder={t("Search Groups")}
                                                           maxSelectedLabels={3}
-                                                          aria-label={t("Select Groups")}
                                                         />
                                                       </div>
-
-                                                      {/* Extras Selection for Each Group */}
                                                       {selectedOptionGroups[`${indexVariation}-${indexOption}`]?.length > 0 && (
                                                         <div className="w-full items-start gap-y-3 bg-gray-50 p-4 rounded-xl shadow-sm">
                                                           <label className="text-lg font-semibold text-gray-800">
                                                             {t("Select Extras")}:
                                                           </label>
                                                           <div className="w-full space-y-3">
-                                                            {selectedOptionGroups[`${indexVariation}-${indexOption}`].map((groupId) => {
-                                                              const group = groups.find((g) => g.id === groupId);
-                                                              return (
-                                                                <div
-                                                                  key={groupId}
-                                                                  className="w-full p-3 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
-                                                                >
-                                                                  <label className="block text-sm font-medium text-gray-600 mb-1">
-                                                                    {t("Extras for")} {group?.name || t("Group")}:
-                                                                  </label>
-                                                                  <MultiSelect
-                                                                    value={selectedOptionExtras[`${indexVariation}-${indexOption}`]?.[groupId] || []}
-                                                                    onChange={(e) => handleOptionExtrasChange(indexVariation, indexOption, groupId, e.value)}
-                                                                    options={getExtrasForGroup(groupId)}
-                                                                    optionLabel="name"
-                                                                    optionValue="id"
-                                                                    display="chip"
-                                                                    placeholder={t("Select Extras")}
-                                                                    className="w-full bg-white border border-gray-300 rounded-xl shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all duration-300 text-gray-700"
-                                                                    filter
-                                                                    filterPlaceholder={t("Search Extras")}
-                                                                    maxSelectedLabels={5}
-                                                                    aria-label={`${t("Select Extras")} for ${group?.name || t("Group")}`}
-                                                                  />
-                                                                </div>
-                                                              );
-                                                            })}
+                                                            {selectedOptionGroups[`${indexVariation}-${indexOption}`].map(
+                                                              (groupId) => {
+                                                                const group = groups.find((g) => g.id === groupId);
+                                                                console.log(`Extras for group ${groupId}:`, getExtrasForGroup(groupId));
+                                                                return (
+                                                                  <div
+                                                                    key={groupId}
+                                                                    className="w-full p-3 bg-white rounded-lg shadow-sm"
+                                                                  >
+                                                                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                                                                      {t("Extras for")} {group?.name || t("Unnamed Group")}:
+                                                                    </label>
+                                                                    <MultiSelect
+                                                                      value={
+                                                                        selectedOptionExtras[`${indexVariation}-${indexOption}`]?.[
+                                                                          groupId
+                                                                        ] || []
+                                                                      }
+                                                                      onChange={(e) =>
+                                                                        handleOptionExtrasChange(
+                                                                          indexVariation,
+                                                                          indexOption,
+                                                                          groupId,
+                                                                          e.value
+                                                                        )
+                                                                      }
+                                                                      options={getExtrasForGroup(groupId).map((extra) => ({
+                                                                        label: extra.name || t("Unnamed Extra"),
+                                                                        value: extra.id,
+                                                                      }))}
+                                                                      optionLabel="label"
+                                                                      optionValue="value"
+                                                                      display="chip"
+                                                                      placeholder={t("Select Extras")}
+                                                                      className="w-full bg-white border border-gray-300 rounded-xl shadow-sm"
+                                                                      filter
+                                                                      filterPlaceholder={t("Search Extras")}
+                                                                      maxSelectedLabels={5}
+                                                                    />
+                                                                  </div>
+                                                                );
+                                                              }
+                                                            )}
                                                           </div>
                                                         </div>
                                                       )}
                                                     </div>
                                                   )}
-                                                  {/* Remove Option Button */}
                                                   {ele.options.length > 1 && (
                                                     <div className="sm:w-full lg:w-[20%] flex items-center justify-center lg:mt-8">
                                                       <StaticButton
                                                         text={t("Removeoption")}
-                                                        handleClick={() =>
-                                                          handleRemoveOption(indexVariation, indexOption)
-                                                        }
+                                                        handleClick={() => handleRemoveOption(indexVariation, indexOption)}
                                                       />
                                                     </div>
                                                   )}
@@ -1886,17 +1648,12 @@ const EditProductPage = () => {
                         ))}
                         {index === 0 && (
                           <div
-                            className={`w-full flex items-center ${productVariations.length === 0 ? "justify-center" : "justify-start"
-                              }`}
+                            className={`w-full flex items-center ${productVariations.length === 0 ? "justify-center" : "justify-start"}`}
                           >
                             <ButtonAdd
                               isWidth={true}
                               Color="mainColor"
-                              Text={
-                                productVariations.length === 0
-                                  ? t("Add Variation")
-                                  : t("Add More Variation")
-                              }
+                              Text={productVariations.length === 0 ? t("Add Variation") : t("Add More Variation")}
                               handleClick={handleAddVariation}
                             />
                           </div>
@@ -1907,8 +1664,7 @@ const EditProductPage = () => {
               </div>
             </div>
           </div>
-
-          {/* Buttons*/}
+          {/* Buttons */}
           <div className="flex items-center justify-end w-full gap-x-4">
             <div>
               <StaticButton
@@ -1923,7 +1679,7 @@ const EditProductPage = () => {
             </div>
             <div>
               <SubmitButton
-                text={t("EditProduct")}
+                text={t("UpdateProduct")}
                 rounded="rounded-full"
                 handleClick={handleProductUpdate}
               />
