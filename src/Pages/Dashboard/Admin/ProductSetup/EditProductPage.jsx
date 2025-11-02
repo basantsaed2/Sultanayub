@@ -386,6 +386,157 @@ const EditProductPage = () => {
   /* Handle Form Submission */
   const handleProductUpdate = (e) => {
     e.preventDefault();
+    // const formData = new FormData();
+    // formData.append("category_id", selectedCategoryId);
+    // formData.append("sub_category_id", selectedSubCategoryId);
+    // formData.append("item_type", selectedItemTypeName);
+    // formData.append("stock_type", selectedStockTypeName);
+    // formData.append("number", productStockNumber);
+    // formData.append("price", productPrice);
+    // formData.append("discount_id", selectedDiscountId);
+    // formData.append("tax_id", selectedTaxId);
+    // formData.append("points", productPoint);
+    // formData.append("product_time_status", productTimeStatus);
+    // if (productStatusFrom) {
+    //   formData.append("from", productStatusFrom);
+    // }
+    // if (productStatusTo) {
+    //   formData.append("to", productStatusTo);
+    // }
+    // formData.append("recommended", productRecommended);
+    // formData.append("status", productStatus);
+    // formData.append("image", productImage);
+
+    // // Add weight status and related fields
+    // formData.append("weight_status", weightStatus);
+    // if (weightStatus === 1) {
+    //   formData.append("weight_point", weightPoint);
+    //   formData.append("unit_id", selectedUnit);
+    // }
+    // if (selectedAddonsId.length > 0) {
+    //   const addonIds = selectedAddonsId.map((addon) => addon.id);
+    //   addonIds.forEach((id, indexID) => {
+    //     formData.append(`addons[${indexID}]`, id);
+    //   });
+    // }
+    // productNames.forEach((name, index) => {
+    //   formData.append(`product_names[${index}][product_name]`, name.product_name);
+    //   formData.append(`product_names[${index}][tranlation_id]`, name.tranlation_id);
+    //   formData.append(`product_names[${index}][tranlation_name]`, name.tranlation_name);
+    // });
+    // descriptionNames.forEach((name, index) => {
+    //   formData.append(`product_descriptions[${index}][product_description]`, name.description_name);
+    //   formData.append(`product_descriptions[${index}][tranlation_name]`, name.tranlation_name);
+    //   formData.append(`product_descriptions[${index}][tranlation_id]`, name.tranlation_id);
+    // });
+
+    // // Only include exclude and extra sections if weight_status is not 1
+    // if (weightStatus !== 1) {
+    //   if (Array.isArray(productExclude)) {
+    //     productExclude.forEach((exclude, index) => {
+    //       if (Array.isArray(exclude.names)) {
+    //         exclude.names.forEach((exName, exInd) => {
+    //           formData.append(`excludes[${index}][names][${exInd}][exclude_name]`, exName.exclude_name);
+    //           formData.append(`excludes[${index}][names][${exInd}][tranlation_id]`, exName.tranlation_id);
+    //           formData.append(`excludes[${index}][names][${exInd}][tranlation_name]`, exName.tranlation_name);
+    //         });
+    //       }
+    //     });
+    //   }
+
+    //   // Send only the selected extra IDs from selectedExtras for top-level extra
+    //   if (Object.keys(selectedExtras).length > 0) {
+    //     let extraIndex = 0;
+    //     Object.entries(selectedExtras).forEach(([groupId, extraIds]) => {
+    //       if (Array.isArray(extraIds)) {
+    //         [...new Set(extraIds)].forEach((extraId) => {
+    //           console.log(`Appending extra[${extraIndex}][id]: ${extraId}`);
+    //           formData.append(`extra[${extraIndex}][id]`, extraId);
+    //           formData.append(`extra[${extraIndex}][group_id]`, groupId);
+    //           extraIndex++;
+    //         });
+    //       }
+    //     });
+    //   }
+    // }
+
+    // // Handle variations and their extras
+    // if (Array.isArray(productVariations)) {
+    //   productVariations.forEach((variation, indexVar) => {
+    //     console.log(`Processing variation index ${indexVar}`, variation);
+    //     /* Names */
+    //     if (Array.isArray(variation.names)) {
+    //       variation.names.forEach((name, index) => {
+    //         console.log(`Processing name at index ${index}:`, name);
+    //         formData.append(`variations[${indexVar}][names][${index}][name]`, name.name);
+    //         formData.append(`variations[${indexVar}][names][${index}][tranlation_name]`, name.tranlation_name);
+    //         formData.append(`variations[${indexVar}][names][${index}][tranlation_id]`, name.tranlation_id);
+    //       });
+    //     } else {
+    //       console.warn(`variation.names is not a valid array for variation index ${indexVar}`);
+    //     }
+    //     if (Array.isArray(variation.options)) {
+    //       variation.options.forEach((option, indexOption) => {
+    //         // Extra Option Handling using selectedOptionExtras
+    //         const extraKey = `${indexVar}-${indexOption}`;
+    //         const selectedExtrasForOption = selectedOptionExtras[extraKey] || {};
+    //         console.log(`Processing option ${extraKey}, selectedExtrasForOption:`, selectedExtrasForOption);
+
+    //         // Only include extras if weight_status is not 1
+    //         if (weightStatus !== 1 && Object.keys(selectedExtrasForOption).length > 0) {
+    //           let extraIndex = 0;
+    //           Object.entries(selectedExtrasForOption).forEach(([groupId, extraIds]) => {
+    //             extraIds.forEach((extraId) => {
+    //               formData.append(
+    //                 `variations[${indexVar}][options][${indexOption}][extra][${extraIndex}][id]`,
+    //                 extraId
+    //               );
+    //               formData.append(
+    //                 `variations[${indexVar}][options][${indexOption}][extra][${extraIndex}][group_id]`,
+    //                 groupId
+    //               );
+    //               extraIndex++;
+    //             });
+    //           });
+    //         } else {
+    //           console.warn(`No extras found for option ${extraKey} or weight status is active`);
+    //         }
+    //         // Names Option Handling
+    //         if (Array.isArray(option.names) && option.names.length > 0) {
+    //           option.names.forEach((optionNa, indexOpNa) => {
+    //             formData.append(
+    //               `variations[${indexVar}][options][${indexOption}][names][${indexOpNa}][name]`,
+    //               optionNa.name && typeof optionNa.name === "string" ? optionNa.name : ""
+    //             );
+    //             formData.append(
+    //               `variations[${indexVar}][options][${indexOption}][names][${indexOpNa}][tranlation_id]`,
+    //               optionNa.tranlation_id !== undefined ? String(optionNa.tranlation_id) : ""
+    //             );
+    //             formData.append(
+    //               `variations[${indexVar}][options][${indexOption}][names][${indexOpNa}][tranlation_name]`,
+    //               typeof optionNa.tranlation_name === "string" ? optionNa.tranlation_name : ""
+    //             );
+    //           });
+    //         }
+    //         // Append other option-specific data
+    //         formData.append(`variations[${indexVar}][options][${indexOption}][price]`, option.price || 0);
+    //         formData.append(`variations[${indexVar}][options][${indexOption}][status]`, option.status);
+    //         formData.append(`variations[${indexVar}][options][${indexOption}][points]`, option.points || 0);
+    //       });
+    //     }
+    //     // Append general variation data
+    //     formData.append(`variations[${indexVar}][type]`, variation.type);
+    //     formData.append(`variations[${indexVar}][min]`, variation.min || "");
+    //     formData.append(`variations[${indexVar}][max]`, variation.max || "");
+    //     formData.append(`variations[${indexVar}][required]`, variation.required ? 1 : 0);
+    //   });
+    // }
+
+    // // Debug: Log all form data
+    // for (const [key, value] of formData.entries()) {
+    //   console.log(`${key}: ${value}`);
+    // }
+
     const formData = new FormData();
     formData.append("category_id", selectedCategoryId);
     formData.append("sub_category_id", selectedSubCategoryId);
@@ -396,6 +547,7 @@ const EditProductPage = () => {
     formData.append("discount_id", selectedDiscountId);
     formData.append("tax_id", selectedTaxId);
     formData.append("points", productPoint);
+
     formData.append("product_time_status", productTimeStatus);
     if (productStatusFrom) {
       formData.append("from", productStatusFrom);
@@ -411,26 +563,28 @@ const EditProductPage = () => {
     formData.append("weight_status", weightStatus);
     if (weightStatus === 1) {
       formData.append("weight_point", weightPoint);
-    } else {
       formData.append("unit_id", selectedUnit);
     }
-
     if (selectedAddonsId.length > 0) {
       const addonIds = selectedAddonsId.map((addon) => addon.id);
       addonIds.forEach((id, indexID) => {
         formData.append(`addons[${indexID}]`, id);
       });
     }
+
     productNames.forEach((name, index) => {
       formData.append(`product_names[${index}][product_name]`, name.product_name);
       formData.append(`product_names[${index}][tranlation_id]`, name.tranlation_id);
       formData.append(`product_names[${index}][tranlation_name]`, name.tranlation_name);
     });
-    descriptionNames.forEach((name, index) => {
-      formData.append(`product_descriptions[${index}][product_description]`, name.description_name);
-      formData.append(`product_descriptions[${index}][tranlation_name]`, name.tranlation_name);
-      formData.append(`product_descriptions[${index}][tranlation_id]`, name.tranlation_id);
-    });
+
+    {
+      descriptionNames.forEach((name, index) => {
+        formData.append(`product_descriptions[${index}][product_description]`, name.description_name)
+        formData.append(`product_descriptions[${index}][tranlation_name]`, name.tranlation_name)
+        formData.append(`product_descriptions[${index}][tranlation_id]`, name.tranlation_id)
+      })
+    }
 
     // Only include exclude and extra sections if weight_status is not 1
     if (weightStatus !== 1) {
@@ -451,10 +605,8 @@ const EditProductPage = () => {
         let extraIndex = 0;
         Object.entries(selectedExtras).forEach(([groupId, extraIds]) => {
           if (Array.isArray(extraIds)) {
-            [...new Set(extraIds)].forEach((extraId) => {
-              console.log(`Appending extra[${extraIndex}][id]: ${extraId}`);
+            extraIds.forEach((extraId) => {
               formData.append(`extra[${extraIndex}][id]`, extraId);
-              formData.append(`extra[${extraIndex}][group_id]`, groupId);
               extraIndex++;
             });
           }
@@ -462,10 +614,13 @@ const EditProductPage = () => {
       }
     }
 
-    // Handle variations and their extras
+    // Debug: Log selectedOptionExtras to verify its content
+    console.log("selectedOptionExtras:", JSON.stringify(selectedOptionExtras, null, 2));
+
     if (Array.isArray(productVariations)) {
       productVariations.forEach((variation, indexVar) => {
         console.log(`Processing variation index ${indexVar}`, variation);
+
         /* Names */
         if (Array.isArray(variation.names)) {
           variation.names.forEach((name, index) => {
@@ -477,32 +632,28 @@ const EditProductPage = () => {
         } else {
           console.warn(`variation.names is not a valid array for variation index ${indexVar}`);
         }
+
         if (Array.isArray(variation.options)) {
           variation.options.forEach((option, indexOption) => {
             // Extra Option Handling using selectedOptionExtras
             const extraKey = `${indexVar}-${indexOption}`;
             const selectedExtrasForOption = selectedOptionExtras[extraKey] || {};
-            console.log(`Processing option ${extraKey}, selectedExtrasForOption:`, selectedExtrasForOption);
-            
-            // Only include extras if weight_status is not 1
-            if (weightStatus !== 1 && Object.keys(selectedExtrasForOption).length > 0) {
+            console.log(`Processing option ${indexVar}-${indexOption}, selectedExtrasForOption:`, selectedExtrasForOption);
+
+            if (Object.keys(selectedExtrasForOption).length > 0) {
               let extraIndex = 0;
-              Object.entries(selectedExtrasForOption).forEach(([groupId, extraIds]) => {
-                extraIds.forEach((extraId) => {
-                  formData.append(
-                    `variations[${indexVar}][options][${indexOption}][extra][${extraIndex}][id]`,
-                    extraId
-                  );
-                  formData.append(
-                    `variations[${indexVar}][options][${indexOption}][extra][${extraIndex}][group_id]`,
-                    groupId
-                  );
-                  extraIndex++;
-                });
+              Object.values(selectedExtrasForOption).flat().forEach((extraId) => {
+                console.log(`Appending extra_index for ${extraKey}, extraIndex ${extraIndex}:`, extraId);
+                formData.append(
+                  `variations[${indexVar}][options][${indexOption}][extra][${extraIndex}][extra]`,
+                  extraId !== undefined ? String(extraId) : ""
+                );
+                extraIndex++;
               });
             } else {
-              console.warn(`No extras found for option ${extraKey} or weight status is active`);
+              console.warn(`No extras found for option ${extraKey}`);
             }
+
             // Names Option Handling
             if (Array.isArray(option.names) && option.names.length > 0) {
               option.names.forEach((optionNa, indexOpNa) => {
@@ -520,26 +671,27 @@ const EditProductPage = () => {
                 );
               });
             }
+
             // Append other option-specific data
             formData.append(`variations[${indexVar}][options][${indexOption}][price]`, option.price || 0);
             formData.append(`variations[${indexVar}][options][${indexOption}][status]`, option.status);
             formData.append(`variations[${indexVar}][options][${indexOption}][points]`, option.points || 0);
           });
         }
+
         // Append general variation data
         formData.append(`variations[${indexVar}][type]`, variation.type);
-        formData.append(`variations[${indexVar}][min]`, variation.min || "");
-        formData.append(`variations[${indexVar}][max]`, variation.max || "");
+        formData.append(`variations[${indexVar}][min]`, variation.min);
+        formData.append(`variations[${indexVar}][max]`, variation.max);
         formData.append(`variations[${indexVar}][required]`, variation.required ? 1 : 0);
       });
     }
 
-    // Add _method for PUT request
-    formData.append("_method", "PUT");
-
-    // Debug: Log all form data
+    // Debug: Log only extra-related form data
     for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
+      if (key.includes("extra")) {
+        console.log(`${key}: ${value}`);
+      }
     }
     postData(formData, t("Product Updated Successfully"));
   };
@@ -636,11 +788,11 @@ const EditProductPage = () => {
       prev.map((item, idx) =>
         idx === variationIndex
           ? {
-              ...item,
-              [field]: item[field].map((subField) =>
-                subField.tranlation_name === tapName ? { ...subField, name: updatedValue } : subField
-              ),
-            }
+            ...item,
+            [field]: item[field].map((subField) =>
+              subField.tranlation_name === tapName ? { ...subField, name: updatedValue } : subField
+            ),
+          }
           : item
       )
     );
@@ -1118,7 +1270,7 @@ const EditProductPage = () => {
               </div>
             </div>
 
-<div className="flex items-start justify-start w-full gap-5 sm:flex-col lg:flex-row">
+            <div className="flex items-start justify-start w-full gap-5 sm:flex-col lg:flex-row">
               {/* Product Item Type  */}
               <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -1296,7 +1448,7 @@ const EditProductPage = () => {
                 />
               </div>
             </div>
-                        
+
             {/* Only show exclude and extra sections if weight_status is not 1 */}
             {weightStatus !== 1 && (
               <>
@@ -1394,13 +1546,13 @@ const EditProductPage = () => {
                                         prev.map((item, idx) =>
                                           idx === indexMap
                                             ? {
-                                                ...item,
-                                                names: item.names.map((name) =>
-                                                  name.tranlation_name === tap.name
-                                                    ? { ...name, exclude_name: updatedValue }
-                                                    : name
-                                                ),
-                                              }
+                                              ...item,
+                                              names: item.names.map((name) =>
+                                                name.tranlation_name === tap.name
+                                                  ? { ...name, exclude_name: updatedValue }
+                                                  : name
+                                              ),
+                                            }
                                             : item
                                         )
                                       );
@@ -1609,20 +1761,20 @@ const EditProductPage = () => {
                                                       prev.map((variation, vIdx) =>
                                                         vIdx === indexVariation
                                                           ? {
-                                                              ...variation,
-                                                              options: variation.options.map((opt, oIdx) =>
-                                                                oIdx === indexOption
-                                                                  ? {
-                                                                      ...opt,
-                                                                      names: opt.names.map((nameObj) =>
-                                                                        nameObj.tranlation_name === tapOption.name
-                                                                          ? { ...nameObj, name: updatedValue }
-                                                                          : nameObj
-                                                                      ),
-                                                                    }
-                                                                  : opt
-                                                              ),
-                                                            }
+                                                            ...variation,
+                                                            options: variation.options.map((opt, oIdx) =>
+                                                              oIdx === indexOption
+                                                                ? {
+                                                                  ...opt,
+                                                                  names: opt.names.map((nameObj) =>
+                                                                    nameObj.tranlation_name === tapOption.name
+                                                                      ? { ...nameObj, name: updatedValue }
+                                                                      : nameObj
+                                                                  ),
+                                                                }
+                                                                : opt
+                                                            ),
+                                                          }
                                                           : variation
                                                       )
                                                     );
@@ -1644,13 +1796,13 @@ const EditProductPage = () => {
                                                           prev.map((item, idx) =>
                                                             idx === indexVariation
                                                               ? {
-                                                                  ...item,
-                                                                  options: item.options.map((opt, oIdx) =>
-                                                                    oIdx === indexOption
-                                                                      ? { ...opt, price: updatedValue }
-                                                                      : opt
-                                                                  ),
-                                                                }
+                                                                ...item,
+                                                                options: item.options.map((opt, oIdx) =>
+                                                                  oIdx === indexOption
+                                                                    ? { ...opt, price: updatedValue }
+                                                                    : opt
+                                                                ),
+                                                              }
                                                               : item
                                                           )
                                                         );
@@ -1670,13 +1822,13 @@ const EditProductPage = () => {
                                                           prev.map((item, idx) =>
                                                             idx === indexVariation
                                                               ? {
-                                                                  ...item,
-                                                                  options: item.options.map((opt, oIdx) =>
-                                                                    oIdx === indexOption
-                                                                      ? { ...opt, points: updatedValue }
-                                                                      : opt
-                                                                  ),
-                                                                }
+                                                                ...item,
+                                                                options: item.options.map((opt, oIdx) =>
+                                                                  oIdx === indexOption
+                                                                    ? { ...opt, points: updatedValue }
+                                                                    : opt
+                                                                ),
+                                                              }
                                                               : item
                                                           )
                                                         );
@@ -1694,13 +1846,13 @@ const EditProductPage = () => {
                                                           prev.map((item, idx) =>
                                                             idx === indexVariation
                                                               ? {
-                                                                  ...item,
-                                                                  options: item.options.map((opt, oIdx) =>
-                                                                    oIdx === indexOption
-                                                                      ? { ...opt, status: opt.status ? 0 : 1 }
-                                                                      : opt
-                                                                  ),
-                                                                }
+                                                                ...item,
+                                                                options: item.options.map((opt, oIdx) =>
+                                                                  oIdx === indexOption
+                                                                    ? { ...opt, status: opt.status ? 0 : 1 }
+                                                                    : opt
+                                                                ),
+                                                              }
                                                               : item
                                                           )
                                                         )
@@ -1755,7 +1907,7 @@ const EditProductPage = () => {
                                                                     <MultiSelect
                                                                       value={
                                                                         selectedOptionExtras[`${indexVariation}-${indexOption}`]?.[
-                                                                          groupId
+                                                                        groupId
                                                                         ] || []
                                                                       }
                                                                       onChange={(e) =>
