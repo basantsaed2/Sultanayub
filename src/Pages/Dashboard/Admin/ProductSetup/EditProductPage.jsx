@@ -1118,7 +1118,185 @@ const EditProductPage = () => {
               </div>
             </div>
 
-            {/* Rest of the form remains the same but conditionally render exclude/extra sections */}
+<div className="flex items-start justify-start w-full gap-5 sm:flex-col lg:flex-row">
+              {/* Product Item Type  */}
+              <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Item Type")}:
+                </span>
+                <DropDown
+                  ref={itemTypeRef}
+                  handleOpen={handleOpenItemType}
+                  stateoption={selectedItemTypeState}
+                  openMenu={isOPenProductItemType}
+                  handleOpenOption={handleOpenOptionProductItemType}
+                  options={itemTypes}
+                  onSelectOption={handleSelectProductItemType}
+                />
+              </div>
+              {/* Product Stock Type  */}
+              <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Stock Type")}:
+                </span>
+                <DropDown
+                  ref={stockTypeRef}
+                  handleOpen={handleOpenStockType}
+                  stateoption={selectedStockTypeState}
+                  openMenu={isOPenProductStockType}
+                  handleOpenOption={handleOpenOptionProductStockType}
+                  options={stockTypes}
+                  onSelectOption={handleSelectProductStockType}
+                />
+              </div>
+
+              {selectedStockTypeName === "daily" ||
+                selectedStockTypeName === "fixed" ? (
+                <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
+                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                    {t("Number")}:
+                  </span>
+                  <NumberInput
+                    value={productStockNumber}
+                    onChange={(e) => setProductStockNumber(e.target.value)}
+                    placeholder={t("Number")}
+                  />
+                </div>
+              ) : (
+                ""
+              )}
+
+              {/* Product Price */}
+              <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Price")}:
+                </span>
+                <NumberInput
+                  value={productPrice}
+                  onChange={(e) => setProductPrice(e.target.value)}
+                  placeholder={t("Price")}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-start justify-start w-full gap-5 sm:flex-col lg:flex-row">
+              {/* Product Discount  */}
+              <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Discount Name")}:
+                </span>
+                <DropDown
+                  ref={discountRef}
+                  handleOpen={handleOpenDiscount}
+                  stateoption={selectedDiscountState}
+                  openMenu={isOPenProductDiscount}
+                  handleOpenOption={handleOpenOptionProductDiscount}
+                  options={discounts}
+                  onSelectOption={handleSelectProductDiscount}
+                />
+              </div>
+              {/* Product Tax  */}
+              <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Tax Name")}:
+                </span>
+                <DropDown
+                  ref={taxRef}
+                  handleOpen={handleOpenTax}
+                  stateoption={selectedTaxState}
+                  openMenu={isOPenProductTax}
+                  handleOpenOption={handleOpenOptionProductTax}
+                  options={taxes}
+                  onSelectOption={handleSelectProductTax}
+                />
+              </div>
+              {/* Product Point */}
+              <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Point")}:
+                </span>
+                <NumberInput
+                  value={productPoint}
+                  onChange={(e) => setProductPoint(e.target.value)}
+                  placeholder={t("Point")}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-start justify-start w-full gap-5 mt-2 sm:flex-col lg:flex-row">
+              {/* Product Image */}
+              <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Product Image")}:
+                </span>
+                <UploadInput
+                  value={productImageName}
+                  uploadFileRef={productImageRef}
+                  placeholder={t("Product Image")}
+                  handleFileChange={handleProductImageChange}
+                  onChange={(e) => setProductImage(e.target.value)}
+                  onClick={() => handleProductImageClick(productImageRef)}
+                />
+              </div>
+
+              {productTimeStatus === 1 && (
+                <>
+                  <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
+                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                      {t("From")}:
+                    </span>
+                    <TimeInput
+                      value={productStatusFrom ?? ""}
+                      onChange={(e) => setProductStatusFrom(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
+                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                      {t("To")}:
+                    </span>
+                    <TimeInput
+                      value={productStatusTo ?? ""}
+                      onChange={(e) => setProductStatusTo(e.target.value)}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="flex items-start justify-start w-full gap-4 sm:flex-col lg:flex-row">
+              {/* Product Status */}
+              <div className="sm:w-full lg:w-[20%] flex items-center justify-start gap-x-3">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Status")}:
+                </span>
+                <Switch
+                  handleClick={handleProductStatus}
+                  checked={productStatus}
+                />
+              </div>
+              {/* Product Product Recommended */}
+              <div className="sm:w-full lg:w-[40%] flex items-center justify-start gap-x-3">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("ProductRecommended")}:
+                </span>
+                <Switch
+                  handleClick={handleProductRecommended}
+                  checked={productRecommended}
+                />
+              </div>
+              {/* Product Time Status */}
+              <div className="sm:w-full lg:w-[35%] flex items-center justify-start gap-x-3">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("ProductTimeStatus")}:
+                </span>
+                <Switch
+                  handleClick={handleProductTimeStatus}
+                  checked={productTimeStatus}
+                />
+              </div>
+            </div>
+                        
             {/* Only show exclude and extra sections if weight_status is not 1 */}
             {weightStatus !== 1 && (
               <>
