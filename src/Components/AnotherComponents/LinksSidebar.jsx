@@ -33,6 +33,7 @@ import { IoMdGitBranch } from "react-icons/io";
 import { useTranslation } from "react-i18next";
 import { PiBaseballCap } from "react-icons/pi";
 import { PiClockUserFill } from "react-icons/pi";
+import { LuBanknote } from "react-icons/lu";
 
 // Admin routes configuration
 const adminRoutes = [
@@ -247,12 +248,6 @@ const adminRoutes = [
     icon: TbBorderAll,
   },
   {
-    name: "Reports",
-    path: "/dashboard/reports",
-    permission: "Reports",
-    icon: TbBorderAll,
-  },
-  {
     name: "Deals",
     path: "/dashboard/deals",
     permission: "Deal",
@@ -306,6 +301,28 @@ const adminRoutes = [
     permission: "OrderDelay",
     icon: BiSolidEnvelope,
   },
+  {
+    name: "Expenses",
+    path: "/dashboard/expenses",
+    permission: "expenses",
+    icon: LuBanknote,
+    subRoutes: [
+      { name: "Category", path: "/dashboard/expenses/expenses_category" },
+    ],
+    redirectTo: "/dashboard/expenses/expenses_category",
+  },
+  {
+    name: "Reports",
+    path: "/dashboard/reports",
+    permission: "Reports",
+    icon: TbReportSearch,
+    subRoutes: [
+      { name: "Orders", path: "/dashboard/reports/orders_reports" },
+      { name: "Financial", path: "/dashboard/reports/financial_reports" },
+      { name: "Cashier Shift", path: "/dashboard/reports/cashier_report" },
+    ],
+    redirectTo: "/dashboard/reports/orders_reports",
+  }
 ];
 
 // Branch routes configuration

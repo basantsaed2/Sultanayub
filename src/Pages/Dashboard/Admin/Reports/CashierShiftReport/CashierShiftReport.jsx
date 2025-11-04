@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { usePost } from "../../../../Hooks/usePostJson";
-import { DateInput } from "../../../../Components/Components";
-import { useGet } from "../../../../Hooks/useGet";
+import { usePost } from "../../../../../Hooks/usePostJson";
+import { DateInput } from "../../../../../Components/Components";
+import { useGet } from "../../../../../Hooks/useGet";
 import { useTranslation } from "react-i18next";
 
-const Report = () => {
+const CashierShiftReport = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const { postData, loadingPost, response } = usePost({ url: `${apiUrl}/admin/reports/cashier_reports` });
   const [selectedShiftId, setSelectedShiftId] = useState(null);
@@ -336,4 +336,4 @@ const Report = () => {
   );
 };
 
-export default Report;
+export default CashierShiftReport;

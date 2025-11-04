@@ -4,7 +4,8 @@ import {
     SubmitButton,
     TextInput,
     TitlePage,
-    StaticButton 
+    StaticButton,
+    PasswordInput
 } from "../../../../../Components/Components";
 import { useGet } from "../../../../../Hooks/useGet";
 import { useChangeState } from "../../../../../Hooks/useChangeState";
@@ -32,6 +33,7 @@ const OrderPercentage = () => {
     // State variables
     const [percentage, setPercentage] = useState("");
     const [currentPercentage, setCurrentPercentage] = useState("");
+    const [password, setPassword] = useState("");
 
     useEffect(() => {
         refetchOrderPercentage();
@@ -59,7 +61,7 @@ const OrderPercentage = () => {
         }
 
         // Use URL parameters for the PUT request
-        const url = `${apiUrl}/admin/order_precentage/create_update?order_precentage=${parseFloat(percentage)}`;
+        const url = `${apiUrl}/admin/order_precentage/create_update?order_precentage=${parseFloat(percentage)}&password=${encodeURIComponent(password)}`;
 
         try {
             const success = await changeState(url, "Order percentage updated successfully");
@@ -77,6 +79,7 @@ const OrderPercentage = () => {
     const handleReset = () => {
         // Reset to current value from API
         setPercentage(currentPercentage);
+        setPassword("");
     };
 
     return (
@@ -96,7 +99,7 @@ const OrderPercentage = () => {
 
                     <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                         {/* Percentage Input */}
-                        <div className="flex flex-col items-start justify-center gap-y-2 mb-6">
+                        <div className="flex items-start justify-center gap-y-2 mb-6">
                             <label className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("Order Percentage")}:
                             </label>
@@ -114,6 +117,18 @@ const OrderPercentage = () => {
                                 <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-thirdColor font-TextFontMedium">
                                     %
                                 </span>
+                            </div>
+                            {/* Password */}
+                            <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Password")}:
+                                </span>
+                                <PasswordInput
+                                    backgound="white"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder={t("Password")}
+                                />
                             </div>
                             <p className="text-sm text-gray-500 font-TextFontLight mt-1">
                                 {t("Enter a value between 1 and 100")}

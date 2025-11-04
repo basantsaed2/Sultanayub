@@ -108,7 +108,6 @@ import HallLocationsLayout from "./layouts/Dashboard/Setting/HallLocations/HallL
 import TablesLayout from "./layouts/Dashboard/Setting/Tables/TablesLayout";
 import EditTablesLayout from "./layouts/Dashboard/Setting/Tables/EditTablesLayout";
 import EditHallLocationLayout from "./layouts/Dashboard/Setting/HallLocations/EditHallLocationLayout";
-import Report from "./Pages/Dashboard/Admin/Reports/Report";
 import CaptianOrder from "./Pages/Dashboard/Admin/CapitanOrder/CapitanOrder";
 import AddCaptianOrder from "./Pages/Dashboard/Admin/CapitanOrder/AddCapitanOrder";
 import EditCaptianOrder from "./Pages/Dashboard/Admin/CapitanOrder/EditCapitanOrder";
@@ -138,6 +137,12 @@ import DiscountCode from "./Pages/Dashboard/Admin/Setting/DiscountCode/DiscountC
 import AddDiscountCode from "./Pages/Dashboard/Admin/Setting/DiscountCode/AddDiscountCode";
 import EditDiscountCode from "./Pages/Dashboard/Admin/Setting/DiscountCode/EditDiscountCode";
 import SinglePageDetails from "./Pages/Dashboard/Admin/Users/Customers/SinglePageDetails";
+import ExpensesCategory from "./Pages/Dashboard/Admin/Expenses/ExpensesCategory/ExpensesCategory";
+import AddExpensesCategory from "./Pages/Dashboard/Admin/Expenses/ExpensesCategory/AddExpensesCategory";
+import EditExpensesCategory from "./Pages/Dashboard/Admin/Expenses/ExpensesCategory/EditExpensesCategory";
+import OrdersReports from "./Pages/Dashboard/Admin/Reports/OrdersReports/OrdersReports";
+import CashierShiftReport from "./Pages/Dashboard/Admin/Reports/CashierShiftReport/CashierShiftReport";
+import FinacialReports from "./Pages/Dashboard/Admin/Reports/FinacialReports/FinacialReports";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -1024,10 +1029,6 @@ export const router = createBrowserRouter([
             ]
           },
           {
-            path: 'reports',
-            element: <Report />,
-          },
-          {
             path: 'deal_order',
             element: <DealOrderLayout />,
           },
@@ -1230,6 +1231,55 @@ export const router = createBrowserRouter([
               },
             ]
           },
+
+          {
+            path: 'expenses',
+            element: <Outlet />,
+            children: [
+              {
+                path: 'expenses_category',
+                children: [
+                  {
+                    path: '',
+                    children: [
+                      {
+                        index: true,
+                        element: <ExpensesCategory />,
+                      },
+                      {
+                        path: 'add',
+                        element: <AddExpensesCategory />,
+                      },
+                      {
+                        path: 'edit/:expensesCategoryId',
+                        element: <EditExpensesCategory />
+                      }
+                    ]
+                  },
+                ]
+              },
+            ]
+          },
+
+          {
+            path: 'reports',
+            element: <Outlet />,
+            children: [
+              {
+                path: 'cashier_report',
+                element: <CashierShiftReport />
+              },
+              {
+                path: 'orders_reports',
+                element: <OrdersReports />,
+              },
+              {
+                path: 'financial_reports',
+                element: <FinacialReports />,
+              }
+            ]
+          },
+
         ]
       },
     ],

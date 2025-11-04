@@ -85,9 +85,9 @@ const EditDeliveryManPage = () => {
       setDeliveryStatus(delivery.status || 0)
       setChatStatus(delivery.chat_status || 0)
       setPhoneStatus(delivery.phone_status || 0)
-      setDeliveryBranchState(delivery.branch.name || t('Select Branche'))
-      setDeliveryBranchName(delivery.branch.name || '')
-      setDeliveryBranchId(delivery.branch.id || '')
+      setDeliveryBranchState(delivery.branch?.name || t('Select Branche'))
+      setDeliveryBranchName(delivery.branch?.name || '')
+      setDeliveryBranchId(delivery.branch?.id || '')
       setIdentityTypeState(delivery.identity_type || t('Select Identity Type'))
       setIdentityTypeName(delivery.identity_type || '')
       setIdentityNumber(delivery.identity_number || '')
@@ -265,7 +265,7 @@ const EditDeliveryManPage = () => {
       ) : (
         <>
           <form
-            className="flex flex-wrap items-start justify-start w-full gap-4 sm:flex-col lg:flex-row"
+            className="flex flex-wrap items-start justify-start w-full gap-4 sm:flex-col lg:flex-row pb-28"
             onSubmit={handleDeliveryEdit}
           >
             {/* First Name */}
