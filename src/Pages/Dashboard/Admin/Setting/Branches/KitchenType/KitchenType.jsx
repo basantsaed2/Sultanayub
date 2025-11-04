@@ -176,10 +176,30 @@ const KitchenType = () => {
             t("ProductsAddedSuccess", { type: t(isBirsta ? "Birsta" : "Kitchen") })
         );
     };
+
+    // Format time to display without seconds if needed
+    const formatTimeDisplay = (time) => {
+        if (!time) return '-';
+        if (time.includes(':')) {
+            const parts = time.split(':');
+            if (parts[2] === '00') {
+                return `${parts[0]}:${parts[1]}`; // Show only HH:MM if seconds are 00
+            }
+            return time;
+        }
+        return time;
+    };
+
     const headers = [
         "#",
         t("Name"),
-        t("View"),
+        t("Branch"),
+        // t("Type"),
+        t("Preparing Time"),
+        t("Print Status"),
+        t("Print Name"),
+        t("Print IP"),
+        t("Products"),
         t("Status"),
         t("Action"),
     ];
@@ -228,13 +248,43 @@ const KitchenType = () => {
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                             {type?.name || "-"}
                                         </td>
+                                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                            {type?.branch?.name || "-"}
+                                        </td>
+                                        {/* <td className="min-w-[120px] sm:min-w-[80px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                                                type?.type === 'kitchen' 
+                                                    ? 'bg-blue-100 text-blue-800' 
+                                                    : 'bg-green-100 text-green-800'
+                                            }`}>
+                                                {type?.type || "-"}
+                                            </span>
+                                        </td> */}
+                                        <td className="min-w-[120px] sm:min-w-[80px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                            {formatTimeDisplay(type?.preparing_time) || "-"}
+                                        </td>
+                                        <td className="min-w-[120px] sm:min-w-[80px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                                                type?.print_status === 1 
+                                                    ? 'bg-green-100 text-green-800' 
+                                                    : 'bg-red-100 text-red-800'
+                                            }`}>
+                                                {type?.print_status === 1 ? t('Active') : t('Inactive')}
+                                            </span>
+                                        </td>
+                                        <td className="min-w-[120px] sm:min-w-[80px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                            {type?.print_name || "-"}
+                                        </td>
+                                        <td className="min-w-[120px] sm:min-w-[80px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                            {type?.print_ip || "-"}
+                                        </td>
                                         <td className="min-w-[120px] sm:min-w-[80px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                             <button
                                                 type="button"
                                                 className="inline-flex items-center justify-center px-3 py-1 text-sm font-TextFontMedium text-white bg-mainColor rounded-full hover:bg-opacity-80 transition-colors duration-300"
                                                 onClick={() => handleOpenProductsModal(type)}
                                             >
-                                                {type.products.length} {t('Products')}
+                                                {type.products?.length || 0} {t('Products')}
                                             </button>
                                         </td>
                                         {openProductsModal?.id === type.id && (
@@ -252,7 +302,7 @@ const KitchenType = () => {
                                                                     {t('Products', { name: type.name })}
                                                                 </DialogTitle>
                                                                 <div className="mt-4 max-h-64 overflow-y-auto">
-                                                                    {type.products.length > 0 ? (
+                                                                    {type.products?.length > 0 ? (
                                                                         type.products.map((product) => (
                                                                             <div
                                                                                 key={product.id}

@@ -137,6 +137,7 @@ import EditDiscountModule from "./Pages/Dashboard/Admin/Setting/DiscountModule/E
 import DiscountCode from "./Pages/Dashboard/Admin/Setting/DiscountCode/DiscountCode";
 import AddDiscountCode from "./Pages/Dashboard/Admin/Setting/DiscountCode/AddDiscountCode";
 import EditDiscountCode from "./Pages/Dashboard/Admin/Setting/DiscountCode/EditDiscountCode";
+import SinglePageDetails from "./Pages/Dashboard/Admin/Users/Customers/SinglePageDetails";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -921,6 +922,10 @@ export const router = createBrowserRouter([
                   {
                     path: 'edit/:customerId',
                     element: <EditCustomersLayout />,
+                  },
+                  {
+                    path: 'customer/:userId',
+                    element: <SinglePageDetails />,
                   }
                 ]
               },

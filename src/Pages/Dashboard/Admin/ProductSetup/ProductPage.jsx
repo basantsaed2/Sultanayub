@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from "react";
 import { useGet } from "../../../../Hooks/useGet";
 import { useDelete } from "../../../../Hooks/useDelete";
-import { LoaderLogin, SearchBar } from "../../../../Components/Components";
+import { LoaderLogin, SearchBar ,Switch} from "../../../../Components/Components";
 import { DeleteIcon, EditIcon } from "../../../../Assets/Icons/AllIcons";
-import { Link , useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import ToggleItems from "./ToggleItems";
@@ -42,6 +42,8 @@ const ProductPage = () => {
   } = useGet({
     url: `${apiUrl}/admin/category?locale=${selectedLanguage}`,
   });
+
+  const { changeState: changeFavoritePos, loadingChange, responseChange } = useChangeState();
 
   const { deleteData, loadingDelete } = useDelete();
   const [showLayer, setShowLayer] = useState(false);
@@ -92,6 +94,22 @@ const ProductPage = () => {
     refetchProducts();
     refetchCategories();
   }, [refetchProducts, refetchCategories, selectedLanguage]);
+
+  const handleChangeStaus = async (id, name, favourite) => {
+    const response = await changeFavoritePos(
+      `${apiUrl}/admin/product/favourite/${id}`,
+      `${name} Changed Status.`,
+      { favourite }
+    );
+
+    if (response) {
+      setProducts((prevProduct) =>
+        prevProduct.map((product) =>
+          product.id === id ? { ...product, favourite: favourite } : product
+        )
+      );
+    }
+  };
 
   const handleFilterData = (e) => {
     const text = e.target.value;
@@ -280,6 +298,7 @@ const ProductPage = () => {
     t("Price"),
     t("Image"),
     t("Category"),
+    t("Favorite POS"),
     t("Recipes"),
     t("Discount"),
     t("Action"),
@@ -473,6 +492,18 @@ const ProductPage = () => {
                             </td>
                             <td onClick={() => handleOpenCategoryToggle(product.category_id)} className="px-4 py-2 text-sm text-center text-red-800 lg:text-base underline">
                               {product.category?.name || product.sub_category?.name || "-"}
+                            </td>
+                            <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                              <Switch
+                                checked={product.favourite}
+                                handleClick={() => {
+                                  handleChangeStaus(
+                                    product.id,
+                                    product?.name,
+                                    product.favourite === 1 ? 0 : 1
+                                  );
+                                }}
+                              />
                             </td>
                             <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                               <button
