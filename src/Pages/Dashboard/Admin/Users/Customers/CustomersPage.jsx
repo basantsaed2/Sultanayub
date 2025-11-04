@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useChangeState } from "../../../../../Hooks/useChangeState";
 import { useDelete } from "../../../../../Hooks/useDelete";
 import { StaticLoader, Switch } from "../../../../../Components/Components";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // Add useNavigate
 import { DeleteIcon, EditIcon } from "../../../../../Assets/Icons/AllIcons";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../../Assets/Icons/AnotherIcons/WarningIcon";
@@ -11,6 +11,8 @@ import { useTranslation } from "react-i18next";
 
 const CustomersPage = ({ refetch, setUpdate }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const navigate = useNavigate(); // Add navigate hook
+
   const {
     refetch: refetchCustomer,
     loading: loadingCustomer,
@@ -24,21 +26,27 @@ const CustomersPage = ({ refetch, setUpdate }) => {
   const [customers, setCustomers] = useState([]);
   const { t, i18n } = useTranslation();
 
-  const [currentPage, setCurrentPage] = useState(1); // Track the current page
-  const customersPerPage = 20; // Limit to 20 customers per page
+  const [currentPage, setCurrentPage] = useState(1);
+  const customersPerPage = 20;
 
-  // Calculate total number of pages
   const totalPages = Math.ceil(customers.length / customersPerPage);
 
-  // Get the customers for the current page
   const currentCustomers = customers.slice(
     (currentPage - 1) * customersPerPage,
     currentPage * customersPerPage
   );
 
-  // handle page change
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
+  };
+
+  // In CustomersPage component, update the handleUserNameClick function:
+  const handleUserNameClick = (customer) => {
+    navigate(`customer/${customer.id}`, {
+      state: {
+        customerData: customer
+      }
+    });
   };
 
   useEffect(() => {
@@ -50,18 +58,16 @@ const CustomersPage = ({ refetch, setUpdate }) => {
       console.log("Customer Data:", dataCustomer);
       setCustomers(dataCustomer.customers);
     }
-  }, [dataCustomer]); // Only run this effect when `data` changes
+  }, [dataCustomer]);
 
-  // Change Customer status
   const handleChangeStaus = async (id, name, status) => {
     const response = await changeState(
       `${apiUrl}/admin/customer/status/${id}`,
       `${name} Changed Status.`,
-      { status } // Pass status as an object if changeState expects an object
+      { status }
     );
 
     if (response) {
-      // Update Customer only if changeState succeeded
       setCustomers((prevCustomers) =>
         prevCustomers.map((customer) =>
           customer.id === id ? { ...customer, status: status } : customer
@@ -73,11 +79,11 @@ const CustomersPage = ({ refetch, setUpdate }) => {
   const handleOpenDelete = (item) => {
     setOpenDelete(item);
   };
+
   const handleCloseDelete = () => {
     setOpenDelete(null);
   };
 
-  // Delete Customer
   const handleDelete = async (id, name) => {
     const success = await deleteData(
       `${apiUrl}/admin/customer/delete/${id}`,
@@ -85,11 +91,9 @@ const CustomersPage = ({ refetch, setUpdate }) => {
     );
 
     if (success) {
-      // Update Deliveries only if changeState succeeded
       setCustomers(customers.filter((customer) => customer.id !== id));
       setUpdate(!refetch);
     }
-    console.log("data customers", data);
   };
 
   const headers = [
@@ -99,6 +103,7 @@ const CustomersPage = ({ refetch, setUpdate }) => {
     t("Name"),
     t("Email"),
     t("Phone"),
+    t("Due Status"),
     t("Total Order"),
     t("Total Order Amount"),
     t("Status"),
@@ -155,13 +160,27 @@ const CustomersPage = ({ refetch, setUpdate }) => {
                       {customer?.code || "-"}
                     </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                      {customer?.f_name + " " + customer?.l_name || "-"}
+                      {/* Make username clickable */}
+                      <button
+                        onClick={() => handleUserNameClick(customer)}
+                        className="text-blue-600 hover:text-blue-800 hover:underline transition-colors duration-200 font-medium"
+                      >
+                        {customer?.f_name + " " + customer?.l_name || "-"}
+                      </button>
                     </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {customer?.email || "-"}
                     </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {customer?.phone || "-"}
+                    </td>
+                    <td className="min-w-[120px] sm:min-w-[80px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${customer?.due_status === 1
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                        }`}>
+                        {customer?.due_status === 1 ? t('Active') : t('Inactive')}
+                      </span>
                     </td>
                     <td className="px-4 py-2 text-sm text-center lg:text-base">
                       <span className="px-2 py-1 text-blue-500 rounded-md bg-cyan-200">
@@ -275,8 +294,8 @@ const CustomersPage = ({ refetch, setUpdate }) => {
                     key={page}
                     onClick={() => handlePageChange(page)}
                     className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
-                        ? "bg-mainColor text-white"
-                        : " text-mainColor"
+                      ? "bg-mainColor text-white"
+                      : " text-mainColor"
                       }`}
                   >
                     {page}
