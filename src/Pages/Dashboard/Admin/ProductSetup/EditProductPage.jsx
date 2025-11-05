@@ -1189,7 +1189,7 @@ const EditProductPage = () => {
             </div>
 
             {/* Weight Fields */}
-            {weightStatus === 1 ? (
+            {weightStatus === 1 && (
               <div className="flex items-start justify-start w-full gap-5 sm:flex-col lg:flex-row">
                 {/* Weight Point */}
                 <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
@@ -1202,9 +1202,6 @@ const EditProductPage = () => {
                     placeholder={t("Weight Point")}
                   />
                 </div>
-              </div>
-            ) : (
-              <div className="flex items-start justify-start w-full gap-5 sm:flex-col lg:flex-row">
                 {/* Unit Selection */}
                 <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
