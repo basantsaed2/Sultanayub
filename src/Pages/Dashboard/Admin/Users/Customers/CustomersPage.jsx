@@ -2,16 +2,17 @@ import React, { useEffect, useRef, useState } from "react";
 import { useChangeState } from "../../../../../Hooks/useChangeState";
 import { useDelete } from "../../../../../Hooks/useDelete";
 import { StaticLoader, Switch } from "../../../../../Components/Components";
-import { Link, useNavigate } from "react-router-dom"; // Add useNavigate
+import { Link, useNavigate } from "react-router-dom";
 import { DeleteIcon, EditIcon } from "../../../../../Assets/Icons/AllIcons";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { useGet } from "../../../../../Hooks/useGet";
 import { useTranslation } from "react-i18next";
+import SearchBar from "../../../../../Components/AnotherComponents/SearchBar"; // Import your SearchBar component
 
 const CustomersPage = ({ refetch, setUpdate }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
-  const navigate = useNavigate(); // Add navigate hook
+  const navigate = useNavigate();
 
   const {
     refetch: refetchCustomer,
@@ -24,14 +25,33 @@ const CustomersPage = ({ refetch, setUpdate }) => {
   const { deleteData, loadingDelete, responseDelete } = useDelete();
   const [openDelete, setOpenDelete] = useState(null);
   const [customers, setCustomers] = useState([]);
+  const [filteredCustomers, setFilteredCustomers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const { t, i18n } = useTranslation();
 
   const [currentPage, setCurrentPage] = useState(1);
   const customersPerPage = 20;
 
-  const totalPages = Math.ceil(customers.length / customersPerPage);
+  // Search functionality
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredCustomers(customers);
+    } else {
+      const filtered = customers.filter(customer => 
+        customer?.f_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer?.l_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer?.phone?.includes(searchTerm) ||
+        customer?.code?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredCustomers(filtered);
+    }
+    setCurrentPage(1); // Reset to first page when searching
+  }, [searchTerm, customers]);
 
-  const currentCustomers = customers.slice(
+  const totalPages = Math.ceil(filteredCustomers.length / customersPerPage);
+
+  const currentCustomers = filteredCustomers.slice(
     (currentPage - 1) * customersPerPage,
     currentPage * customersPerPage
   );
@@ -40,13 +60,17 @@ const CustomersPage = ({ refetch, setUpdate }) => {
     setCurrentPage(pageNumber);
   };
 
-  // In CustomersPage component, update the handleUserNameClick function:
   const handleUserNameClick = (customer) => {
     navigate(`customer/${customer.id}`, {
       state: {
         customerData: customer
       }
     });
+  };
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
   };
 
   useEffect(() => {
@@ -57,6 +81,7 @@ const CustomersPage = ({ refetch, setUpdate }) => {
     if (dataCustomer && dataCustomer.customers) {
       console.log("Customer Data:", dataCustomer);
       setCustomers(dataCustomer.customers);
+      setFilteredCustomers(dataCustomer.customers);
     }
   }, [dataCustomer]);
 
@@ -111,210 +136,228 @@ const CustomersPage = ({ refetch, setUpdate }) => {
   ];
 
   return (
-    <div className="flex items-start justify-start w-full overflow-x-scroll pb-28 scrollSection">
-      {loadingCustomer || loadingChange || loadingDelete ? (
-        <div className="flex items-center justify-center w-full h-56">
-          <StaticLoader />
-        </div>
-      ) : (
-        <div className="flex flex-col w-full">
-          <table className="block w-full overflow-x-scroll sm:min-w-0 scrollPage">
-            <thead className="w-full">
-              <tr className="w-full border-b-2">
-                {headers.map((name, index) => (
-                  <th
-                    className="min-w-[100px] sm:w-[8%] lg:w-[5%] text-mainColor text-center font-TextFontLight sm:text-sm lg:text-base xl:text-lg pb-3"
-                    key={index}
-                  >
-                    {name}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="w-full">
-              {customers.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={12}
-                    className="text-xl text-center text-mainColor font-TextFontMedium "
-                  >
-                    {t("NotfindCustomers")}
-                  </td>
-                </tr>
-              ) : (
-                currentCustomers.map((customer, index) => (
-                  <tr className="w-full border-b-2" key={index}>
-                    <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                      {(currentPage - 1) * customersPerPage + index + 1}
-                    </td>
-                    <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 overflow-hidden">
-                      <div className="flex justify-center">
-                        <img
-                          src={customer.image_link}
-                          className="rounded-full bg-mainColor min-w-14 min-h-14 max-w-14 max-h-14"
-                          alt="Photo"
-                        />
-                      </div>
-                    </td>
-                    <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                      {customer?.code || "-"}
-                    </td>
-                    <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                      {/* Make username clickable */}
-                      <button
-                        onClick={() => handleUserNameClick(customer)}
-                        className="text-blue-600 hover:text-blue-800 hover:underline transition-colors duration-200 font-medium"
-                      >
-                        {customer?.f_name + " " + customer?.l_name || "-"}
-                      </button>
-                    </td>
-                    <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                      {customer?.email || "-"}
-                    </td>
-                    <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                      {customer?.phone || "-"}
-                    </td>
-                    <td className="min-w-[120px] sm:min-w-[80px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${customer?.due_status === 1
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                        }`}>
-                        {customer?.due_status === 1 ? t('Active') : t('Inactive')}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2 text-sm text-center lg:text-base">
-                      <span className="px-2 py-1 text-blue-500 rounded-md bg-cyan-200">
-                        {customer?.orders_count || "-"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2 text-sm text-center lg:text-base">
-                      <span className="px-2 py-1 text-blue-500 rounded-md bg-cyan-200">
-                        {customer?.orders_sum_amount || "-"}
-                      </span>
-                    </td>
-                    <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                      <Switch
-                        checked={customer.status}
-                        handleClick={() => {
-                          handleChangeStaus(
-                            customer.id,
-                            customer?.f_name + " " + customer?.l_name,
-                            customer.status === 1 ? 0 : 1
-                          );
-                        }}
-                      />
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <Link to={`edit/${customer.id}`}>
-                          <EditIcon />
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() => handleOpenDelete(customer.id)}
-                        >
-                          <DeleteIcon />
-                        </button>
-                        {openDelete === customer.id && (
-                          <Dialog
-                            open={true}
-                            onClose={handleCloseDelete}
-                            className="relative z-10"
-                          >
-                            <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
-                            <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                              <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
-                                <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg">
-                                  <div className="flex flex-col items-center justify-center px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
-                                    <Warning
-                                      width="28"
-                                      height="28"
-                                      aria-hidden="true"
-                                    />
-                                    <div className="flex items-center">
-                                      <div className="mt-2 text-center">
-                                        {t("Youwilldeletecustomer")}{" "}
-                                        {customer?.f_name +
-                                          " " +
-                                          customer?.l_name || "-"}
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                                    <button
-                                      className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto"
-                                      onClick={() =>
-                                        handleDelete(
-                                          customer.id,
-                                          customer?.f_name +
-                                          " " +
-                                          customer?.l_name
-                                        )
-                                      }
-                                    >
-                                      {t("Delete")}
-                                    </button>
+    <div className="flex flex-col items-start justify-start w-full overflow-x-scroll pb-28 scrollSection">
+      {/* Search Bar */}
+      <div className="w-full mb-6 max-w-md">
+        <SearchBar
+          value={searchTerm}
+          handleChange={handleSearchChange}
+          placeholder={t("Search customers...")}
+          bgColor="bg-white"
+          textColor="mainColor"
+          pr="4"
+        />
+        {searchTerm && (
+          <p className="mt-2 text-sm text-gray-600">
+            {t("Found")} {filteredCustomers.length} {t("customers matching")} "{searchTerm}"
+          </p>
+        )}
+      </div>
 
-                                    <button
-                                      type="button"
-                                      data-autofocus
-                                      onClick={handleCloseDelete}
-                                      className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
-                                    >
-                                      {t("Cancel")}
-                                    </button>
-                                  </div>
-                                </DialogPanel>
-                              </div>
-                            </div>
-                          </Dialog>
-                        )}
-                      </div>
+      <div className="flex items-start justify-start w-full">
+        {loadingCustomer || loadingChange || loadingDelete ? (
+          <div className="flex items-center justify-center w-full h-56">
+            <StaticLoader />
+          </div>
+        ) : (
+          <div className="flex flex-col w-full">
+            <table className="block w-full overflow-x-scroll sm:min-w-0 scrollPage">
+              <thead className="w-full">
+                <tr className="w-full border-b-2">
+                  {headers.map((name, index) => (
+                    <th
+                      className="min-w-[100px] sm:w-[8%] lg:w-[5%] text-mainColor text-center font-TextFontLight sm:text-sm lg:text-base xl:text-lg pb-3"
+                      key={index}
+                    >
+                      {name}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="w-full">
+                {filteredCustomers.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={12}
+                      className="text-xl text-center text-mainColor font-TextFontMedium "
+                    >
+                      {searchTerm ? t("No customers found matching your search") : t("NotfindCustomers")}
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  currentCustomers.map((customer, index) => (
+                    <tr className="w-full border-b-2" key={index}>
+                      <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                        {(currentPage - 1) * customersPerPage + index + 1}
+                      </td>
+                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 overflow-hidden">
+                        <div className="flex justify-center">
+                          <img
+                            src={customer.image_link}
+                            className="rounded-full bg-mainColor min-w-14 min-h-14 max-w-14 max-h-14"
+                            alt="Photo"
+                          />
+                        </div>
+                      </td>
+                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                        {customer?.code || "-"}
+                      </td>
+                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                        <button
+                          onClick={() => handleUserNameClick(customer)}
+                          className="text-blue-600 hover:text-blue-800 hover:underline transition-colors duration-200 font-medium"
+                        >
+                          {customer?.f_name + " " + customer?.l_name || "-"}
+                        </button>
+                      </td>
+                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                        {customer?.email || "-"}
+                      </td>
+                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                        {customer?.phone || "-"}
+                      </td>
+                      <td className="min-w-[120px] sm:min-w-[80px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${customer?.due_status === 1
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                          }`}>
+                          {customer?.due_status === 1 ? t('Active') : t('Inactive')}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2 text-sm text-center lg:text-base">
+                        <span className="px-2 py-1 text-blue-500 rounded-md bg-cyan-200">
+                          {customer?.orders_count || "-"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2 text-sm text-center lg:text-base">
+                        <span className="px-2 py-1 text-blue-500 rounded-md bg-cyan-200">
+                          {customer?.orders_sum_amount || "-"}
+                        </span>
+                      </td>
+                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                        <Switch
+                          checked={customer.status}
+                          handleClick={() => {
+                            handleChangeStaus(
+                              customer.id,
+                              customer?.f_name + " " + customer?.l_name,
+                              customer.status === 1 ? 0 : 1
+                            );
+                          }}
+                        />
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <Link to={`edit/${customer.id}`}>
+                            <EditIcon />
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenDelete(customer.id)}
+                          >
+                            <DeleteIcon />
+                          </button>
+                          {openDelete === customer.id && (
+                            <Dialog
+                              open={true}
+                              onClose={handleCloseDelete}
+                              className="relative z-10"
+                            >
+                              <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                              <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                                <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                                  <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg">
+                                    <div className="flex flex-col items-center justify-center px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
+                                      <Warning
+                                        width="28"
+                                        height="28"
+                                        aria-hidden="true"
+                                      />
+                                      <div className="flex items-center">
+                                        <div className="mt-2 text-center">
+                                          {t("Youwilldeletecustomer")}{" "}
+                                          {customer?.f_name +
+                                            " " +
+                                            customer?.l_name || "-"}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                                      <button
+                                        className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto"
+                                        onClick={() =>
+                                          handleDelete(
+                                            customer.id,
+                                            customer?.f_name +
+                                            " " +
+                                            customer?.l_name
+                                          )
+                                        }
+                                      >
+                                        {t("Delete")}
+                                      </button>
 
-          {customers.length > 0 && (
-            <div className="flex flex-wrap items-center justify-center my-6 gap-x-4">
-              {currentPage !== 1 && (
-                <button
-                  type="button"
-                  className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
-                  onClick={() => setCurrentPage(currentPage - 1)}
-                >
-                  {t("Prev")}
-                </button>
-              )}
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
+                                      <button
+                                        type="button"
+                                        data-autofocus
+                                        onClick={handleCloseDelete}
+                                        className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
+                                      >
+                                        {t("Cancel")}
+                                      </button>
+                                    </div>
+                                  </DialogPanel>
+                                </div>
+                              </div>
+                            </Dialog>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+
+            {filteredCustomers.length > 0 && (
+              <div className="flex flex-wrap items-center justify-center my-6 gap-x-4">
+                {currentPage !== 1 && (
                   <button
-                    key={page}
-                    onClick={() => handlePageChange(page)}
-                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
-                      ? "bg-mainColor text-white"
-                      : " text-mainColor"
-                      }`}
+                    type="button"
+                    className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
+                    onClick={() => setCurrentPage(currentPage - 1)}
                   >
-                    {page}
+                    {t("Prev")}
                   </button>
-                )
-              )}
-              {totalPages !== currentPage && (
-                <button
-                  type="button"
-                  className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
-                  onClick={() => setCurrentPage(currentPage + 1)}
-                >
-                  {t("Next")}
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+                )}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
+                        ? "bg-mainColor text-white"
+                        : " text-mainColor"
+                        }`}
+                    >
+                      {page}
+                    </button>
+                  )
+                )}
+                {totalPages !== currentPage && (
+                  <button
+                    type="button"
+                    className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                  >
+                    {t("Next")}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
