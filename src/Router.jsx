@@ -143,6 +143,10 @@ import EditExpensesCategory from "./Pages/Dashboard/Admin/Expenses/ExpensesCateg
 import OrdersReports from "./Pages/Dashboard/Admin/Reports/OrdersReports/OrdersReports";
 import CashierShiftReport from "./Pages/Dashboard/Admin/Reports/CashierShiftReport/CashierShiftReport";
 import FinacialReports from "./Pages/Dashboard/Admin/Reports/FinacialReports/FinacialReports";
+import ExpensesList from "./Pages/Dashboard/Admin/Expenses/ExpensesList/ExpensesList";
+import AddExpensesList from "./Pages/Dashboard/Admin/Expenses/ExpensesList/AddExpensesList";
+import EditExpensesList from "./Pages/Dashboard/Admin/Expenses/ExpensesList/EditExpensesList";
+import ExpensesPayment from "./Pages/Dashboard/Admin/Expenses/ExpensesPayment/ExpensesPayment";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -1258,6 +1262,32 @@ export const router = createBrowserRouter([
                   },
                 ]
               },
+              {
+                path: 'expenses_list',
+                children: [
+                  {
+                    path: '',
+                    children: [
+                      {
+                        index: true,
+                        element: <ExpensesList />,
+                      },
+                      {
+                        path: 'add',
+                        element: <AddExpensesList />,
+                      },
+                      {
+                        path: 'edit/:expensesId',
+                        element: <EditExpensesList />
+                      }
+                    ]
+                  },
+                ]
+              },
+              {
+                path: 'expenses_payment',
+                element: <ExpensesPayment />,
+              }
             ]
           },
 

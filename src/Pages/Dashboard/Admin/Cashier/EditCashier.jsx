@@ -24,23 +24,29 @@ const EditCashier = () => {
     const { refetch: refetchBranch, loading: loadingBranch, data: dataBranch } = useGet({
         url: `${apiUrl}/admin/cashier`,
     });
+    const { refetch: refetchTranslation, loading: loadingTranslation, data: dataTranslation } = useGet({ 
+        url: `${apiUrl}/admin/translation`,
+    });
     const { postData, loadingPost, response } = usePost({
-        url: `${apiUrl}/admin/cashier/update/${cashierId}`, // Updated endpoint for editing
+        url: `${apiUrl}/admin/cashier/update/${cashierId}`,
     });
     const { t } = useTranslation();
     const auth = useAuth();
     const navigate = useNavigate();
 
     const [branches, setBranches] = useState([]);
-    const [name, setName] = useState("");
+    const [translations, setTranslations] = useState([]);
+    const [cashierNames, setCashierNames] = useState([]);
     const [active, setActive] = useState(0);
     const [selectedBranch, setSelectedBranch] = useState(null);
+    const [initialDataLoaded, setInitialDataLoaded] = useState(false);
 
     // Fetch data on component mount
     useEffect(() => {
         refetchBranch();
         refetchCashierItem();
-    }, [refetchBranch, refetchCashierItem]);
+        refetchTranslation();
+    }, [refetchBranch, refetchCashierItem, refetchTranslation]);
 
     // Update branches state when dataBranch is available
     useEffect(() => {
@@ -53,17 +59,42 @@ const EditCashier = () => {
         }
     }, [dataBranch]);
 
-    // Set form fields when cashier data is available
+    // Update translations state when dataTranslation is available
     useEffect(() => {
-        if (dataCashierItem && dataCashierItem.cashier && branches.length > 0) {
-            const cashier = dataCashierItem.cashier;
-            setName(cashier.name);
-            // Find the matching branch in branches array
-            const selected = branches.find((branch) => branch.value === cashier.branch_id);
-            setSelectedBranch(selected || null);
-            setActive(cashier.status);
+        if (dataTranslation && dataTranslation.translation) {
+            setTranslations(dataTranslation.translation);
         }
-    }, [dataCashierItem, branches]);
+    }, [dataTranslation]);
+
+    // Set form fields when all data is available
+    useEffect(() => {
+        if (dataCashierItem && dataCashierItem.cashier && branches.length > 0 && translations.length > 0 && !initialDataLoaded) {
+            const cashier = dataCashierItem;
+            console.log("Cashier Data:", cashier);
+            
+            // Find the matching branch
+            const selected = branches.find((branch) => branch.value === cashier?.cashier.branch_id);
+            setSelectedBranch(selected || null);
+            setActive(cashier?.cashier.status);
+
+            // Initialize cashier names with translations and existing data
+            const initialNames = translations.map(trans => {
+                // Find if there's existing name for this translation
+                const existingName = cashier.cashier_names?.find(name => name.tranlation_id === trans.id);
+                console.log("Existing Name for Translation ID", trans.id, ":", existingName);
+                return {
+                    translation_id: trans.id,
+                    translation_name: trans.name,
+                    name: existingName?.cashier_name || ""
+                };
+            });
+
+            console.log("Initial Cashier Names:", initialNames);
+            
+            setCashierNames(initialNames);
+            setInitialDataLoaded(true);
+        }
+    }, [dataCashierItem, branches, translations, initialDataLoaded]);
 
     // Navigate back after successful submission
     useEffect(() => {
@@ -77,22 +108,41 @@ const EditCashier = () => {
         setActive((prev) => (prev === 0 ? 1 : 0));
     };
 
+    // Handle name change for a specific translation
+    const handleNameChange = (index, value) => {
+        const updatedNames = [...cashierNames];
+        updatedNames[index].name = value;
+        setCashierNames(updatedNames);
+    };
+
     // Reset form
     const handleReset = () => {
-        if (dataCashierItem && dataCashierItem.cashier) {
+        if (dataCashierItem && dataCashierItem.cashier && translations.length > 0) {
             const cashier = dataCashierItem.cashier;
-            setName(cashier.name);
             const selected = branches.find((branch) => branch.value === cashier.branch_id);
             setSelectedBranch(selected || null);
             setActive(cashier.status);
+
+            // Reset cashier names to original data
+            const resetNames = translations.map(trans => {
+                const existingName = cashier.cashier_names?.find(name => name.tranlation_id === trans.id);
+                return {
+                    translation_id: trans.id,
+                    translation_name: trans.name,
+                    name: existingName?.name || ""
+                };
+            });
+            setCashierNames(resetNames);
         }
     };
 
     // Handle form submission
-    const handleAdd = (e) => {
+    const handleUpdate = (e) => {
         e.preventDefault();
 
-        if (!name) {
+        // Validate at least one name is provided
+        const hasName = cashierNames.some(item => item.name.trim() !== "");
+        if (!hasName) {
             auth.toastError(t("CashierNameRequired"));
             return;
         }
@@ -103,10 +153,18 @@ const EditCashier = () => {
         }
 
         const formData = new FormData();
-        formData.append("name", name);
         formData.append("branch_id", selectedBranch.value);
         formData.append("status", active);
-        formData.append("id", cashierId); // Include cashier ID for update
+        formData.append("id", cashierId);
+
+        // Add cashier names for each translation
+        cashierNames.forEach((nameItem, index) => {
+            if (nameItem.name.trim()) {
+                formData.append(`cashier_names[${index}][tranlation_id]`, nameItem.translation_id);
+                formData.append(`cashier_names[${index}][tranlation_name]`, nameItem.translation_name);
+                formData.append(`cashier_names[${index}][name]`, nameItem.name.trim());
+            }
+        });
 
         postData(formData, t("CashierEditedSuccess"));
     };
@@ -144,7 +202,7 @@ const EditCashier = () => {
 
     return (
         <>
-            {loadingPost || loadingBranch || loadingCashierItem ? (
+            {loadingPost || loadingBranch || loadingCashierItem || loadingTranslation ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
                 </div>
@@ -159,27 +217,31 @@ const EditCashier = () => {
                             >
                                 <IoArrowBack size={24} />
                             </button>
-                            <TitlePage text={t("Edit Cashier")} /> {/* Updated title */}
+                            <TitlePage text={t("Edit Cashier")} />
                         </div>
                     </div>
-                    <form className="p-2" onSubmit={handleAdd}>
-                        <div className="flex flex-wrap items-center justify-start w-full gap-4 mb-4 sm:flex-col lg:flex-row">
-                            {/* Cashier Name */}
-                            <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("CashierName")}:
-                                </span>
-                                <TextInput
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    placeholder={t("CashierName")}
-                                />
-                            </div>
+                    <form className="p-2 mb-4" onSubmit={handleUpdate}>
+                        {/* All Fields in Grid Layout */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mb-6">
 
+                            {/* Cashier Names in Different Languages */}
+                            {cashierNames.map((nameItem, index) => (
+                                <div key={index} className="w-full flex flex-col items-start justify-center gap-y-1">
+                                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                                        {t("Cashier Name")} ({nameItem.translation_name.toUpperCase()}) *
+                                    </span>
+                                    <TextInput
+                                        value={nameItem.name}
+                                        onChange={(e) => handleNameChange(index, e.target.value)}
+                                        placeholder={`${t("Enter cashier name")} (${nameItem.translation_name.toUpperCase()})`}
+                                    />
+                                </div>
+                            ))}
+                            
                             {/* Branch Selection */}
-                            <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Branch")}:
+                                    {t("Branch")} *
                                 </span>
                                 <Select
                                     options={branches}
@@ -193,18 +255,19 @@ const EditCashier = () => {
                             </div>
 
                             {/* Active Status */}
-                            <div className="sm:w-full xl:w-[30%] flex items-start justify-start gap-x-1 pt-8">
-                                <div className="flex items-center justify-start gap-x-3">
-                                    <span className="text-xl font-TextFontRegular text-thirdColor">
-                                        {t("ActiveCashier")}:
-                                    </span>
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor mb-2">
+                                    {t("ActiveCashier")}
+                                </span>
+                                <div className="flex items-center justify-start gap-x-3 mt-2">
                                     <Switch handleClick={handleActive} checked={active} />
                                 </div>
                             </div>
+                            
                         </div>
 
                         {/* Buttons */}
-                        <div className="flex items-center justify-end w-full gap-x-4">
+                        <div className="flex items-center justify-end w-full gap-x-4 mt-8">
                             <div>
                                 <StaticButton
                                     text={t("Reset")}
@@ -218,9 +281,9 @@ const EditCashier = () => {
                             </div>
                             <div>
                                 <SubmitButton
-                                    text={t("Submit")}
+                                    text={t("Update")}
                                     rounded="rounded-full"
-                                    handleClick={handleAdd}
+                                    handleClick={handleUpdate}
                                 />
                             </div>
                         </div>

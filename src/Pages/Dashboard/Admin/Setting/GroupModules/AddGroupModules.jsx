@@ -13,6 +13,7 @@ import { useAuth } from "../../../../../Context/Auth";
 import { useTranslation } from "react-i18next";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import Select from 'react-select';
 
 const AddGroupModules = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -20,16 +21,41 @@ const AddGroupModules = () => {
   const navigate = useNavigate();
   const auth = useAuth();
 
+  const {
+    refetch: refetchModules,
+    loading: loadingModules,
+    data: dataModules,
+  } = useGet({
+    url: `${apiUrl}/admin/group_product`,
+  });
+
   const { postData, loadingPost, response } = usePost({
     url: `${apiUrl}/admin/group_product/add`,
   });
 
   // State variables
   const [name, setName] = useState("");
-  const [percentageType, setPercentageType] = useState("increase"); // "increase" or "decrease"
+  const [percentageType, setPercentageType] = useState("increase");
   const [percentageValue, setPercentageValue] = useState("");
   const [status, setStatus] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [selectedModules, setSelectedModules] = useState([]);
+  const [moduleOptions, setModuleOptions] = useState([]);
+
+  useEffect(() => {
+    refetchModules();
+  }, [refetchModules]);
+
+  useEffect(() => {
+    if (dataModules && dataModules.modules) {
+      // Convert string array to options for react-select
+      const options = dataModules.modules.map(module => ({
+        value: module,
+        label: module.charAt(0).toUpperCase() + module.slice(1).replace('_', ' ')
+      }));
+      setModuleOptions(options);
+    }
+  }, [dataModules]);
 
   useEffect(() => {
     if (response && response.status === 200) {
@@ -43,7 +69,7 @@ const AddGroupModules = () => {
 
   const handlePercentageTypeChange = (type) => {
     setPercentageType(type);
-    setPercentageValue(""); // Reset value when changing type
+    setPercentageValue("");
   };
 
   const handleReset = () => {
@@ -51,6 +77,7 @@ const AddGroupModules = () => {
     setPercentageType("increase");
     setPercentageValue("");
     setStatus(1);
+    setSelectedModules([]);
   };
 
   const handleBack = () => {
@@ -60,7 +87,6 @@ const AddGroupModules = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Validation
     if (!name.trim()) {
       auth.toastError(t("Please enter group name"));
       return;
@@ -71,9 +97,13 @@ const AddGroupModules = () => {
       return;
     }
 
+    if (selectedModules.length === 0) {
+      auth.toastError(t("Please select at least one module"));
+      return;
+    }
+
     setLoading(true);
 
-    // Prepare data based on selection
     const formData = new FormData();
     formData.append("name", name.trim());
     
@@ -85,12 +115,59 @@ const AddGroupModules = () => {
       formData.append("decrease_precentage", parseFloat(percentageValue));
     }
     
+    // Append selected modules as array
+    selectedModules.forEach(module => {
+      formData.append("module[]", module.value);
+    });
+    
     formData.append("status", status);
 
     postData(formData, "Group module added successfully")
       .finally(() => {
         setLoading(false);
       });
+  };
+
+  const customStyles = {
+    control: (base, state) => ({
+      ...base,
+      border: '2px solid #e5e7eb',
+      borderRadius: '8px',
+      padding: '4px 8px',
+      fontSize: '16px',
+      fontFamily: 'inherit',
+      boxShadow: state.isFocused ? '0 0 0 2px var(--mainColor, #3b82f6)' : 'none',
+      borderColor: state.isFocused ? 'var(--mainColor, #3b82f6)' : '#e5e7eb',
+      '&:hover': {
+        borderColor: state.isFocused ? 'var(--mainColor, #3b82f6)' : '#d1d5db'
+      }
+    }),
+    option: (base, state) => ({
+      ...base,
+      fontSize: '16px',
+      fontFamily: 'inherit',
+      backgroundColor: state.isSelected ? 'var(--mainColor, #3b82f6)' : state.isFocused ? '#eff6ff' : 'white',
+      color: state.isSelected ? 'white' : '#374151',
+      '&:hover': {
+        backgroundColor: state.isSelected ? 'var(--mainColor, #3b82f6)' : '#eff6ff'
+      }
+    }),
+    multiValue: (base) => ({
+      ...base,
+      backgroundColor: 'var(--mainColor, #3b82f6)',
+    }),
+    multiValueLabel: (base) => ({
+      ...base,
+      color: 'white',
+    }),
+    multiValueRemove: (base) => ({
+      ...base,
+      color: 'white',
+      ':hover': {
+        backgroundColor: 'red',
+        color: 'white',
+      },
+    }),
   };
 
   return (
@@ -101,7 +178,6 @@ const AddGroupModules = () => {
         </div>
       ) : (
         <section className="w-full">
-          {/* Header */}
           <div className="flex items-center justify-between p-2">
             <div className="flex items-center gap-x-2">
               <button
@@ -116,11 +192,9 @@ const AddGroupModules = () => {
           </div>
 
           <form onSubmit={handleSubmit}>
-            {/* Content */}
             <div className="sm:py-3 lg:py-6">
               <div className="flex flex-wrap items-start justify-start w-full gap-4 sm:flex-col lg:flex-row">
                 
-                {/* Name Input */}
                 <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
                     {t("Group Name")}:
@@ -132,7 +206,6 @@ const AddGroupModules = () => {
                   />
                 </div>
 
-                {/* Percentage Type Selection */}
                 <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
                     {t("Percentage Type")}:
@@ -167,7 +240,6 @@ const AddGroupModules = () => {
                   </div>
                 </div>
 
-                {/* Percentage Value Input */}
                 <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
                     {percentageType === "increase" ? t("Increase Percentage") : t("Decrease Percentage")}:
@@ -188,7 +260,24 @@ const AddGroupModules = () => {
                   </div>
                 </div>
 
-                {/* Status Switch */}
+                {/* Modules Selection */}
+                <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                    {t("Modules")} *
+                  </span>
+                  <Select
+                    isMulti
+                    options={moduleOptions}
+                    value={selectedModules}
+                    onChange={setSelectedModules}
+                    placeholder={t("Select modules")}
+                    styles={customStyles}
+                    isLoading={loadingModules}
+                    className="w-full"
+                    noOptionsMessage={() => t("No modules available")}
+                  />
+                </div>
+
                 <div className="sm:w-full xl:w-[30%] flex items-start justify-start gap-x-1 pt-8">
                   <div className="flex items-center justify-start w-2/4 gap-x-1">
                     <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -203,7 +292,6 @@ const AddGroupModules = () => {
               </div>
             </div>
 
-            {/* Buttons */}
             <div className="flex items-center justify-end w-full gap-x-4">
               <div>
                 <StaticButton

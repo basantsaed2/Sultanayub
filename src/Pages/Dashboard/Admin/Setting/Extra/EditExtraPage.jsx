@@ -191,20 +191,20 @@ const EditExtraPage = () => {
                                                 </div>
                                                 {/* Extra Price */}
                                                 < div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                                                    <span className="text-xl font-TextFontRegular text-thirdColor">{t("ExtraMinPrice")}:</span>
+                                                    <span className="text-xl font-TextFontRegular text-thirdColor">{t("ExtraMinNumber")}:</span>
                                                     <NumberInput
                                                         value={minExtra}
                                                         onChange={(e) => setMinExtra(e.target.value)}
-                                                        placeholder={t("ExtraMinPrice")}
+                                                        placeholder={t("ExtraMinNumber")}
                                                     />
                                                 </div>
                                                 {/* Extra Price */}
                                                 < div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                                                    <span className="text-xl font-TextFontRegular text-thirdColor">{t("ExtraMaxPrice")}:</span>
+                                                    <span className="text-xl font-TextFontRegular text-thirdColor">{t("ExtraMaxNumber")}:</span>
                                                     <NumberInput
                                                         value={maxExtra}
                                                         onChange={(e) => setMaxExtra(e.target.value)}
-                                                        placeholder={t("ExtraMaxPrice")}
+                                                        placeholder={t("ExtraMaxNumber")}
                                                     />
                                                 </div>
                                             </>

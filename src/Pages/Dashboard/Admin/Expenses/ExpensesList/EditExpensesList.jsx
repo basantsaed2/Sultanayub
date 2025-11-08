@@ -1,0 +1,260 @@
+import React, { useEffect, useState } from "react";
+import {
+    StaticButton,
+    StaticLoader,
+    SubmitButton,
+    Switch,
+    TextInput,
+    TitlePage,
+} from "../../../../../Components/Components";
+import { usePost } from "../../../../../Hooks/usePostJson";
+import { useAuth } from "../../../../../Context/Auth";
+import { useTranslation } from "react-i18next";
+import { useNavigate, useParams } from "react-router-dom";
+import { IoArrowBack } from "react-icons/io5";
+import { useGet } from "../../../../../Hooks/useGet";
+import Select from 'react-select';
+
+const EditExpenses = () => {
+    const { expensesId } = useParams();
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    
+    const { refetch: refetchList, loading: loadingList, data: dataList} = useGet({
+        url: `${apiUrl}/admin/expenses/lists`,
+    });
+
+    const { refetch: refetchExpenses, loading: loadingExpenses, data: dataExpenses } = useGet({
+        url: `${apiUrl}/admin/expenses/item/${expensesId}`,
+    });
+
+    const { postData, loadingPost, response } = usePost({
+        url: `${apiUrl}/admin/expenses/update/${expensesId}`,
+    });
+
+    const { t } = useTranslation();
+    const auth = useAuth();
+    const navigate = useNavigate();
+
+    const [categories, setCategories] = useState([]);
+    const [categoryOptions, setCategoryOptions] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [name, setName] = useState("");
+    const [status, setStatus] = useState(1);
+
+    // Set form fields when expenses data is available
+    useEffect(() => {
+        if (dataExpenses && dataExpenses.expense) {
+            const expenses = dataExpenses.expense;
+
+            setName(expenses.name || "");
+            setStatus(expenses.status || 1);
+            
+            // Set selected category if category data exists
+            if (expenses.category_id && categories.length > 0) {
+                const category = categories.find(cat => cat.id === expenses.category_id);
+                if (category) {
+                    setSelectedCategory({
+                        value: category.id,
+                        label: category.name
+                    });
+                }
+            }
+        }
+    }, [dataExpenses, categories]);
+
+    // Format categories for react-select when dataList is available
+    useEffect(() => {
+        if (dataList && dataList.categories) {
+            setCategories(dataList.categories);
+            const options = dataList.categories.map(category => ({
+                value: category.id,
+                label: category.name
+            }));
+            setCategoryOptions(options);
+        }
+    }, [dataList]);
+
+    useEffect(() => {
+        refetchList();
+        refetchExpenses();
+    }, [refetchList, refetchExpenses]);
+
+    // Navigate back after successful submission
+    useEffect(() => {
+        if (!loadingPost && response) {
+            handleBack();
+        }
+    }, [response, loadingPost]);
+
+    // Toggle status
+    const handleStatus = () => {
+        setStatus((prev) => (prev === 1 ? 0 : 1));
+    };
+
+    // Reset form to original values
+    const handleReset = () => {
+        if (dataExpenses && dataExpenses.expenses) {
+            const expenses = dataExpenses.expenses;
+
+            setName(expenses.name || "");
+            setStatus(expenses.status || 1);
+            
+            // Reset selected category
+            if (expenses.category_id && categories.length > 0) {
+                const category = categories.find(cat => cat.id === expenses.category_id);
+                if (category) {
+                    setSelectedCategory({
+                        value: category.id,
+                        label: category.name
+                    });
+                }
+            }
+        }
+    };
+
+    // Handle form submission
+    const handleUpdate = (e) => {
+        e.preventDefault();
+
+        if (!selectedCategory) {
+            auth.toastError(t("Please select a category"));
+            return;
+        }
+
+        if (!name) {
+            auth.toastError(t("Enter Expenses Name"));
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("category_id", selectedCategory.value);
+        formData.append("name", name);
+        formData.append("status", status);
+
+        postData(formData, t("Expenses Updated Success"));
+    };
+
+    // Handle back navigation
+    const handleBack = () => {
+        navigate(-1);
+    };
+
+    // Custom styles for react-select
+    const customStyles = {
+        control: (base, state) => ({
+            ...base,
+            border: '2px solid #e5e7eb',
+            borderRadius: '8px',
+            padding: '8px 8px',
+            fontSize: '16px',
+            fontFamily: 'inherit',
+            boxShadow: state.isFocused ? '0 0 0 2px #3b82f6' : 'none',
+            borderColor: state.isFocused ? '#3b82f6' : '#e5e7eb',
+            '&:hover': {
+                borderColor: state.isFocused ? '#3b82f6' : '#d1d5db'
+            }
+        }),
+        option: (base, state) => ({
+            ...base,
+            fontSize: '16px',
+            fontFamily: 'inherit',
+            backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#eff6ff' : 'white',
+            color: state.isSelected ? 'white' : '#374151',
+            '&:hover': {
+                backgroundColor: state.isSelected ? '#3b82f6' : '#eff6ff'
+            }
+        })
+    };
+
+    return (
+        <>
+            {loadingPost || loadingExpenses ? (
+                <div className="flex items-center justify-center w-full h-56">
+                    <StaticLoader />
+                </div>
+            ) : (
+                <section>
+                    <div className="flex items-center justify-between p-2">
+                        <div className="flex items-center gap-x-2">
+                            <button
+                                onClick={handleBack}
+                                className="text-mainColor hover:text-red-700 transition-colors"
+                                title={t("Back")}
+                            >
+                                <IoArrowBack size={24} />
+                            </button>
+                            <TitlePage text={t("Edit Expenses")} />
+                        </div>
+                    </div>
+                    <form className="p-2" onSubmit={handleUpdate}>
+                        <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                            {/* Category Select */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Category")}:
+                                </span>
+                                <Select
+                                    options={categoryOptions}
+                                    value={selectedCategory}
+                                    onChange={setSelectedCategory}
+                                    placeholder={t("Select Category")}
+                                    isSearchable
+                                    styles={customStyles}
+                                    isLoading={loadingList}
+                                    className="w-full"
+                                    noOptionsMessage={() => t("No categories available")}
+                                />
+                            </div>
+
+                            {/* Expenses Name */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Expenses Name")}:
+                                </span>
+                                <TextInput
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder={t("Enter Expenses Name")}
+                                />
+                            </div>
+
+                            {/* Status */}
+                            <div className="w-full flex items-start justify-start gap-x-1 pt-8">
+                                <div className="flex items-center justify-start gap-x-3">
+                                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                                        {t("Active")}:
+                                    </span>
+                                    <Switch handleClick={handleStatus} checked={status} />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Buttons */}
+                        <div className="flex items-center justify-end w-full gap-x-4 mt-6">
+                            <div>
+                                <StaticButton
+                                    text={t("Reset")}
+                                    handleClick={handleReset}
+                                    bgColor="bg-transparent"
+                                    Color="text-mainColor"
+                                    border="border-2"
+                                    borderColor="border-mainColor"
+                                    rounded="rounded-full"
+                                />
+                            </div>
+                            <div>
+                                <SubmitButton
+                                    text={t("Update")}
+                                    rounded="rounded-full"
+                                    handleClick={handleUpdate}
+                                />
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            )}
+        </>
+    );
+};
+
+export default EditExpenses;

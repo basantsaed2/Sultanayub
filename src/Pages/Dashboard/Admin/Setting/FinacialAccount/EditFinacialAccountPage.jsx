@@ -15,6 +15,7 @@ import { useAuth } from "../../../../../Context/Auth";
 import { useTranslation } from "react-i18next";
 import { MultiSelect } from "primereact/multiselect";
 import { useNavigate, useParams } from "react-router-dom";
+import { IoArrowBack } from "react-icons/io5";
 
 const EditFinacialAccountPage = () => {
   const { financialId } = useParams();
@@ -39,6 +40,7 @@ const EditFinacialAccountPage = () => {
   const [image, setImage] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [status, setStatus] = useState(0);
+  const [visaStatus, setVisaStatus] = useState(0);
   const [selectedBranch, setSelectedBranch] = useState(null); // State for selected branch
   const [openMenu, setOpenMenu] = useState(false); // State for dropdown open/close
 
@@ -62,6 +64,7 @@ const EditFinacialAccountPage = () => {
       setImage(data?.logo_link || '')
       setImageFile(data?.logo_link || null)
       setStatus(data?.status || 0)
+      setVisaStatus(data?.description_status || 0)
       setSelectedBranch(data?.branch)
     }
   }, [dataFinancialAccount]);
@@ -84,6 +87,10 @@ const EditFinacialAccountPage = () => {
     setStatus((prev) => (prev === 0 ? 1 : 0));
   };
 
+  const handleVisaStatus = () => {
+    setVisaStatus((prev) => (prev === 0 ? 1 : 0));
+  };
+
   useEffect(() => {
     if (!loadingPost && response) {
       navigate(-1)
@@ -97,6 +104,7 @@ const EditFinacialAccountPage = () => {
     setImage("");
     setImageFile(null);
     setStatus(0);
+    setVisaStatus(0);
     setSelectedBranch(null);
     setOpenMenu(false);
   };
@@ -131,10 +139,16 @@ const EditFinacialAccountPage = () => {
     formData.append("balance", balance || 0);
     formData.append("logo", imageFile);
     formData.append("status", status);
+    formData.append("description_status", visaStatus);
     selectedBranch.forEach((branch, index) => {
       formData.append(`branch_id[${index}]`, branch.id); // Append each ID as an array element in FormData
     });
-    postData(formData, t("financialAccountUpdatedSuccess")); // Updated to use t() for success message
+    postData(formData, t("Financial Account Updated Success")); // Updated to use t() for success message
+  };
+
+  // Handle back navigation
+  const handleBack = () => {
+    navigate(-1);
   };
 
   return (
@@ -145,7 +159,16 @@ const EditFinacialAccountPage = () => {
         </div>
       ) : (
         <section className="flex flex-col">
-          <TitlePage text={t("AddNewFinancialAccount")} />
+          <div className="flex items-center gap-x-2">
+            <button
+              onClick={handleBack}
+              className="text-mainColor hover:text-red-700 transition-colors"
+              title={t("Back")}
+            >
+              <IoArrowBack size={24} />
+            </button>
+            <TitlePage text={t("Edit Financial Account")} />
+          </div>
 
           <form onSubmit={handlefinancialAccountAdd}>
             <div className="sm:py-3 lg:py-6">
@@ -153,12 +176,12 @@ const EditFinacialAccountPage = () => {
                 {/* Name Input */}
                 <div className="w-full flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("financialAccountName")}:
+                    {t("Name")}:
                   </span>
                   <TextInput
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder={t("financialAccountName")}
+                    placeholder={t("Name")}
                   />
                 </div>
                 {/* Branch Dropdown */}
@@ -180,36 +203,47 @@ const EditFinacialAccountPage = () => {
                 </div>
                 <div className="w-full flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("financialAccountDescription")}:
+                    {t("Description")}:
                   </span>
                   <TextInput
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder={t("financialAccountDescription")}
+                    placeholder={t("Description")}
                   />
                 </div>
                 <div className="w-full flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("financialAccountBalance")}:
+                    {t("Balance")}:
                   </span>
                   <NumberInput
                     value={balance}
                     onChange={(e) => setBalance(e.target.value)}
-                    placeholder={t("financialAccountBalance")} // Fixed placeholder
+                    placeholder={t("Balance")} // Fixed placeholder
                   />
                 </div>
                 <div className="w-full flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("financialAccountImage")}:
+                    {t("Image")}:
                   </span>
                   <UploadInput
                     value={image}
                     uploadFileRef={ImageRef}
-                    placeholder={t("financialAccountImage")}
+                    placeholder={t("Image")}
                     handleFileChange={handleImageChange}
                     onChange={(e) => setImage(e.target.value)}
                     onClick={() => handleImageClick(ImageRef)}
                   />
+                </div>
+                <div className="w-full flex items-start justify-start gap-x-1 pt-8">
+                  <div className="flex items-center justify-start w-2/4 gap-x-1">
+                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                      {t("Visa Status")}:
+                    </span>
+                    <Switch
+                      handleClick={handleVisaStatus}
+                      checked={visaStatus}
+                    />
+                  </div>
                 </div>
                 <div className="w-full flex items-start justify-start gap-x-1 pt-8">
                   <div className="flex items-center justify-start w-2/4 gap-x-1">

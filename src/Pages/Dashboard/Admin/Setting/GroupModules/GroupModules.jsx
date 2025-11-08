@@ -13,7 +13,7 @@ import { useDelete } from "../../../../../Hooks/useDelete";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { t } from "i18next";
-import { IoInformationCircleOutline } from "react-icons/io5";
+import { IoInformationCircleOutline, IoClose } from "react-icons/io5";
 
 const GroupModules = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -31,37 +31,33 @@ const GroupModules = () => {
 
     const [GroupModules, setGroupModules] = useState([]);
     const [openDelete, setOpenDelete] = useState(null);
+    const [openModules, setOpenModules] = useState(null);
+    const [selectedGroupModules, setSelectedGroupModules] = useState([]);
 
     const [currentPage, setCurrentPage] = useState(1);
     const GroupModulesPerPage = 20;
 
-    // Calculate total number of pages
     const totalPages = Math.ceil(GroupModules.length / GroupModulesPerPage);
 
-    // Get the groups for the current page
     const currentGroupModules = GroupModules.slice(
         (currentPage - 1) * GroupModulesPerPage,
         currentPage * GroupModulesPerPage
     );
 
-    // Handle page change
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
 
-    // Update groups when data changes
     useEffect(() => {
         if (dataGroupModules && dataGroupModules.group_products) {
             setGroupModules(dataGroupModules.group_products);
         }
     }, [dataGroupModules]);
 
-    // Fetch groups on mount
     useEffect(() => {
         refetchGroupModules();
     }, [refetchGroupModules]);
 
-    // Change Group Modules status
     const handleChangeStatus = async (id, name, status) => {
         const response = await changeState(
             `${apiUrl}/admin/group_product/status/${id}`,
@@ -78,7 +74,6 @@ const GroupModules = () => {
         }
     };
 
-    // Delete GroupModules
     const handleDelete = async (id, name) => {
         const success = await deleteData(
             `${apiUrl}/admin/group_product/delete/${id}`,
@@ -91,7 +86,6 @@ const GroupModules = () => {
         }
     };
 
-    // Navigate to products page
     const handleViewProducts = (groupId, groupName) => {
         navigate(`products/${groupId}`, {
             state: {
@@ -101,12 +95,28 @@ const GroupModules = () => {
         });
     };
 
-    // Dialog controls
+    // Modules Dialog functions
+    const handleOpenModules = (group) => {
+        setSelectedGroupModules(group.modules || []);
+        setOpenModules(group.id);
+    };
+
+    const handleCloseModules = () => {
+        setOpenModules(null);
+        setSelectedGroupModules([]);
+    };
+
     const handleOpenDelete = (id) => {
         setOpenDelete(id);
     };
+    
     const handleCloseDelete = () => {
         setOpenDelete(null);
+    };
+
+    // Format module name for display
+    const formatModuleName = (module) => {
+        return module.charAt(0).toUpperCase() + module.slice(1).replace('_', ' ');
     };
 
     const headers = [
@@ -114,6 +124,7 @@ const GroupModules = () => {
         t("Name"),
         t("Increase Percentage"),
         t("Decrease Percentage"),
+        t("Modules"),
         t("Products"),
         t("Status"),
         t("Action"),
@@ -178,6 +189,16 @@ const GroupModules = () => {
                                             {group?.decrease_precentage !== null && group?.decrease_precentage !== undefined
                                                 ? `${group.decrease_precentage}%`
                                                 : "-"}
+                                        </td>
+                                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleOpenModules(group)}
+                                                className="flex items-center gap-1 text-mainColor hover:text-red-700 transition-colors underline text-sm sm:text-base"
+                                            >
+                                                <IoInformationCircleOutline size={18} />
+                                                {t("View Modules")} ({group.modules?.length || 0})
+                                            </button>
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                             <button
@@ -264,6 +285,67 @@ const GroupModules = () => {
                             )}
                         </tbody>
                     </table>
+
+                    {/* Modules Dialog */}
+                    {openModules && (
+                        <Dialog
+                            open={true}
+                            onClose={handleCloseModules}
+                            className="relative z-50"
+                        >
+                            <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                            <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                                <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                                    <DialogPanel className="relative w-full max-w-2xl overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl">
+                                        <div className="flex items-center justify-between px-6 py-4 border-b">
+                                            <h3 className="text-lg font-semibold text-gray-900">
+                                                {t("Group Modules")}
+                                            </h3>
+                                            <button
+                                                onClick={handleCloseModules}
+                                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                                            >
+                                                <IoClose size={24} />
+                                            </button>
+                                        </div>
+                                        <div className="px-6 py-4">
+                                            {selectedGroupModules.length === 0 ? (
+                                                <p className="text-center text-gray-500">
+                                                    {t("No modules assigned to this group")}
+                                                </p>
+                                            ) : (
+                                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                                    {selectedGroupModules.map((module, index) => (
+                                                        <div
+                                                            key={index}
+                                                            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                                                        >
+                                                            <span className="text-sm font-medium text-gray-700">
+                                                                {formatModuleName(module)}
+                                                            </span>
+                                                            <span className="px-2 py-1 text-xs text-green-800 bg-green-100 rounded-full">
+                                                                {t("Active")}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex justify-end px-6 py-4 border-t">
+                                            <button
+                                                type="button"
+                                                onClick={handleCloseModules}
+                                                className="px-4 py-2 text-sm font-medium text-white rounded-md bg-mainColor hover:bg-opacity-90"
+                                            >
+                                                {t("Close")}
+                                            </button>
+                                        </div>
+                                    </DialogPanel>
+                                </div>
+                            </div>
+                        </Dialog>
+                    )}
+
                     {GroupModules.length > 0 && (
                         <div className="flex flex-wrap items-center justify-center my-6 gap-x-4">
                             {currentPage !== 1 && (

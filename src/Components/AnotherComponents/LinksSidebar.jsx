@@ -212,7 +212,7 @@ const adminRoutes = [
       },
       { name: "Cities", path: "/dashboard/setting/cities" },
       { name: "Zones", path: "/dashboard/setting/zones" },
-      { name: "Groups", path: "/dashboard/setting/groups" },
+      { name: "Extra Groups", path: "/dashboard/setting/groups" },
       { name: "Order Type", path: "/dashboard/setting/order_type" },
       { name: "Restaurant Time", path: "/dashboard/setting/resturant_time" },
       { name: "Schedule Time", path: "/dashboard/setting/schedule_time" },
@@ -308,6 +308,8 @@ const adminRoutes = [
     icon: LuBanknote,
     subRoutes: [
       { name: "Category", path: "/dashboard/expenses/expenses_category" },
+      { name: "List", path: "/dashboard/expenses/expenses_list" },
+      { name: "Expenses Payment", path: "/dashboard/expenses/expenses_payment" },
     ],
     redirectTo: "/dashboard/expenses/expenses_category",
   },
