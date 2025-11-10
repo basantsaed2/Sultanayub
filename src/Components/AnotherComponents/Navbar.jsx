@@ -167,8 +167,8 @@ const Navbar = () => {
     auth.logout();
     dispatch(removeUser());
     dispatch(removeCategory());
+    localStorage.clear(); // ✅ Clears all keys from localStorage
     navigate("/", { replace: true });
-    localStorage.removeItem("token");
   };
 
   const handleProfileImageClick = () => {
@@ -263,7 +263,7 @@ const Navbar = () => {
       <nav className="flex items-center justify-between px-4 py-1 shadow-md gap-x-4">
         <div className="flex items-center justify-start sm:w-10/12 lg:w-6/12 xl:w-3/12 sm:gap-x-2">
           <div className="relative z-10 w-14">
-            {(imagePreview || auth?.userState?.image ) ? (
+            {(imagePreview || auth?.userState?.image) ? (
               <button
                 type="button"
                 onClick={handleProfileImageClick}
@@ -291,7 +291,7 @@ const Navbar = () => {
           </div>
           <div className="sm:w-10/12">
             <span className="w-full text-2xl text-left text-mainColor font-TextFontSemiBold">
-              {t("Hello")}, {name? name : auth?.userState?.name || ""}
+              {t("Hello")}, {name ? name : auth?.userState?.name || ""}
             </span>
             <div className="flex items-center sm:w-11/12 text-mainColor ">
               <i>

@@ -307,9 +307,9 @@ const adminRoutes = [
     permission: "expenses",
     icon: LuBanknote,
     subRoutes: [
-      { name: "Category", path: "/dashboard/expenses/expenses_category" },
-      { name: "List", path: "/dashboard/expenses/expenses_list" },
-      { name: "Expenses Payment", path: "/dashboard/expenses/expenses_payment" },
+      { name: "Category", path: "/dashboard/expenses/expenses_category" ,  permission: "expenses",},
+      { name: "List", path: "/dashboard/expenses/expenses_list" , permission: "expenses", },
+      { name: "Expenses Payment", path: "/dashboard/expenses/expenses_payment" , permission: "expenses", },
     ],
     redirectTo: "/dashboard/expenses/expenses_category",
   },
@@ -319,9 +319,9 @@ const adminRoutes = [
     permission: "Reports",
     icon: TbReportSearch,
     subRoutes: [
-      { name: "Orders", path: "/dashboard/reports/orders_reports" },
-      { name: "Financial", path: "/dashboard/reports/financial_reports" },
-      { name: "Cashier Shift", path: "/dashboard/reports/cashier_report" },
+      { name: "Orders", path: "/dashboard/reports/orders_reports" ,   permission: "Reports",},
+      { name: "Financial", path: "/dashboard/reports/financial_reports" ,  permission: "Reports",},
+      { name: "Cashier Shift", path: "/dashboard/reports/cashier_report" , permission: "Reports",},
     ],
     redirectTo: "/dashboard/reports/orders_reports",
   }
@@ -686,6 +686,8 @@ const LinksSidebar = () => {
 
   const renderSubRoutes = (route) => {
     const isActive = activeLink.name === route.name;
+        const isSuperAdmin = auth?.userState?.user_positions?.name === "Super Admin";
+
     return (
       <div
         className={`${isActive && hideSide ? "max-h-[100rem]" : "max-h-0"
@@ -693,7 +695,7 @@ const LinksSidebar = () => {
       >
         <ul className="flex flex-col w-full pl-2 list-disc gap-y-2">
           {route.subRoutes.map((sub) => {
-            if (sub.permission && !permissions.includes(sub.permission)) {
+            if (sub.permission && !permissions.includes(sub.permission) && !isSuperAdmin) {
               return null;
             }
             return renderSubRoute(sub);
