@@ -147,6 +147,10 @@ import ExpensesList from "./Pages/Dashboard/Admin/Expenses/ExpensesList/Expenses
 import AddExpensesList from "./Pages/Dashboard/Admin/Expenses/ExpensesList/AddExpensesList";
 import EditExpensesList from "./Pages/Dashboard/Admin/Expenses/ExpensesList/EditExpensesList";
 import ExpensesPayment from "./Pages/Dashboard/Admin/Expenses/ExpensesPayment/ExpensesPayment";
+import LandingQRLink from "./Pages/Dashboard/Admin/Setting/LandingQRLink/LandingQRLink";
+import ServiceFees from "./Pages/Dashboard/Admin/ServiceFees/ServiceFees";
+import AddServiceFees from "./Pages/Dashboard/Admin/ServiceFees/AddServiceFees";
+import EditServiceFees from "./Pages/Dashboard/Admin/ServiceFees/EditServiceFees";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -746,6 +750,10 @@ export const router = createBrowserRouter([
                 element: <OrderTypeLayout />,
               },
               {
+                path: 'qr_link',
+                element: <LandingQRLink />,
+              },
+              {
                 path: 'resturant_time',
                 element: <ResturantTimeLayout />,
               },
@@ -1233,6 +1241,24 @@ export const router = createBrowserRouter([
                   }
                 ]
               },
+            ]
+          },
+           {
+            path: "service_fees",
+            element: <Outlet />,
+            children: [
+              {
+                path: '',
+                element: <ServiceFees />
+              },
+              {
+                path: 'add',
+                element: <AddServiceFees />
+              },
+              {
+                path: 'edit/:serviceFeeId',
+                element: <EditServiceFees />
+              }
             ]
           },
 

@@ -154,7 +154,7 @@ const adminRoutes = [
   {
     name: "Users",
     path: "/dashboard/users",
-    permission: "User",
+    permission: "Customer",
     icon: FiUsers,
     subRoutes: [
       { name: "Admins", path: "/dashboard/users/admins", permission: "Admin" },
@@ -182,13 +182,13 @@ const adminRoutes = [
   {
     name: "Cashier",
     path: "/dashboard/cashier",
-    permission: "cashier",
+    permission: "Cashier",
     icon: FaCashRegister,
   },
   {
     name: "Cashier Man",
     path: "/dashboard/cashier_man",
-    permission: "cashier_man",
+    permission: "CashierMan",
     icon: FaUsersCog,
   },
   {
@@ -200,51 +200,51 @@ const adminRoutes = [
   {
     name: "Setting",
     path: "/dashboard/setting",
-    permission: "Setting",
     icon: CiSettings,
     subRoutes: [
-      { name: "Admin Roles", path: "/dashboard/setting/roles" },
-      { name: "Payment Method", path: "/dashboard/setting/payment_method" },
-      { name: "Financial Account", path: "/dashboard/setting/financial_account" },
-      {
-        name: "Automatic Payment",
-        path: "/dashboard/setting/automatic_payment",
-      },
-      { name: "Cities", path: "/dashboard/setting/cities" },
-      { name: "Zones", path: "/dashboard/setting/zones" },
-      { name: "Extra Groups", path: "/dashboard/setting/groups" },
-      { name: "Order Type", path: "/dashboard/setting/order_type" },
-      { name: "Restaurant Time", path: "/dashboard/setting/resturant_time" },
-      { name: "Schedule Time", path: "/dashboard/setting/schedule_time" },
-      { name: "Cancel Time", path: "/dashboard/setting/cancel_time" },
-      { name: "Delivery Time", path: "/dashboard/setting/delivery_time" },
-      { name: "Sound", path: "/dashboard/setting/sound" },
-      { name: "Menu", path: "/dashboard/setting/menu" },
-      { name: "Hall", path: "/dashboard/setting/hall_locations" },
-      { name: "Tables", path: "/dashboard/setting/hall_tables" },
-      { name: "Group Modules", path: "/dashboard/setting/group_modules" },
-      { name: "Order Percentage", path: "/dashboard/setting/order_percentage" },
-      { name: "Discount Code", path: "/dashboard/setting/discount_code" },
-      {
-        name: "Cancelation Notification",
-        path: "/dashboard/setting/cancelation_notification",
-      },
-      { name: "Policy&Support", path: "/dashboard/setting/policy_support" },
-      { name: "AppSetup", path: "/dashboard/setting/app_setup" },
-      { name: "Void Reason", path: "/dashboard/setting/void_reason" },
+      { name: "Admin Roles", path: "/dashboard/setting/roles", permission: "AdminRoles" },
+      { name: "Payment Method", path: "/dashboard/setting/payment_method", permission: "PaymentMethod" },
+      { name: "Financial Account", path: "/dashboard/setting/financial_account", permission: "FinancialAccount" },
+      { name: "Automatic Payment", path: "/dashboard/setting/automatic_payment", permission: "AutomaticPayment" },
+      { name: "Cities", path: "/dashboard/setting/cities", permission: "City" },
+      { name: "Zones", path: "/dashboard/setting/zones", permission: "Zone" },
+      { name: "Extra Groups", path: "/dashboard/setting/groups", permission: "Extra" },
+      { name: "Order Type", path: "/dashboard/setting/order_type", permission: "OrderType" },
+      { name: "Restaurant Time", path: "/dashboard/setting/resturant_time", permission: "RestaurantTime" },
+      { name: "Schedule Time", path: "/dashboard/setting/schedule_time", permission: "ScheduleTime" },
+      { name: "Cancel Time", path: "/dashboard/setting/cancel_time", permission: "CancelTime" },
+      { name: "Delivery Time", path: "/dashboard/setting/delivery_time", permission: "DeliveryTime" },
+      { name: "Sound", path: "/dashboard/setting/sound", permission: "NotificationSound" },
+      { name: "Menu", path: "/dashboard/setting/menu", permission: "Menue" },
+      { name: "Hall", path: "/dashboard/setting/hall_locations", permission: "Hall" },
+      { name: "Tables", path: "/dashboard/setting/hall_tables", permission: "Tables" },
+      { name: "Group Modules", path: "/dashboard/setting/group_modules", permission: "GroupModules" },
+      { name: "Order Percentage", path: "/dashboard/setting/order_percentage", permission: "OrderPercentage" },
+      { name: "Discount Code", path: "/dashboard/setting/discount_code", permission: "DiscountCode" },
+      { name: "Cancelation Notification", path: "/dashboard/setting/cancelation_notification", permission: "CancelationNotification" },
+      { name: "Policy & Support", path: "/dashboard/setting/policy_support", permission: "PolicySupport" },
+      { name: "App Setup", path: "/dashboard/setting/app_setup", permission: "AppSetup" },
+      { name: "Void Reason", path: "/dashboard/setting/void_reason", permission: "VoidReason" },
+      { name: "QR Link", path: "/dashboard/setting/qr_link", permission: "QRLink" },
     ],
     redirectTo: "/dashboard/setting/roles",
   },
   {
     name: "Business Setup",
     path: "/dashboard/business_setup",
-    permission: "Settings",
+    permission: "CustomerLogin",
     icon: MdOutlineSettingsInputComposite,
   },
   {
     name: "Upselling",
     path: "/dashboard/upselling",
     permission: "Upselling",
+    icon: TbBorderAll,
+  },
+  {
+    name: "Service Fees",
+    path: "/dashboard/service_fees",
+    permission: "service_fees",
     icon: TbBorderAll,
   },
   {
@@ -485,6 +485,8 @@ const LinksSidebar = () => {
     const computedPermissions =
       auth?.userState?.user_positions?.roles?.map((role) => role.role) || [];
     setPermissions(computedPermissions);
+
+    console.log("computedPermissions", auth?.userState?.user_positions)
   }, [auth?.userState?.user_positions?.roles]);
 
   // Active link state
@@ -574,20 +576,41 @@ const LinksSidebar = () => {
     [navigate]
   );
 
-  // Filter routes based on permissions
+  // ✅ Main Filtering Logic
   const filteredRoutes = useMemo(() => {
     const isSuperAdmin = auth?.userState?.user_positions?.name === "Super Admin";
-    // For branch users, show all routes without permission check
-    if (!isAdmin) {
-      return currentRoutes;
-    }
 
-    // For admin users, apply permission filtering
-    const filtered = currentRoutes.filter((route) => {
-      if (isSuperAdmin) return true;
-      if (!route.permission) return true;
-      return permissions.includes(route.permission);
-    });
+    // Non-admin users (like Branch users) see all routes
+    if (!isAdmin) return currentRoutes;
+
+    // Filter routes for Admins
+    const filtered = currentRoutes
+      .map((route) => {
+        if (isSuperAdmin) return route;
+
+        // If the route has subroutes, filter them by permission
+        if (route.subRoutes) {
+          const allowedSubRoutes = route.subRoutes.filter(
+            (sub) => !sub.permission || permissions.includes(sub.permission)
+          );
+
+          // ❌ Hide entire route if no allowed subroutes
+          if (allowedSubRoutes.length === 0) {
+            return null;
+          }
+
+          // ✅ Show only the allowed subroutes
+          return { ...route, subRoutes: allowedSubRoutes };
+        }
+
+        // Normal route (no subRoutes)
+        if (!route.permission || permissions.includes(route.permission)) {
+          return route;
+        }
+
+        return null;
+      })
+      .filter(Boolean); // Remove null/empty routes
 
     return filtered;
   }, [permissions, auth?.userState?.user_positions?.name, currentRoutes, isAdmin]);

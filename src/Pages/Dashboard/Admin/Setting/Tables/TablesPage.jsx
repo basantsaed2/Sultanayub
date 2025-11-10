@@ -20,10 +20,12 @@ const TablesPage = ({ refetch }) => {
     });
     const { deleteData, loadingDelete, responseDelete } = useDelete();
     const { changeState, loadingChange } = useChangeState();
+    const { changeState:changeStateOccupied } = useChangeState();
     const [tables, setTables] = useState([]);
     const { t } = useTranslation();
 
     const [openDelete, setOpenDelete] = useState(null);
+    const [openQRDialog, setOpenQRDialog] = useState(null); // State for QR code dialog
 
     const [currentPage, setCurrentPage] = useState(1); // Track the current page
     const tablesPerPage = 20; // Limit to 20 tables per page
@@ -59,6 +61,14 @@ const TablesPage = ({ refetch }) => {
         setOpenDelete(null);
     };
 
+    // QR Code Dialog handlers
+    const handleOpenQRDialog = (qrCodeLink) => {
+        setOpenQRDialog(qrCodeLink);
+    };
+    const handleCloseQRDialog = () => {
+        setOpenQRDialog(null);
+    };
+
     // Delete payment Method
     const handleDelete = async (id, name) => {
         const success = await deleteData(
@@ -87,7 +97,7 @@ const TablesPage = ({ refetch }) => {
     };
 
     const handleChangeOccupied = async (id, name, occupied) => {
-        const response = await changeState(
+        const response = await changeStateOccupied(
             `${apiUrl}/admin/caffe_tables/occupied/${id}`,
             t('OccupiedChangedSuccess', { name }),
             { occupied }
@@ -95,13 +105,13 @@ const TablesPage = ({ refetch }) => {
         if (response) {
             setTables((prev) =>
                 prev.map((table) =>
-                    table.id === id ? { ...table, status } : table
+                    table.id === id ? { ...table, occupied } : table
                 )
             );
         }
     };
 
-    const headers = ["#", t("Table Number"), t("Hall"), t("Branch Name"), t("Capacity"), t("Occupied"), t("Status"), t("Action")];
+    const headers = ["#", t("Table Number"), t("Hall"), t("Branch Name"), t("Capacity"), t("QR Image"), t("Occupied"), t("Status"), t("Action")];
 
     return (
         <div className="flex items-start justify-start w-full overflow-x-scroll pb-28 scrollSection">
@@ -131,13 +141,14 @@ const TablesPage = ({ refetch }) => {
                                         colSpan={12}
                                         className="text-xl text-center text-mainColor font-TextFontMedium "
                                     >
-                                        {t("NotfindTables")}                  </td>
+                                        {t("NotfindTables")}
+                                    </td>
                                 </tr>
                             ) : (
                                 currentTables.map(
                                     (
                                         table,
-                                        index // Example with two rows
+                                        index
                                     ) => (
                                         <tr className="w-full border-b-2" key={index}>
                                             <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
@@ -154,6 +165,19 @@ const TablesPage = ({ refetch }) => {
                                             </td>
                                             <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                                 {table.capacity || "-"}
+                                            </td>
+                                            <td className="min-w-[120px] sm:min-w-[80px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                                {table.qr_code_link ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleOpenQRDialog(table.qr_code_link)}
+                                                        className="px-3 py-1 text-sm text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors duration-200 font-TextFontMedium"
+                                                    >
+                                                        {t("View QR")}
+                                                    </button>
+                                                ) : (
+                                                    <span className="text-gray-400">-</span>
+                                                )}
                                             </td>
                                             <td className="min-w-[120px] sm:min-w-[80px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                                 <Switch
@@ -245,6 +269,51 @@ const TablesPage = ({ refetch }) => {
                             )}
                         </tbody>
                     </table>
+
+                    {/* QR Code Dialog */}
+                    {openQRDialog && (
+                        <Dialog
+                            open={true}
+                            onClose={handleCloseQRDialog}
+                            className="relative z-50"
+                        >
+                            <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75" />
+                            <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                                <div className="flex items-center justify-center min-h-full p-4 text-center sm:p-0">
+                                    <DialogPanel className="relative w-full max-w-md overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:max-w-lg">
+                                        <div className="flex flex-col items-center justify-center px-6 pt-5 pb-6 bg-white">
+                                            <h3 className="text-lg font-medium text-gray-900 font-TextFontSemiBold mb-4">
+                                                {t("QR Code")}
+                                            </h3>
+                                            <div className="bg-white p-4 rounded-lg border border-gray-200">
+                                                <img
+                                                    src={openQRDialog}
+                                                    alt="QR Code"
+                                                    className="w-64 h-64 object-contain mx-auto"
+                                                />
+                                            </div>
+                                            <div className="flex items-center justify-center w-full mt-6 space-x-3">
+                                                <button
+                                                    type="button"
+                                                    onClick={handleCloseQRDialog}
+                                                    className="inline-flex justify-center w-32 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 font-TextFontMedium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-mainColor"
+                                                >
+                                                    {t("Close")}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => window.open(openQRDialog, '_blank')}
+                                                    className="inline-flex justify-center w-32 px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md shadow-sm bg-mainColor hover:bg-red-700 font-TextFontMedium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-mainColor"
+                                                >
+                                                    {t("Open in New Tab")}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </DialogPanel>
+                                </div>
+                            </div>
+                        </Dialog>
+                    )}
 
                     {tables.length > 0 && (
                         <div className="flex flex-wrap items-center justify-center my-6 gap-x-4">

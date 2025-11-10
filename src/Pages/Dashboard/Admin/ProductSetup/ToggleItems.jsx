@@ -164,13 +164,8 @@ export default function ToggleItems({ id, type }) {
           // Initialize statuses from localStorage or API response
           const initialStatuses = {};
           response.data.branches.forEach((branch) => {
-            const storedStatus = localStorage.getItem(
-              `${type}Status-${id}-${branch.id}`
-            );
             initialStatuses[branch.id] =
-              storedStatus !== null
-                ? parseInt(storedStatus, 10)
-                : type === "category"
+             type === "category"
                 ? branch.category_status
                 : branch.product_status;
           });
@@ -213,9 +208,6 @@ export default function ToggleItems({ id, type }) {
         ...prev,
         [branch_id]: newStatus,
       }));
-
-      // Store the new status in localStorage
-      localStorage.setItem(`${type}Status-${id}-${branch_id}`, String(newStatus));
     } catch (error) {
       console.error("Toggle error:", error);
       alert(`Error updating status: ${error.response?.status || "Unknown"}`);
