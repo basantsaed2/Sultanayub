@@ -15,28 +15,12 @@ import { IoArrowBack } from "react-icons/io5";
 import { useGet } from "../../../../../Hooks/useGet";
 import Select from 'react-select';
 
-const AddExpensesList = () => {
+const AddMaterialList = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const { 
-        refetch: refetchList, 
-        loading: loadingList, 
-        data: dataList 
-    } = useGet({
-        url: `${apiUrl}/admin/expenses/lists`,
-    });
-
-    const {
-        refetch: refetchTranslation,
-        loading: loadingTranslation,
-        data: dataTranslation,
-    } = useGet({
-        url: `${apiUrl}/admin/translation`,
-    });
-
+    const { refetch: refetchList, loading: loadingList, data: dataList} = useGet({url: `${apiUrl}/admin/expenses/lists`,});
     const { postData, loadingPost, response } = usePost({
         url: `${apiUrl}/admin/expenses/add`,
     });
-
     const { t } = useTranslation();
     const auth = useAuth();
     const navigate = useNavigate();
@@ -44,38 +28,24 @@ const AddExpensesList = () => {
     const [categories, setCategories] = useState([]);
     const [categoryOptions, setCategoryOptions] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
-    const [names, setNames] = useState([]);
+    const [name, setName] = useState("");
     const [status, setStatus] = useState(1);
-    const [taps, setTaps] = useState([]);
 
     useEffect(() => {
         refetchList();
-        refetchTranslation();
-    }, [refetchList, refetchTranslation]);
+    }, [refetchList]);
 
     useEffect(() => {
         if(dataList && dataList.categories){
             setCategories(dataList.categories);
+            // Format categories for react-select
             const options = dataList.categories.map(category => ({
-                value: category.id,
+                value: category.id, // category_id
                 label: category.name
             }));
             setCategoryOptions(options);
         }
     }, [dataList]);
-
-    useEffect(() => {
-        if (dataTranslation?.translation) {
-            setTaps(dataTranslation.translation);
-            // Initialize names array with translation data
-            const initialNames = dataTranslation.translation.map(tap => ({
-                name: "",
-                tranlation_id: tap.id,
-                tranlation_name: tap.name
-            }));
-            setNames(initialNames);
-        }
-    }, [dataTranslation]);
        
     // Navigate back after successful submission
     useEffect(() => {
@@ -84,18 +54,6 @@ const AddExpensesList = () => {
         }
     }, [response, loadingPost]);
 
-    // Handle name input change for specific language
-    const handleNameChange = (index, value) => {
-        setNames(prev => {
-            const updatedNames = [...prev];
-            updatedNames[index] = {
-                ...updatedNames[index],
-                name: value
-            };
-            return updatedNames;
-        });
-    };
-
     // Toggle status
     const handleStatus = () => {
         setStatus((prev) => (prev === 1 ? 0 : 1));
@@ -103,7 +61,7 @@ const AddExpensesList = () => {
 
     // Reset form
     const handleReset = () => {
-        setNames(names.map(nameObj => ({ ...nameObj, name: "" })));
+        setName("");
         setSelectedCategory(null);
         setStatus(1);
     };
@@ -117,23 +75,14 @@ const AddExpensesList = () => {
             return;
         }
 
-        // Validate that all names are filled
-        const emptyName = names.find(item => !item.name || item.name.trim() === "");
-        if (emptyName) {
-            auth.toastError(t("Enter all expense names"));
+        if (!name) {
+            auth.toastError(t("Enter Expenses Name"));
             return;
         }
 
         const formData = new FormData();
-        formData.append("category_id", selectedCategory.value);
-
-        // Add names in the required format
-        names.forEach((nameObj, index) => {
-            formData.append(`names[${index}][name]`, nameObj.name);
-            formData.append(`names[${index}][tranlation_id]`, nameObj.tranlation_id);
-            formData.append(`names[${index}][tranlation_name]`, nameObj.tranlation_name);
-        });
-
+        formData.append("category_id", selectedCategory.value); // category_id from select
+        formData.append("name", name);
         formData.append("status", status);
 
         postData(formData, t("Expenses Added Success"));
@@ -173,7 +122,7 @@ const AddExpensesList = () => {
 
     return (
         <>
-            {loadingPost || loadingTranslation ? (
+            {loadingPost ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
                 </div>
@@ -211,22 +160,17 @@ const AddExpensesList = () => {
                                 />
                             </div>
 
-                            {/* Name Inputs for each language */}
-                            {taps.map((tap, index) => (
-                                <div
-                                    key={tap.id}
-                                    className="w-full flex flex-col items-start justify-center gap-y-1"
-                                >
-                                    <span className="text-xl font-TextFontRegular text-thirdColor">
-                                        {t("Expenses Name")} ({tap.name}):
-                                    </span>
-                                    <TextInput
-                                        value={names[index]?.name || ""}
-                                        onChange={(e) => handleNameChange(index, e.target.value)}
-                                        placeholder={`${t("Enter Expenses Name")} ${tap.name}`}
-                                    />
-                                </div>
-                            ))}
+                            {/* Name */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Expenses Name")}:
+                                </span>
+                                <TextInput
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder={t("Enter Expenses Name")}
+                                />
+                            </div>
 
                             {/* Status */}
                             <div className="w-full flex items-start justify-start gap-x-1 pt-8">
@@ -267,4 +211,4 @@ const AddExpensesList = () => {
     );
 };
 
-export default AddExpensesList;
+export default AddMaterialList;

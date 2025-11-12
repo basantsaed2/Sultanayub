@@ -136,7 +136,7 @@ const ExpensesCategory = () => {
                                         colSpan={headers.length}
                                         className="text-xl text-center text-mainColor font-TextFontMedium "
                                     >
-                                        {t("No discount codes found")}
+                                        {t("No Expenses Category Found")}
                                     </td>
                                 </tr>
                             ) : (

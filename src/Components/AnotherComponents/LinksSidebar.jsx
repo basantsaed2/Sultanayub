@@ -34,6 +34,7 @@ import { useTranslation } from "react-i18next";
 import { PiBaseballCap } from "react-icons/pi";
 import { PiClockUserFill } from "react-icons/pi";
 import { LuBanknote } from "react-icons/lu";
+import { SiMaterialformkdocs } from "react-icons/si";
 
 // Admin routes configuration
 const adminRoutes = [
@@ -300,6 +301,17 @@ const adminRoutes = [
     path: "/dashboard/emails",
     permission: "OrderDelay",
     icon: BiSolidEnvelope,
+  },
+   {
+    name: "Material",
+    path: "/dashboard/material",
+    permission: "material",
+    icon: SiMaterialformkdocs,
+    subRoutes: [
+      { name: "Category", path: "/dashboard/material/material_category" ,  permission: "material",},
+      { name: "List", path: "/dashboard/material/material_list" , permission: "material", },
+    ],
+    redirectTo: "/dashboard/material/material_category",
   },
   {
     name: "Expenses",

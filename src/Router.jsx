@@ -151,6 +151,12 @@ import LandingQRLink from "./Pages/Dashboard/Admin/Setting/LandingQRLink/Landing
 import ServiceFees from "./Pages/Dashboard/Admin/ServiceFees/ServiceFees";
 import AddServiceFees from "./Pages/Dashboard/Admin/ServiceFees/AddServiceFees";
 import EditServiceFees from "./Pages/Dashboard/Admin/ServiceFees/EditServiceFees";
+import MaterialCategory from "./Pages/Dashboard/Admin/MaterialModule/MaterialCategory/MaterialCategory";
+import AddMaterialCategory from "./Pages/Dashboard/Admin/MaterialModule/MaterialCategory/AddMaterialCategory";
+import EditMaterialCategory from "./Pages/Dashboard/Admin/MaterialModule/MaterialCategory/EditMaterialCategory";
+import MaterialList from "./Pages/Dashboard/Admin/MaterialModule/MaterialList/MaterialList";
+import AddMaterialList from "./Pages/Dashboard/Admin/MaterialModule/MaterialList/AddMaterialList";
+import EditMaterialList from "./Pages/Dashboard/Admin/MaterialModule/MaterialList/EditMaterialList";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -1259,6 +1265,57 @@ export const router = createBrowserRouter([
                 path: 'edit/:serviceFeeId',
                 element: <EditServiceFees />
               }
+            ]
+          },
+
+           {
+            path: 'material',
+            element: <Outlet />,
+            children: [
+              {
+                path: 'material_category',
+                children: [
+                  {
+                    path: '',
+                    children: [
+                      {
+                        index: true,
+                        element: <MaterialCategory />,
+                      },
+                      {
+                        path: 'add',
+                        element: <AddMaterialCategory />,
+                      },
+                      {
+                        path: 'edit/:materialCategoryId',
+                        element: <EditMaterialCategory />
+                      }
+                    ]
+                  },
+                ]
+              },
+              {
+                path: 'material_list',
+                children: [
+                  {
+                    path: '',
+                    children: [
+                      {
+                        index: true,
+                        element: <MaterialList />,
+                      },
+                      {
+                        path: 'add',
+                        element: <AddMaterialList />,
+                      },
+                      {
+                        path: 'edit/:materialId',
+                        element: <EditMaterialList />
+                      }
+                    ]
+                  },
+                ]
+              },
             ]
           },
 

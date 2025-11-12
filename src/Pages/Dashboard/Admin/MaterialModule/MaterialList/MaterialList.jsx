@@ -14,7 +14,7 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { t } from "i18next";
 
-const ExpensesList = () => {
+const MaterialList = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const {
         refetch: refetchExpensesList,
@@ -137,7 +137,7 @@ const ExpensesList = () => {
                                         colSpan={headers.length}
                                         className="text-xl text-center text-mainColor font-TextFontMedium "
                                     >
-                                        {t("No Expenses Found")}
+                                        {t("No discount codes found")}
                                     </td>
                                 </tr>
                             ) : (
@@ -271,4 +271,4 @@ const ExpensesList = () => {
     );
 };
 
-export default ExpensesList;
+export default MaterialList;

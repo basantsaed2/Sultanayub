@@ -15,68 +15,42 @@ import { IoArrowBack } from "react-icons/io5";
 import { useGet } from "../../../../../Hooks/useGet";
 import Select from 'react-select';
 
-const AddExpensesList = () => {
+const AddMaterialCategory = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const { 
-        refetch: refetchList, 
-        loading: loadingList, 
-        data: dataList 
-    } = useGet({
-        url: `${apiUrl}/admin/expenses/lists`,
-    });
-
     const {
-        refetch: refetchTranslation,
-        loading: loadingTranslation,
-        data: dataTranslation,
+        refetch: refetchMaterialCategory,
+        loading: loadingMaterialCategory,
+        data: dataMaterialCategory,
     } = useGet({
-        url: `${apiUrl}/admin/translation`,
+        url: `${apiUrl}/admin/material_categories`,
     });
-
     const { postData, loadingPost, response } = usePost({
-        url: `${apiUrl}/admin/expenses/add`,
+        url: `${apiUrl}/admin/material_categories/add`,
     });
-
     const { t } = useTranslation();
     const auth = useAuth();
     const navigate = useNavigate();
 
-    const [categories, setCategories] = useState([]);
-    const [categoryOptions, setCategoryOptions] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState(null);
-    const [names, setNames] = useState([]);
+    const [name, setName] = useState("");
     const [status, setStatus] = useState(1);
-    const [taps, setTaps] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [materialCategories, setMaterialCategories] = useState([]);
 
     useEffect(() => {
-        refetchList();
-        refetchTranslation();
-    }, [refetchList, refetchTranslation]);
+        refetchMaterialCategory();
+    }, [refetchMaterialCategory]);
 
+    // Update materialCategories when `data` changes
     useEffect(() => {
-        if(dataList && dataList.categories){
-            setCategories(dataList.categories);
-            const options = dataList.categories.map(category => ({
+        if (dataMaterialCategory && dataMaterialCategory.sub_categories) {
+            const subCategoryOptions = dataMaterialCategory.sub_categories.map((category) => ({
                 value: category.id,
-                label: category.name
+                label: category.name,
             }));
-            setCategoryOptions(options);
+            setMaterialCategories(subCategoryOptions);
         }
-    }, [dataList]);
+    }, [dataMaterialCategory]);
 
-    useEffect(() => {
-        if (dataTranslation?.translation) {
-            setTaps(dataTranslation.translation);
-            // Initialize names array with translation data
-            const initialNames = dataTranslation.translation.map(tap => ({
-                name: "",
-                tranlation_id: tap.id,
-                tranlation_name: tap.name
-            }));
-            setNames(initialNames);
-        }
-    }, [dataTranslation]);
-       
     // Navigate back after successful submission
     useEffect(() => {
         if (!loadingPost && response) {
@@ -84,59 +58,38 @@ const AddExpensesList = () => {
         }
     }, [response, loadingPost]);
 
-    // Handle name input change for specific language
-    const handleNameChange = (index, value) => {
-        setNames(prev => {
-            const updatedNames = [...prev];
-            updatedNames[index] = {
-                ...updatedNames[index],
-                name: value
-            };
-            return updatedNames;
-        });
-    };
-
     // Toggle status
     const handleStatus = () => {
         setStatus((prev) => (prev === 1 ? 0 : 1));
     };
 
+    // Handle category selection change
+    const handleCategoryChange = (selectedOption) => {
+        setSelectedCategory(selectedOption);
+    };
+
     // Reset form
     const handleReset = () => {
-        setNames(names.map(nameObj => ({ ...nameObj, name: "" })));
-        setSelectedCategory(null);
+        setName("");
         setStatus(1);
+        setSelectedCategory(null);
     };
 
     // Handle form submission
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!selectedCategory) {
-            auth.toastError(t("Please select a category"));
-            return;
-        }
-
-        // Validate that all names are filled
-        const emptyName = names.find(item => !item.name || item.name.trim() === "");
-        if (emptyName) {
-            auth.toastError(t("Enter all expense names"));
+        if (!name) {
+            auth.toastError(t("Enter Material Category Name"));
             return;
         }
 
         const formData = new FormData();
-        formData.append("category_id", selectedCategory.value);
-
-        // Add names in the required format
-        names.forEach((nameObj, index) => {
-            formData.append(`names[${index}][name]`, nameObj.name);
-            formData.append(`names[${index}][tranlation_id]`, nameObj.tranlation_id);
-            formData.append(`names[${index}][tranlation_name]`, nameObj.tranlation_name);
-        });
-
+        formData.append("name", name);
         formData.append("status", status);
+        formData.append("category_id", selectedCategory ? selectedCategory.value : "");
 
-        postData(formData, t("Expenses Added Success"));
+        postData(formData, t("Material Category Added Success"));
     };
 
     // Handle back navigation
@@ -145,35 +98,31 @@ const AddExpensesList = () => {
     };
 
     // Custom styles for react-select
-    const customStyles = {
+    const selectStyles = {
         control: (base, state) => ({
             ...base,
-            border: '2px solid #e5e7eb',
-            borderRadius: '8px',
-            padding: '8px 8px',
-            fontSize: '16px',
-            fontFamily: 'inherit',
-            boxShadow: state.isFocused ? '0 0 0 2px #3b82f6' : 'none',
-            borderColor: state.isFocused ? '#3b82f6' : '#e5e7eb',
+            border: '1px solid #D1D5DB',
+            borderRadius: '0.5rem',
+            padding: '0.5rem',
+            boxShadow: state.isFocused ? '0 0 0 2px rgba(59, 130, 246, 0.1)' : 'none',
+            borderColor: state.isFocused ? '#3B82F6' : '#D1D5DB',
             '&:hover': {
-                borderColor: state.isFocused ? '#3b82f6' : '#d1d5db'
+                borderColor: state.isFocused ? '#3B82F6' : '#9CA3AF'
             }
         }),
         option: (base, state) => ({
             ...base,
-            fontSize: '16px',
-            fontFamily: 'inherit',
-            backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#eff6ff' : 'white',
+            backgroundColor: state.isSelected ? '#3B82F6' : state.isFocused ? '#EFF6FF' : 'white',
             color: state.isSelected ? 'white' : '#374151',
             '&:hover': {
-                backgroundColor: state.isSelected ? '#3b82f6' : '#eff6ff'
+                backgroundColor: '#EFF6FF'
             }
         })
     };
 
     return (
         <>
-            {loadingPost || loadingTranslation ? (
+            {loadingPost || loadingMaterialCategory ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
                 </div>
@@ -188,45 +137,40 @@ const AddExpensesList = () => {
                             >
                                 <IoArrowBack size={24} />
                             </button>
-                            <TitlePage text={t("Add Expenses")} />
+                            <TitlePage text={t("Add Material Category")} />
                         </div>
                     </div>
                     <form className="p-2" onSubmit={handleSubmit}>
                         <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                            {/* Category Select */}
+                            {/* Name */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Material Category Name")}:
+                                </span>
+                                <TextInput
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder={t("Enter Name")}
+                                />
+                            </div>
+
+                            {/* Category */}
                             <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
                                     {t("Category")}:
                                 </span>
                                 <Select
-                                    options={categoryOptions}
                                     value={selectedCategory}
-                                    onChange={setSelectedCategory}
+                                    onChange={handleCategoryChange}
+                                    options={materialCategories}
                                     placeholder={t("Select Category")}
+                                    isClearable
                                     isSearchable
-                                    styles={customStyles}
-                                    isLoading={loadingList}
+                                    styles={selectStyles}
                                     className="w-full"
                                     noOptionsMessage={() => t("No categories available")}
                                 />
                             </div>
-
-                            {/* Name Inputs for each language */}
-                            {taps.map((tap, index) => (
-                                <div
-                                    key={tap.id}
-                                    className="w-full flex flex-col items-start justify-center gap-y-1"
-                                >
-                                    <span className="text-xl font-TextFontRegular text-thirdColor">
-                                        {t("Expenses Name")} ({tap.name}):
-                                    </span>
-                                    <TextInput
-                                        value={names[index]?.name || ""}
-                                        onChange={(e) => handleNameChange(index, e.target.value)}
-                                        placeholder={`${t("Enter Expenses Name")} ${tap.name}`}
-                                    />
-                                </div>
-                            ))}
 
                             {/* Status */}
                             <div className="w-full flex items-start justify-start gap-x-1 pt-8">
@@ -267,4 +211,4 @@ const AddExpensesList = () => {
     );
 };
 
-export default AddExpensesList;
+export default AddMaterialCategory;

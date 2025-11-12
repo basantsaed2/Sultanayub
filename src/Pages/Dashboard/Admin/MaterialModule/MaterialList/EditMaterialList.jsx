@@ -10,31 +10,25 @@ import {
 import { usePost } from "../../../../../Hooks/usePostJson";
 import { useAuth } from "../../../../../Context/Auth";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import { useGet } from "../../../../../Hooks/useGet";
 import Select from 'react-select';
 
-const AddExpensesList = () => {
+const EditMaterialList = () => {
+    const { expensesId } = useParams();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const { 
-        refetch: refetchList, 
-        loading: loadingList, 
-        data: dataList 
-    } = useGet({
+    
+    const { refetch: refetchList, loading: loadingList, data: dataList} = useGet({
         url: `${apiUrl}/admin/expenses/lists`,
     });
 
-    const {
-        refetch: refetchTranslation,
-        loading: loadingTranslation,
-        data: dataTranslation,
-    } = useGet({
-        url: `${apiUrl}/admin/translation`,
+    const { refetch: refetchExpenses, loading: loadingExpenses, data: dataExpenses } = useGet({
+        url: `${apiUrl}/admin/expenses/item/${expensesId}`,
     });
 
     const { postData, loadingPost, response } = usePost({
-        url: `${apiUrl}/admin/expenses/add`,
+        url: `${apiUrl}/admin/expenses/update/${expensesId}`,
     });
 
     const { t } = useTranslation();
@@ -44,17 +38,33 @@ const AddExpensesList = () => {
     const [categories, setCategories] = useState([]);
     const [categoryOptions, setCategoryOptions] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
-    const [names, setNames] = useState([]);
+    const [name, setName] = useState("");
     const [status, setStatus] = useState(1);
-    const [taps, setTaps] = useState([]);
 
+    // Set form fields when expenses data is available
     useEffect(() => {
-        refetchList();
-        refetchTranslation();
-    }, [refetchList, refetchTranslation]);
+        if (dataExpenses && dataExpenses.expense) {
+            const expenses = dataExpenses.expense;
 
+            setName(expenses.name || "");
+            setStatus(expenses.status || 1);
+            
+            // Set selected category if category data exists
+            if (expenses.category_id && categories.length > 0) {
+                const category = categories.find(cat => cat.id === expenses.category_id);
+                if (category) {
+                    setSelectedCategory({
+                        value: category.id,
+                        label: category.name
+                    });
+                }
+            }
+        }
+    }, [dataExpenses, categories]);
+
+    // Format categories for react-select when dataList is available
     useEffect(() => {
-        if(dataList && dataList.categories){
+        if (dataList && dataList.categories) {
             setCategories(dataList.categories);
             const options = dataList.categories.map(category => ({
                 value: category.id,
@@ -65,18 +75,10 @@ const AddExpensesList = () => {
     }, [dataList]);
 
     useEffect(() => {
-        if (dataTranslation?.translation) {
-            setTaps(dataTranslation.translation);
-            // Initialize names array with translation data
-            const initialNames = dataTranslation.translation.map(tap => ({
-                name: "",
-                tranlation_id: tap.id,
-                tranlation_name: tap.name
-            }));
-            setNames(initialNames);
-        }
-    }, [dataTranslation]);
-       
+        refetchList();
+        refetchExpenses();
+    }, [refetchList, refetchExpenses]);
+
     // Navigate back after successful submission
     useEffect(() => {
         if (!loadingPost && response) {
@@ -84,32 +86,34 @@ const AddExpensesList = () => {
         }
     }, [response, loadingPost]);
 
-    // Handle name input change for specific language
-    const handleNameChange = (index, value) => {
-        setNames(prev => {
-            const updatedNames = [...prev];
-            updatedNames[index] = {
-                ...updatedNames[index],
-                name: value
-            };
-            return updatedNames;
-        });
-    };
-
     // Toggle status
     const handleStatus = () => {
         setStatus((prev) => (prev === 1 ? 0 : 1));
     };
 
-    // Reset form
+    // Reset form to original values
     const handleReset = () => {
-        setNames(names.map(nameObj => ({ ...nameObj, name: "" })));
-        setSelectedCategory(null);
-        setStatus(1);
+        if (dataExpenses && dataExpenses.expenses) {
+            const expenses = dataExpenses.expenses;
+
+            setName(expenses.name || "");
+            setStatus(expenses.status || 1);
+            
+            // Reset selected category
+            if (expenses.category_id && categories.length > 0) {
+                const category = categories.find(cat => cat.id === expenses.category_id);
+                if (category) {
+                    setSelectedCategory({
+                        value: category.id,
+                        label: category.name
+                    });
+                }
+            }
+        }
     };
 
     // Handle form submission
-    const handleSubmit = (e) => {
+    const handleUpdate = (e) => {
         e.preventDefault();
 
         if (!selectedCategory) {
@@ -117,26 +121,17 @@ const AddExpensesList = () => {
             return;
         }
 
-        // Validate that all names are filled
-        const emptyName = names.find(item => !item.name || item.name.trim() === "");
-        if (emptyName) {
-            auth.toastError(t("Enter all expense names"));
+        if (!name) {
+            auth.toastError(t("Enter Expenses Name"));
             return;
         }
 
         const formData = new FormData();
         formData.append("category_id", selectedCategory.value);
-
-        // Add names in the required format
-        names.forEach((nameObj, index) => {
-            formData.append(`names[${index}][name]`, nameObj.name);
-            formData.append(`names[${index}][tranlation_id]`, nameObj.tranlation_id);
-            formData.append(`names[${index}][tranlation_name]`, nameObj.tranlation_name);
-        });
-
+        formData.append("name", name);
         formData.append("status", status);
 
-        postData(formData, t("Expenses Added Success"));
+        postData(formData, t("Expenses Updated Success"));
     };
 
     // Handle back navigation
@@ -173,7 +168,7 @@ const AddExpensesList = () => {
 
     return (
         <>
-            {loadingPost || loadingTranslation ? (
+            {loadingPost || loadingExpenses ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
                 </div>
@@ -188,10 +183,10 @@ const AddExpensesList = () => {
                             >
                                 <IoArrowBack size={24} />
                             </button>
-                            <TitlePage text={t("Add Expenses")} />
+                            <TitlePage text={t("Edit Expenses")} />
                         </div>
                     </div>
-                    <form className="p-2" onSubmit={handleSubmit}>
+                    <form className="p-2" onSubmit={handleUpdate}>
                         <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                             {/* Category Select */}
                             <div className="w-full flex flex-col items-start justify-center gap-y-1">
@@ -211,22 +206,17 @@ const AddExpensesList = () => {
                                 />
                             </div>
 
-                            {/* Name Inputs for each language */}
-                            {taps.map((tap, index) => (
-                                <div
-                                    key={tap.id}
-                                    className="w-full flex flex-col items-start justify-center gap-y-1"
-                                >
-                                    <span className="text-xl font-TextFontRegular text-thirdColor">
-                                        {t("Expenses Name")} ({tap.name}):
-                                    </span>
-                                    <TextInput
-                                        value={names[index]?.name || ""}
-                                        onChange={(e) => handleNameChange(index, e.target.value)}
-                                        placeholder={`${t("Enter Expenses Name")} ${tap.name}`}
-                                    />
-                                </div>
-                            ))}
+                            {/* Expenses Name */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Expenses Name")}:
+                                </span>
+                                <TextInput
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder={t("Enter Expenses Name")}
+                                />
+                            </div>
 
                             {/* Status */}
                             <div className="w-full flex items-start justify-start gap-x-1 pt-8">
@@ -254,9 +244,9 @@ const AddExpensesList = () => {
                             </div>
                             <div>
                                 <SubmitButton
-                                    text={t("Submit")}
+                                    text={t("Update")}
                                     rounded="rounded-full"
-                                    handleClick={handleSubmit}
+                                    handleClick={handleUpdate}
                                 />
                             </div>
                         </div>
@@ -267,4 +257,4 @@ const AddExpensesList = () => {
     );
 };
 
-export default AddExpensesList;
+export default EditMaterialList;

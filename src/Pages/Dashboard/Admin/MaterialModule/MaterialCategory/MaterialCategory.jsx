@@ -14,62 +14,62 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { t } from "i18next";
 
-const ExpensesList = () => {
+const MaterialCategory = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const {
-        refetch: refetchExpensesList,
-        loading: loadingExpensesList,
-        data: dataExpensesList,
+        refetch: refetchMaterialCategory,
+        loading: loadingMaterialCategory,
+        data: dataMaterialCategory,
     } = useGet({
-        url: `${apiUrl}/admin/expenses`,
+        url: `${apiUrl}/admin/material_categories`,
     });
     const { deleteData, loadingDelete, responseDelete } = useDelete();
     const { changeState, loadingChange, responseChange } = useChangeState();
 
-    const [ExpensesLists, setExpensesLists] = useState([]);
+    const [MaterialCategorys, setMaterialCategorys] = useState([]);
     const [openDelete, setOpenDelete] = useState(null);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const ExpensesListsPerPage = 20;
+    const MaterialCategorysPerPage = 20;
 
-    const totalPages = Math.ceil(ExpensesLists.length / ExpensesListsPerPage);
+    const totalPages = Math.ceil(MaterialCategorys.length / MaterialCategorysPerPage);
 
-    const currentExpensesLists = ExpensesLists.slice(
-        (currentPage - 1) * ExpensesListsPerPage,
-        currentPage * ExpensesListsPerPage
+    const currentMaterialCategorys = MaterialCategorys.slice(
+        (currentPage - 1) * MaterialCategorysPerPage,
+        currentPage * MaterialCategorysPerPage
     );
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
 
-    // Update ExpensesLists when `data` changes
+    // Update MaterialCategorys when `data` changes
     useEffect(() => {
-        if (dataExpensesList && dataExpensesList.expenses) {
-            setExpensesLists(dataExpensesList.expenses);
+        if (dataMaterialCategory && dataMaterialCategory.sub_categories) {
+            setMaterialCategorys(dataMaterialCategory.sub_categories);
         }
-    }, [dataExpensesList]);
+    }, [dataMaterialCategory]);
 
-    // Change ExpensesList status
+    // Change MaterialCategory status
     const handleChangeStatus = async (id, name, status) => {
         const response = await changeState(
-            `${apiUrl}/admin/expenses/status/${id}`,
+            `${apiUrl}/admin/material_categories/status/${id}`,
             `${name} Changed Status.`,
             { status }
         );
 
         if (response) {
-            setExpensesLists((prevExpensesLists) =>
-                prevExpensesLists.map((ExpensesList) =>
-                    ExpensesList.id === id ? { ...ExpensesList, status: status } : ExpensesList
+            setMaterialCategorys((prevMaterialCategorys) =>
+                prevMaterialCategorys.map((MaterialCategory) =>
+                    MaterialCategory.id === id ? { ...MaterialCategory, status: status } : MaterialCategory
                 )
             );
         }
     };
 
     useEffect(() => {
-        refetchExpensesList();
-    }, [refetchExpensesList]);
+        refetchMaterialCategory();
+    }, [refetchMaterialCategory]);
 
     const handleOpenDelete = (item) => {
         setOpenDelete(item);
@@ -79,29 +79,28 @@ const ExpensesList = () => {
         setOpenDelete(null);
     };
 
-    // Delete ExpensesList
+    // Delete MaterialCategory
     const handleDelete = async (id, name) => {
         const success = await deleteData(
-            `${apiUrl}/admin/expenses/delete/${id}`,
+            `${apiUrl}/admin/material_categories/delete/${id}`,
             `${name} Deleted Success.`
         );
 
         if (success) {
-            setExpensesLists(ExpensesLists.filter((ExpensesList) => ExpensesList.id !== id));
+            setMaterialCategorys(MaterialCategorys.filter((MaterialCategory) => MaterialCategory.id !== id));
         }
     };
 
     const headers = [
         t("SL"),
         t("Name"),
-        t("Expenses Category"),
         t("Status"),
         t("Action"),
     ];
 
     return (
         <div className="flex items-start justify-start w-full overflow-x-scroll p-2 pb-28 scrollSection">
-            {loadingExpensesList || loadingChange || loadingDelete ? (
+            {loadingMaterialCategory || loadingChange || loadingDelete ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
                 </div>
@@ -109,7 +108,7 @@ const ExpensesList = () => {
                 <div className="flex flex-col w-full">
                     <div className='flex flex-col items-center justify-between md:flex-row'>
                         <div className='w-full md:w-1/2'>
-                            <TitlePage text={t('Expenses List Table')} />
+                            <TitlePage text={t('Material Category Table')} />
                         </div>
                         <div className='flex justify-end w-full py-4 md:w-1/2'>
                             <Link to='add'>
@@ -131,51 +130,48 @@ const ExpensesList = () => {
                             </tr>
                         </thead>
                         <tbody className="w-full">
-                            {ExpensesLists.length === 0 ? (
+                            {MaterialCategorys.length === 0 ? (
                                 <tr>
                                     <td
                                         colSpan={headers.length}
                                         className="text-xl text-center text-mainColor font-TextFontMedium "
                                     >
-                                        {t("No Expenses Found")}
+                                        {t("No Material Category Found")}
                                     </td>
                                 </tr>
                             ) : (
-                                currentExpensesLists.map((ExpensesList, index) => (
+                                currentMaterialCategorys.map((MaterialCategory, index) => (
                                     <tr className="w-full border-b-2" key={index}>
                                         <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {(currentPage - 1) * ExpensesListsPerPage + index + 1}
+                                            {(currentPage - 1) * MaterialCategorysPerPage + index + 1}
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {ExpensesList?.name || "-"}
-                                        </td>
-                                          <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {ExpensesList.category?.name || "-"}
+                                            {MaterialCategory?.name || "-"}
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                             <Switch
-                                                checked={ExpensesList.status === 1}
+                                                checked={MaterialCategory.status === 1}
                                                 handleClick={() => {
                                                     handleChangeStatus(
-                                                        ExpensesList.id,
-                                                        ExpensesList.name,
-                                                        ExpensesList.status === 1 ? 0 : 1
+                                                        MaterialCategory.id,
+                                                        MaterialCategory.name,
+                                                        MaterialCategory.status === 1 ? 0 : 1
                                                     );
                                                 }}
                                             />
                                         </td>
                                         <td className="px-4 py-3 text-center">
                                             <div className="flex items-center justify-center gap-2">
-                                                <Link to={`edit/${ExpensesList.id}`}>
+                                                <Link to={`edit/${MaterialCategory.id}`}>
                                                     <EditIcon />
                                                 </Link>
                                                 <button
                                                     type="button"
-                                                    onClick={() => handleOpenDelete(ExpensesList.id)}
+                                                    onClick={() => handleOpenDelete(MaterialCategory.id)}
                                                 >
                                                     <DeleteIcon />
                                                 </button>
-                                                {openDelete === ExpensesList.id && (
+                                                {openDelete === MaterialCategory.id && (
                                                     <Dialog
                                                         open={true}
                                                         onClose={handleCloseDelete}
@@ -193,7 +189,7 @@ const ExpensesList = () => {
                                                                         />
                                                                         <div className="flex items-center">
                                                                             <div className="mt-2 text-center">
-                                                                                {t("You will delete")} {ExpensesList.name}
+                                                                                {t("You will delete")} {MaterialCategory.name}
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -201,7 +197,7 @@ const ExpensesList = () => {
                                                                         <button
                                                                             className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto"
                                                                             onClick={() =>
-                                                                                handleDelete(ExpensesList.id, ExpensesList.name)
+                                                                                handleDelete(MaterialCategory.id, MaterialCategory.name)
                                                                             }
                                                                         >
                                                                             {t("Delete")}
@@ -229,7 +225,7 @@ const ExpensesList = () => {
                         </tbody>
                     </table>
 
-                    {ExpensesLists.length > 0 && (
+                    {MaterialCategorys.length > 0 && (
                         <div className="flex flex-wrap items-center justify-center my-6 gap-x-4">
                             {currentPage !== 1 && (
                                 <button
@@ -271,4 +267,4 @@ const ExpensesList = () => {
     );
 };
 
-export default ExpensesList;
+export default MaterialCategory;
