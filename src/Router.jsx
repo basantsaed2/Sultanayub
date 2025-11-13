@@ -156,6 +156,8 @@ import EditMaterialCategory from "./Pages/Dashboard/Admin/MaterialModule/Materia
 import MaterialList from "./Pages/Dashboard/Admin/MaterialModule/MaterialList/MaterialList";
 import AddMaterialList from "./Pages/Dashboard/Admin/MaterialModule/MaterialList/AddMaterialList";
 import EditMaterialList from "./Pages/Dashboard/Admin/MaterialModule/MaterialList/EditMaterialList";
+import ManufacturingHistory from "./Pages/Dashboard/Admin/Manufacturing/ManufacturingHistory";
+import AddManufacturing from "./Pages/Dashboard/Admin/Manufacturing/AddManufacturing";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -1244,7 +1246,7 @@ export const router = createBrowserRouter([
               },
             ]
           },
-           {
+          {
             path: "service_fees",
             element: <Outlet />,
             children: [
@@ -1263,7 +1265,7 @@ export const router = createBrowserRouter([
             ]
           },
 
-           {
+          {
             path: 'material',
             element: <Outlet />,
             children: [
@@ -1290,7 +1292,7 @@ export const router = createBrowserRouter([
                 ]
               },
               {
-                path: 'material_list',
+                path: 'material_products',
                 children: [
                   {
                     path: '',
@@ -1308,6 +1310,25 @@ export const router = createBrowserRouter([
                         element: <EditMaterialList />
                       }
                     ]
+                  },
+                ]
+              },
+            ]
+          },
+
+          {
+            path: 'manufacturing',
+            children: [
+              {
+                path: '',
+                children: [
+                  {
+                    index: true,
+                    element: <ManufacturingHistory />,
+                  },
+                  {
+                    path: 'add',
+                    element: <AddManufacturing />,
                   },
                 ]
               },

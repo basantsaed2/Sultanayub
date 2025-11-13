@@ -16,19 +16,19 @@ import { useGet } from "../../../../../Hooks/useGet";
 import Select from 'react-select';
 
 const EditMaterialList = () => {
-    const { expensesId } = useParams();
+    const { materialId } = useParams();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    
-    const { refetch: refetchList, loading: loadingList, data: dataList} = useGet({
-        url: `${apiUrl}/admin/expenses/lists`,
+
+    const { refetch: refetchList, loading: loadingList, data: dataList } = useGet({
+        url: `${apiUrl}/admin/material_product`,
     });
 
-    const { refetch: refetchExpenses, loading: loadingExpenses, data: dataExpenses } = useGet({
-        url: `${apiUrl}/admin/expenses/item/${expensesId}`,
+    const { refetch: refetchMaterialProduct, loading: loadingMaterialProduct, data: dataMaterialProduct } = useGet({
+        url: `${apiUrl}/admin/material_product/product/${materialId}`,
     });
 
     const { postData, loadingPost, response } = usePost({
-        url: `${apiUrl}/admin/expenses/update/${expensesId}`,
+        url: `${apiUrl}/admin/material_product/update/${materialId}`,
     });
 
     const { t } = useTranslation();
@@ -39,19 +39,21 @@ const EditMaterialList = () => {
     const [categoryOptions, setCategoryOptions] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
     const [status, setStatus] = useState(1);
 
-    // Set form fields when expenses data is available
+    // Set form fields when product data is available
     useEffect(() => {
-        if (dataExpenses && dataExpenses.expense) {
-            const expenses = dataExpenses.expense;
+        if (dataMaterialProduct && dataMaterialProduct?.material[0]) {
+            const product = dataMaterialProduct.material[0];
 
-            setName(expenses.name || "");
-            setStatus(expenses.status || 1);
-            
+            setName(product.name || "");
+            setDescription(product.description || "")
+            setStatus(product.status || 1);
+
             // Set selected category if category data exists
-            if (expenses.category_id && categories.length > 0) {
-                const category = categories.find(cat => cat.id === expenses.category_id);
+            if (product.category_id && categories.length > 0) {
+                const category = categories.find(cat => cat.id === product.category_id);
                 if (category) {
                     setSelectedCategory({
                         value: category.id,
@@ -60,7 +62,7 @@ const EditMaterialList = () => {
                 }
             }
         }
-    }, [dataExpenses, categories]);
+    }, [dataMaterialProduct, categories]);
 
     // Format categories for react-select when dataList is available
     useEffect(() => {
@@ -76,8 +78,8 @@ const EditMaterialList = () => {
 
     useEffect(() => {
         refetchList();
-        refetchExpenses();
-    }, [refetchList, refetchExpenses]);
+        refetchMaterialProduct();
+    }, [refetchList, refetchMaterialProduct]);
 
     // Navigate back after successful submission
     useEffect(() => {
@@ -93,15 +95,15 @@ const EditMaterialList = () => {
 
     // Reset form to original values
     const handleReset = () => {
-        if (dataExpenses && dataExpenses.expenses) {
-            const expenses = dataExpenses.expenses;
+        if (dataMaterialProduct && dataMaterialProduct.product) {
+            const product = dataMaterialProduct.product;
 
-            setName(expenses.name || "");
-            setStatus(expenses.status || 1);
-            
+            setName(product.name || "");
+            setStatus(product.status || 1);
+
             // Reset selected category
-            if (expenses.category_id && categories.length > 0) {
-                const category = categories.find(cat => cat.id === expenses.category_id);
+            if (product.category_id && categories.length > 0) {
+                const category = categories.find(cat => cat.id === product.category_id);
                 if (category) {
                     setSelectedCategory({
                         value: category.id,
@@ -122,16 +124,17 @@ const EditMaterialList = () => {
         }
 
         if (!name) {
-            auth.toastError(t("Enter Expenses Name"));
+            auth.toastError(t("Enter MaterialProduct Name"));
             return;
         }
 
         const formData = new FormData();
         formData.append("category_id", selectedCategory.value);
         formData.append("name", name);
+        formData.append("description", description);
         formData.append("status", status);
 
-        postData(formData, t("Expenses Updated Success"));
+        postData(formData, t("Material Product Updated Success"));
     };
 
     // Handle back navigation
@@ -168,7 +171,7 @@ const EditMaterialList = () => {
 
     return (
         <>
-            {loadingPost || loadingExpenses ? (
+            {loadingPost || loadingMaterialProduct ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
                 </div>
@@ -183,38 +186,50 @@ const EditMaterialList = () => {
                             >
                                 <IoArrowBack size={24} />
                             </button>
-                            <TitlePage text={t("Edit Expenses")} />
+                            <TitlePage text={t("Edit Material Product")} />
                         </div>
                     </div>
                     <form className="p-2" onSubmit={handleUpdate}>
                         <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                            {/* Name */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Product Name")}:
+                                </span>
+                                <TextInput
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder={t("Enter Product Name")}
+                                />
+                            </div>
+
+                            {/* Description */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Product Description")}:
+                                </span>
+                                <TextInput
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    placeholder={t("Enter Product Description")}
+                                />
+                            </div>
+
                             {/* Category Select */}
                             <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Category")}:
+                                    {t("Material Category")}:
                                 </span>
                                 <Select
                                     options={categoryOptions}
                                     value={selectedCategory}
                                     onChange={setSelectedCategory}
-                                    placeholder={t("Select Category")}
+                                    placeholder={t("Select Material Category")}
                                     isSearchable
                                     styles={customStyles}
                                     isLoading={loadingList}
                                     className="w-full"
                                     noOptionsMessage={() => t("No categories available")}
-                                />
-                            </div>
-
-                            {/* Expenses Name */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Expenses Name")}:
-                                </span>
-                                <TextInput
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    placeholder={t("Enter Expenses Name")}
                                 />
                             </div>
 

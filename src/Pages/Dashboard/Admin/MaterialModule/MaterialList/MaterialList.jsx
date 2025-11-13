@@ -17,59 +17,59 @@ import { t } from "i18next";
 const MaterialList = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const {
-        refetch: refetchExpensesList,
-        loading: loadingExpensesList,
-        data: dataExpensesList,
+        refetch: refetchMaterialProduct,
+        loading: loadingMaterialProduct,
+        data: dataMaterialProduct,
     } = useGet({
-        url: `${apiUrl}/admin/expenses`,
+        url: `${apiUrl}/admin/material_product`,
     });
     const { deleteData, loadingDelete, responseDelete } = useDelete();
     const { changeState, loadingChange, responseChange } = useChangeState();
 
-    const [ExpensesLists, setExpensesLists] = useState([]);
+    const [MaterialProducts, setMaterialProducts] = useState([]);
     const [openDelete, setOpenDelete] = useState(null);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const ExpensesListsPerPage = 20;
+    const MaterialProductsPerPage = 20;
 
-    const totalPages = Math.ceil(ExpensesLists.length / ExpensesListsPerPage);
+    const totalPages = Math.ceil(MaterialProducts.length / MaterialProductsPerPage);
 
-    const currentExpensesLists = ExpensesLists.slice(
-        (currentPage - 1) * ExpensesListsPerPage,
-        currentPage * ExpensesListsPerPage
+    const currentMaterialProducts = MaterialProducts.slice(
+        (currentPage - 1) * MaterialProductsPerPage,
+        currentPage * MaterialProductsPerPage
     );
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
 
-    // Update ExpensesLists when `data` changes
+    // Update MaterialProducts when `data` changes
     useEffect(() => {
-        if (dataExpensesList && dataExpensesList.expenses) {
-            setExpensesLists(dataExpensesList.expenses);
+        if (dataMaterialProduct && dataMaterialProduct.materials) {
+            setMaterialProducts(dataMaterialProduct.materials);
         }
-    }, [dataExpensesList]);
+    }, [dataMaterialProduct]);
 
-    // Change ExpensesList status
+    // Change MaterialProduct status
     const handleChangeStatus = async (id, name, status) => {
         const response = await changeState(
-            `${apiUrl}/admin/expenses/status/${id}`,
+            `${apiUrl}/admin/material_product/status/${id}`,
             `${name} Changed Status.`,
             { status }
         );
 
         if (response) {
-            setExpensesLists((prevExpensesLists) =>
-                prevExpensesLists.map((ExpensesList) =>
-                    ExpensesList.id === id ? { ...ExpensesList, status: status } : ExpensesList
+            setMaterialProducts((prevMaterialProducts) =>
+                prevMaterialProducts.map((MaterialProduct) =>
+                    MaterialProduct.id === id ? { ...MaterialProduct, status: status } : MaterialProduct
                 )
             );
         }
     };
 
     useEffect(() => {
-        refetchExpensesList();
-    }, [refetchExpensesList]);
+        refetchMaterialProduct();
+    }, [refetchMaterialProduct]);
 
     const handleOpenDelete = (item) => {
         setOpenDelete(item);
@@ -79,29 +79,29 @@ const MaterialList = () => {
         setOpenDelete(null);
     };
 
-    // Delete ExpensesList
+    // Delete MaterialProduct
     const handleDelete = async (id, name) => {
         const success = await deleteData(
-            `${apiUrl}/admin/expenses/delete/${id}`,
+            `${apiUrl}/admin/material_product/delete/${id}`,
             `${name} Deleted Success.`
         );
 
         if (success) {
-            setExpensesLists(ExpensesLists.filter((ExpensesList) => ExpensesList.id !== id));
+            setMaterialProducts(MaterialProducts.filter((MaterialProduct) => MaterialProduct.id !== id));
         }
     };
 
     const headers = [
         t("SL"),
         t("Name"),
-        t("Expenses Category"),
+        t("Material Category"),
         t("Status"),
         t("Action"),
     ];
 
     return (
         <div className="flex items-start justify-start w-full overflow-x-scroll p-2 pb-28 scrollSection">
-            {loadingExpensesList || loadingChange || loadingDelete ? (
+            {loadingMaterialProduct || loadingChange || loadingDelete ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
                 </div>
@@ -109,7 +109,7 @@ const MaterialList = () => {
                 <div className="flex flex-col w-full">
                     <div className='flex flex-col items-center justify-between md:flex-row'>
                         <div className='w-full md:w-1/2'>
-                            <TitlePage text={t('Expenses List Table')} />
+                            <TitlePage text={t('Material Product Table')} />
                         </div>
                         <div className='flex justify-end w-full py-4 md:w-1/2'>
                             <Link to='add'>
@@ -131,51 +131,51 @@ const MaterialList = () => {
                             </tr>
                         </thead>
                         <tbody className="w-full">
-                            {ExpensesLists.length === 0 ? (
+                            {MaterialProducts.length === 0 ? (
                                 <tr>
                                     <td
                                         colSpan={headers.length}
                                         className="text-xl text-center text-mainColor font-TextFontMedium "
                                     >
-                                        {t("No discount codes found")}
+                                        {t("No Material Products Found")}
                                     </td>
                                 </tr>
                             ) : (
-                                currentExpensesLists.map((ExpensesList, index) => (
+                                currentMaterialProducts.map((MaterialProduct, index) => (
                                     <tr className="w-full border-b-2" key={index}>
                                         <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {(currentPage - 1) * ExpensesListsPerPage + index + 1}
+                                            {(currentPage - 1) * MaterialProductsPerPage + index + 1}
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {ExpensesList?.name || "-"}
+                                            {MaterialProduct?.name || "-"}
                                         </td>
                                           <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {ExpensesList.category?.name || "-"}
+                                            {MaterialProduct.category || "-"}
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                             <Switch
-                                                checked={ExpensesList.status === 1}
+                                                checked={MaterialProduct.status === 1}
                                                 handleClick={() => {
                                                     handleChangeStatus(
-                                                        ExpensesList.id,
-                                                        ExpensesList.name,
-                                                        ExpensesList.status === 1 ? 0 : 1
+                                                        MaterialProduct.id,
+                                                        MaterialProduct.name,
+                                                        MaterialProduct.status === 1 ? 0 : 1
                                                     );
                                                 }}
                                             />
                                         </td>
                                         <td className="px-4 py-3 text-center">
                                             <div className="flex items-center justify-center gap-2">
-                                                <Link to={`edit/${ExpensesList.id}`}>
+                                                <Link to={`edit/${MaterialProduct.id}`}>
                                                     <EditIcon />
                                                 </Link>
                                                 <button
                                                     type="button"
-                                                    onClick={() => handleOpenDelete(ExpensesList.id)}
+                                                    onClick={() => handleOpenDelete(MaterialProduct.id)}
                                                 >
                                                     <DeleteIcon />
                                                 </button>
-                                                {openDelete === ExpensesList.id && (
+                                                {openDelete === MaterialProduct.id && (
                                                     <Dialog
                                                         open={true}
                                                         onClose={handleCloseDelete}
@@ -193,7 +193,7 @@ const MaterialList = () => {
                                                                         />
                                                                         <div className="flex items-center">
                                                                             <div className="mt-2 text-center">
-                                                                                {t("You will delete")} {ExpensesList.name}
+                                                                                {t("You will delete")} {MaterialProduct.name}
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -201,7 +201,7 @@ const MaterialList = () => {
                                                                         <button
                                                                             className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto"
                                                                             onClick={() =>
-                                                                                handleDelete(ExpensesList.id, ExpensesList.name)
+                                                                                handleDelete(MaterialProduct.id, MaterialProduct.name)
                                                                             }
                                                                         >
                                                                             {t("Delete")}
@@ -229,7 +229,7 @@ const MaterialList = () => {
                         </tbody>
                     </table>
 
-                    {ExpensesLists.length > 0 && (
+                    {MaterialProducts.length > 0 && (
                         <div className="flex flex-wrap items-center justify-center my-6 gap-x-4">
                             {currentPage !== 1 && (
                                 <button

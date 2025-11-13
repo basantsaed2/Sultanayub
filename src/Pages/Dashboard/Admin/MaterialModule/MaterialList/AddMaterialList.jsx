@@ -17,18 +17,18 @@ import Select from 'react-select';
 
 const AddMaterialList = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const { refetch: refetchList, loading: loadingList, data: dataList} = useGet({url: `${apiUrl}/admin/expenses/lists`,});
+    const { refetch: refetchList, loading: loadingList, data: dataList } = useGet({ url: `${apiUrl}/admin/material_product`, });
     const { postData, loadingPost, response } = usePost({
-        url: `${apiUrl}/admin/expenses/add`,
+        url: `${apiUrl}/admin/material_product/add`,
     });
     const { t } = useTranslation();
     const auth = useAuth();
     const navigate = useNavigate();
 
-    const [categories, setCategories] = useState([]);
     const [categoryOptions, setCategoryOptions] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
     const [status, setStatus] = useState(1);
 
     useEffect(() => {
@@ -36,8 +36,7 @@ const AddMaterialList = () => {
     }, [refetchList]);
 
     useEffect(() => {
-        if(dataList && dataList.categories){
-            setCategories(dataList.categories);
+        if (dataList && dataList.categories) {
             // Format categories for react-select
             const options = dataList.categories.map(category => ({
                 value: category.id, // category_id
@@ -46,7 +45,7 @@ const AddMaterialList = () => {
             setCategoryOptions(options);
         }
     }, [dataList]);
-       
+
     // Navigate back after successful submission
     useEffect(() => {
         if (!loadingPost && response) {
@@ -76,16 +75,17 @@ const AddMaterialList = () => {
         }
 
         if (!name) {
-            auth.toastError(t("Enter Expenses Name"));
+            auth.toastError(t("Enter Material Product Name"));
             return;
         }
 
         const formData = new FormData();
         formData.append("category_id", selectedCategory.value); // category_id from select
         formData.append("name", name);
+        formData.append("description", description);
         formData.append("status", status);
 
-        postData(formData, t("Expenses Added Success"));
+        postData(formData, t("Material Product Added Success"));
     };
 
     // Handle back navigation
@@ -137,38 +137,50 @@ const AddMaterialList = () => {
                             >
                                 <IoArrowBack size={24} />
                             </button>
-                            <TitlePage text={t("Add Expenses")} />
+                            <TitlePage text={t("Add Material Product")} />
                         </div>
                     </div>
                     <form className="p-2" onSubmit={handleSubmit}>
                         <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                            {/* Name */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Product Name")}:
+                                </span>
+                                <TextInput
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder={t("Enter Product Name")}
+                                />
+                            </div>
+
+                            {/* Description */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Product Description")}:
+                                </span>
+                                <TextInput
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    placeholder={t("Enter Product Description")}
+                                />
+                            </div>
+
                             {/* Category Select */}
                             <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Category")}:
+                                    {t("Material Category")}:
                                 </span>
                                 <Select
                                     options={categoryOptions}
                                     value={selectedCategory}
                                     onChange={setSelectedCategory}
-                                    placeholder={t("Select Category")}
+                                    placeholder={t("Select Material Category")}
                                     isSearchable
                                     styles={customStyles}
                                     isLoading={loadingList}
                                     className="w-full"
                                     noOptionsMessage={() => t("No categories available")}
-                                />
-                            </div>
-
-                            {/* Name */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Expenses Name")}:
-                                </span>
-                                <TextInput
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    placeholder={t("Enter Expenses Name")}
                                 />
                             </div>
 

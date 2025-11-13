@@ -35,6 +35,7 @@ import { PiBaseballCap } from "react-icons/pi";
 import { PiClockUserFill } from "react-icons/pi";
 import { LuBanknote } from "react-icons/lu";
 import { SiMaterialformkdocs } from "react-icons/si";
+import { GiManualMeatGrinder } from "react-icons/gi";
 
 // Admin routes configuration
 const adminRoutes = [
@@ -301,16 +302,22 @@ const adminRoutes = [
     permission: "OrderDelay",
     icon: BiSolidEnvelope,
   },
-   {
+    {
     name: "Material",
     path: "/dashboard/material",
     permission: "material",
     icon: SiMaterialformkdocs,
     subRoutes: [
-      { name: "Category", path: "/dashboard/material/material_category" ,  permission: "material",},
-      { name: "List", path: "/dashboard/material/material_list" , permission: "material", },
+      { name: "Category", path: "/dashboard/material/material_category", permission: "material", },
+      { name: "Products", path: "/dashboard/material/material_products", permission: "material", },
     ],
     redirectTo: "/dashboard/material/material_category",
+  },
+  {
+    name: "Manufacturing",
+    path: "/dashboard/manufacturing",
+    permission: "manufacturing",
+    icon: GiManualMeatGrinder,
   },
   {
     name: "Expenses",
@@ -318,9 +325,9 @@ const adminRoutes = [
     permission: "expenses",
     icon: LuBanknote,
     subRoutes: [
-      { name: "Category", path: "/dashboard/expenses/expenses_category" ,  permission: "expenses",},
-      { name: "List", path: "/dashboard/expenses/expenses_list" , permission: "expenses", },
-      { name: "Expenses Payment", path: "/dashboard/expenses/expenses_payment" , permission: "expenses", },
+      { name: "Category", path: "/dashboard/expenses/expenses_category", permission: "expenses", },
+      { name: "List", path: "/dashboard/expenses/expenses_list", permission: "expenses", },
+      { name: "Expenses Payment", path: "/dashboard/expenses/expenses_payment", permission: "expenses", },
     ],
     redirectTo: "/dashboard/expenses/expenses_category",
   },
@@ -330,9 +337,9 @@ const adminRoutes = [
     permission: "Reports",
     icon: TbReportSearch,
     subRoutes: [
-      { name: "Orders", path: "/dashboard/reports/orders_reports" ,   permission: "Reports",},
-      { name: "Financial", path: "/dashboard/reports/financial_reports" ,  permission: "Reports",},
-      { name: "Cashier Shift", path: "/dashboard/reports/cashier_report" , permission: "Reports",},
+      { name: "Orders", path: "/dashboard/reports/orders_reports", permission: "Reports", },
+      { name: "Financial", path: "/dashboard/reports/financial_reports", permission: "Reports", },
+      { name: "Cashier Shift", path: "/dashboard/reports/cashier_report", permission: "Reports", },
     ],
     redirectTo: "/dashboard/reports/orders_reports",
   }
@@ -697,7 +704,7 @@ const LinksSidebar = () => {
 
   const renderSubRoutes = (route) => {
     const isActive = activeLink.name === route.name;
-        const isSuperAdmin = auth?.userState?.user_positions?.name === "Super Admin";
+    const isSuperAdmin = auth?.userState?.user_positions?.name === "Super Admin";
 
     return (
       <div
