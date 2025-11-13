@@ -79,7 +79,6 @@ const AddDealSection = ({ refetch, setRefetch }) => {
   }, [dataTranslation]);
 
   const handleAddDay = () => {
-    console.log("times", times);
     const newTime = {
       day: "",
       from: "",
@@ -143,12 +142,6 @@ const AddDealSection = ({ refetch, setRefetch }) => {
   };
 
   useEffect(() => {
-    console.log("dealTitle", dealTitle);
-    console.log("dealDescription", dealDescription);
-  }, [dealTitle, dealDescription]);
-
-  useEffect(() => {
-    console.log("response", response);
     if (!loadingPost) {
       handleReset();
     }

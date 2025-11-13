@@ -109,8 +109,6 @@ const EditZonePage = () => {
           newZoneNames.push(obj);
         });
       }
-      console.log("categoryName edite", zoneName);
-
       setZoneName(newZoneNames.length > 0 ? newZoneNames : []);
 
       setZonePrice(dataZone.zones?.price || "");
@@ -128,9 +126,6 @@ const EditZonePage = () => {
 
       setActiveZone(dataZone.zones?.status || 0);
     }
-    console.log("cities", cities);
-    console.log("Branches", branches);
-    console.log("dataZone", dataZone);
   }, [dataCities, dataBranches, dataZone]);
 
   const handleTap = (index) => {
@@ -175,7 +170,6 @@ const EditZonePage = () => {
   };
 
   useEffect(() => {
-    console.log("response", response);
     if (response) {
       handleBack();
     }

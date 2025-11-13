@@ -69,7 +69,6 @@ const MenuPage = ({ refetch }) => {
       const updatedMenu = prevMenu.map((menu) =>
         menu.id === id ? { ...menu, status: status } : menu
       );
-      console.log("Updated Menu:", updatedMenu);
       return updatedMenu;
     });
   };
@@ -99,7 +98,6 @@ const MenuPage = ({ refetch }) => {
       // Update categories only if changeState succeeded
       setMenus(menus.filter((menu) => menu.id !== id));
     }
-    console.log("Menu Image", menu);
   };
 
   // Update categories when `data` changes
@@ -107,7 +105,6 @@ const MenuPage = ({ refetch }) => {
     if (dataMenu && dataMenu.images) {
       setMenus(dataMenu.images);
     }
-    console.log("dataMenu", dataMenu);
   }, [dataMenu]); // Only run this effect when `data` changes
 
   const headers = ['#',t("Image"),t('Status'), t('Action')];

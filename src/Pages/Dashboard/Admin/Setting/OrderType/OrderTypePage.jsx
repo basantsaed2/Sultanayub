@@ -25,7 +25,6 @@ const OrderTypePage = () => {
        useEffect(() => {
               if (dataOrderType && dataOrderType.order_types) {
                      setOrderTypes(dataOrderType.order_types);
-                     console.log('Fetched Order type from API:', dataOrderType.order_types);
               }
        }, [dataOrderType]);
 

@@ -87,7 +87,6 @@ const BannersPage = ({ refetch, setUpdate }) => {
       setBanners(banners.filter((category) => category.id !== id));
       setUpdate(!refetch);
     }
-    console.log("banners", banners);
   };
 
   // Update Banners when `data` changes

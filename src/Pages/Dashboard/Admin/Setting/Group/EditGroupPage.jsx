@@ -27,7 +27,6 @@ const EditGroupPage = () => {
                      setGroupName(dataGroup.group.name);
                      setGroupStatus(dataGroup.group.status);
               }
-              console.log('dataGroup', dataGroup)
        }, [dataGroup]); // Only run this effect when `data` changes
 
 
@@ -37,7 +36,6 @@ const EditGroupPage = () => {
        }
 
        useEffect(() => {
-              console.log('response', response)
               if (response) {
                      handleBack()
               }

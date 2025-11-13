@@ -71,13 +71,11 @@ const EditCityPage = () => {
           newCityNames.push(obj);
         });
       }
-      console.log("categoryName edite", cityName);
                      setCityName(newCityNames.length > 0 ? newCityNames : []);
 
       // setCityName(dataCity.city.name);
       setCityStatus(dataCity.city.status);
     }
-    console.log("dataCity", dataCity);
   }, [dataCity]); // Only run this effect when `data` changes
 
   const handleCityStatus = () => {
@@ -88,7 +86,6 @@ const EditCityPage = () => {
   };
 
   useEffect(() => {
-    console.log("response", response);
     if (response) {
       handleBack();
     }

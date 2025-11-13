@@ -25,8 +25,6 @@ const AdminsLayout = () => {
               setPositions(dataAdmins?.user_positions || []);
        }, [dataAdmins]);
 
-
-       // useEffect(() => { console.log('dataAdmins', dataAdmins) }, [dataAdmins])
        return (
               <>
                      <TitlePage text={t('AddAdmin')} />

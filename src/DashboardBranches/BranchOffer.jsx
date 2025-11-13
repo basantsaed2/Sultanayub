@@ -30,12 +30,10 @@ const BranchOffer = () => {
   const [currentResponse, setCurrentResponse] = useState(null);
 
   useEffect(() => {
-    console.log("Response DealOrder:", responseDealOrder);
     setCurrentResponse(responseDealOrder);
   }, [responseDealOrder]);
 
   useEffect(() => {
-    console.log("Response DealOrderAdd:", responseDealOrderAdd);
     if (!loadingDealOrderAdd) {
       setCode("");
       setCurrentResponse(null);
@@ -53,7 +51,6 @@ const BranchOffer = () => {
     const formData = new FormData();
     formData.append("code", code);
 
-    console.log("FormData:", ...formData.entries());
     postDealOrder(formData);
   };
 
@@ -61,8 +58,6 @@ const BranchOffer = () => {
     const formData = new FormData();
     formData.append("offer_order_id", offerId);
     // formData.append("user_id", userId);
-
-    console.log("FormData:", ...formData.entries());
     postDealOrderAdd(formData, "Deal Approved Success");
   };
 

@@ -76,7 +76,6 @@ const TaxesPage = ({ refetch, setUpdate }) => {
   //        //   const updatedLanguages = prevLanguages.map((language) =>
   //        //     language.id === id ? { ...language, status: status } : language
   //        //   );
-  //        //   console.log('Updated Languages:', updatedLanguages);
   //        //   return updatedLanguages;
   //        // });
   // };
@@ -93,7 +92,6 @@ const TaxesPage = ({ refetch, setUpdate }) => {
       setTaxes(taxes.filter((tax) => tax.id !== id));
       setUpdate(!refetch);
     }
-    console.log("taxes", taxes);
   };
 
   // Update taxes when `data` changes

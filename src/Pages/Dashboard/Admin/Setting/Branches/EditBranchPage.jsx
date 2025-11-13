@@ -113,8 +113,6 @@ const EditBranchPage = () => {
                                    newBranchNames.push(obj);
                             });
                      }
-                     console.log("categoryName edite", branchName);
-
                      setBranchName(newBranchNames.length > 0 ? newBranchNames : []);
                      setBranchAddress(dataBranch.branch.address || "");
                      setBranchEmail(dataBranch.branch.email || "");
@@ -142,10 +140,6 @@ const EditBranchPage = () => {
                                    : setNotActiveReason("");
                      }
               }
-
-              console.log("cities", cities);
-
-              console.log("branch", branch);
        }, [dataCities, dataBranch]);
 
        const handleTap = (index) => {
@@ -200,14 +194,12 @@ const EditBranchPage = () => {
        };
 
        useEffect(() => {
-              console.log("response", response);
               if (response) {
                      handleBack();
               }
        }, [response]);
 
        const handleBack = () => {
-              console.log("first", "first");
               navigate(-1, { replace: true });
        };
 

@@ -66,8 +66,6 @@ const AddZoneSection = ({ update, setUpdate }) => {
     if (dataBranches) {
       setBranches([{ id: '', name: t('Select Branch') }, ...dataBranches.branches] || []);
     }
-    console.log('cities', cities)
-    console.log('Branches', branches)
   }, [dataCities, dataBranches]);
 
   const handleTap = (index) => {
@@ -109,7 +107,6 @@ const AddZoneSection = ({ update, setUpdate }) => {
 
 
   useEffect(() => {
-    console.log('response', response)
     if (!loadingPost) {
       handleReset()
     }

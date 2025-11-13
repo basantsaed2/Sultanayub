@@ -71,8 +71,6 @@ const MainBranchSetupPage = () => {
       setPhone(dataBranch?.branches?.phone || "");
       setEmail(dataBranch?.branches?.email || "");
       setFoodPreparationTime(dataBranch?.branches?.food_preparion_time || "");
-
-      console.log("data fetch branch : ", dataBranch);
     }
   }, [dataBranch]);
 
@@ -88,12 +86,6 @@ const MainBranchSetupPage = () => {
   const [password, setPassword] = useState("");
   const [stateCity, setStateCity] = useState("Select City");
   const [selectedCity, setSelectedCity] = useState("");
-
-  useEffect(() => {
-    console.log("stateCity", stateCity);
-    console.log("selectedCity", selectedCity);
-    console.log("selectedCity", selectedCity.id);
-  }, [selectedCity, stateCity]);
 
   const [cities, setCities] = useState(null);
   const [branchImage, setBranchImage] = useState("");
@@ -117,9 +109,6 @@ const MainBranchSetupPage = () => {
       setSelectedCity(selected.name);
       setCityID(selected.id);
     }
-
-    console.log("Selected City:", selected.name);
-    console.log("City ID:", selected.id);
   };
   //  post formdata in postdata
   const handleBranchAdd = async (e) => {
@@ -196,21 +185,6 @@ const MainBranchSetupPage = () => {
     formData.append("city_id", selectedCity.id);
 
     postData(formData, "Branch Added Success done");
-    console.log("all data submitted", formData);
-
-    // try {
-    //     const response = await
-
-    //     if (response?.status === 200) {
-    //         auth.toastSuccess('Branch successfully added!');
-    //     } else {
-    //         auth.toastError('Failed to add branch. Please try again.');
-    //     }
-
-    // } catch (error) {
-    //     auth.toastError('An error occurred. Please check your input.');
-    //     console.error('Error during post:', error);
-    // }
   };
 
   const handleBranchImageChange = (e) => {

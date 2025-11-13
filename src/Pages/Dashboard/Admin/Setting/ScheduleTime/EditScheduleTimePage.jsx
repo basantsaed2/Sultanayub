@@ -75,7 +75,6 @@ const EditScheduleTimePage = ({ update, setUpdate }) => {
       setScheduleName(newTimesNames.length > 0 ? newTimesNames : []);
       setStatus(dataSchedule.schedule_time_slot.status);
     }
-    console.log("dataSchedule", dataSchedule);
   }, [dataSchedule]);
 
   const HandleStatusSchedule = () => {
@@ -89,7 +88,6 @@ const EditScheduleTimePage = ({ update, setUpdate }) => {
   };
 
   useEffect(() => {
-    console.log("response", response);
     if (!loadingPost && response) {
       navigate(-1);
     }

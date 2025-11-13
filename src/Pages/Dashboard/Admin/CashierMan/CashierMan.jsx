@@ -13,7 +13,6 @@ import { useDelete } from "../../../../Hooks/useDelete";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { t } from "i18next";
-import { IoInformationCircleOutline } from "react-icons/io5";
 
 const CashierMan = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -26,41 +25,36 @@ const CashierMan = () => {
   });
   const { deleteData, loadingDelete } = useDelete();
   const { changeState, loadingChange } = useChangeState();
+  const { changeState: changeLogoutStatus, loadingChange: loadingChangeLogout } = useChangeState();
 
   const [cashiersMan, setCashiersMan] = useState([]);
   const [openDelete, setOpenDelete] = useState(null);
-  const [openRoles, setOpenRoles] = useState(null); // State for roles dialog
+  const [openRoles, setOpenRoles] = useState(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const cashiersManPerPage = 20;
 
-  // Calculate total number of pages
   const totalPages = Math.ceil(cashiersMan.length / cashiersManPerPage);
 
-  // Get the cashiers for the current page
   const currentCashiersMan = cashiersMan.slice(
     (currentPage - 1) * cashiersManPerPage,
     currentPage * cashiersManPerPage
   );
 
-  // Handle page change
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  // Update cashiers when data changes
   useEffect(() => {
     if (dataCashier && dataCashier.cashier_men) {
       setCashiersMan(dataCashier.cashier_men);
     }
   }, [dataCashier]);
 
-  // Fetch cashiers on mount
   useEffect(() => {
     refetchCashier();
   }, [refetchCashier]);
 
-  // Change cashier status
   const handleChangeStatus = async (id, name, status) => {
     const response = await changeState(
       `${apiUrl}/admin/cashier_man/status/${id}`,
@@ -77,7 +71,23 @@ const CashierMan = () => {
     }
   };
 
-  // Delete cashier
+  // Change logout status function
+  const handleChangeLogout = async (id, name, currentLogoutStatus) => {
+    const response = await changeLogoutStatus(
+      `${apiUrl}/admin/cashier_man/logout/${id}`,
+      `${name} ${currentLogoutStatus ? 'Logged Out' : 'Logged In'} Successfully`,
+      { logout: currentLogoutStatus ? 0 : 1 } // Toggle logout status
+    );
+
+    if (response) {
+      setCashiersMan((prevCashiers) =>
+        prevCashiers.map((cashier) =>
+          cashier.id === id ? { ...cashier, login: currentLogoutStatus ? 0 : 1 } : cashier
+        )
+      );
+    }
+  };
+
   const handleDelete = async (id, name) => {
     const success = await deleteData(
       `${apiUrl}/admin/cashier_man/delete/${id}`,
@@ -90,7 +100,6 @@ const CashierMan = () => {
     }
   };
 
-  // Dialog controls
   const handleOpenDelete = (id) => {
     setOpenDelete(id);
   };
@@ -108,13 +117,17 @@ const CashierMan = () => {
   const headers = [
     t("SL"),
     t("Name"),
+    t("Cashier"), // Changed from "Name" to "Cashier"
     t("Branch"),
     t("Image"),
     t("Shift Number"),
     t("Take Away"),
     t("Dine In"),
     t("Delivery"),
-    t("Car Slow"),
+    t("Real Order"),
+    t("Online Order"),
+    t("Discount Perimission"),
+    t("Void Order"),
     t("Status"),
     t("Roles"),
     t("Action"),
@@ -122,7 +135,7 @@ const CashierMan = () => {
 
   return (
     <div className="flex items-start justify-start w-full overflow-x-scroll p-2 pb-28 scrollSection">
-      {loadingCashier || loadingChange || loadingDelete ? (
+      {loadingCashier || loadingChange || loadingDelete || loadingChangeLogout ? (
         <div className="flex items-center justify-center w-full h-56">
           <StaticLoader />
         </div>
@@ -170,6 +183,20 @@ const CashierMan = () => {
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {cashier?.user_name || "-"}
                     </td>
+                    <td className="min-w-[200px] sm:min-w-[150px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <span>{cashier?.cashier?.name || "-"}</span>
+                        {(cashier.login == 1) && (
+                          <button
+                            type="button"
+                            onClick={() => handleChangeLogout(cashier.id, cashier.user_name, cashier.login)}
+                            className="px-3 py-1 text-xs text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors font-TextFontMedium"
+                          >
+                            {t("Logout")}
+                          </button>
+                        )}
+                      </div>
+                    </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {cashier?.branch?.name || "-"}
                     </td>
@@ -197,7 +224,16 @@ const CashierMan = () => {
                       {cashier.delivery === 1 ? "✔" : "✘"}
                     </td>
                     <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
-                      {cashier.car_slow === 1 ? "✔" : "✘"}
+                      {cashier.real_order === 1 ? "✔" : "✘"}
+                    </td>
+                    <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
+                      {cashier.online_order === 1 ? "✔" : "✘"}
+                    </td>
+                    <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
+                      {cashier.discount_perimission === 1 ? "✔" : "✘"}
+                    </td>
+                    <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
+                      {cashier.void_order === 1 ? "✔" : "✘"}
                     </td>
                     <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       <Switch
@@ -305,10 +341,10 @@ const CashierMan = () => {
                                           <span>
                                             {role.roles
                                               ? t(
-                                                  role.roles
-                                                    .replace("_", " ")
-                                                    .toLowerCase()
-                                                )
+                                                role.roles
+                                                  .replace("_", " ")
+                                                  .toLowerCase()
+                                              )
                                               : "-"}
                                           </span>
                                           <span className="text-green-600">✔</span>
@@ -356,9 +392,8 @@ const CashierMan = () => {
                 <button
                   key={page}
                   onClick={() => handlePageChange(page)}
-                  className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${
-                    currentPage === page ? "bg-mainColor text-white" : "text-mainColor"
-                  }`}
+                  className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page ? "bg-mainColor text-white" : "text-mainColor"
+                    }`}
                 >
                   {page}
                 </button>

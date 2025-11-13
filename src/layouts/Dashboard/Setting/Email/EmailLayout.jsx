@@ -30,10 +30,6 @@ const EmailLayout = () => {
     }
   }, [emailsData]);
 
-  useEffect(() => {
-    console.log("emailsData", emailsData);
-  }, [emailsData]);
-
   return (
     <>
       <TitlePage text={t("AddNewEmail")} />

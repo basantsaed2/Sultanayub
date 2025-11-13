@@ -86,7 +86,6 @@ const LanguagesPage = ({ refetch, setUpdate }) => {
       setLanguages(languages.filter((language) => language.id !== id));
       setUpdate(!refetch);
     }
-    console.log("Languages", languages);
   };
 
   // Update Languages when `data` changes

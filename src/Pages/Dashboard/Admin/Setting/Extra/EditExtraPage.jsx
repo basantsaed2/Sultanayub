@@ -67,18 +67,15 @@ const EditExtraPage = () => {
                     newExtraNames.push(obj);
                 });
             }
-            console.log("categoryName edite", ExtraName);
             setExtraName(newExtraNames.length > 0 ? newExtraNames : []);
 
             setExtraPrice(dataExtra.extra_group.pricing);
             setMinExtra(dataExtra.extra_group.min);
             setMaxExtra(dataExtra.extra_group.max);
         }
-        console.log("dataExtra", dataExtra);
     }, [dataExtra]); // Only run this effect when `data` changes
 
     useEffect(() => {
-        console.log("response", response);
         if (response) {
             handleBack();
         }

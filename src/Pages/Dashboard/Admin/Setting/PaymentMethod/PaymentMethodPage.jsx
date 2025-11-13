@@ -66,7 +66,6 @@ const PaymentMethodPage = ({ refetch }) => {
       const updatedPaymentMethod = prevPaymentMethods.map((paymentMthod) =>
         paymentMthod.id === id ? { ...paymentMthod, status: status } : paymentMthod
       );
-      console.log('Updated Payment Method:', updatedPaymentMethod);
       return updatedPaymentMethod;
     });
   };
@@ -91,7 +90,6 @@ const PaymentMethodPage = ({ refetch }) => {
         )
       );
     }
-    console.log('payment Methods', paymentMethods)
   };
 
   // Update categories when `data` changes
@@ -99,7 +97,6 @@ const PaymentMethodPage = ({ refetch }) => {
     if (dataPaymentMethods && dataPaymentMethods.payment_methods) {
       setPaymentMethods(dataPaymentMethods.payment_methods);
     }
-    console.log('dataPaymentMethods', dataPaymentMethods)
   }, [dataPaymentMethods]); // Only run this effect when `data` changes
 
 

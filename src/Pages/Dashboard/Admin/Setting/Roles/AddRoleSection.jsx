@@ -34,7 +34,6 @@ const AddRoleSection = ({ update, setUpdate }) => {
 
   useEffect(() => {
     if (dataRoles && dataRoles.roles) {
-      console.log('dataRoles', dataRoles.roles)
       const permissions = dataRoles.roles;
       setPermissionsData(permissions);
 

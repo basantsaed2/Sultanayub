@@ -89,7 +89,6 @@ const AutomaticPaymentPage = ({ refetch }) => {
           setPaymentTypeName("Select Payment Type");
         }
       }
-      console.log(dataAutomaticPayment);
     }
   }, [dataAutomaticPayment, currentTap]);
 

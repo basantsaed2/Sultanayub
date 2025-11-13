@@ -88,23 +88,18 @@ const EditAddonsPage = () => {
         });
       }
       setAddonsName(newAddonsNames.length > 0 ? newAddonsNames : []);
-
-      console.log("addonsName2", addonsName);
-
       setAddonPrice(dataAddonsEdit?.addon?.price || addonPrice);
       setStateAddonTaxes(dataAddonsEdit?.addon?.tax?.name || stateAddonTaxes);
       setAddonTaxesId(dataAddonsEdit?.addon?.tax?.id || addonTaxesId);
       setAddonTaxesName(dataAddonsEdit?.addon?.tax?.name || addonTaxesName);
       setAddonQuantity(dataAddonsEdit?.addon?.quantity_add || addonQuantity);
     }
-    console.log("dataAddonsEdit", dataAddonsEdit);
   }, [dataAddonsEdit]);
 
   useEffect(() => {
     if (dataAddons) {
       setAddonTaxes(dataAddons.taxes);
     }
-    console.log("dataAddons", dataAddons);
   }, [dataAddons]);
 
   const handleQuantityAddon = () => {
@@ -131,10 +126,6 @@ const EditAddonsPage = () => {
   };
 
   useEffect(() => {
-    console.log("addonName", addonsName);
-  }, [addonsName]);
-
-  useEffect(() => {
     const handleClickOutside = (event) => {
       // Close dropdown if clicked outside
       if (dropDownTax.current && !dropDownTax.current.contains(event.target)) {
@@ -149,7 +140,6 @@ const EditAddonsPage = () => {
   }, []);
 
   useEffect(() => {
-    console.log("response", response);
     if (!loadingPost && response) {
       handleCancel();
     }

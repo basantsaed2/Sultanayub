@@ -99,7 +99,6 @@ const CaptianOrder = ({ refetch, setUpdate }) => {
       setCaptainOrder(captains.filter((captain) => captain.id !== id));
       setUpdate(!refetch);
     }
-    console.log("CaptainOrder", captains);
   };
 
   const headers = [t("sl"), t("Image"), t("name"), t("User Name"), t("Phone"), t("Branch"), t("View Area"), t("action")];

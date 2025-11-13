@@ -45,7 +45,6 @@ const AddTaxSection = ({ update, setUpdate }) => {
   };
 
   useEffect(() => {
-    console.log("response", response);
     if (!loadingPost) {
       handleReset();
     }
@@ -97,7 +96,6 @@ const AddTaxSection = ({ update, setUpdate }) => {
     formData.append("amount", taxAmount);
     formData.append("type", typeName);
 
-    console.log(...formData.entries());
     postData(formData, t("Tax Added Success"));
   };
 

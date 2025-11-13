@@ -36,7 +36,6 @@ const TaxTypePage = () => {
   const [isOpentaxType, setIsOpentaxType] = useState(false);
 
   useEffect(() => {
-    console.log("response", response);
     if (!loadingPost) {
       setStateType(stateType);
       setTaxType(stateType);
@@ -92,7 +91,6 @@ const TaxTypePage = () => {
 
     formData.append("tax", taxType);
 
-    console.log(...formData.entries());
     postData(formData, t("Tax Type Changed Success"));
   };
   return (

@@ -55,7 +55,6 @@ const DeliveryManPage = ({ data, setDeliveries, loading }) => {
       const updatedDeliveries = prevDeliveries.map((delivery) =>
         delivery.id === id ? { ...delivery, status: status } : delivery
       );
-      console.log('Updated Deliveries:', updatedDeliveries);
       return updatedDeliveries;
     });
   };
@@ -79,7 +78,6 @@ const DeliveryManPage = ({ data, setDeliveries, loading }) => {
         )
       );
     }
-    console.log('data Deliveries', data)
   };
 
 

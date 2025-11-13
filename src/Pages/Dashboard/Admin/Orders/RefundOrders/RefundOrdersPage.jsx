@@ -36,26 +36,16 @@ const RefundOrdersPage = () => {
   useEffect(() => {
     if (Array.isArray(ordersRefund.data)) {
       setFilteredOrders(ordersRefund.data)
-      console.log('ordersRefund', ordersRefund.data);
-    } else {
-      console.log('ordersRefund data is not an array or is undefined');
-    }
+    } 
   }, [ordersRefund.data]);
 
   const handleFilterData = (e) => {
     const text = e.target.value.trim();
     setTextSearch(text);
 
-    if (!ordersAll?.data || !Array.isArray(ordersAll.data)) {
-      console.error("Invalid orders data:", ordersAll.data);
-      return;
-    }
-
     if (text === "") {
       setFilteredOrders(ordersAll.data); // Reset if input is empty
     } else {
-      console.log("Filtering for text:", text);
-
       const filter = ordersAll.data.filter(
         (order) =>
           order.id.toString().startsWith(text) || // Matches if order.id starts with the text
@@ -68,7 +58,6 @@ const RefundOrdersPage = () => {
       );
 
       setFilteredOrders(filter); // Update state
-      console.log("Filtered orders:", filter); // Debugging
     }
   };
 

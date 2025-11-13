@@ -86,7 +86,6 @@ const OrdersPaymentPending = () => {
     if (dataOrdersPaymentPending && dataOrdersPaymentPending.orders) {
       setOrdersPaymentPending(dataOrdersPaymentPending.orders);
     }
-    console.log("OrdersPaymentPending", ordersPaymentPending);
   }, [dataOrdersPaymentPending]); // Only run this effect when `data` changes
 
   // Update OrdersPayment Pending when `data` changes

@@ -143,6 +143,9 @@ const BusinessSettingsPage = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
+  const [websiteLink, setWebsiteLink] = useState("");
+  const [qrCode, setQrCode] = useState("");
+
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const {
     refetch: refetchCompany,
@@ -152,14 +155,6 @@ const BusinessSettingsPage = () => {
     url: `${apiUrl}/admin/settings/business_setup/company`,
   });
 
-  // const {
-  //   refetch: refetchMaintenance,
-  //   loading: loadingMaintenance,
-  //   data: dataMaintennance,
-  // } = useGet({
-  //   url: `${apiUrl} / admin / settings / business_setup / maintenance``,
-  // });
-
   const {
     refetch: refetchCity,
     loading: loadingCity,
@@ -167,9 +162,6 @@ const BusinessSettingsPage = () => {
   } = useGet({
     url: `${apiUrl}/admin/settings/city`
   });
-
-
-
 
   const [dataCompanyInfo, setDataCompanyInfo] = useState([]);
 
@@ -185,28 +177,14 @@ const BusinessSettingsPage = () => {
     url: `${apiUrl}/admin/settings/business_setup/company/add`,
   });
 
-
-  // const { postDataStatus, loadingPostStatus, responseStatus } = usePost({
-  //      url: `${apiUrl} / admin / settings / business_setup / maintenance / status",
-  //    });
-
-  //  const { postDataMaintenance, loadingPostMaintenance, responseMaintenanace } = usePost({
-  //    url: `${apiUrl}/admin/settings/business_setup/maintenance/add",
-  //  });
-
   useEffect(() => {
     refetchCompany();
     refetchCity();
-    // refetchMaintenance();
   }, [refetchCompany, refetchCity]);
 
 
   useEffect(() => {
     if (dataCompany) {
-      console.log("data Company ", dataCompany);
-
-      // setDataCurrency(dataCompany?.currency || []);
-      // setDataCompanyInfo(dataCompany?.company_info || []);
       setCompanyName(dataCompany?.company_info?.name || '');
       setCompanyPhone(dataCompany?.company_info?.phone || '');
       setCompanyAlternativePhone(dataCompany?.company_info?.phone2 || '');
@@ -244,7 +222,8 @@ const BusinessSettingsPage = () => {
       setMaintenanceMode(dataCompany?.maintenance?.status || 0)
       setStartDate(dataCompany?.maintenance?.start_date || '')
       setEndDate(dataCompany?.maintenance?.end_date || '')
-
+      setWebsiteLink(dataCompany?.website || '')
+      setQrCode(dataCompany?.qr_code || '')
 
       if (dataCompany.company_info.currency_id) {
         const matchedCurrency = dataCompany.currency.find(
@@ -264,77 +243,8 @@ const BusinessSettingsPage = () => {
         setLeftCurrency(1);
         setRightCurrency(0);
       }
-
-
     }
-    // console.log("data fetch maintenance" ,dataCompany.maintenance)
-    console.log("data fetch company :", dataCompany);
   }, [dataCompany]);
-
-  // useEffect(() => {
-  //   if (dataMaintennance) {
-
-  //     setDataMain(dataMaintennance)
-  //     // data maintenance
-  //     setMaintenanceMode(dataMaintennance.maintenance.status)
-  //     setEndDate(dataMaintennance.maintenance.end_date)
-  //     setStartDate(dataMaintennance.maintenance.start_date)
-  //     setCustomize(dataMaintennance.maintenance.customize)
-  //     setUntilChange(dataMaintennance.maintenance.until_change)
-  //     setForWeek(dataMaintennance.maintenance.week)
-  //     setForDay(dataMaintennance.maintenance.day)
-  //     setDeliverymanApp(dataMaintennance.maintenance.delivery)
-  //     setBranchPanel(dataMaintennance.maintenance.branch)
-  //     setCustomerApp(dataMaintennance.maintenance.customer)
-  //     setAllSystem(dataMaintennance.maintenance.all)
-  //     setWebApp(dataMaintennance.maintenance.web)
-  //     console.log('data menteneance100', dataMaintennance)
-  //   }
-  // }, [dataMaintennance])
-
-  // useEffect(() => {
-  //   if (dataCity && dataCity.cities) {
-  //     const cityNames = dataCity.cities.map((city) => ({ name: city.name }));
-  //     setCountries(cityNames);
-  //   }
-  //   console.log("data city ", dataCity?.cities?.[0]?.name);
-  // }, [dataCity]);
-
-  // useEffect(() => {
-  //      if (dataMain ) {
-  //             setDataMaintenance(dataMain)
-  //             setMaintenanceMode(dataMain.status)
-  //             setEndDate(dataMain.end_date)
-  //             setStartDate(dataMain.start_date)
-  //             setCustomize(dataMain.customize)
-  //             setUntilChange(dataMain.until_change)
-  //             setForWeek(dataMain.week)
-  //             setForDay(dataMain.day)
-  //             setDeliverymanApp(dataMain.delivery)
-  //             setBranchPanel(dataMain.branch)
-  //             setCustomerApp(dataMain.customer)
-  //             setAllSystem(dataMain.all)
-  //             setWebApp(dataMain.web)
-
-  //      }
-  //      console.log("data maintence2 ",formDataMaintenance );
-  //    }, [formDataMaintenance,dataMain]);
-
-
-  useEffect(() => {
-    // Log updated dataCurrency when it changes
-    console.log("data fetch currency :", dataCurrency);
-
-    console.log("data fetch company info :", dataCompanyInfo);
-    console.log("data fetch maintenenn :", dataMain);
-  }, [dataCurrency, dataCompanyInfo, dataMain]);
-
-
-
-
-  // useEffect(() => {
-
-  // }, [maintenanceMode,allSystem,branchPanel,customerApp,webApp,deliverymanApp,forDay,forWeek,untilChange,Customize,startDate,endDate])
 
   const handelAddCompany = async (e) => {
     e.preventDefault();
@@ -387,23 +297,12 @@ const BusinessSettingsPage = () => {
       auth.toastError(t("Please enter either leftCurrency or rightCurrency"));
     }
 
-    // if (maintenanceMode === 0) {
-    //   auth.toastError("Please enter maintenanceMode ");
-    //   return;
-    // }
     if (maintenanceMode !== 0) {
       if (allSystem === 0 && branchPanel === 0 && customerApp === 0 && webApp === 0 && deliverymanApp === 0) {
         auth.toastError(t("Please select at least one system"));
         return;
       }
     }
-
-    // if(androidLink){
-    //   auth.toastError("Please enter android link");
-    // }
-    // if(iosLink){
-    //   auth.toastError("Please enter ios link");
-    // }
 
     const updatedData = {
       status: maintenanceMode,
@@ -423,38 +322,7 @@ const BusinessSettingsPage = () => {
       updatedData.end_date = endDate;
     }
 
-    // const updatedData = [
-    //   ["status", maintenanceMode],
-    //   ["all", allSystem],
-    //   ["branch", branchPanel],
-    //   ["customer", customerApp],
-    //   ["web", webApp],
-    //   ["delivery", deliverymanApp],
-    //   ["day", forDay],
-    //   ["week", forWeek],
-    //   ["until_change", untilChange],
-    //   ["customize", Customize],
-    //   ["start_date", startDate],
-    //   ["end_date", endDate]
-    // ];
-
-    // // Update the state with the new array
-    // setFormDataMaintenance(updatedData);
-
-    //    { postDataMaintenance(formDataMaintenance,"System Added Success")}
-
-
-    //     postDataMain(formDataMaintenance, "Branch Added Success");
-
-    //  ----------------------------------
-
-    // Update the state with the new object
-
-    // setFormDataMaintenance(updatedData);
-
-
     const formData = new FormData();
-
     formData.append("name", companyName);
     formData.append("phone", companyPhone);
     formData.append("phone2", companyAlternativePhone);
@@ -493,15 +361,14 @@ const BusinessSettingsPage = () => {
       formData.append(`maintenance[${key}]`, value);
     }
 
+    formData.append("web_site", websiteLink);
 
     postData(formData, "Business Setup Success");
-    console.log("all data ", formData)
   };
 
   useEffect(() => {
     const timeZones = moment.tz.names().map((name) => ({ name: name }));
     setTimeZone(timeZones);
-    console.log("moment", moment.tz.names());
   }, []);
 
   const closeAll = () => {
@@ -643,8 +510,6 @@ const BusinessSettingsPage = () => {
 
     setStartDate(startDate || '')
     setEndDate(endDate || '')
-    console.log(startDate)
-    console.log(endDate)
   };
   const handleClickCustomize = (e) => {
     const isChecked = e.target.checked;
@@ -766,6 +631,7 @@ const BusinessSettingsPage = () => {
     setCustomize(0);
     setStartDate("");
     setEndDate("");
+    setWebsiteLink("");
   };
 
   return (
@@ -926,6 +792,29 @@ const BusinessSettingsPage = () => {
               placeholder={t("AppIOSLink")}
             />
           </div>
+          {/*Website Link */}
+          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+            <span className="text-xl font-TextFontRegular text-thirdColor">
+              {t("Website Link")}:
+            </span>
+            <TextInput
+              value={websiteLink}
+              onChange={(e) => setWebsiteLink(e.target.value)}
+              placeholder={t("Website Link")}
+            />
+          </div>
+          {/* {qrCode && (
+          <div className="sm:w-full lg:w-[30%] flex flex-col items-center justify-center gap-y-1">
+              <img
+                src={qrCode}
+                alt="QR Code"
+                className="w-48 h-48 object-contain mx-auto"
+              />
+              <p className="text-sm text-gray-600 text-center">
+                {t("Current QR Code")}
+              </p>
+            </div>
+          )} */}
           <div className="sm:w-full lg:w-[30%] flex items-center gap-2 mt-8 justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">Order Active : </span>
             <div>
@@ -955,6 +844,19 @@ const BusinessSettingsPage = () => {
               />
             </div>
           </div>
+
+            {qrCode && (
+          <div className="sm:w-full lg:w-[30%] flex flex-col items-center justify-center gap-y-1 mt-5">
+              <img
+                src={qrCode}
+                alt="QR Code"
+                className="w-48 h-48 object-contain mx-auto"
+              />
+              <p className="text-sm text-gray-600 text-center">
+                {t("Current QR Code")}
+              </p>
+            </div>
+          )}
 
           <TitleSection text={t("BusinessInformation")} />
 

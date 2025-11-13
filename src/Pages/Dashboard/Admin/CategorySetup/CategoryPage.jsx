@@ -131,7 +131,6 @@ const CategoryPage = ({ refetch, setUpdate }) => {
       const updatedCategories = prevCategories.map((category) =>
         category.id === id ? { ...category, active: status } : category
       );
-      console.log("Updated categories:", updatedCategories);
       return updatedCategories;
     });
   };
@@ -178,7 +177,6 @@ const CategoryPage = ({ refetch, setUpdate }) => {
       setOpenSupCategory(null);
       setUpdate(!refetch);
     }
-    console.log("categories", categories);
   };
   const handleDelete = async (id, name) => {
     const success = await deleteData(
@@ -191,7 +189,6 @@ const CategoryPage = ({ refetch, setUpdate }) => {
       setCategories(categories.filter((category) => category.id !== id));
       setUpdate(!refetch);
     }
-    console.log("categories", categories);
   };
 
   // Update categories when `data` changes

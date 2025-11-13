@@ -43,7 +43,6 @@ const AddExtraPage = ({ update, setUpdate }) => {
     }
 
     useEffect(() => {
-        console.log('response', response)
         if (!loadingPost) {
             handleReset()
         }

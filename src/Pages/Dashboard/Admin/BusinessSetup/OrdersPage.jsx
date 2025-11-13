@@ -37,7 +37,6 @@ const OrdersPage = () => {
       const setting = JSON.parse(dataOrder.order_setting.setting);
       setMinOrderValue(setting.min_order);
     }
-    console.log("data order", dataOrder);
   }, [dataOrder]);
 
   const handleReset = () => {
@@ -50,7 +49,6 @@ const OrdersPage = () => {
     const formData = new FormData();
     formData.append("min_price", minOrderValue);
     postData(formData, t("order Added Successfully"));
-    console.log("all data submit ", formData);
   };
 
   return (

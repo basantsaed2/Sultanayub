@@ -46,7 +46,6 @@ const OrdersPaymentHistory = () => {
     if (dataOrdersPaymentHistory && dataOrdersPaymentHistory.orders) {
       setOrdersPaymentHistory(dataOrdersPaymentHistory.orders);
     }
-    console.log("OrdersPaymentHistory", ordersPaymentHistory);
   }, [dataOrdersPaymentHistory]); // Only run this effect when `data` changes
 
    const headers = [

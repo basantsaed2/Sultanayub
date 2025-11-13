@@ -99,7 +99,6 @@ const Waiter = ({ refetch, setUpdate }) => {
       setWaiter(waiters.filter((waiter) => waiter.id !== id));
       setUpdate(!refetch);
     }
-    console.log("Waiter", waiters);
   };
 
   const headers = [t("sl"), t("User Name"), t("Branch"), t("View Area"),t("Status"), t("action")];

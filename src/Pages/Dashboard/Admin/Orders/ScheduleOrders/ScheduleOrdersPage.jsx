@@ -35,9 +35,6 @@ const ScheduleOrdersPage = () => {
        useEffect(() => {
               if (Array.isArray(ordersSchedule.data)) {
                      setFilteredOrders(ordersSchedule.data)
-                     console.log('ordersSchedule', ordersSchedule.data);
-              } else {
-                     console.log('ordersSchedule data is not an array or is undefined');
               }
        }, [ordersSchedule.data]);
 
@@ -53,8 +50,6 @@ const ScheduleOrdersPage = () => {
               if (text === '') {
                      setFilteredOrders(ordersSchedule.data); // Reset if input is empty
               } else {
-                     console.log('Filtering for text:', text);
-
                      const filter = ordersSchedule.data.filter((order) =>
                             order.id.toString().startsWith(text) || // Matches if order.id starts with the text
                             (order.order_status || '-').toLowerCase().startsWith(text.toLowerCase()) // Matches if order_status starts with the text
@@ -62,7 +57,6 @@ const ScheduleOrdersPage = () => {
 
 
                      setFilteredOrders(filter); // Update state
-                     console.log('Filtered orders:', filter); // Debugging
               }
 
        };

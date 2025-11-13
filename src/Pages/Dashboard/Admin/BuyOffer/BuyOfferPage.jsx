@@ -34,12 +34,10 @@ const BuyOfferPage = () => {
   const [currentResponse, setCurrentResponse] = useState(null);
 
   useEffect(() => {
-    console.log("Response BuyOffer:", responseBuyOffer);
     setCurrentResponse(responseBuyOffer);
   }, [responseBuyOffer]);
 
   useEffect(() => {
-    console.log("Response BuyOfferAdd:", responseBuyOfferAdd);
     if (!loadingBuyOfferAdd) {
       setCode("");
       setCurrentResponse(null);
@@ -57,7 +55,6 @@ const BuyOfferPage = () => {
     const formData = new FormData();
     formData.append("code", code);
 
-    console.log("FormData:", ...formData.entries());
     postBuyOffer(formData);
   };
 
@@ -65,7 +62,6 @@ const BuyOfferPage = () => {
     const formData = new FormData();
     formData.append("offer_order_id", offerId);
 
-    console.log("FormData:", ...formData.entries());
     postBuyOfferAdd(formData, t("Offer Approved Success"));
   };
 

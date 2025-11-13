@@ -135,7 +135,6 @@ const EditBannerPage = () => {
       setImageFile(data?.images || []);
       setBannerOrder(data?.order || "");
       setBannerStatus(data?.status || 0);
-      console.log("data", data);
     }
   }, [dataBanner]);
 
@@ -163,7 +162,6 @@ const EditBannerPage = () => {
       return product.category_id === option.id;
     });
 
-    console.log("filterProducts", filterProducts);
     setFilterProducts(filterProducts);
   };
 
@@ -198,7 +196,6 @@ const EditBannerPage = () => {
   };
 
   useEffect(() => {
-    console.log("response", response);
     if (!loadingPost && response) {
       handleCancel();
     }
@@ -291,15 +288,8 @@ const EditBannerPage = () => {
     formData.append("deal_id", dealId);
     formData.append("status", bannerStatus);
 
-    console.log(...formData.entries());
     postData(formData, "Banner Added Success");
   };
-
-  useEffect(() => {
-    console.log("image", image);
-    console.log("imageFile", imageFile);
-  }, [image, imageFile]);
-
   return (
     <>
       {loadingData || loadingBanner || loadingCategory || loadingPost ? (

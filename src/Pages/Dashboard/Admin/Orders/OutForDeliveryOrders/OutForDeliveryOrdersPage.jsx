@@ -36,9 +36,6 @@ const OutForDeliveryOrdersPage = () => {
   useEffect(() => {
     if (Array.isArray(ordersOutForDelivery.data)) {
       setFilteredOrders(ordersOutForDelivery.data)
-      console.log('ordersOutForDelivery', ordersOutForDelivery.data);
-    } else {
-      console.log('ordersOutForDelivery data is not an array or is undefined');
     }
   }, [ordersOutForDelivery.data]);
 
@@ -46,15 +43,9 @@ const OutForDeliveryOrdersPage = () => {
     const text = e.target.value.trim();
     setTextSearch(text);
 
-    if (!ordersAll?.data || !Array.isArray(ordersAll.data)) {
-      console.error("Invalid orders data:", ordersAll.data);
-      return;
-    }
-
     if (text === "") {
       setFilteredOrders(ordersAll.data); // Reset if input is empty
     } else {
-      console.log("Filtering for text:", text);
 
       const filter = ordersAll.data.filter(
         (order) =>
@@ -68,7 +59,6 @@ const OutForDeliveryOrdersPage = () => {
       );
 
       setFilteredOrders(filter); // Update state
-      console.log("Filtered orders:", filter); // Debugging
     }
   };
 

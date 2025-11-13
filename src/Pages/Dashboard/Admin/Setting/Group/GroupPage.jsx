@@ -84,7 +84,6 @@ const GroupPage = ({ refetch, setUpdate }) => {
             setGroup(Group.filter((group) => group.id !== id));
             setUpdate(!refetch);
         }
-        console.log("Group", Group);
     };
 
     // Update Group when `data` changes

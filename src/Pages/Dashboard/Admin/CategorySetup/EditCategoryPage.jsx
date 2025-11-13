@@ -124,8 +124,6 @@ const EditCategoryPage = () => {
 
       setCategoryName(newCategoryNames.length > 0 ? newCategoryNames : []);
 
-      console.log("categoryName edite", categoryName);
-
       setCategories(dataCategory.category.categories);
       setPriority(dataCategory.category.priority);
       setImage(dataCategory.category.image_link);
@@ -140,7 +138,6 @@ const EditCategoryPage = () => {
       setStatusCategory(dataCategory.category.status);
       setActiveCategory(dataCategory.category.active);
     }
-    console.log("dataCategory", dataCategory);
   }, [dataCategory]);
 
   const handleImageChange = (e) => {
@@ -211,7 +208,6 @@ const EditCategoryPage = () => {
   };
 
   useEffect(() => {
-    console.log("response", response);
     if (!loadingPost && response) {
       handleCancel();
     }

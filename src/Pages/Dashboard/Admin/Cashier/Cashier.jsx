@@ -98,6 +98,7 @@ const Cashier = () => {
     const headers = [
         t("SL"),
         t("Name"),
+        t("Cashier Man"),
         t("Branch"),
         t("Status"),
         t("Action"),
@@ -155,6 +156,9 @@ const Cashier = () => {
                                             </td>
                                             <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                                 {Cashier?.name || "-"}
+                                            </td>
+                                             <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                                {Cashier?.cashier_man?.user_name || "-"}
                                             </td>
                                             <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                                 {Cashier?.branch?.name || "-"}
@@ -253,8 +257,8 @@ const Cashier = () => {
                                         key={page}
                                         onClick={() => handlePageChange(page)}
                                         className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
-                                                ? "bg-mainColor text-white"
-                                                : " text-mainColor"
+                                            ? "bg-mainColor text-white"
+                                            : " text-mainColor"
                                             }`}
                                     >
                                         {page}

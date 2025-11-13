@@ -95,10 +95,6 @@ const AddBannerSection = ({ update, setUpdate }) => {
       // setFilterProducts([{ id: '', name: stateProducts }, ...allData?.products] || []);
       setDeals([{ id: "", name: stateDeals }, ...allData?.deals] || []);
     }
-    console.log("taps", taps);
-    console.log("categories", categories);
-    console.log("products", products);
-    console.log("deals", deals);
   }, [allData, dataCategory]);
 
   const handleImageClick = (index) => {
@@ -122,8 +118,6 @@ const AddBannerSection = ({ update, setUpdate }) => {
     const filterProducts = products.filter((product) => {
       return product.category_id === option.id;
     });
-
-    console.log("filterProducts", filterProducts);
     setFilterProducts([{ id: "", name: "Select product" }, ...filterProducts]);
   };
 
@@ -156,7 +150,6 @@ const AddBannerSection = ({ update, setUpdate }) => {
   };
 
   useEffect(() => {
-    console.log("response", response);
     if (!loadingPost) {
       handleReset();
     }
@@ -264,15 +257,8 @@ const AddBannerSection = ({ update, setUpdate }) => {
     formData.append("product_id", productId);
     formData.append("deal_id", dealId);
     formData.append("status", bannerStatus);
-
-    console.log(...formData.entries());
     postData(formData, "Banner Added Success");
   };
-
-  useEffect(() => {
-    console.log("image", image);
-    console.log("imageFile", imageFile);
-  }, [image, imageFile]);
 
   return (
     <>

@@ -26,7 +26,6 @@ const OffersLayout = () => {
               if (dataOffers && dataOffers.offers) {
                      setOffers(dataOffers.offers);
               }
-              console.log('dataOffers', dataOffers)
        }, [dataOffers]); // Only run this effect when `data` changes
 
 

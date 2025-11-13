@@ -79,7 +79,6 @@ const CustomersPage = ({ refetch, setUpdate }) => {
 
   useEffect(() => {
     if (dataCustomer && dataCustomer.customers) {
-      console.log("Customer Data:", dataCustomer);
       setCustomers(dataCustomer.customers);
       setFilteredCustomers(dataCustomer.customers);
     }

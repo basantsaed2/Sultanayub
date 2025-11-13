@@ -80,14 +80,12 @@ const ZonePage = ({ refetch }) => {
     if (success) {
       setZones(zones.filter((Zone) => Zone.id !== id));
     }
-    console.log("Zones", zones);
   };
 
   useEffect(() => {
     if (dataZones && dataZones.zones) {
       setZones(dataZones.zones);
     }
-    console.log("dataZones", dataZones);
   }, [dataZones]); // Only run this effect when `data` changes
 
   const headers = [

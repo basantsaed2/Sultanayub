@@ -99,7 +99,6 @@ const VoidReason = ({ refetch, setUpdate }) => {
       setVoidReason(VoidReasons.filter((VoidReason) => VoidReason.id !== id));
       setUpdate(!refetch);
     }
-    console.log("VoidReason", VoidReasons);
   };
 
   const headers = [t("sl"), t("Void Reason") ,t("Status"), t("action")];

@@ -78,14 +78,12 @@ const BranchCategoryPage = ({ refetch }) => {
       setBranchProduct(dataBranchProduct.products);
       setBranchCategory(dataBranchProduct.categories);
     }
-    console.log("dataBranches", dataBranchProduct);
   }, [dataBranchProduct]); // Only run this effect when `data` changes
 
   useEffect(() => {
     if (dataBranchOption && dataBranchOption.variations) {
       setBranchOption(dataBranchOption.variations);
     }
-    console.log("dataBranchOption", dataBranchOption);
   }, [dataBranchOption]); // Only run this effect when `data` changes
 
   // Change Product status

@@ -94,7 +94,6 @@ const ScheduleTimePage = ({ refetch }) => {
     if (dataSchedule && dataSchedule.time_slot) {
       setSchedule(dataSchedule.time_slot);
     }
-    console.log('dataSchedule', dataSchedule)
   }, [dataSchedule]); // Only run this effect when `data` changes
 
 

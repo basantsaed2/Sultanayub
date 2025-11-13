@@ -803,17 +803,12 @@ const AddProductPage = () => {
       }
     }
 
-    // Debug: Log selectedOptionExtras to verify its content
-    console.log("selectedOptionExtras:", JSON.stringify(selectedOptionExtras, null, 2));
-
     if (Array.isArray(productVariations)) {
       productVariations.forEach((variation, indexVar) => {
-        console.log(`Processing variation index ${indexVar}`, variation);
 
         /* Names */
         if (Array.isArray(variation.names)) {
           variation.names.forEach((name, index) => {
-            console.log(`Processing name at index ${index}:`, name);
             formData.append(`variations[${indexVar}][names][${index}][name]`, name.name);
             formData.append(`variations[${indexVar}][names][${index}][tranlation_name]`, name.tranlation_name);
             formData.append(`variations[${indexVar}][names][${index}][tranlation_id]`, name.tranlation_id);
@@ -827,12 +822,10 @@ const AddProductPage = () => {
             // Extra Option Handling using selectedOptionExtras
             const extraKey = `${indexVar}-${indexOption}`;
             const selectedExtrasForOption = selectedOptionExtras[extraKey] || {};
-            console.log(`Processing option ${indexVar}-${indexOption}, selectedExtrasForOption:`, selectedExtrasForOption);
 
             if (Object.keys(selectedExtrasForOption).length > 0) {
               let extraIndex = 0;
               Object.values(selectedExtrasForOption).flat().forEach((extraId) => {
-                console.log(`Appending extra_index for ${extraKey}, extraIndex ${extraIndex}:`, extraId);
                 formData.append(
                   `variations[${indexVar}][options][${indexOption}][extra][${extraIndex}][extra]`,
                   extraId !== undefined ? String(extraId) : ""
@@ -875,14 +868,6 @@ const AddProductPage = () => {
         formData.append(`variations[${indexVar}][required]`, variation.required ? 1 : 0);
       });
     }
-
-    // Debug: Log only extra-related form data
-    for (const [key, value] of formData.entries()) {
-      if (key.includes("extra")) {
-        console.log(`${key}: ${value}`);
-      }
-    }
-
     postData(formData, t("Product Added Success"));
   };
 
@@ -890,7 +875,6 @@ const AddProductPage = () => {
     if (response && response.status === 200) {
       handleReset();
     }
-    console.log("response", response);
   }, [response]);
 
   return (

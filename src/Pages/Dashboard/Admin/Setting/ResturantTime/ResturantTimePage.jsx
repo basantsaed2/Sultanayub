@@ -124,11 +124,7 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
       branch_id: parseInt(newTimeSlot.branch_id, 10)
     };
 
-    console.log('Adding new slot with payload:', payload);
-
     const response = await postTimeSlot(payload);
-    console.log('Post response:', response);
-
     if (response?.id) {
       setTimeSlots([...timeSlots, {
         ...newTimeSlot,
@@ -190,7 +186,6 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
     }
 
     setIsSubmittingTimeSlots(true);
-    console.log('Branch Times to submit:', timeSlots);
     const results = await Promise.allSettled(
       timeSlots
         .filter(slot => !slot.id)
@@ -207,11 +202,7 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
             branch_id: parseInt(slot.branch_id, 10)
           };
 
-          console.log('Submitting slot:', { payload, isUpdate: !!slot.id });
-
-          console.log('Adding new slot with tempId:', slot.tempId);
           const response = await postTimeSlot(payload);
-          console.log('Add response:', response);
           return { slot, response };
         })
     );
@@ -221,7 +212,6 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
       const result = results.find((r, i) => timeSlots[i].tempId === slot.tempId);
       if (result?.status === 'fulfilled' && result.value.response?.id) {
         const { response } = result.value;
-        console.log('Processing response for slot:', response);
         return {
           ...slot,
           id: response.id,
@@ -229,12 +219,10 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
           branch: branches.find(b => b.id === slot.branch_id) || slot.branch
         };
       }
-      console.error('Failed to process slot:', result?.reason);
       auth.toastError(`Failed to process slot: ${result?.reason?.message || 'Unknown error'}`);
       return slot;
     });
 
-    console.log('Updated slots:', updatedSlots);
     setTimeSlots(updatedSlots);
   };
 

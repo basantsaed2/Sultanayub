@@ -40,8 +40,11 @@ const EditCashierMan = () => {
   const [status, setStatus] = useState(0);
   const [takeAway, setTakeAway] = useState(0);
   const [dineIn, setDineIn] = useState(0);
-  const [carSlow, setCarSlow] = useState(0);
   const [delivery, setDelivery] = useState(0);
+  const [realOrder, setRealOrder] = useState(0);
+  const [discount, setDiscount] = useState(0);
+  const [orderOnline, setOrderOnline] = useState(0);
+  const [voidOrder, setVoidOrder] = useState(0);
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [selectedRoles, setSelectedRoles] = useState([]);
   const [image, setImage] = useState(null);
@@ -80,8 +83,11 @@ const EditCashierMan = () => {
       setStatus(cashier.status || 0);
       setTakeAway(cashier.take_away || 0);
       setDineIn(cashier.dine_in || 0);
-      setCarSlow(cashier.car_slow || 0);
       setDelivery(cashier.delivery || 0);
+      setRealOrder(cashier.real_order || 0);
+      setDiscount(cashier.discount_perimission || 0);
+      setOrderOnline(cashier.online_order || 0);
+      setVoidOrder(cashier.void_order || 0);
       setExistingImage(cashier.image_link || null);
       // Set branch
       if (cashier.branch_id && branches.length > 0) {
@@ -110,8 +116,11 @@ const EditCashierMan = () => {
   const handleStatus = () => setStatus((prev) => (prev === 0 ? 1 : 0));
   const handleTakeAway = () => setTakeAway((prev) => (prev === 0 ? 1 : 0));
   const handleDineIn = () => setDineIn((prev) => (prev === 0 ? 1 : 0));
-  const handleCarSlow = () => setCarSlow((prev) => (prev === 0 ? 1 : 0));
   const handleDelivery = () => setDelivery((prev) => (prev === 0 ? 1 : 0));
+  const handleRealOrder = () => setRealOrder((prev) => (prev === 0 ? 1 : 0));
+  const handleDiscount = () => setDiscount((prev) => (prev === 0 ? 1 : 0));
+  const handleOrderOnline = () => setOrderOnline((prev) => (prev === 0 ? 1 : 0));
+  const handleVoidOrder = () => setVoidOrder((prev) => (prev === 0 ? 1 : 0));
 
   // Reset form to fetched data
   const handleReset = () => {
@@ -123,8 +132,11 @@ const EditCashierMan = () => {
       setStatus(cashier.status || 0);
       setTakeAway(cashier.take_away || 0);
       setDineIn(cashier.dine_in || 0);
-      setCarSlow(cashier.car_slow || 0);
       setDelivery(cashier.delivery || 0);
+      setRealOrder(cashier.real_order || 0);
+      setDiscount(cashier.discount_perimission || 0);
+      setOrderOnline(cashier.online_order || 0);
+      setVoidOrder(cashier.void_order || 0);
       setImage(null);
       setExistingImage(cashier.image_link || null);
       if (cashier.branch_id && branches.length > 0) {
@@ -170,8 +182,11 @@ const EditCashierMan = () => {
     formData.append("status", status);
     formData.append("take_away", takeAway);
     formData.append("dine_in", dineIn);
-    formData.append("car_slow", carSlow);
     formData.append("delivery", delivery);
+    formData.append("real_order", realOrder);
+    formData.append("online_order", orderOnline);
+    formData.append("discount_perimission", discount);
+    formData.append("void_order", voidOrder);
     selectedRoles.forEach((role, index) => {
       formData.append(`roles[${index}]`, role.value);
     });
@@ -259,7 +274,7 @@ const EditCashierMan = () => {
             </div>
           </div>
           <form className="p-2" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
               {/* User Name */}
               <div className="flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -383,20 +398,44 @@ const EditCashierMan = () => {
                 <Switch handleClick={handleDineIn} checked={dineIn} />
               </div>
 
-              {/* Car Slow */}
-              <div className="flex items-start justify-start gap-x-3 pt-8">
-                <span className="text-xl font-TextFontRegular text-thirdColor">
-                  {t("Car Slow")}:
-                </span>
-                <Switch handleClick={handleCarSlow} checked={carSlow} />
-              </div>
-
               {/* Delivery */}
               <div className="flex items-start justify-start gap-x-3 pt-8">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Delivery")}:
                 </span>
                 <Switch handleClick={handleDelivery} checked={delivery} />
+              </div>
+
+              {/* Real Order */}
+              <div className="flex items-start justify-start gap-x-3 pt-8">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Real Order")}:
+                </span>
+                <Switch handleClick={handleRealOrder} checked={realOrder} />
+              </div>
+
+              {/*Online Order */}
+              <div className="flex items-start justify-start gap-x-3 pt-8">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Online Order")}:
+                </span>
+                <Switch handleClick={handleOrderOnline} checked={orderOnline} />
+              </div>
+
+              {/* Discount Perimission */}
+              <div className="flex items-start justify-start gap-x-3 pt-8">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Discount Perimission")}:
+                </span>
+                <Switch handleClick={handleDiscount} checked={discount} />
+              </div>
+
+              {/* Void Order */}
+              <div className="flex items-start justify-start gap-x-3 pt-8">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Void Order")}:
+                </span>
+                <Switch handleClick={handleVoidOrder} checked={voidOrder} />
               </div>
             </div>
 

@@ -76,7 +76,6 @@ const DiscountPage = ({ refetch, setUpdate }) => {
   //        //   const updatedLanguages = prevLanguages.map((language) =>
   //        //     language.id === id ? { ...language, status: status } : language
   //        //   );
-  //        //   console.log('Updated Languages:', updatedLanguages);
   //        //   return updatedLanguages;
   //        // });
   // };
@@ -93,7 +92,6 @@ const DiscountPage = ({ refetch, setUpdate }) => {
       setDiscounts(discounts.filter((discount) => discount.id !== id));
       setUpdate(!refetch);
     }
-    console.log("Discounts", discounts);
   };
 
   // Update Discounts when `data` changes

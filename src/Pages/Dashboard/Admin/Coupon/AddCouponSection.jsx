@@ -104,7 +104,6 @@ const AddCouponPage = ({ update, setUpdate }) => {
     if (dataCoupon) {
       setProducts(dataCoupon.products);
     }
-    console.log("dataCoupon", products);
   }, [dataCoupon]);
 
   /* Coupon Type */
@@ -226,7 +225,6 @@ const AddCouponPage = ({ update, setUpdate }) => {
   };
 
   useEffect(() => {
-    console.log("response", response);
     if (!loadingPost) {
       setTitle("");
       setCode("");
@@ -405,10 +403,6 @@ const AddCouponPage = ({ update, setUpdate }) => {
 
     formData.append("max_discount_status", maxDiscountStatus);
     formData.append("max_discount", maxDiscount);
-
-    for (let pair of formData.entries()) {
-      console.log(pair[0] + ", " + pair[1]);
-    }
 
     postData(formData, "Coupon Added Success");
   };

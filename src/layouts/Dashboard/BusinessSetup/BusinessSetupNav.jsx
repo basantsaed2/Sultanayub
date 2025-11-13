@@ -14,7 +14,6 @@ const BusinessSetupNav = () => {
        const [isActiveCustomerLogin, setIsActiveCustomerLogin] = useState(false)
        const [isActiveOrders, setIsActiveOrders] = useState(false)
        // const path = location.pathname;
-       console.log('locationsss', path)
 
        const handleAllTap = () => {
               setIsActiveBusinessSettings(false)

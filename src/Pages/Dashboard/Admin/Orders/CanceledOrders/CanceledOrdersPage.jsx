@@ -36,25 +36,16 @@ const CanceledOrdersPage = () => {
   useEffect(() => {
     if (Array.isArray(ordersCanceled.data)) {
       setFilteredOrders(ordersCanceled.data);
-      console.log("ordersCanceled", ordersCanceled.data);
-    } else {
-      console.log("ordersCanceled data is not an array or is undefined");
-    }
+    } 
   }, [ordersCanceled.data]);
 
   const handleFilterData = (e) => {
     const text = e.target.value.trim();
     setTextSearch(text);
 
-    if (!ordersAll?.data || !Array.isArray(ordersAll.data)) {
-      console.error("Invalid orders data:", ordersAll.data);
-      return;
-    }
-
     if (text === "") {
       setFilteredOrders(ordersAll.data); // Reset if input is empty
     } else {
-      console.log("Filtering for text:", text);
 
       const filter = ordersAll.data.filter(
         (order) =>
@@ -66,7 +57,6 @@ const CanceledOrdersPage = () => {
       );
 
       setFilteredOrders(filter); // Update state
-      console.log("Filtered orders:", filter); // Debugging
     }
   };
 

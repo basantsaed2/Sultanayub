@@ -64,7 +64,6 @@ const EditTaxPage = () => {
   };
 
   useEffect(() => {
-    console.log("response", response);
     if (response) {
       handleBack();
     }
@@ -112,7 +111,6 @@ const EditTaxPage = () => {
     formData.append("amount", taxAmount);
     formData.append("type", typeName);
 
-    console.log(...formData.entries());
     postData(formData, t("Tax Edited Success"));
   };
 

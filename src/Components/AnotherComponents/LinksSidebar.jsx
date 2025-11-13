@@ -226,7 +226,6 @@ const adminRoutes = [
       { name: "Policy & Support", path: "/dashboard/setting/policy_support", permission: "PolicySupport" },
       { name: "App Setup", path: "/dashboard/setting/app_setup", permission: "AppSetup" },
       { name: "Void Reason", path: "/dashboard/setting/void_reason", permission: "VoidReason" },
-      { name: "QR Link", path: "/dashboard/setting/qr_link", permission: "QRLink" },
     ],
     redirectTo: "/dashboard/setting/roles",
   },

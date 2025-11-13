@@ -120,12 +120,9 @@ const AddCategorySection = ({ update, setUpdate }) => {
           priorities.push(priorityObj);
         }
 
-        console.log("priorities", priorities);
         return priorities;
       });
     }
-    console.log("setCategoriesPriority", categoriesPriority);
-    console.log("dataCategory", dataCategory);
   }, [dataCategory]);
 
   const handleImageChange = (e) => {
@@ -196,10 +193,6 @@ const AddCategorySection = ({ update, setUpdate }) => {
   };
 
   useEffect(() => {
-    console.log("CategoryName", categoryName);
-  }, [categoryName]);
-  useEffect(() => {
-    console.log("response", response);
     if (!loadingPost) {
       setCurrentTap(0);
       setCategoryName([]);

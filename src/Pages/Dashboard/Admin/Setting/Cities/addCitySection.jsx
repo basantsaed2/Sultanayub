@@ -41,7 +41,6 @@ const AddCitySection = ({ update, setUpdate }) => {
   }
 
   useEffect(() => {
-    console.log('response', response)
     if (!loadingPost) {
       handleReset()
     }

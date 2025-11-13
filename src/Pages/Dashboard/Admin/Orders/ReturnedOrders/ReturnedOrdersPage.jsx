@@ -37,9 +37,6 @@ const ReturnedOrdersPage = () => {
   useEffect(() => {
     if (Array.isArray(ordersReturned.data)) {
       setFilteredOrders(ordersReturned.data)
-      console.log('ordersReturned', ordersReturned.data);
-    } else {
-      console.log('ordersReturned data is not an array or is undefined');
     }
   }, [ordersReturned.data]);
 
@@ -47,16 +44,9 @@ const ReturnedOrdersPage = () => {
     const text = e.target.value.trim();
     setTextSearch(text);
 
-    if (!ordersAll?.data || !Array.isArray(ordersAll.data)) {
-      console.error("Invalid orders data:", ordersAll.data);
-      return;
-    }
-
     if (text === "") {
       setFilteredOrders(ordersAll.data); // Reset if input is empty
     } else {
-      console.log("Filtering for text:", text);
-
       const filter = ordersAll.data.filter(
         (order) =>
           order.id.toString().startsWith(text) || // Matches if order.id starts with the text
@@ -69,7 +59,6 @@ const ReturnedOrdersPage = () => {
       );
 
       setFilteredOrders(filter); // Update state
-      console.log("Filtered orders:", filter); // Debugging
     }
   };
 

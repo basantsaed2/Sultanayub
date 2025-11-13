@@ -81,7 +81,6 @@ const [days] = useState([
 
 
   const handleAddDay = () => {
-    console.log('times', times)
     const newTime = {
       day: "",
       from: "",
@@ -140,12 +139,6 @@ const [days] = useState([
   }
 
   useEffect(() => {
-    console.log('dealTitle', dealTitle)
-    console.log('dealDescription', dealDescription)
-  }, [dealTitle, dealDescription])
-
-  useEffect(() => {
-    console.log('response', response)
     if (!loadingPost && response) {
       handleCancel()
     }

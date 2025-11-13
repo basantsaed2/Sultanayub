@@ -36,25 +36,16 @@ const ProcessingOrdersPage = () => {
   useEffect(() => {
     if (Array.isArray(ordersProcessing.data)) {
       setFilteredOrders(ordersProcessing.data)
-      console.log('ordersProcessing', ordersProcessing.data);
-    } else {
-      console.log('ordersProcessing data is not an array or is undefined');
-    }
+    } 
   }, [ordersProcessing.data]);
 
   const handleFilterData = (e) => {
     const text = e.target.value.trim();
     setTextSearch(text);
 
-    if (!ordersAll?.data || !Array.isArray(ordersAll.data)) {
-      console.error("Invalid orders data:", ordersAll.data);
-      return;
-    }
-
     if (text === "") {
       setFilteredOrders(ordersAll.data); // Reset if input is empty
     } else {
-      console.log("Filtering for text:", text);
 
       const filter = ordersAll.data.filter(
         (order) =>
@@ -68,7 +59,6 @@ const ProcessingOrdersPage = () => {
       );
 
       setFilteredOrders(filter); // Update state
-      console.log("Filtered orders:", filter); // Debugging
     }
   };
 

@@ -99,13 +99,11 @@ const CouponPage = ({ refetch, setUpdate }) => {
       setCoupons(coupons.filter((coupon) => coupon.id !== id));
       setUpdate(!refetch);
     }
-    console.log("Coupons", coupons);
   };
 
   // Update Discounts when `data` changes
   useEffect(() => {
     if (dataCoupon && dataCoupon.coupons) {
-      console.log("Coupon Data:", dataCoupon);
       setCoupons(dataCoupon.coupons);
     }
   }, [dataCoupon]); // Only run this effect when `data` changes

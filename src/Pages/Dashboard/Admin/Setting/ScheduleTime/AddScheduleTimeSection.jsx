@@ -58,7 +58,6 @@ const AddScheduleTimeSection = ({ update, setUpdate }) => {
   };
 
   useEffect(() => {
-    console.log("response", response);
     if (!loadingPost) {
       setStatus(0);
     }

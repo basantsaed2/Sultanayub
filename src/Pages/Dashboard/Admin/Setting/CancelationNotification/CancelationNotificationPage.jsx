@@ -24,7 +24,6 @@ const CancelationNotificationPage = () => {
        useEffect(() => {
               if (dataCancelationNotification && dataCancelationNotification.repeated_notification) {
                      setRepeatedNotification(parseInt(dataCancelationNotification.repeated_notification));
-                     console.log('Fetched repeated notification from API:', dataCancelationNotification.repeated_notification);
               }
        }, [dataCancelationNotification]);
 

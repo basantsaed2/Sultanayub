@@ -73,7 +73,6 @@ const AdminsPage = ({ loadingAdmins, adminsData }) => {
       // Update Deliveries only if changeState succeeded
       setAdmins(admins.filter((admin) => admin.id !== id));
     }
-    console.log("data admins", data);
   };
 
   const headers = [

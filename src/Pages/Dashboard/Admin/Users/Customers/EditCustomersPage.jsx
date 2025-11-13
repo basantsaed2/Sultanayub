@@ -113,7 +113,6 @@ const EditCustomersPage = () => {
     if (!loadingPost && response) {
       handleCancel();
     }
-    console.log(response);
   }, [response]);
 
   const handleCustomerEdit = async (e) => {

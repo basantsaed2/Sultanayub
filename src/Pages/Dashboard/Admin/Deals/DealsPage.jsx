@@ -85,7 +85,6 @@ const DealsPage = ({ data, setDeals, loading }) => {
       // Update Deliveries only if changeState succeeded
       setDeals(data.filter((deal) => deal.id !== id));
     }
-    console.log("data Deals", data);
   };
 
   const headers = [

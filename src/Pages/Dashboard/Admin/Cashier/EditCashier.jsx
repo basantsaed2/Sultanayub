@@ -69,9 +69,7 @@ const EditCashier = () => {
     // Set form fields when all data is available
     useEffect(() => {
         if (dataCashierItem && dataCashierItem.cashier && branches.length > 0 && translations.length > 0 && !initialDataLoaded) {
-            const cashier = dataCashierItem;
-            console.log("Cashier Data:", cashier);
-            
+            const cashier = dataCashierItem;            
             // Find the matching branch
             const selected = branches.find((branch) => branch.value === cashier?.cashier.branch_id);
             setSelectedBranch(selected || null);
@@ -81,15 +79,12 @@ const EditCashier = () => {
             const initialNames = translations.map(trans => {
                 // Find if there's existing name for this translation
                 const existingName = cashier.cashier_names?.find(name => name.tranlation_id === trans.id);
-                console.log("Existing Name for Translation ID", trans.id, ":", existingName);
                 return {
                     translation_id: trans.id,
                     translation_name: trans.name,
                     name: existingName?.cashier_name || ""
                 };
             });
-
-            console.log("Initial Cashier Names:", initialNames);
             
             setCashierNames(initialNames);
             setInitialDataLoaded(true);

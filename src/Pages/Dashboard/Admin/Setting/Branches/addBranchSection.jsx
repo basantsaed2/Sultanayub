@@ -141,7 +141,6 @@ const AddBannerSection = () => {
   };
 
   useEffect(() => {
-    console.log("response", response);
     if (!loadingPost) {
       handleReset();
     }
@@ -151,7 +150,6 @@ const AddBannerSection = () => {
   const handleTimeChange = (e) => {
     const timeValue = e.target.value; // This will always be in "hh:mm" format from the browser
     setFoodPreparationTime(timeValue); // Save it directly
-    console.log("Formatted Time:", timeValue); // Verify it's "hh:mm"
   };
 
   const handleReset = () => {

@@ -69,7 +69,6 @@ const EditDeliveryManPage = () => {
       // setDeliveries(dataDeliveries.deliveries);
       setBranches([{ id: '', name: t('Select Branche') }, ...dataDeliveries.branches] || []);
     }
-    console.log('dataDeliveries', dataDeliveries)
   }, [dataDeliveries]); // Only run this effect when `data` changes
 
   useEffect(() => {
@@ -94,7 +93,6 @@ const EditDeliveryManPage = () => {
       setIdentityImage(delivery.identity_image_link || '')
       setIdentityImageFile(delivery.identity_image_link || null)
     }
-    console.log('dataDeliveryMan', dataDeliveryMan)
   }, [dataDeliveryMan]); // Only run this effect when `data` changes
 
   const handleOpenBranch = () => {
@@ -178,7 +176,6 @@ const EditDeliveryManPage = () => {
 
 
   useEffect(() => {
-    console.log('response', response);
     if (!loadingPost && response) {
       handleCancel();
     }

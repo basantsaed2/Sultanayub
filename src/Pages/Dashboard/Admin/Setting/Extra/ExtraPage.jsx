@@ -66,7 +66,6 @@ const ExtraPage = ({ refetch, setUpdate }) => {
             setExtra(Extra.filter((Extra) => Extra.id !== id));
             setUpdate(!refetch);
         }
-        console.log("Extra", Extra);
     };
 
     // Update Extra when `data` changes

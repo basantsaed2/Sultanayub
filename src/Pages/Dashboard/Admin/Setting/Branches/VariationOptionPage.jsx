@@ -37,13 +37,10 @@ const VariationOptionPage = ({ refetch }) => {
       );
       setSelectedVariation(variation);
     }
-    console.log('dataBranchOption', dataBranchOption);
-    console.log('variationId', variationId);
 
   }, [dataBranchOption, variationId]);
 
   useEffect(() => {
-    console.log('selectedVariation', selectedVariation);
   }, [selectedVariation]);
 
   // Extract the options from the selected variation (or default to an empty array).

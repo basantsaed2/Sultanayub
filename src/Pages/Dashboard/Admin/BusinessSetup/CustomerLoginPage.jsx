@@ -89,8 +89,6 @@ const CustomerLoginPage = () => {
       }
 
     }
-
-    console.log("dataLogin fetch:", dataLogin);
   }, [dataLogin, phoneNumberVerification, emailVerification]);
 
   const handleClickManualLogin = (e) => {
@@ -185,10 +183,6 @@ const CustomerLoginPage = () => {
 
     // Post data with success message
     postData(formData, t("Branch Added Successfully"));
-    console.log("all data submitted:");
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
   };
 
   return (

@@ -9,7 +9,6 @@ const OrdersPaymentNav = () => {
        const [isActiveOrdersPaymentPending, setIsActiveOrdersPaymentPending] = useState(true)
        const [isActiveOrdersPaymentHistory, setIsActiveOrdersPaymentHistory] = useState(false)
        // const path = location.pathname;
-       console.log('locationsss', path)
 
        const handleOrdersPaymentPending = () => {
               setIsActiveOrdersPaymentPending(true)

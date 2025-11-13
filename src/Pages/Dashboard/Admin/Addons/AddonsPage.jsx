@@ -69,7 +69,6 @@ const AddonsPage = ({ refetch }) => {
     if (dataAddons && dataAddons.addons) {
       setAddons(dataAddons.addons);
     }
-    console.log("addons", addons);
   }, [dataAddons]); // Only run this effect when `data` changes
 
   // const headers = ['SL', 'Name', "Price", 'Tax (%)', 'Action'];

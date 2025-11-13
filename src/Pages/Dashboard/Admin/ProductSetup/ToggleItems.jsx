@@ -3,7 +3,6 @@
 // import { useTranslation } from "react-i18next";
 
 // export default function ToggleItems({ id }) {
-//   console.log("المنتج الحالي هو:", id);
 //   const [branches, setBranches] = useState([]);
 //   const [branchProductStatus, setBranchProductStatus] = useState({});
 //   const [loading, setLoading] = useState(true);

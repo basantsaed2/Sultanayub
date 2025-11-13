@@ -48,7 +48,6 @@ const ProductVariationPage = ({ refetch }) => {
     if (dataBranchOption && dataBranchOption.variations) {
       setBranchOption(dataBranchOption.variations);
     }
-    console.log("dataBranchOption", dataBranchOption);
   }, [dataBranchOption]); // Only run this effect when `data` changes
 
   const headers = [t("#"), t("Name"), t("Type"), t("VariationOptions")];

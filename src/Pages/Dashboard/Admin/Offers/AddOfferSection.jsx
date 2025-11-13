@@ -65,13 +65,7 @@ const AddOfferSection = ({ refetch, setRefetch }) => {
   const handleTap = (index) => {
     setCurrentTap(index);
   };
-
   useEffect(() => {
-    console.log("offerNames", offerNames);
-  }, [offerNames]);
-
-  useEffect(() => {
-    console.log("response", response);
     if (!loadingPost) {
       handleReset();
     }

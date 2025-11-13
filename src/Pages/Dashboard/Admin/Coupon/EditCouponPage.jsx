@@ -88,7 +88,6 @@ const EditCouponPage = () => {
                         setProducts(dataAllCoupon.products);
                         setCoupons(dataCoupon.coupons);
                 }
-                console.log('dataCoupon', coupons)
         }, [dataCoupon]);
 
         useEffect(() => {
@@ -398,12 +397,7 @@ const EditCouponPage = () => {
                 }
 
                 formData.append('max_discount_status', maxDiscountStatus);
-                formData.append('max_discount', maxDiscount);
-
-                for (let pair of formData.entries()) {
-                        console.log(pair[0] + ', ' + pair[1]);
-                }
-
+                formData.append('max_discount', maxDiscount);  
 
                 postData(formData, 'Coupon Edited Success');
 

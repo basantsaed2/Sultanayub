@@ -35,7 +35,6 @@ const SinglePageDetails = () => {
     // Use response to update filtered data
     useEffect(() => {
         if (response && !loadingPost) {
-            console.log("Filter API Response:", response);
             setFilteredData(response?.data || null);
         }
     }, [response, loadingPost]);

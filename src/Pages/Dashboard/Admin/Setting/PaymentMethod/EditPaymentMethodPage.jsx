@@ -31,7 +31,6 @@ const EditPaymentMethodPage = () => {
 
   useEffect(() => {
     if (dataPaymentMethod && dataPaymentMethod.payment_method) {
-      console.log('dataPaymentMethod', dataPaymentMethod)
       const data = dataPaymentMethod.payment_method;
       setPaymentMethodName(data?.name || '')
       setPaymentMethodDescription(data?.description || '')
@@ -60,7 +59,6 @@ const EditPaymentMethodPage = () => {
   }
 
   useEffect(() => {
-    console.log('response', response);
     if (!loadingPost && response) {
       handleCancel();
     }

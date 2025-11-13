@@ -49,7 +49,6 @@ const OffersPage = ({ data, setOffers, loading }) => {
       // Update Deliveries only if changeState succeeded
       setOffers(data.filter((offer) => offer.id !== id));
     }
-    console.log("data Offers", data);
   };
 
   const headers = [t("sl"), t("image"), t("name"), t("points"), t("action")];

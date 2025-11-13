@@ -80,14 +80,12 @@ const CitiesPage = ({ refetch }) => {
     if (success) {
       setCities(cities.filter((city) => city.id !== id));
     }
-    console.log("Cities", cities);
   };
 
   useEffect(() => {
     if (dataCities && dataCities.cities) {
       setCities(dataCities.cities);
     }
-    console.log("dataCities", dataCities);
   }, [dataCities]); // Only run this effect when `data` changes
 
   const headers = ["#", t("City"), t("Status"), t("Action")];

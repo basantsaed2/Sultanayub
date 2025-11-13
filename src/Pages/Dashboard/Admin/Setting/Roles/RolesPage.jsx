@@ -47,7 +47,6 @@ const RolesPage = ({ update, setUpdate }) => {
     if (dataRoles && dataRoles.user_positions) {
       setRoles(dataRoles.user_positions);
     }
-    console.log("dataRoles", dataRoles);
   }, [dataRoles]); // Only run this effect when `data` changes
 
   // Calculate total number of pages

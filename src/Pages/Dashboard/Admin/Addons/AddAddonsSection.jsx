@@ -71,7 +71,6 @@ const AddAddonsSection = ({ update, setUpdate }) => {
     if (dataAddons) {
       setAddonTaxes([{ id: "", name: t("Select Tax") }, ...dataAddons.taxes]);
     }
-    console.log("dataAddons", dataAddons);
   }, [dataAddons]);
 
   const handleQuantityAddon = () => {
@@ -98,11 +97,6 @@ const AddAddonsSection = ({ update, setUpdate }) => {
   };
 
   useEffect(() => {
-    console.log("addonName", addonsName);
-  }, [addonsName]);
-
-  useEffect(() => {
-    console.log("response", response);
     if (!loadingPost) {
       handleReset();
     }
@@ -235,8 +229,6 @@ const AddAddonsSection = ({ update, setUpdate }) => {
 
                               return updatedNames;
                             });
-
-                            console.log("addonsName", addonsName);
                           }}
                           placeholder={t("AddonName")}
                         />

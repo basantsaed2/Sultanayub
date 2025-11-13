@@ -10,9 +10,6 @@
 // };
 
 // const RecentOrders = ({ recent_orders }) => {
-//   useEffect(() => {
-//     console.log("Data order in recent orders: ", recent_orders);
-//   }, [recent_orders]);
 
 //   return (
 //     <div className="bg-white py-3 px-4 w-full h-[32rem] overflow-hidden mx-auto">

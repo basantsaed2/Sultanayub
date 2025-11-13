@@ -34,11 +34,7 @@ const InvoiceOrderPage = () => {
     if (dataInvoiceOrder && dataInvoiceOrder.order) {
       setInvoiceData(dataInvoiceOrder.order);
     }
-    console.log("dataInvoiceOrder", dataInvoiceOrder); // Refetch data when the component mounts
   }, [dataInvoiceOrder]);
-  useEffect(() => {
-    console.log("orderId", orderId); // Refetch data when the component mounts
-  }, [orderId]);
 
   let totalAddonPrice = 0;
   let totalItemPrice = 0;
@@ -325,7 +321,6 @@ const InvoiceOrderPage = () => {
                 </div>
               ))}
 
-              {/* console.log('first', first) */}
 
               {/* Display the total addon price */}
               {/* <div> */}

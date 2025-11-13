@@ -1,199 +1,3 @@
-// import React, { useEffect, useState } from 'react';
-// import { LoaderLogin, NumberInput, StaticButton, SubmitButton, TimeInput, TitleSection } from '../../../../Components/Components';
-// import { useGet } from '../../../../Hooks/useGet';
-// import { usePost } from '../../../../Hooks/usePostJson';
-// import { MultiSelect } from 'primereact/multiselect';
-
-// const RestaurantTimeSlotPage = ({ refetch }) => {
-//     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-//     const [timeData, setTimeData] = useState({
-//         from: '',
-//         hours: ''
-//     });
-//     const { refetch: refetchTimeSlot, loading: loadingTime, data: dataSlot } = useGet({
-//         url: `${apiUrl}/admin/settings/business_setup/time_slot`
-//     });
-//     const { postData, loadingPost, response } = usePost({ url: `${apiUrl}/admin/settings/business_setup/time_slot/add` });
-
-//     // const { refetch: refetchTimeSlot, loading: loadingTime, data: dataSlot } = useGet({url: `${apiUrl}/admin/settings/business_setup/time_slot`});
-//     // const { postData:postCustom, loadingPost:loadingCustom, response:responseCustom } = usePost({ url: `${apiUrl}/admin/settings/business_setup/time_slot/add_custom` });
-//     // const { postData:postTimeSlot, loadingPost:loadingTimeSlot, response:responseTimeSlot } = usePost({ url: `${apiUrl}/admin/settings/business_setup/time_slot/add_times` });
-
-//     const [optionName, setOptionName] = useState('daily');
-//     const [selectedDays, setSelectedDays] = useState([]);
-//     const [days, setDays] = useState([]);
-
-//     useEffect(() => {
-//         refetchTimeSlot();
-//     }, [refetchTimeSlot]);
-
-// useEffect(() => {
-//     if (dataSlot) {
-//         // Transform days array of strings into array of objects
-//         const formattedDays = dataSlot.days?.map(day => ({ name: day })) || [];
-//         setDays(formattedDays);
-
-//         // Set the default time data if available
-//         if (dataSlot.resturant_time?.resturant_time) {
-//             setTimeData({
-//                 from: dataSlot.resturant_time.resturant_time.from,
-//                 hours: dataSlot.resturant_time.resturant_time.
-//             });
-//         }
-
-//         // Set the selected custom days if they exist
-//         if (dataSlot.resturant_time?.custom?.length > 0) {
-//             const customDays = dataSlot.resturant_time.custom.map(day => ({ name: day }));
-//             setSelectedDays(customDays);
-//             // If there are custom days, switch to customize mode
-//             setOptionName('customize');
-//         }
-
-//         console.log("Formatted days:", formattedDays);
-//         console.log("Restaurant time data:", {
-//             openingTime: dataSlot.resturant_time?.resturant_time?.from,
-//             workingHours: dataSlot.resturant_time?.resturant_time?.hours,
-//             customDays: dataSlot.resturant_time?.custom || []
-//         });
-//     }
-// }, [dataSlot]);
-
-//     // Function to format time to HH:MM:SS
-//     const formatTimeToHHMMSS = (time) => {
-//         if (!time) return '';
-//         // If time is in HH:MM format, append :00
-//         if (/^\d{2}:\d{2}$/.test(time)) {
-//             return `${time}:00`;
-//         }
-//         // If already in HH:MM:SS format, return as is
-//         if (/^\d{2}:\d{2}:\d{2}$/.test(time)) {
-//             return time;
-//         }
-//         // Handle other cases (invalid formats)
-//         return time;
-//     };
-
-//     const handleSubmit = (e) => {
-//         e.preventDefault();
-//         // Format the time before sending
-//         const formattedTime = formatTimeToHHMMSS(timeData.from);
-
-//         let postDataObj;
-
-//         if (optionName === 'daily') {
-//             postDataObj = {
-//                 resturant_time: {
-//                     from: formattedTime,
-//                     hours: timeData.hours
-//                 }
-//             };
-//         } else {
-//             postDataObj = {
-//                 custom: selectedDays.map(day => day.name),
-//                 resturant_time: {
-//                     from: formattedTime,
-//                     hours: timeData.hours
-//                 }
-//             };
-//         }
-
-//         console.log('Submitting Data:', postDataObj);
-//         postData(postDataObj, 'Time Slot Added Successfully');
-//     };
-
-//     const handleReset = () => {
-//         setTimeData({ from: '', hours: '' });
-//         setOptionName('daily');
-//         setSelectedDays([]);
-//     };
-
-//     return (
-//         <>
-//             {loadingTime || loadingPost ? (
-//                 <div className="flex items-center justify-center w-full h-56">
-//                     <LoaderLogin />
-//                 </div>
-//             ) : (
-//                 <form className="flex flex-wrap items-start justify-start w-full gap-4 sm:flex-col lg:flex-row" onSubmit={handleSubmit}>
-//                     <TitleSection text={'Restaurant Operating Hours'} />
-
-//                     <div className="flex w-full gap-8 mt-4">
-//                         <span
-//                             className={`text-xl font-TextFontRegular cursor-pointer ${optionName === 'daily' ? 'text-mainColor' : 'text-thirdColor'}`}
-//                             onClick={() => setOptionName('daily')}
-//                         >
-//                             Daily
-//                         </span>
-//                         <span
-//                             className={`text-xl font-TextFontRegular cursor-pointer ${optionName === 'customize' ? 'text-mainColor' : 'text-thirdColor'}`}
-//                             onClick={() => setOptionName('customize')}
-//                         >
-//                             Customize
-//                         </span>
-//                     </div>
-
-//                     <div className="flex flex-wrap items-center w-full gap-8 mt-3">
-//                         <div className="sm:w-full lg:w-[35%] flex sm:flex-col xl:flex-row items-center gap-2">
-//                             <span className="w-9/12 text-xl text-thirdColor">Opening Time:</span>
-//                             <TimeInput
-//                                 value={timeData.from}
-//                                 onChange={(e) => {
-//                                     setTimeData({
-//                                         ...timeData,
-//                                         from: e.target.value
-//                                     });
-//                                 }}
-//                             />
-//                         </div>
-//                         <div className="sm:w-full lg:w-[35%] flex sm:flex-col xl:flex-row items-center gap-2">
-//                             <span className="w-9/12 text-xl text-thirdColor">Number Of Hours:</span>
-//                             <NumberInput
-//                                 value={timeData.hours}
-//                                 onChange={(e) => {
-//                                     setTimeData({
-//                                         ...timeData,
-//                                         hours: e.target.value
-//                                     });
-//                                 }}
-//                                 placeholder={"Enter number of hours"}
-//                             />
-//                         </div>
-//                     </div>
-
-//                     {optionName === 'customize' && (
-//                         <div className="sm:w-full lg:w-[60%] flex flex-col items-start gap-y-1 mt-3">
-//                             <span className="text-xl text-thirdColor">Select Days:</span>
-//                             <MultiSelect
-//                                 value={selectedDays}
-//                                 onChange={(e) => setSelectedDays(e.value)}
-//                                 options={days}
-//                                 optionLabel="name"
-//                                 placeholder="Select Days"
-//                                 filter
-//                                 className="w-full"
-//                             />
-//                         </div>
-//                     )}
-
-//                     <div className="flex items-center justify-end w-full mt-6 gap-x-4">
-//                         <StaticButton
-//                             text={'Reset'}
-//                             handleClick={handleReset}
-//                             bgColor="bg-transparent"
-//                             Color="text-mainColor"
-//                             border="border-2"
-//                             borderColor="border-mainColor"
-//                             rounded="rounded-full"
-//                         />
-//                         <SubmitButton text={'Submit'} rounded="rounded-full" handleClick={handleSubmit} />
-//                     </div>
-//                 </form>
-//             )}
-//         </>
-//     );
-// };
-
-// export default RestaurantTimeSlotPage;
 import React, { useEffect, useState, useRef } from "react";
 import {
   LoaderLogin,
@@ -329,10 +133,7 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
       branch_id: parseInt(newTimeSlot.branch_id, 10),
     };
 
-    console.log("Adding new slot with payload:", payload); // Debug: Log payload
-
     const response = await postTimeSlot(payload);
-    console.log("Post response:", response); // Debug: Log response
 
     if (response?.id) {
       setTimeSlots([
@@ -399,7 +200,6 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
     }
 
     setIsSubmittingTimeSlots(true);
-    console.log("Time slots to submit:", timeSlots); // Debug: Log all slots
     const results = await Promise.allSettled(
       timeSlots
         .filter((slot) => !slot.id) // Only process slots without server ID (i.e., failed local adds)
@@ -414,12 +214,7 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
             hours: parseInt(slot.hours, 10),
             branch_id: parseInt(slot.branch_id, 10),
           };
-
-          console.log("Submitting slot:", { payload, isUpdate: !!slot.id }); // Debug: Log payload
-
-          console.log("Adding new slot with tempId:", slot.tempId);
           const response = await postTimeSlot(payload);
-          console.log("Add response:", response); // Debug: Log response
           return { slot, response };
         })
     );
@@ -431,7 +226,6 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
       );
       if (result?.status === "fulfilled" && result.value.response?.id) {
         const { response } = result.value;
-        console.log("Processing response for slot:", response); // Debug: Log response
         return {
           ...slot,
           id: response.id,
@@ -439,14 +233,12 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
           branch: branches.find((b) => b.id === slot.branch_id) || slot.branch,
         };
       }
-      console.error("Failed to process slot:", result?.reason); // Debug: Log error
       auth.toastError(
         `Failed to process slot: ${result?.reason?.message || "Unknown error"}`
       );
       return slot;
     });
 
-    console.log("Updated slots:", updatedSlots); // Debug: Log final slots
     setTimeSlots(updatedSlots);
   };
 
@@ -465,7 +257,6 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
       auth.toastSuccess(t("Custom days saved successfully"));
       refetchTimeSlot();
     } catch (error) {
-      console.error("Submit custom days error:", error);
       auth.toastError(`Failed to save custom days: ${error.message}`);
     } finally {
       setIsSubmittingCustom(false);

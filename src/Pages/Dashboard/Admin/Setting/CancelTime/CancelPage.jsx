@@ -68,7 +68,6 @@ const CancelTimePage = () => {
 
     formData.append("time", cancelTime);
 
-    console.log(...formData.entries());
     postData(formData, t("Cancel Time Changed Success"));
   };
   return (

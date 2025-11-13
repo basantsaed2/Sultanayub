@@ -45,7 +45,6 @@ const AddDiscountSection = ({ update, setUpdate }) => {
   };
 
   useEffect(() => {
-    console.log("response", response);
     if (!loadingPost) {
       handleReset();
     }
@@ -97,7 +96,6 @@ const AddDiscountSection = ({ update, setUpdate }) => {
     formData.append("amount", discountAmount);
     formData.append("type", typeName);
 
-    console.log(...formData.entries());
     postData(formData, "Discount Added Success");
   };
 

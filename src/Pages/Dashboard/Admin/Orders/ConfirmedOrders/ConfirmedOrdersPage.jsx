@@ -38,10 +38,7 @@ const ConfirmedOrdersPage = () => {
   useEffect(() => {
     if (Array.isArray(ordersConfirmed.data)) {
       setFilteredOrders(ordersConfirmed.data)
-      console.log('ordersConfirmed', ordersConfirmed.data);
-    } else {
-      console.log('ordersConfirmed data is not an array or is undefined');
-    }
+    } 
   }, [ordersConfirmed.data]);
 
   const handleFilterData = (e) => {
@@ -56,7 +53,6 @@ const ConfirmedOrdersPage = () => {
     if (text === "") {
       setFilteredOrders(ordersAll.data); // Reset if input is empty
     } else {
-      console.log("Filtering for text:", text);
 
       const filter = ordersAll.data.filter(
         (order) =>
@@ -70,7 +66,6 @@ const ConfirmedOrdersPage = () => {
       );
 
       setFilteredOrders(filter); // Update state
-      console.log("Filtered orders:", filter); // Debugging
     }
   };
 

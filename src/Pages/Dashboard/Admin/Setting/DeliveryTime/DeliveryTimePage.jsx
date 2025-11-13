@@ -46,7 +46,6 @@ const DeliveryTimePage = () => {
 
     formData.append("delivery_time", deliveryTime);
 
-    console.log(...formData.entries());
     postData(formData, t("Delivery Time Changed Success"));
   };
   return (

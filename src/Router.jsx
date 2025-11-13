@@ -147,7 +147,6 @@ import ExpensesList from "./Pages/Dashboard/Admin/Expenses/ExpensesList/Expenses
 import AddExpensesList from "./Pages/Dashboard/Admin/Expenses/ExpensesList/AddExpensesList";
 import EditExpensesList from "./Pages/Dashboard/Admin/Expenses/ExpensesList/EditExpensesList";
 import ExpensesPayment from "./Pages/Dashboard/Admin/Expenses/ExpensesPayment/ExpensesPayment";
-import LandingQRLink from "./Pages/Dashboard/Admin/Setting/LandingQRLink/LandingQRLink";
 import ServiceFees from "./Pages/Dashboard/Admin/ServiceFees/ServiceFees";
 import AddServiceFees from "./Pages/Dashboard/Admin/ServiceFees/AddServiceFees";
 import EditServiceFees from "./Pages/Dashboard/Admin/ServiceFees/EditServiceFees";
@@ -754,10 +753,6 @@ export const router = createBrowserRouter([
               {
                 path: 'order_type',
                 element: <OrderTypeLayout />,
-              },
-              {
-                path: 'qr_link',
-                element: <LandingQRLink />,
               },
               {
                 path: 'resturant_time',

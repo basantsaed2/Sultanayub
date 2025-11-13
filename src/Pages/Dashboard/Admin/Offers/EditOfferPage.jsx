@@ -71,14 +71,10 @@ const EditOfferPage = () => {
         });
       }
       setOfferNames(newOfferNames.length > 0 ? newOfferNames : []);
-
-      console.log("offerNames edite", offerNames);
-
       setPoints(dataOffer?.offer?.points || points);
       setImage(dataOffer?.offer?.image_link || image);
       setImageFile(dataOffer?.offer?.image_link || imageFile);
     }
-    console.log("dataOffer", dataOffer);
   }, [dataOffer]);
 
   const handleImageChange = (e) => {
@@ -99,11 +95,6 @@ const EditOfferPage = () => {
   };
 
   useEffect(() => {
-    console.log("offerNames", offerNames);
-  }, [offerNames]);
-
-  useEffect(() => {
-    console.log("response", response);
     if (!loadingPost && response) {
       handleCancel();
     }

@@ -29,7 +29,6 @@ const DeliveryManLayout = () => {
                      setDeliveries(dataDeliveries.deliveries);
                      setBranches([{ id: '', name: t('Select Branche') }, ...dataDeliveries.branches] || []);
               }
-              console.log('dataDeliveries', dataDeliveries)
        }, [dataDeliveries]); // Only run this effect when `data` changes
 
 
