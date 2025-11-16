@@ -845,7 +845,7 @@ const BusinessSettingsPage = () => {
             </div>
           </div>
 
-            {qrCode && (
+            {qrCode !== null && (
           <div className="sm:w-full lg:w-[30%] flex flex-col items-center justify-center gap-y-1 mt-5">
               <img
                 src={qrCode}
