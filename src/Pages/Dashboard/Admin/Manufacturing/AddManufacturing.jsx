@@ -44,14 +44,14 @@ const AddManufacturing = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [quantity, setQuantity] = useState("");
-    const [materialWeights, setMaterialWeights] = useState({}); // Now stores strings or numbers
+    const [materialWeights, setMaterialWeights] = useState({}); // Always strings
     const [hasFormChanged, setHasFormChanged] = useState(false);
 
     // Calculate availability
     const getUpdatedRecipes = () => {
         return recipes.map(recipe => {
-            const inputValue = materialWeights[recipe.id] ?? "";
-            const currentWeight = inputValue === "" ? recipe.weight : (parseFloat(inputValue) || 0);
+            const inputValue = materialWeights[recipe.id] ?? recipe.weight.toString();
+            const currentWeight = inputValue === "" ? 0 : (parseFloat(inputValue) || 0);
             const isAvailable = currentWeight === 0 && recipe.available_quantity === 0
                 ? true
                 : currentWeight <= recipe.available_quantity;
@@ -59,7 +59,7 @@ const AddManufacturing = () => {
             return {
                 ...recipe,
                 currentWeight,
-                inputValue, // for editing
+                inputValue,
                 available: isAvailable
             };
         });
@@ -113,7 +113,7 @@ const AddManufacturing = () => {
 
             const initialWeights = {};
             newRecipes.forEach(recipe => {
-                initialWeights[recipe.id] = recipe.weight.toString(); // Store as string
+                initialWeights[recipe.id] = recipe.weight.toString(); // String
             });
             setMaterialWeights(initialWeights);
             setHasFormChanged(false);
@@ -168,20 +168,25 @@ const AddManufacturing = () => {
         const recipe = recipes.find(r => r.id === recipeId);
         if (!recipe) return;
 
-        // Allow empty string during typing
+        // Allow empty string while typing
         if (inputValue === "") {
             setMaterialWeights(prev => ({ ...prev, [recipeId]: "" }));
             return;
         }
 
-        const weightValue = parseFloat(inputValue) || 0;
+        const weightValue = parseFloat(inputValue);
+
+        // Allow partial input like "." or "12."
+        if (isNaN(weightValue) && inputValue !== "." && !inputValue.endsWith(".")) {
+            return;
+        }
 
         if (weightValue > recipe.available_quantity) {
             auth.toastError(t("Weight cannot exceed available quantity"));
             return;
         }
 
-        setMaterialWeights(prev => ({ ...prev, [recipeId]: weightValue }));
+        setMaterialWeights(prev => ({ ...prev, [recipeId]: inputValue }));
     };
 
     const handleGetRecipe = (e) => {
@@ -212,7 +217,8 @@ const AddManufacturing = () => {
         formData.append("quantity", quantity);
 
         updatedRecipes.forEach((recipe, index) => {
-            const weight = materialWeights[recipe.id] === "" ? 0 : (parseFloat(materialWeights[recipe.id]) || 0);
+            const inputValue = materialWeights[recipe.id] ?? "";
+            const weight = inputValue === "" ? 0 : (parseFloat(inputValue) || 0);
             formData.append(`materials[${index}][id]`, recipe.id);
             formData.append(`materials[${index}][weight]`, weight);
         });
@@ -343,23 +349,23 @@ const AddManufacturing = () => {
                         {/* Get Recipe Button */}
                         <div className="flex items-center justify-end w-full gap-x-4 mt-6">
                             <div className="">
-                            <StaticButton
-                                text={t("Get Recipe")}
-                                handleClick={handleGetRecipe}
-                                bgColor="bg-mainColor"
-                                Color="text-white"
-                                border="border-2"
-                                borderColor="border-mainColor"
-                                rounded="rounded-full"
-                                disabled={!selectedStore || !selectedProduct || !quantity}
-                            />
+                                <StaticButton
+                                    text={t("Get Recipe")}
+                                    handleClick={handleGetRecipe}
+                                    bgColor="bg-mainColor"
+                                    Color="text-white"
+                                    border="border-2"
+                                    borderColor="border-mainColor"
+                                    rounded="rounded-full"
+                                    disabled={!selectedStore || !selectedProduct || !quantity}
+                                />
                             </div>
                         </div>
 
                         {/* Loading Recipe */}
                         {loadingProductRecipe && (
                             <div className="flex items-center justify-center w-full h-20">
-                                <StaticLoader />  
+                                <StaticLoader />
                             </div>
                         )}
 
@@ -370,11 +376,6 @@ const AddManufacturing = () => {
                                     <h3 className="text-xl font-TextFontRegular text-thirdColor">
                                         {t("Recipe Materials")}
                                     </h3>
-                                    {/* {hasFormChanged && (
-                                        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-3 py-1 rounded text-sm">
-                                            {t("Form data changed - please get recipe again")}
-                                        </div>
-                                    )} */}
                                     {!allRecipesAvailable && (
                                         <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-1 rounded text-sm">
                                             {t("Adjust weights to make all materials available")}
@@ -389,7 +390,7 @@ const AddManufacturing = () => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     {updatedRecipes.map((recipe) => {
-                                        const inputValue = materialWeights[recipe.id] ?? "";
+                                        const inputValue = materialWeights[recipe.id] ?? recipe.weight.toString();
                                         const displayWeight = inputValue === "" ? recipe.weight : (parseFloat(inputValue) || 0);
                                         const isAvailable = recipe.available;
 
@@ -435,7 +436,7 @@ const AddManufacturing = () => {
                                                     <span className="text-sm text-gray-700">{t("Weight")}:</span>
                                                     <NumberInput
                                                         value={inputValue}
-                                                        onChange={(val) => handleMaterialWeightChange(recipe.id, val)}
+                                                        onChange={(e) => handleMaterialWeightChange(recipe.id, e.target.value)}
                                                         className="w-24"
                                                         placeholder="0"
                                                     />

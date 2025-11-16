@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useGet } from "../../../../Hooks/useGet";
 import { useDelete } from "../../../../Hooks/useDelete";
-import { LoaderLogin, SearchBar ,Switch} from "../../../../Components/Components";
+import { LoaderLogin, SearchBar, Switch } from "../../../../Components/Components";
 import { DeleteIcon, EditIcon } from "../../../../Assets/Icons/AllIcons";
 import { Link, useNavigate } from "react-router-dom";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
@@ -95,15 +95,20 @@ const ProductPage = () => {
     refetchCategories();
   }, [refetchProducts, refetchCategories, selectedLanguage]);
 
-  const handleChangeStaus = async (id, name, favourite) => {
+  const handleChangeStatus = async (id, name, favourite) => {
     const response = await changeFavoritePos(
       `${apiUrl}/admin/product/favourite/${id}`,
       `${name} Changed Status.`,
-      { favourite }
+      { favourite: favourite }
     );
 
     if (response) {
       setProducts((prevProduct) =>
+        prevProduct.map((product) =>
+          product.id === id ? { ...product, favourite: favourite } : product
+        )
+      );
+      setFilteredProducts((prevProduct) =>
         prevProduct.map((product) =>
           product.id === id ? { ...product, favourite: favourite } : product
         )
@@ -495,12 +500,12 @@ const ProductPage = () => {
                             </td>
                             <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                               <Switch
-                                checked={product.favourite}
+                                checked={product.favourite === 1}
                                 handleClick={() => {
-                                  handleChangeStaus(
+                                  handleChangeStatus(
                                     product.id,
                                     product?.name,
-                                    product.favourite === 1 ? 0 : 1
+                                    product.favourite == 1 ? 0 : 1
                                   );
                                 }}
                               />
@@ -623,6 +628,27 @@ const ProductPage = () => {
                                           {product.category?.name ||
                                             product.sub_category?.name ||
                                             "-"}
+                                        </td>
+                                        <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
+                                          <Switch
+                                            checked={product.favourite === 1}
+                                            handleClick={() => {
+                                              handleChangeStatus(
+                                                product.id,
+                                                product?.name,
+                                                product.favourite == 1 ? 0 : 1
+                                              );
+                                            }}
+                                          />
+                                        </td>
+                                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                          <button
+                                            type="button"
+                                            onClick={() => handleViewRecipes(product.id, product.name)}
+                                            className="text-mainColor hover:text-red-700 transition-colors underline text-sm sm:text-base"
+                                          >
+                                            {t("View Recipes")}
+                                          </button>
                                         </td>
                                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                                           {product.discount?.name || "-"}

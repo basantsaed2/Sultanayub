@@ -51,9 +51,9 @@ const NumberInput = ({
     ...props
 }) => {
     const handleChange = (e) => {
-        const inputValue = e.target.value;
-        const numericValue = inputValue.replace(/[^0-9]/g, ''); // Allow only digits
-        onChange(numericValue); // Pass clean string to parent
+              const numericValue = e.target.value.replace(/[^0-9]/g, '');
+              e.target.value = numericValue;
+              onChange(e); // Pass the modified event to the parent's onChange handler
     };
 
     return (
