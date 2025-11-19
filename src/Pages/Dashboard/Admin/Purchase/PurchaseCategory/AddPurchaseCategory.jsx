@@ -15,17 +15,17 @@ import { IoArrowBack } from "react-icons/io5";
 import { useGet } from "../../../../../Hooks/useGet";
 import Select from 'react-select';
 
-const AddMaterialCategory = () => {
+const AddPurchaseCategory = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const {
-        refetch: refetchMaterialCategory,
-        loading: loadingMaterialCategory,
-        data: dataMaterialCategory,
+        refetch: refetchPurchaseCategory,
+        loading: loadingPurchaseCategory,
+        data: dataPurchaseCategory,
     } = useGet({
-        url: `${apiUrl}/admin/material_categories`,
+        url: `${apiUrl}/admin/purchase_categories`,
     });
     const { postData, loadingPost, response } = usePost({
-        url: `${apiUrl}/admin/material_categories/add`,
+        url: `${apiUrl}/admin/purchase_categories/add`,
     });
     const { t } = useTranslation();
     const auth = useAuth();
@@ -34,22 +34,22 @@ const AddMaterialCategory = () => {
     const [name, setName] = useState("");
     const [status, setStatus] = useState(1);
     const [selectedCategory, setSelectedCategory] = useState(null);
-    const [materialCategories, setMaterialCategories] = useState([]);
+    const [purchaseCategories, setPurchaseCategories] = useState([]);
 
     useEffect(() => {
-        refetchMaterialCategory();
-    }, [refetchMaterialCategory]);
+        refetchPurchaseCategory();
+    }, [refetchPurchaseCategory]);
 
-    // Update materialCategories when `data` changes
+    // Update purchaseCategories when `data` changes
     useEffect(() => {
-        if (dataMaterialCategory && dataMaterialCategory.parent_categories) {
-            const subCategoryOptions = dataMaterialCategory.parent_categories.map((category) => ({
+        if (dataPurchaseCategory && dataPurchaseCategory.parent_categories) {
+            const subCategoryOptions = dataPurchaseCategory.parent_categories.map((category) => ({
                 value: category.id,
                 label: category.name,
             }));
-            setMaterialCategories(subCategoryOptions);
+            setPurchaseCategories(subCategoryOptions);
         }
-    }, [dataMaterialCategory]);
+    }, [dataPurchaseCategory]);
 
     // Navigate back after successful submission
     useEffect(() => {
@@ -80,7 +80,7 @@ const AddMaterialCategory = () => {
         e.preventDefault();
 
         if (!name) {
-            auth.toastError(t("Enter Material Category Name"));
+            auth.toastError(t("Enter Purchase Category Name"));
             return;
         }
 
@@ -89,7 +89,7 @@ const AddMaterialCategory = () => {
         formData.append("status", status);
         formData.append("category_id", selectedCategory ? selectedCategory.value : "");
 
-        postData(formData, t("Material Category Added Success"));
+        postData(formData, t("Purchase Category Added Success"));
     };
 
     // Handle back navigation
@@ -122,7 +122,7 @@ const AddMaterialCategory = () => {
 
     return (
         <>
-            {loadingPost || loadingMaterialCategory ? (
+            {loadingPost || loadingPurchaseCategory ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
                 </div>
@@ -137,7 +137,7 @@ const AddMaterialCategory = () => {
                             >
                                 <IoArrowBack size={24} />
                             </button>
-                            <TitlePage text={t("Add Material Category")} />
+                            <TitlePage text={t("Add Purchase Category")} />
                         </div>
                     </div>
                     <form className="p-2" onSubmit={handleSubmit}>
@@ -145,7 +145,7 @@ const AddMaterialCategory = () => {
                             {/* Name */}
                             <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Material Category Name")}:
+                                    {t("Purchase Category Name")}:
                                 </span>
                                 <TextInput
                                     value={name}
@@ -162,7 +162,7 @@ const AddMaterialCategory = () => {
                                 <Select
                                     value={selectedCategory}
                                     onChange={handleCategoryChange}
-                                    options={materialCategories}
+                                    options={purchaseCategories}
                                     placeholder={t("Select Category")}
                                     isClearable
                                     isSearchable
@@ -211,4 +211,4 @@ const AddMaterialCategory = () => {
     );
 };
 
-export default AddMaterialCategory;
+export default AddPurchaseCategory;

@@ -6,6 +6,7 @@ import {
   Switch,
   TextInput,
   UploadInput,
+  NumberInput,
 } from "../../../../../Components/Components";
 import { usePost } from "../../../../../Hooks/usePostJson";
 import { useAuth } from "../../../../../Context/Auth";
@@ -26,6 +27,8 @@ const AddPaymentMethodSection = ({ update, setUpdate }) => {
   const [image, setImage] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [paymentMethodStatus, setPaymentMethodStatus] = useState(0);
+  const [feeStatus, setFeeStatus] = useState(0);
+  const [feeAmount, setFeeAmount] = useState("");
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -49,6 +52,17 @@ const AddPaymentMethodSection = ({ update, setUpdate }) => {
         : setPaymentMethodStatus(0);
     }
   };
+
+  const handleFeeStatus = () => {
+    const currentState = feeStatus;
+    if (currentState === 0) {
+      setFeeStatus(1);
+    } else {
+      setFeeStatus(0);
+      setFeeAmount(""); // Reset fee amount when disabling fees
+    }
+  };
+
   useEffect(() => {
     if (!loadingPost) {
       handleReset();
@@ -62,6 +76,8 @@ const AddPaymentMethodSection = ({ update, setUpdate }) => {
     setImage("");
     setImageFile(null);
     setPaymentMethodStatus(0);
+    setFeeStatus(0);
+    setFeeAmount("");
   };
 
   const handlePaymentMethodAdd = (e) => {
@@ -79,14 +95,23 @@ const AddPaymentMethodSection = ({ update, setUpdate }) => {
       auth.toastError(t("setPaymentMethodImage"));
       return;
     }
+    if (feeStatus === 1 && (!feeAmount || feeAmount <= 0)) {
+      auth.toastError(t("enterValidFeeAmount"));
+      return;
+    }
+
     const formData = new FormData();
 
     formData.append("name", paymentMethodName);
     formData.append("description", paymentMethodDescription);
     formData.append("logo", imageFile);
     formData.append("status", paymentMethodStatus);
+    formData.append("feez_status", feeStatus);
+    formData.append("feez_amount", feeAmount || 0);
+
     postData(formData, "Payment Method Added Success");
   };
+
   return (
     <>
       {loadingPost ? (
@@ -106,7 +131,7 @@ const AddPaymentMethodSection = ({ update, setUpdate }) => {
                     {t("paymentMethodName")}:
                   </span>
                   <TextInput
-                    value={paymentMethodName} // Access category_name property
+                    value={paymentMethodName}
                     onChange={(e) => setPaymentMethodName(e.target.value)}
                     placeholder={t("paymentMethodName")}
                   />
@@ -116,7 +141,7 @@ const AddPaymentMethodSection = ({ update, setUpdate }) => {
                     {t("paymentMethodDescription")}:
                   </span>
                   <TextInput
-                    value={paymentMethodDescription} // Access category_Des property
+                    value={paymentMethodDescription}
                     onChange={(e) =>
                       setPaymentMethodDescription(e.target.value)
                     }
@@ -136,6 +161,8 @@ const AddPaymentMethodSection = ({ update, setUpdate }) => {
                     onClick={() => handleImageClick(ImageRef)}
                   />
                 </div>
+                
+                {/* Fee Status and Amount */}
                 <div className="sm:w-full xl:w-[30%] flex items-start justify-start gap-x-1 pt-8">
                   <div className="flex items-center justify-start w-2/4 gap-x-1">
                     <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -147,6 +174,32 @@ const AddPaymentMethodSection = ({ update, setUpdate }) => {
                     />
                   </div>
                 </div>
+
+                <div className="sm:w-full xl:w-[30%] flex items-start justify-start gap-x-1 pt-4">
+                  <div className="flex items-center justify-start w-2/4 gap-x-1">
+                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                      {t("FeeStatus")}:
+                    </span>
+                    <Switch
+                      handleClick={handleFeeStatus}
+                      checked={feeStatus}
+                    />
+                  </div>
+                </div>
+
+                {/* Fee Amount Input - Only show when feeStatus is 1 */}
+                {feeStatus === 1 && (
+                  <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                      {t("FeeAmount")}:
+                    </span>
+                    <NumberInput
+                      value={feeAmount}
+                      onChange={(e) => setFeeAmount(e.target.value)}
+                      placeholder={t("FeeAmount")}
+                    />
+                  </div>
+                )}
               </div>
             </div>
 

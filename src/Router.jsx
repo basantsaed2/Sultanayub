@@ -158,6 +158,22 @@ import AddMaterialList from "./Pages/Dashboard/Admin/MaterialModule/MaterialList
 import EditMaterialList from "./Pages/Dashboard/Admin/MaterialModule/MaterialList/EditMaterialList";
 import ManufacturingHistory from "./Pages/Dashboard/Admin/Manufacturing/ManufacturingHistory";
 import AddManufacturing from "./Pages/Dashboard/Admin/Manufacturing/AddManufacturing";
+import PurchaseCategory from "./Pages/Dashboard/Admin/Purchase/PurchaseCategory/PurchaseCategory";
+import AddPurchaseCategory from "./Pages/Dashboard/Admin/Purchase/PurchaseCategory/AddPurchaseCategory";
+import EditPurchaseCategory from "./Pages/Dashboard/Admin/Purchase/PurchaseCategory/EditPurchaseCategory";
+import PurchaseProduct from "./Pages/Dashboard/Admin/Purchase/PurchaseProduct/PurchaseProduct";
+import AddPurchaseProduct from "./Pages/Dashboard/Admin/Purchase/PurchaseProduct/AddPurchaseProduct";
+import EditPurchaseProduct from "./Pages/Dashboard/Admin/Purchase/PurchaseProduct/EditPurchaseProduct";
+import PurchaseConsumersion from "./Pages/Dashboard/Admin/Purchase/PurchaseConsumersion/PurchaseConsumersion";
+import AddPurchaseConsumersion from "./Pages/Dashboard/Admin/Purchase/PurchaseConsumersion/AddPurchaseConsumersion";
+import EditPurchaseConsumersion from "./Pages/Dashboard/Admin/Purchase/PurchaseConsumersion/EditPurchaseConsumersion";
+import PurchaseWasted from "./Pages/Dashboard/Admin/Purchase/PurchaseWasted/PurchaseWasted";
+import AddPurchaseWasted from "./Pages/Dashboard/Admin/Purchase/PurchaseWasted/AddPurchaseWasted";
+import EditPurchaseWasted from "./Pages/Dashboard/Admin/Purchase/PurchaseWasted/EditPurchaseWasted";
+import PurchaseList from "./Pages/Dashboard/Admin/Purchase/PurchaseList/PurchaseList";
+import AddPurchaseList from "./Pages/Dashboard/Admin/Purchase/PurchaseList/AddPurchaseList";
+import EditPurchaseList from "./Pages/Dashboard/Admin/Purchase/PurchaseList/EditPurchaseList";
+import PurchaseTransfer from "./Pages/Dashboard/Admin/Purchase/PurchaseTransfer/PurchaseTransfer";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -1261,6 +1277,127 @@ export const router = createBrowserRouter([
               {
                 path: 'edit/:serviceFeeId',
                 element: <EditServiceFees />
+              }
+            ]
+          },
+ 
+          {
+            path: 'purchase',
+            element: <Outlet />,
+            children: [
+              {
+                path: 'purchase_list',
+                children: [
+                  {
+                    path: '',
+                    children: [
+                      {
+                        index: true,
+                        element: <PurchaseList />,
+                      },
+                      {
+                        path: 'add',
+                        element: <AddPurchaseList />,
+                      },
+                      {
+                        path: 'edit/:purchaseListId',
+                        element: <EditPurchaseList />
+                      }
+                    ]
+                  },
+                ]
+              },
+              {
+                path: 'purchase_category',
+                children: [
+                  {
+                    path: '',
+                    children: [
+                      {
+                        index: true,
+                        element: <PurchaseCategory />,
+                      },
+                      {
+                        path: 'add',
+                        element: <AddPurchaseCategory />,
+                      },
+                      {
+                        path: 'edit/:purchaseCategoryId',
+                        element: <EditPurchaseCategory />
+                      }
+                    ]
+                  },
+                ]
+              },
+              {
+                path: 'purchase_product',
+                children: [
+                  {
+                    path: '',
+                    children: [
+                      {
+                        index: true,
+                        element: <PurchaseProduct />,
+                      },
+                      {
+                        path: 'add',
+                        element: <AddPurchaseProduct />,
+                      },
+                      {
+                        path: 'edit/:purchaseProductId',
+                        element: <EditPurchaseProduct />
+                      }
+                    ]
+                  },
+                ]
+              },
+              {
+                path: "purchase_consumersion",
+                children: [
+                  {
+                    path: '',
+                    children: [
+                      {
+                        index: true,
+                        element: <PurchaseConsumersion />,
+                      },
+                      {
+                        path: 'add',
+                        element: <AddPurchaseConsumersion />,
+                      },
+                      {
+                        path: 'edit/:purchaseConsumersionId',
+                        element: <EditPurchaseConsumersion />
+                      }
+                    ]
+                  },
+                ]
+              },
+              {
+                path: "purchase_wasted",
+                children: [
+                  {
+                    path: '',
+                    children: [
+                      {
+                        index: true,
+                        element: <PurchaseWasted />,
+                      },
+                      {
+                        path: 'add',
+                        element: <AddPurchaseWasted />,
+                      },
+                      {
+                        path: 'edit/:purchaseWastedId',
+                        element: <EditPurchaseWasted />
+                      }
+                    ]
+                  },
+                ]
+              },
+              {
+                path: "purchase_transfer",
+                element :<PurchaseTransfer/>
               }
             ]
           },

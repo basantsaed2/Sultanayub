@@ -17,7 +17,7 @@ const PaymentMethodPage = ({ refetch }) => {
   const { changeState, loadingChange, responseChange } = useChangeState();
   const { deleteData, loadingDelete, responseDelete } = useDelete();
   const [paymentMethods, setPaymentMethods] = useState([]);
-                 const {  t,i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [openDelete, setOpenDelete] = useState(null);
 
@@ -99,9 +99,8 @@ const PaymentMethodPage = ({ refetch }) => {
     }
   }, [dataPaymentMethods]); // Only run this effect when `data` changes
 
-
-
-  const headers = ['#', t('Name'), t("Image"), t('Description'), t('Status'), t('Action')];
+  // Updated headers to include Fee Amount column
+  const headers = ['#', t('Name'), t("Image"), t('Description'), t('Fee Amount'), t('Status'), t('Action')];
 
   return (
     <div className="flex items-start justify-start w-full overflow-x-scroll pb-28 scrollSection">
@@ -127,8 +126,6 @@ const PaymentMethodPage = ({ refetch }) => {
                   <td colSpan={12} className='text-xl text-center text-mainColor font-TextFontMedium '>{t("NotfindPaymentMethods")}</td>
                 </tr>
               ) : (
-
-
                 currentPaymentMethods.map((paymentMethod, index) => ( // Example with two rows
                   <tr className="w-full border-b-2" key={index}>
                     <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
@@ -147,6 +144,16 @@ const PaymentMethodPage = ({ refetch }) => {
                     </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {paymentMethod.description}
+                    </td>
+                    {/* Fee Amount Column */}
+                    <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                      {paymentMethod.feez_status === 1 ? (
+                        <span className="font-TextFontSemiBold">
+                          {paymentMethod.feez_amount || 0}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
                     </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       <Switch
@@ -210,7 +217,6 @@ const PaymentMethodPage = ({ refetch }) => {
                     </td>
                   </tr>
                 ))
-
               )}
             </tbody>
           </table>

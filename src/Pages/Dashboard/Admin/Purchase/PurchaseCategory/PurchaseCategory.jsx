@@ -14,62 +14,62 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { t } from "i18next";
 
-const MaterialCategory = () => {
+const PurchaseCategory = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const {
-        refetch: refetchMaterialCategory,
-        loading: loadingMaterialCategory,
-        data: dataMaterialCategory,
+        refetch: refetchPurchaseCategory,
+        loading: loadingPurchaseCategory,
+        data: dataPurchaseCategory,
     } = useGet({
-        url: `${apiUrl}/admin/material_categories`,
+        url: `${apiUrl}/admin/purchase_categories`,
     });
     const { deleteData, loadingDelete, responseDelete } = useDelete();
     const { changeState, loadingChange, responseChange } = useChangeState();
 
-    const [MaterialCategorys, setMaterialCategorys] = useState([]);
+    const [PurchaseCategorys, setPurchaseCategorys] = useState([]);
     const [openDelete, setOpenDelete] = useState(null);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const MaterialCategorysPerPage = 20;
+    const PurchaseCategorysPerPage = 20;
 
-    const totalPages = Math.ceil(MaterialCategorys.length / MaterialCategorysPerPage);
+    const totalPages = Math.ceil(PurchaseCategorys.length / PurchaseCategorysPerPage);
 
-    const currentMaterialCategorys = MaterialCategorys.slice(
-        (currentPage - 1) * MaterialCategorysPerPage,
-        currentPage * MaterialCategorysPerPage
+    const currentPurchaseCategorys = PurchaseCategorys.slice(
+        (currentPage - 1) * PurchaseCategorysPerPage,
+        currentPage * PurchaseCategorysPerPage
     );
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
 
-    // Update MaterialCategorys when `data` changes
+    // Update PurchaseCategorys when `data` changes
     useEffect(() => {
-        if (dataMaterialCategory && dataMaterialCategory.categories) {
-            setMaterialCategorys(dataMaterialCategory.categories);
+        if (dataPurchaseCategory && dataPurchaseCategory.categories) {
+            setPurchaseCategorys(dataPurchaseCategory.categories);
         }
-    }, [dataMaterialCategory]);
+    }, [dataPurchaseCategory]);
 
-    // Change MaterialCategory status
+    // Change PurchaseCategory status
     const handleChangeStatus = async (id, name, status) => {
         const response = await changeState(
-            `${apiUrl}/admin/material_categories/status/${id}`,
+            `${apiUrl}/admin/purchase_categories/status/${id}`,
             `${name} Changed Status.`,
             { status }
         );
 
         if (response) {
-            setMaterialCategorys((prevMaterialCategorys) =>
-                prevMaterialCategorys.map((MaterialCategory) =>
-                    MaterialCategory.id === id ? { ...MaterialCategory, status: status } : MaterialCategory
+            setPurchaseCategorys((prevPurchaseCategorys) =>
+                prevPurchaseCategorys.map((PurchaseCategory) =>
+                    PurchaseCategory.id === id ? { ...PurchaseCategory, status: status } : PurchaseCategory
                 )
             );
         }
     };
 
     useEffect(() => {
-        refetchMaterialCategory();
-    }, [refetchMaterialCategory]);
+        refetchPurchaseCategory();
+    }, [refetchPurchaseCategory]);
 
     const handleOpenDelete = (item) => {
         setOpenDelete(item);
@@ -79,15 +79,15 @@ const MaterialCategory = () => {
         setOpenDelete(null);
     };
 
-    // Delete MaterialCategory
+    // Delete PurchaseCategory
     const handleDelete = async (id, name) => {
         const success = await deleteData(
-            `${apiUrl}/admin/material_categories/delete/${id}`,
+            `${apiUrl}/admin/purchase_categories/delete/${id}`,
             `${name} Deleted Success.`
         );
 
         if (success) {
-            setMaterialCategorys(MaterialCategorys.filter((MaterialCategory) => MaterialCategory.id !== id));
+            setPurchaseCategorys(PurchaseCategorys.filter((PurchaseCategory) => PurchaseCategory.id !== id));
         }
     };
 
@@ -101,7 +101,7 @@ const MaterialCategory = () => {
 
     return (
         <div className="flex items-start justify-start w-full overflow-x-scroll p-2 pb-28 scrollSection">
-            {loadingMaterialCategory || loadingChange || loadingDelete ? (
+            {loadingPurchaseCategory || loadingChange || loadingDelete ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
                 </div>
@@ -109,7 +109,7 @@ const MaterialCategory = () => {
                 <div className="flex flex-col w-full">
                     <div className='flex flex-col items-center justify-between md:flex-row'>
                         <div className='w-full md:w-1/2'>
-                            <TitlePage text={t('Material Category Table')} />
+                            <TitlePage text={t('Purchase Category')} />
                         </div>
                         <div className='flex justify-end w-full py-4 md:w-1/2'>
                             <Link to='add'>
@@ -131,51 +131,51 @@ const MaterialCategory = () => {
                             </tr>
                         </thead>
                         <tbody className="w-full">
-                            {MaterialCategorys.length === 0 ? (
+                            {PurchaseCategorys.length === 0 ? (
                                 <tr>
                                     <td
                                         colSpan={headers.length}
                                         className="text-xl text-center text-mainColor font-TextFontMedium "
                                     >
-                                        {t("No Material Category Found")}
+                                        {t("No Purchase Category Found")}
                                     </td>
                                 </tr>
                             ) : (
-                                currentMaterialCategorys.map((MaterialCategory, index) => (
+                                currentPurchaseCategorys.map((PurchaseCategory, index) => (
                                     <tr className="w-full border-b-2" key={index}>
                                         <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {(currentPage - 1) * MaterialCategorysPerPage + index + 1}
+                                            {(currentPage - 1) * PurchaseCategorysPerPage + index + 1}
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {MaterialCategory?.name || "-"}
+                                            {PurchaseCategory?.name || "-"}
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {MaterialCategory?.category || "-"}
+                                            {PurchaseCategory?.category || "-"}
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                             <Switch
-                                                checked={MaterialCategory.status === 1}
+                                                checked={PurchaseCategory.status === 1}
                                                 handleClick={() => {
                                                     handleChangeStatus(
-                                                        MaterialCategory.id,
-                                                        MaterialCategory.name,
-                                                        MaterialCategory.status === 1 ? 0 : 1
+                                                        PurchaseCategory.id,
+                                                        PurchaseCategory.name,
+                                                        PurchaseCategory.status === 1 ? 0 : 1
                                                     );
                                                 }}
                                             />
                                         </td>
                                         <td className="px-4 py-3 text-center">
                                             <div className="flex items-center justify-center gap-2">
-                                                <Link to={`edit/${MaterialCategory.id}`}>
+                                                <Link to={`edit/${PurchaseCategory.id}`}>
                                                     <EditIcon />
                                                 </Link>
                                                 <button
                                                     type="button"
-                                                    onClick={() => handleOpenDelete(MaterialCategory.id)}
+                                                    onClick={() => handleOpenDelete(PurchaseCategory.id)}
                                                 >
                                                     <DeleteIcon />
                                                 </button>
-                                                {openDelete === MaterialCategory.id && (
+                                                {openDelete === PurchaseCategory.id && (
                                                     <Dialog
                                                         open={true}
                                                         onClose={handleCloseDelete}
@@ -193,7 +193,7 @@ const MaterialCategory = () => {
                                                                         />
                                                                         <div className="flex items-center">
                                                                             <div className="mt-2 text-center">
-                                                                                {t("You will delete")} {MaterialCategory.name}
+                                                                                {t("You will delete")} {PurchaseCategory.name}
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -201,7 +201,7 @@ const MaterialCategory = () => {
                                                                         <button
                                                                             className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto"
                                                                             onClick={() =>
-                                                                                handleDelete(MaterialCategory.id, MaterialCategory.name)
+                                                                                handleDelete(PurchaseCategory.id, PurchaseCategory.name)
                                                                             }
                                                                         >
                                                                             {t("Delete")}
@@ -229,7 +229,7 @@ const MaterialCategory = () => {
                         </tbody>
                     </table>
 
-                    {MaterialCategorys.length > 0 && (
+                    {PurchaseCategorys.length > 0 && (
                         <div className="flex flex-wrap items-center justify-center my-6 gap-x-4">
                             {currentPage !== 1 && (
                                 <button
@@ -271,4 +271,4 @@ const MaterialCategory = () => {
     );
 };
 
-export default MaterialCategory;
+export default PurchaseCategory;

@@ -12,7 +12,7 @@ import { RiVipDiamondLine } from "react-icons/ri";
 import { CiSettings } from "react-icons/ci";
 import { useSelector } from "react-redux";
 import { FiUsers } from "react-icons/fi";
-import { FaUsersCog, FaCashRegister } from "react-icons/fa";
+import { FaUsersCog, FaCashRegister, FaShoppingBasket } from "react-icons/fa";
 import {
   MdOutlineDeliveryDining,
   MdDiscount,
@@ -302,7 +302,22 @@ const adminRoutes = [
     permission: "OrderDelay",
     icon: BiSolidEnvelope,
   },
-    {
+  {
+    name: "Purchase",
+    path: "/dashboard/purchase",
+    permission: "purchase",
+    icon: FaShoppingBasket,
+    subRoutes: [
+      { name: "List", path: "/dashboard/purchase/purchase_list", permission: "purchase", },
+      { name: "Transfer", path: "/dashboard/purchase/purchase_transfer", permission: "purchase", },
+      { name: "Category", path: "/dashboard/purchase/purchase_category", permission: "purchase", },
+      { name: "Products", path: "/dashboard/purchase/purchase_product", permission: "purchase", },
+      { name: "Consumersion", path: "/dashboard/purchase/purchase_consumersion", permission: "purchase", },
+      { name: "Wasted", path: "/dashboard/purchase/purchase_wasted", permission: "purchase", },
+    ],
+    redirectTo: "/dashboard/purchase/purchase_list",
+  },
+  {
     name: "Material",
     path: "/dashboard/material",
     permission: "material",

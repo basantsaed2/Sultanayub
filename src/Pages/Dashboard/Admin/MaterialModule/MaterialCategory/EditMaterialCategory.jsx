@@ -68,8 +68,8 @@ const EditMaterialCategory = () => {
 
     // Update material categories dropdown when data changes
     useEffect(() => {
-        if (dataAllMaterialCategories && dataAllMaterialCategories.sub_categories) {
-            const subCategoryOptions = dataAllMaterialCategories.sub_categories.map((category) => ({
+        if (dataAllMaterialCategories && dataAllMaterialCategories.parent_categories) {
+            const subCategoryOptions = dataAllMaterialCategories.parent_categories.map((category) => ({
                 value: category.id,
                 label: category.name,
             }));

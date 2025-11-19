@@ -10,23 +10,35 @@ import {
 import { usePost } from "../../../../../Hooks/usePostJson";
 import { useAuth } from "../../../../../Context/Auth";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import { useGet } from "../../../../../Hooks/useGet";
 import Select from 'react-select';
 
-const AddMaterialCategory = () => {
+const EditPurchaseList = () => {
+    const { purchaseCategoryId } = useParams();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
     const {
-        refetch: refetchMaterialCategory,
-        loading: loadingMaterialCategory,
-        data: dataMaterialCategory,
+        refetch: refetchPurchaseCategory,
+        loading: loadingPurchaseCategory,
+        data: dataPurchaseCategory
     } = useGet({
-        url: `${apiUrl}/admin/material_categories`,
+        url: `${apiUrl}/admin/purchase/item/${purchaseCategoryId}`,
     });
+
+    const {
+        refetch: refetchAllPurchaseCategories,
+        loading: loadingAllPurchaseCategories,
+        data: dataAllPurchaseCategories,
+    } = useGet({
+        url: `${apiUrl}/admin/purchase`,
+    });
+
     const { postData, loadingPost, response } = usePost({
-        url: `${apiUrl}/admin/material_categories/add`,
+        url: `${apiUrl}/admin/purchase/update/${purchaseCategoryId}`,
     });
+
     const { t } = useTranslation();
     const auth = useAuth();
     const navigate = useNavigate();
@@ -34,22 +46,78 @@ const AddMaterialCategory = () => {
     const [name, setName] = useState("");
     const [status, setStatus] = useState(1);
     const [selectedCategory, setSelectedCategory] = useState(null);
-    const [materialCategories, setMaterialCategories] = useState([]);
+    const [purchaseCategories, setPurchaseCategories] = useState([]);
 
+    // Set form fields when purchase category data is available
     useEffect(() => {
-        refetchMaterialCategory();
-    }, [refetchMaterialCategory]);
+        if (dataPurchaseCategory && dataPurchaseCategory.category) {
+            const category = dataPurchaseCategory.category;
 
-    // Update materialCategories when `data` changes
-    useEffect(() => {
-        if (dataMaterialCategory && dataMaterialCategory.parent_categories) {
-            const subCategoryOptions = dataMaterialCategory.parent_categories.map((category) => ({
-                value: category.id,
-                label: category.name,
-            }));
-            setMaterialCategories(subCategoryOptions);
+            setName(category.name || "");
+            setStatus(category.status || 1);
+
+            // Find the selected category from available options
+            // if (category.category_id && purchaseCategories.length > 0) {
+            //     const foundCategory = purchaseCategories.find(
+            //         cat => cat.value === category.category_id
+            //     );
+            //     setSelectedCategory(foundCategory || null);
+            // }
         }
-    }, [dataMaterialCategory]);
+    }, [dataPurchaseCategory, purchaseCategories]);
+
+    // Update purchase categories dropdown when data changes
+    // Update material categories dropdown when data changes
+    useEffect(() => {
+        if (dataAllPurchaseCategories && dataPurchaseCategory?.category) {
+            const currentCategory = dataPurchaseCategory.category;
+            const parentCategories = dataAllPurchaseCategories.parent_categories || [];
+
+            let options = [];
+
+            // Case 1: There are parent categories → map them
+            if (parentCategories.length > 0) {
+                options = parentCategories.map((category) => ({
+                    value: category.id,
+                    label: category.name,
+                }));
+            }
+
+            // Case 2: No parent categories, but current item has category_id
+            // → Add it manually so it can be selected/shown
+            if (parentCategories.length === 0 && currentCategory.category_id) {
+                options.push({
+                    value: currentCategory?.category.id,
+                    label: currentCategory?.category.name,
+                    isDisabled: true, // Optional: make it non-selectable if not in list
+                });
+            }
+
+            // Case 3: No parents AND no category_id → show placeholder
+            if (options.length === 0) {
+                options.push({
+                    value: null,
+                    label: t("category"),
+                    isDisabled: true,
+                });
+            }
+
+            setPurchaseCategories(options);
+
+            // Set selected category (only if it matches one of the options)
+            if (currentCategory.category_id) {
+                const found = options.find(opt => opt.value === currentCategory.category_id);
+                setSelectedCategory(found || null);
+            } else {
+                setSelectedCategory(null);
+            }
+        }
+    }, [dataAllPurchaseCategories, dataPurchaseCategory, t]);
+
+    useEffect(() => {
+        refetchPurchaseCategory();
+        refetchAllPurchaseCategories();
+    }, [refetchPurchaseCategory, refetchAllPurchaseCategories]);
 
     // Navigate back after successful submission
     useEffect(() => {
@@ -68,28 +136,43 @@ const AddMaterialCategory = () => {
         setSelectedCategory(selectedOption);
     };
 
-    // Reset form
+    // Reset form to original values
     const handleReset = () => {
-        setName("");
-        setStatus(1);
-        setSelectedCategory(null);
+        if (dataPurchaseCategory && dataPurchaseCategory.category) {
+            const category = dataPurchaseCategory.category;
+
+            setName(category.name || "");
+            setStatus(category.status || 1);
+
+            // Reset selected category
+            if (category.category_id && purchaseCategories.length > 0) {
+                const foundCategory = purchaseCategories.find(
+                    cat => cat.value === category.category_id
+                );
+                setSelectedCategory(foundCategory || null);
+            } else {
+                setSelectedCategory(null);
+            }
+        }
     };
 
     // Handle form submission
-    const handleSubmit = (e) => {
+    const handleUpdate = (e) => {
         e.preventDefault();
 
         if (!name) {
-            auth.toastError(t("Enter Material Category Name"));
+            auth.toastError(t("Enter Purchase Category Name"));
             return;
         }
 
         const formData = new FormData();
         formData.append("name", name);
         formData.append("status", status);
-        formData.append("category_id", selectedCategory ? selectedCategory.value : "");
+        if (selectedCategory) {
+            formData.append("category_id", selectedCategory ? selectedCategory.value : "");
+        }
 
-        postData(formData, t("Material Category Added Success"));
+        postData(formData, t("Purchase Category Updated Success"));
     };
 
     // Handle back navigation
@@ -122,7 +205,7 @@ const AddMaterialCategory = () => {
 
     return (
         <>
-            {loadingPost || loadingMaterialCategory ? (
+            {loadingPost || loadingPurchaseCategory || loadingAllPurchaseCategories ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
                 </div>
@@ -137,15 +220,15 @@ const AddMaterialCategory = () => {
                             >
                                 <IoArrowBack size={24} />
                             </button>
-                            <TitlePage text={t("Add Material Category")} />
+                            <TitlePage text={t("Edit Purchase Category")} />
                         </div>
                     </div>
-                    <form className="p-2" onSubmit={handleSubmit}>
+                    <form className="p-2" onSubmit={handleUpdate}>
                         <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                             {/* Name */}
                             <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Material Category Name")}:
+                                    {t("Purchase Category Name")}:
                                 </span>
                                 <TextInput
                                     value={name}
@@ -162,7 +245,7 @@ const AddMaterialCategory = () => {
                                 <Select
                                     value={selectedCategory}
                                     onChange={handleCategoryChange}
-                                    options={materialCategories}
+                                    options={purchaseCategories}
                                     placeholder={t("Select Category")}
                                     isClearable
                                     isSearchable
@@ -198,9 +281,9 @@ const AddMaterialCategory = () => {
                             </div>
                             <div>
                                 <SubmitButton
-                                    text={t("Submit")}
+                                    text={t("Update")}
                                     rounded="rounded-full"
-                                    handleClick={handleSubmit}
+                                    handleClick={handleUpdate}
                                 />
                             </div>
                         </div>
@@ -211,4 +294,4 @@ const AddMaterialCategory = () => {
     );
 };
 
-export default AddMaterialCategory;
+export default EditPurchaseList;

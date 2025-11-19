@@ -10,46 +10,76 @@ import {
 import { usePost } from "../../../../../Hooks/usePostJson";
 import { useAuth } from "../../../../../Context/Auth";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import { useGet } from "../../../../../Hooks/useGet";
 import Select from 'react-select';
 
-const AddMaterialCategory = () => {
+const EditPurchaseProduct = () => {
+    const { purchaseProductId } = useParams();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const {
-        refetch: refetchMaterialCategory,
-        loading: loadingMaterialCategory,
-        data: dataMaterialCategory,
-    } = useGet({
-        url: `${apiUrl}/admin/material_categories`,
+
+    const { refetch: refetchList, loading: loadingList, data: dataList } = useGet({
+        url: `${apiUrl}/admin/purchase_product`,
     });
+
+    const { refetch: refetchPurchaseProduct, loading: loadingPurchaseProduct, data: dataPurchaseProduct } = useGet({
+        url: `${apiUrl}/admin/purchase_product/item/${purchaseProductId}`,
+    });
+
     const { postData, loadingPost, response } = usePost({
-        url: `${apiUrl}/admin/material_categories/add`,
+        url: `${apiUrl}/admin/purchase_product/update/${purchaseProductId}`,
     });
+
     const { t } = useTranslation();
     const auth = useAuth();
     const navigate = useNavigate();
 
-    const [name, setName] = useState("");
-    const [status, setStatus] = useState(1);
+    const [categories, setCategories] = useState([]);
+    const [categoryOptions, setCategoryOptions] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
-    const [materialCategories, setMaterialCategories] = useState([]);
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
+    const [status, setStatus] = useState(1);
 
+    // Set form fields when product data is available
     useEffect(() => {
-        refetchMaterialCategory();
-    }, [refetchMaterialCategory]);
+        if (dataPurchaseProduct && dataPurchaseProduct?.material[0]) {
+            const product = dataPurchaseProduct.material[0];
 
-    // Update materialCategories when `data` changes
-    useEffect(() => {
-        if (dataMaterialCategory && dataMaterialCategory.parent_categories) {
-            const subCategoryOptions = dataMaterialCategory.parent_categories.map((category) => ({
-                value: category.id,
-                label: category.name,
-            }));
-            setMaterialCategories(subCategoryOptions);
+            setName(product.name || "");
+            setDescription(product.description || "")
+            setStatus(product.status || 1);
+
+            // Set selected category if category data exists
+            if (product.category_id && categories.length > 0) {
+                const category = categories.find(cat => cat.id === product.category_id);
+                if (category) {
+                    setSelectedCategory({
+                        value: category.id,
+                        label: category.name
+                    });
+                }
+            }
         }
-    }, [dataMaterialCategory]);
+    }, [dataPurchaseProduct, categories]);
+
+    // Format categories for react-select when dataList is available
+    useEffect(() => {
+        if (dataList && dataList.categories) {
+            setCategories(dataList.categories);
+            const options = dataList.categories.map(category => ({
+                value: category.id,
+                label: category.name
+            }));
+            setCategoryOptions(options);
+        }
+    }, [dataList]);
+
+    useEffect(() => {
+        refetchList();
+        refetchPurchaseProduct();
+    }, [refetchList, refetchPurchaseProduct]);
 
     // Navigate back after successful submission
     useEffect(() => {
@@ -63,33 +93,48 @@ const AddMaterialCategory = () => {
         setStatus((prev) => (prev === 1 ? 0 : 1));
     };
 
-    // Handle category selection change
-    const handleCategoryChange = (selectedOption) => {
-        setSelectedCategory(selectedOption);
-    };
-
-    // Reset form
+    // Reset form to original values
     const handleReset = () => {
-        setName("");
-        setStatus(1);
-        setSelectedCategory(null);
+        if (dataPurchaseProduct && dataPurchaseProduct.product) {
+            const product = dataPurchaseProduct.product;
+
+            setName(product.name || "");
+            setStatus(product.status || 1);
+
+            // Reset selected category
+            if (product.category_id && categories.length > 0) {
+                const category = categories.find(cat => cat.id === product.category_id);
+                if (category) {
+                    setSelectedCategory({
+                        value: category.id,
+                        label: category.name
+                    });
+                }
+            }
+        }
     };
 
     // Handle form submission
-    const handleSubmit = (e) => {
+    const handleUpdate = (e) => {
         e.preventDefault();
 
+        if (!selectedCategory) {
+            auth.toastError(t("Please select a category"));
+            return;
+        }
+
         if (!name) {
-            auth.toastError(t("Enter Material Category Name"));
+            auth.toastError(t("Enter PurchaseProduct Name"));
             return;
         }
 
         const formData = new FormData();
+        formData.append("category_id", selectedCategory.value);
         formData.append("name", name);
+        formData.append("description", description);
         formData.append("status", status);
-        formData.append("category_id", selectedCategory ? selectedCategory.value : "");
 
-        postData(formData, t("Material Category Added Success"));
+        postData(formData, t("Purchase Product Updated Success"));
     };
 
     // Handle back navigation
@@ -98,31 +143,35 @@ const AddMaterialCategory = () => {
     };
 
     // Custom styles for react-select
-    const selectStyles = {
+    const customStyles = {
         control: (base, state) => ({
             ...base,
-            border: '1px solid #D1D5DB',
-            borderRadius: '0.5rem',
-            padding: '0.5rem',
-            boxShadow: state.isFocused ? '0 0 0 2px rgba(59, 130, 246, 0.1)' : 'none',
-            borderColor: state.isFocused ? '#3B82F6' : '#D1D5DB',
+            border: '2px solid #e5e7eb',
+            borderRadius: '8px',
+            padding: '8px 8px',
+            fontSize: '16px',
+            fontFamily: 'inherit',
+            boxShadow: state.isFocused ? '0 0 0 2px #3b82f6' : 'none',
+            borderColor: state.isFocused ? '#3b82f6' : '#e5e7eb',
             '&:hover': {
-                borderColor: state.isFocused ? '#3B82F6' : '#9CA3AF'
+                borderColor: state.isFocused ? '#3b82f6' : '#d1d5db'
             }
         }),
         option: (base, state) => ({
             ...base,
-            backgroundColor: state.isSelected ? '#3B82F6' : state.isFocused ? '#EFF6FF' : 'white',
+            fontSize: '16px',
+            fontFamily: 'inherit',
+            backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#eff6ff' : 'white',
             color: state.isSelected ? 'white' : '#374151',
             '&:hover': {
-                backgroundColor: '#EFF6FF'
+                backgroundColor: state.isSelected ? '#3b82f6' : '#eff6ff'
             }
         })
     };
 
     return (
         <>
-            {loadingPost || loadingMaterialCategory ? (
+            {loadingPost || loadingPurchaseProduct ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
                 </div>
@@ -137,36 +186,48 @@ const AddMaterialCategory = () => {
                             >
                                 <IoArrowBack size={24} />
                             </button>
-                            <TitlePage text={t("Add Material Category")} />
+                            <TitlePage text={t("Edit Purchase Product")} />
                         </div>
                     </div>
-                    <form className="p-2" onSubmit={handleSubmit}>
+                    <form className="p-2" onSubmit={handleUpdate}>
                         <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                             {/* Name */}
                             <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Material Category Name")}:
+                                    {t("Product Name")}:
                                 </span>
                                 <TextInput
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    placeholder={t("Enter Name")}
+                                    placeholder={t("Enter Product Name")}
                                 />
                             </div>
 
-                            {/* Category */}
+                            {/* Description */}
                             <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Category")}:
+                                    {t("Product Description")}:
+                                </span>
+                                <TextInput
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    placeholder={t("Enter Product Description")}
+                                />
+                            </div>
+
+                            {/* Category Select */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Purchase Category")}:
                                 </span>
                                 <Select
+                                    options={categoryOptions}
                                     value={selectedCategory}
-                                    onChange={handleCategoryChange}
-                                    options={materialCategories}
-                                    placeholder={t("Select Category")}
-                                    isClearable
+                                    onChange={setSelectedCategory}
+                                    placeholder={t("Select Purchase Category")}
                                     isSearchable
-                                    styles={selectStyles}
+                                    styles={customStyles}
+                                    isLoading={loadingList}
                                     className="w-full"
                                     noOptionsMessage={() => t("No categories available")}
                                 />
@@ -198,9 +259,9 @@ const AddMaterialCategory = () => {
                             </div>
                             <div>
                                 <SubmitButton
-                                    text={t("Submit")}
+                                    text={t("Update")}
                                     rounded="rounded-full"
-                                    handleClick={handleSubmit}
+                                    handleClick={handleUpdate}
                                 />
                             </div>
                         </div>
@@ -211,4 +272,4 @@ const AddMaterialCategory = () => {
     );
 };
 
-export default AddMaterialCategory;
+export default EditPurchaseProduct;

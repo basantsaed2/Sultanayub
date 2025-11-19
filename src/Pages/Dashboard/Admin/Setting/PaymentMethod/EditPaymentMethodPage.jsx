@@ -3,16 +3,15 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useGet } from '../../../../../Hooks/useGet';
 import { usePost } from '../../../../../Hooks/usePostJson';
 import { useAuth } from '../../../../../Context/Auth';
-import { LoaderLogin, StaticButton, SubmitButton, Switch, TextInput, UploadInput } from '../../../../../Components/Components';
+import { LoaderLogin, StaticButton, SubmitButton, Switch, TextInput, UploadInput, NumberInput } from '../../../../../Components/Components';
 import { useTranslation } from "react-i18next";
-
 
 const EditPaymentMethodPage = () => {
   const { paymentMethodId } = useParams();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const { refetch: refetchPaymentMethod, loading: loadingPaymentMethod, data: dataPaymentMethod } = useGet({ url: `${apiUrl}/admin/settings/payment_methods/item/${paymentMethodId}` });
   const { postData, loadingPost, response } = usePost({ url: `${apiUrl}/admin/settings/payment_methods/update/${paymentMethodId}` });
-                 const {  t,i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const auth = useAuth();
   const navigate = useNavigate();
@@ -24,9 +23,11 @@ const EditPaymentMethodPage = () => {
   const [image, setImage] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [paymentMethodStatus, setPaymentMethodStatus] = useState(0);
+  const [feeStatus, setFeeStatus] = useState(0);
+  const [feeAmount, setFeeAmount] = useState('');
 
   useEffect(() => {
-    refetchPaymentMethod(); // Refetch data when the component mounts
+    refetchPaymentMethod();
   }, [refetchPaymentMethod]);
 
   useEffect(() => {
@@ -37,6 +38,8 @@ const EditPaymentMethodPage = () => {
       setImage(data?.logo_link || '')
       setImageFile(data?.logo_link || null)
       setPaymentMethodStatus(data?.status || 0)
+      setFeeStatus(data?.feez_status || 0)
+      setFeeAmount(data?.feez_amount?.toString() || '')
     }
   }, [dataPaymentMethod]);
 
@@ -47,6 +50,7 @@ const EditPaymentMethodPage = () => {
       setImage(file.name);
     }
   };
+
   const handleImageClick = (ref) => {
     if (ref.current) {
       ref.current.click();
@@ -58,22 +62,28 @@ const EditPaymentMethodPage = () => {
     { currentState === 0 ? setPaymentMethodStatus(1) : setPaymentMethodStatus(0) }
   }
 
+  const handleFeeStatus = () => {
+    const currentState = feeStatus;
+    if (currentState === 0) {
+      setFeeStatus(1);
+    } else {
+      setFeeStatus(0);
+      setFeeAmount(""); // Reset fee amount when disabling fees
+    }
+  };
+
   useEffect(() => {
     if (!loadingPost && response) {
       handleCancel();
     }
   }, [loadingPost, response]);
 
-
   const handleCancel = () => {
     navigate(-1, { replace: true });
   };
 
-
-
   const handlePaymentMethodEdit = (e) => {
     e.preventDefault();
-
 
     if (!paymentMethodName) {
       auth.toastError(t('please Enter Payment Method Name'))
@@ -87,16 +97,23 @@ const EditPaymentMethodPage = () => {
       auth.toastError(t('please Set Payment Method Image'))
       return;
     }
-    const formData = new FormData();
+    if (feeStatus === 1 && (!feeAmount || feeAmount <= 0)) {
+      auth.toastError(t('enterValidFeeAmount'))
+      return;
+    }
 
+    const formData = new FormData();
 
     formData.append('name', paymentMethodName);
     formData.append('description', paymentMethodDescription);
     formData.append('logo', imageFile);
     formData.append('status', paymentMethodStatus);
-    postData(formData, t('Payment Method Added Success'));
+    formData.append('feez_status', feeStatus);
+    formData.append('feez_amount', feeAmount || 0);
 
+    postData(formData, t('Payment Method Updated Success'));
   };
+
   return (
     <>
       {loadingPaymentMethod || loadingPost ? (
@@ -109,13 +126,12 @@ const EditPaymentMethodPage = () => {
         <section>
           <form onSubmit={handlePaymentMethodEdit}>
             <div className="sm:py-3 lg:py-6">
-              <div
-                className="flex flex-wrap items-center justify-start w-full gap-4 sm:flex-col lg:flex-row">
+              <div className="flex flex-wrap items-center justify-start w-full gap-4 sm:flex-col lg:flex-row">
                 {/* Name Input */}
                 <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">payment Method Name:</span>
                   <TextInput
-                    value={paymentMethodName} // Access category_name property
+                    value={paymentMethodName}
                     onChange={(e) => setPaymentMethodName(e.target.value)}
                     placeholder={t("paymentMethodName")}
                   />
@@ -123,7 +139,7 @@ const EditPaymentMethodPage = () => {
                 <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">{t("paymentMethodDescription")}:</span>
                   <TextInput
-                    value={paymentMethodDescription} // Access category_Des property
+                    value={paymentMethodDescription}
                     onChange={(e) => setPaymentMethodDescription(e.target.value)}
                     placeholder={t("paymentMethodDescription")}
                   />
@@ -139,12 +155,35 @@ const EditPaymentMethodPage = () => {
                     onClick={() => handleImageClick(ImageRef)}
                   />
                 </div>
+
+                {/* Status and Fee Status */}
                 <div className="sm:w-full xl:w-[30%] flex items-start justify-start gap-x-1 pt-8">
                   <div className='flex items-center justify-start w-2/4 gap-x-1'>
                     <span className="text-xl font-TextFontRegular text-thirdColor">{t("Status")}:</span>
                     <Switch handleClick={handlePaymentMethodStatus} checked={paymentMethodStatus} />
                   </div>
                 </div>
+
+                <div className="sm:w-full xl:w-[30%] flex items-start justify-start gap-x-1 pt-4">
+                  <div className='flex items-center justify-start w-2/4 gap-x-1'>
+                    <span className="text-xl font-TextFontRegular text-thirdColor">{t("FeeStatus")}:</span>
+                    <Switch handleClick={handleFeeStatus} checked={feeStatus} />
+                  </div>
+                </div>
+
+                {/* Fee Amount Input - Only show when feeStatus is 1 */}
+                {feeStatus === 1 && (
+                  <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                      {t("FeeAmount")}:
+                    </span>
+                    <NumberInput
+                      value={feeAmount}
+                      onChange={(e) => setFeeAmount(e.target.value)}
+                      placeholder={t("FeeAmount")}
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -160,7 +199,6 @@ const EditPaymentMethodPage = () => {
                   handleClick={handlePaymentMethodEdit}
                 />
               </div>
-
             </div>
           </form>
         </section>

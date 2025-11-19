@@ -14,62 +14,62 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { t } from "i18next";
 
-const MaterialCategory = () => {
+const PurchaseProduct = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const {
-        refetch: refetchMaterialCategory,
-        loading: loadingMaterialCategory,
-        data: dataMaterialCategory,
+        refetch: refetchPurchaseProduct,
+        loading: loadingPurchaseProduct,
+        data: dataPurchaseProduct,
     } = useGet({
-        url: `${apiUrl}/admin/material_categories`,
+        url: `${apiUrl}/admin/purchase_product`,
     });
     const { deleteData, loadingDelete, responseDelete } = useDelete();
     const { changeState, loadingChange, responseChange } = useChangeState();
 
-    const [MaterialCategorys, setMaterialCategorys] = useState([]);
+    const [PurchaseProducts, setPurchaseProducts] = useState([]);
     const [openDelete, setOpenDelete] = useState(null);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const MaterialCategorysPerPage = 20;
+    const PurchaseProductsPerPage = 20;
 
-    const totalPages = Math.ceil(MaterialCategorys.length / MaterialCategorysPerPage);
+    const totalPages = Math.ceil(PurchaseProducts.length / PurchaseProductsPerPage);
 
-    const currentMaterialCategorys = MaterialCategorys.slice(
-        (currentPage - 1) * MaterialCategorysPerPage,
-        currentPage * MaterialCategorysPerPage
+    const currentPurchaseProducts = PurchaseProducts.slice(
+        (currentPage - 1) * PurchaseProductsPerPage,
+        currentPage * PurchaseProductsPerPage
     );
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
 
-    // Update MaterialCategorys when `data` changes
+    // Update PurchaseProducts when `data` changes
     useEffect(() => {
-        if (dataMaterialCategory && dataMaterialCategory.categories) {
-            setMaterialCategorys(dataMaterialCategory.categories);
+        if (dataPurchaseProduct && dataPurchaseProduct.products) {
+            setPurchaseProducts(dataPurchaseProduct.products);
         }
-    }, [dataMaterialCategory]);
+    }, [dataPurchaseProduct]);
 
-    // Change MaterialCategory status
+    // Change PurchaseProduct status
     const handleChangeStatus = async (id, name, status) => {
         const response = await changeState(
-            `${apiUrl}/admin/material_categories/status/${id}`,
+            `${apiUrl}/admin/purchase_product/status/${id}`,
             `${name} Changed Status.`,
             { status }
         );
 
         if (response) {
-            setMaterialCategorys((prevMaterialCategorys) =>
-                prevMaterialCategorys.map((MaterialCategory) =>
-                    MaterialCategory.id === id ? { ...MaterialCategory, status: status } : MaterialCategory
+            setPurchaseProducts((prevPurchaseProducts) =>
+                prevPurchaseProducts.map((PurchaseProduct) =>
+                    PurchaseProduct.id === id ? { ...PurchaseProduct, status: status } : PurchaseProduct
                 )
             );
         }
     };
 
     useEffect(() => {
-        refetchMaterialCategory();
-    }, [refetchMaterialCategory]);
+        refetchPurchaseProduct();
+    }, [refetchPurchaseProduct]);
 
     const handleOpenDelete = (item) => {
         setOpenDelete(item);
@@ -79,29 +79,29 @@ const MaterialCategory = () => {
         setOpenDelete(null);
     };
 
-    // Delete MaterialCategory
+    // Delete PurchaseProduct
     const handleDelete = async (id, name) => {
         const success = await deleteData(
-            `${apiUrl}/admin/material_categories/delete/${id}`,
+            `${apiUrl}/admin/purchase_product/delete/${id}`,
             `${name} Deleted Success.`
         );
 
         if (success) {
-            setMaterialCategorys(MaterialCategorys.filter((MaterialCategory) => MaterialCategory.id !== id));
+            setPurchaseProducts(PurchaseProducts.filter((PurchaseProduct) => PurchaseProduct.id !== id));
         }
     };
 
     const headers = [
         t("SL"),
         t("Name"),
-        t("Parent Category"),
+        t("Purchase Category"),
         t("Status"),
         t("Action"),
     ];
 
     return (
         <div className="flex items-start justify-start w-full overflow-x-scroll p-2 pb-28 scrollSection">
-            {loadingMaterialCategory || loadingChange || loadingDelete ? (
+            {loadingPurchaseProduct || loadingChange || loadingDelete ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
                 </div>
@@ -109,7 +109,7 @@ const MaterialCategory = () => {
                 <div className="flex flex-col w-full">
                     <div className='flex flex-col items-center justify-between md:flex-row'>
                         <div className='w-full md:w-1/2'>
-                            <TitlePage text={t('Material Category Table')} />
+                            <TitlePage text={t('Purchase Product')} />
                         </div>
                         <div className='flex justify-end w-full py-4 md:w-1/2'>
                             <Link to='add'>
@@ -131,51 +131,51 @@ const MaterialCategory = () => {
                             </tr>
                         </thead>
                         <tbody className="w-full">
-                            {MaterialCategorys.length === 0 ? (
+                            {PurchaseProducts.length === 0 ? (
                                 <tr>
                                     <td
                                         colSpan={headers.length}
                                         className="text-xl text-center text-mainColor font-TextFontMedium "
                                     >
-                                        {t("No Material Category Found")}
+                                        {t("No Purchase Products Found")}
                                     </td>
                                 </tr>
                             ) : (
-                                currentMaterialCategorys.map((MaterialCategory, index) => (
+                                currentPurchaseProducts.map((PurchaseProduct, index) => (
                                     <tr className="w-full border-b-2" key={index}>
                                         <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {(currentPage - 1) * MaterialCategorysPerPage + index + 1}
+                                            {(currentPage - 1) * PurchaseProductsPerPage + index + 1}
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {MaterialCategory?.name || "-"}
+                                            {PurchaseProduct?.name || "-"}
                                         </td>
-                                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {MaterialCategory?.category || "-"}
+                                          <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                            {PurchaseProduct.category || "-"}
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                             <Switch
-                                                checked={MaterialCategory.status === 1}
+                                                checked={PurchaseProduct.status === 1}
                                                 handleClick={() => {
                                                     handleChangeStatus(
-                                                        MaterialCategory.id,
-                                                        MaterialCategory.name,
-                                                        MaterialCategory.status === 1 ? 0 : 1
+                                                        PurchaseProduct.id,
+                                                        PurchaseProduct.name,
+                                                        PurchaseProduct.status === 1 ? 0 : 1
                                                     );
                                                 }}
                                             />
                                         </td>
                                         <td className="px-4 py-3 text-center">
                                             <div className="flex items-center justify-center gap-2">
-                                                <Link to={`edit/${MaterialCategory.id}`}>
+                                                <Link to={`edit/${PurchaseProduct.id}`}>
                                                     <EditIcon />
                                                 </Link>
                                                 <button
                                                     type="button"
-                                                    onClick={() => handleOpenDelete(MaterialCategory.id)}
+                                                    onClick={() => handleOpenDelete(PurchaseProduct.id)}
                                                 >
                                                     <DeleteIcon />
                                                 </button>
-                                                {openDelete === MaterialCategory.id && (
+                                                {openDelete === PurchaseProduct.id && (
                                                     <Dialog
                                                         open={true}
                                                         onClose={handleCloseDelete}
@@ -193,7 +193,7 @@ const MaterialCategory = () => {
                                                                         />
                                                                         <div className="flex items-center">
                                                                             <div className="mt-2 text-center">
-                                                                                {t("You will delete")} {MaterialCategory.name}
+                                                                                {t("You will delete")} {PurchaseProduct.name}
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -201,7 +201,7 @@ const MaterialCategory = () => {
                                                                         <button
                                                                             className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto"
                                                                             onClick={() =>
-                                                                                handleDelete(MaterialCategory.id, MaterialCategory.name)
+                                                                                handleDelete(PurchaseProduct.id, PurchaseProduct.name)
                                                                             }
                                                                         >
                                                                             {t("Delete")}
@@ -229,7 +229,7 @@ const MaterialCategory = () => {
                         </tbody>
                     </table>
 
-                    {MaterialCategorys.length > 0 && (
+                    {PurchaseProducts.length > 0 && (
                         <div className="flex flex-wrap items-center justify-center my-6 gap-x-4">
                             {currentPage !== 1 && (
                                 <button
@@ -246,8 +246,8 @@ const MaterialCategory = () => {
                                         key={page}
                                         onClick={() => handlePageChange(page)}
                                         className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
-                                            ? "bg-mainColor text-white"
-                                            : " text-mainColor"
+                                                ? "bg-mainColor text-white"
+                                                : " text-mainColor"
                                             }`}
                                     >
                                         {page}
@@ -271,4 +271,4 @@ const MaterialCategory = () => {
     );
 };
 
-export default MaterialCategory;
+export default PurchaseProduct;
