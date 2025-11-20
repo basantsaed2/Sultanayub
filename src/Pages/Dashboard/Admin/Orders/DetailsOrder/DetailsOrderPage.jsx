@@ -396,9 +396,11 @@ const DetailsOrderPage = () => {
                     <div className="w-full">
                       {/* Header */}
                       <div className="w-full px-2 py-4 rounded-lg shadow md:px-4 lg:px-4">
-                        {/* Header */}
+                        {/* Header – Original Design + Creative Invoice Placement */}
                         <div className="flex flex-col items-start justify-between pb-2 border-b border-gray-300">
-                          <div className="w-full">
+                          <div className="w-full relative"> {/* relative only for the creative button */}
+
+                            {/* Title + Prev/Next Buttons – exactly as before */}
                             <div className="flex flex-wrap items-center justify-between w-full">
                               <h1 className="text-2xl text-gray-800 font-TextFontMedium">
                                 {t("Order")}{" "}
@@ -406,61 +408,78 @@ const DetailsOrderPage = () => {
                                   #{detailsData?.id || ""}
                                 </span>
                               </h1>
+
                               <div className="flex items-center justify-center gap-2 sm:w-full lg:w-6/12">
                                 <Link
-                                  to={`/dashboard/orders/details/${Number(orderNumPath) - 1
-                                    }`}
+                                  to={`/dashboard/orders/details/${Number(orderNumPath) - 1}`}
                                   className="w-6/12 px-1 py-1 text-sm text-center text-white transition-all duration-300 ease-in-out border-2 rounded-lg md:text-md bg-mainColor border-mainColor hover:bg-white hover:text-mainColor"
                                 >
                                   {"<<"} {t("PrevOrder")}
                                 </Link>
                                 <Link
-                                  to={`/dashboard/orders/details/${Number(orderNumPath) + 1
-                                    }`}
+                                  to={`/dashboard/orders/details/${Number(orderNumPath) + 1}`}
                                   className="w-6/12 px-1 py-1 text-sm text-center text-white transition-all duration-300 ease-in-out border-2 rounded-lg md:text-md bg-mainColor border-mainColor hover:bg-white hover:text-mainColor"
                                 >
                                   {t("NextOrder")} {">>"}
                                 </Link>
                               </div>
                             </div>
+
+                            {/* Original metadata lines */}
                             {detailsData?.address && (
                               <p className="mt-1 text-sm text-gray-700">
-                                <span className="font-TextFontSemiBold">
-                                  {t("Zone")}:
-                                </span>{" "}
+                                <span className="font-TextFontSemiBold">{t("Zone")}:</span>{" "}
                                 {detailsData?.address?.zone?.zone || ""}
                               </p>
                             )}
                             <p className="mt-1 text-sm text-gray-700">
-                              <span className="font-TextFontSemiBold">
-                                {t("Branch")}:
-                              </span>{" "}
+                              <span className="font-TextFontSemiBold">{t("Branch")}:</span>{" "}
                               {detailsData?.branch?.name || ""}
                             </p>
                             <p className="mt-1 text-sm text-gray-700">
-                              <span className="font-TextFontSemiBold">
-                                {t("OrderTime")}:
-                              </span>{" "}
+                              <span className="font-TextFontSemiBold">{t("OrderTime")}:</span>{" "}
                               {detailsData?.date || ""}
                             </p>
                             <p className="mt-1 text-sm text-gray-700">
-                              <span className="font-TextFontSemiBold">
-                                {t("OrderDate")}:
-                              </span>{" "}
+                              <span className="font-TextFontSemiBold">{t("OrderDate")}:</span>{" "}
                               {detailsData?.order_date || ""}
                             </p>
                             <p className="mt-1 text-sm text-gray-700">
-                              <span className="font-TextFontSemiBold">
-                                {t("Schedule")}:
-                              </span>{" "}
+                              <span className="font-TextFontSemiBold">{t("Schedule")}:</span>{" "}
                               {detailsData?.schedule?.name || "-"}
                             </p>
                             <p className="mt-1 text-sm text-gray-700">
-                              <span className="font-TextFontSemiBold">
-                                {t("Source")}:
-                              </span>{" "}
+                              <span className="font-TextFontSemiBold">{t("Source")}:</span>{" "}
                               {detailsData?.source || "-"}
                             </p>
+
+                            {/* CREATIVE PLACEMENT: Elegant floating badge on the right */}
+                            <div className="absolute top-1/2 -translate-y-1/2 right-0
+                    hidden sm:block"> {/* Hidden on mobile, appears from sm+ */}
+                              <Link
+                                to={`/dashboard/orders/invoice/${detailsData?.id}`}
+                                className="flex items-center gap-2.5 px-5 py-3 text-sm font-medium text-white 
+                   bg-gradient-to-r from-red-500 to-red-600 rounded-full shadow-lg 
+                   hover:shadow-xl hover:scale-105 transition-all duration-300 
+                   whitespace-nowrap border border-red-400"
+                              >
+                                <FaFileInvoice className="text-lg" />
+                                <span className="hidden lg:inline">{t("View Invoice")}</span>
+                                <span className="lg:hidden">{t("Invoice")}</span>
+                              </Link>
+                            </div>
+
+                            {/* Mobile fallback – small floating button at top-right (same as original but prettier) */}
+                            <div className="absolute top-2 right-2 sm:hidden">
+                              <Link
+                                to={`/dashboard/orders/invoice/${detailsData?.id}`}
+                                className="flex items-center justify-center w-10 h-10 text-white bg-green-500 rounded-full shadow-md hover:bg-green-600 hover:scale-110 transition-all duration-300"
+                                aria-label={t("ViewInvoice")}
+                              >
+                                <FaFileInvoice className="text-lg" />
+                              </Link>
+                            </div>
+
                           </div>
                         </div>
 

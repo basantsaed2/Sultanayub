@@ -6,9 +6,13 @@ import { useTranslation } from "react-i18next";
 import { FaPrint, FaArrowLeft } from "react-icons/fa";
 
 // ===================================================================
-// 1. دالة تصميم الإيصال (نسخة واضحة بدون Bold زائد)
+// 1. دالة تصميم الإيصال
 // ===================================================================
 const formatCashierReceipt = (receiptData) => {
+  
+  const phones = [receiptData.customerPhone, receiptData.customerPhone2]
+    .filter(Boolean).join(" / ");
+
   return `
     <div style="width: 100%; margin: 0; font-family: Arial, Helvetica, sans-serif; color: #000; padding: 5px;">
       
@@ -16,35 +20,48 @@ const formatCashierReceipt = (receiptData) => {
         @page { size: auto; margin: 0mm; }
         body { margin: 0; padding: 0; }
         
-        /* العناوين فقط هي التي ستكون عريضة */
+        table, th, td { border: none !important; border-collapse: collapse !important; }
+
         .header { text-align: center; margin-bottom: 10px; }
         .header h1 { font-size: 22px; font-weight: bold; margin: 0; text-transform: uppercase; }
         .header p { font-size: 12px; margin: 2px 0; font-weight: normal; }
         
-        /* النصوص العادية بدون bold لتجنب الاهتزاز */
         .info-section { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; font-weight: normal; }
         .info-left { text-align: left; }
         .info-right { text-align: right; }
         
-        /* رقم الفاتورة مميز */
         .invoice-num { font-size: 16px; font-weight: bold; margin-top: 5px; }
         
         .cashier-line { text-align: left; font-size: 12px; margin-bottom: 8px; border-bottom: 1px solid #000; padding-bottom: 5px; }
 
-        /* الجدول - خط عادي واضح */
-        table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 10px; }
-        th { border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 5px 2px; text-align: center; font-weight: bold; }
-        td { border-bottom: 1px dashed #ccc; padding: 5px 2px; text-align: center; font-weight: normal; }
+        table { width: 100%; font-size: 12px; margin-bottom: 10px; }
+        th { border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; padding: 5px 2px; text-align: center; font-weight: bold; }
+        td { padding: 5px 2px; text-align: center; font-weight: normal; }
+        
         .item-name { text-align: right; direction: rtl; padding-right: 5px; }
         
-        /* الإجماليات */
+        /* ============================================== */
+        /* التعديل هنا: جعل الإضافات سوداء وعريضة وواضحة */
+        /* ============================================== */
+        .item-variations { 
+            font-size: 11px;     /* تكبير الخط قليلاً */
+            color: #000;         /* أسود داكن */
+            font-weight: bold;   /* خط عريض */
+            margin-top: 3px; 
+            line-height: 1.3;
+        }
+
         .totals-section { text-align: right; font-size: 12px; margin-bottom: 10px; }
         .total-row { margin-bottom: 4px; display: flex; justify-content: space-between; }
         
-        /* الإجمالي النهائي بخط كبير */
         .grand-total { font-size: 18px; font-weight: bold; margin-top: 8px; border-top: 2px solid #000; padding-top: 5px; }
         
         .footer { text-align: center; font-size: 12px; margin-top: 15px; font-weight: normal; }
+        
+        .customer-details { font-size: 11px; margin-bottom: 10px; border-bottom: 1px dashed #000; padding-bottom: 5px; }
+        .customer-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+        
+        .address-box { margin-top: 5px; border-top: 1px dotted #000; padding-top: 3px; font-size: 11px; line-height: 1.4; font-weight: bold; }
       </style>
 
       <div class="header">
@@ -65,6 +82,24 @@ const formatCashierReceipt = (receiptData) => {
         </div>
       </div>
 
+      <div class="customer-details">
+        <div class="customer-row">
+            <span>Client:</span>
+            <span style="font-weight:bold;">${receiptData.customerName}</span>
+        </div>
+        ${phones ? `
+        <div class="customer-row">
+            <span>Phone:</span>
+            <span dir="ltr">${phones}</span>
+        </div>` : ''}
+        
+        ${(receiptData.orderType === 'Delivery' && receiptData.customerAddress) ? `
+        <div class="address-box">
+            <span style="text-decoration:underline;">Delivery Address:</span><br/>
+            ${receiptData.customerAddress}
+        </div>` : ''}
+      </div>
+
       <div class="cashier-line">
         Cashier: ${receiptData.cashierName}
       </div>
@@ -81,10 +116,13 @@ const formatCashierReceipt = (receiptData) => {
         <tbody>
           ${receiptData.items.map(item => `
             <tr>
-              <td>${item.qty}</td>
-              <td class="item-name">${item.name}</td>
-              <td>${Number(item.price).toFixed(2)}</td>
-              <td>${Number(item.total).toFixed(2)}</td>
+              <td style="vertical-align: top;">${item.qty}</td>
+              <td class="item-name">
+                ${item.name}
+                ${item.fullNotes ? `<div class="item-variations">+ ${item.fullNotes}</div>` : ''}
+              </td>
+              <td style="vertical-align: top;">${Number(item.price).toFixed(2)}</td>
+              <td style="vertical-align: top;">${Number(item.total).toFixed(2)}</td>
             </tr>
           `).join('')}
         </tbody>
@@ -99,6 +137,12 @@ const formatCashierReceipt = (receiptData) => {
           <span>VAT (${(receiptData.taxPercentage * 100).toFixed(0)}%)</span>
           <span>${Number(receiptData.tax).toFixed(2)}</span>
         </div>
+        ${receiptData.delivery > 0 ? `
+        <div class="total-row">
+           <span>Service/Delivery</span>
+           <span>${Number(receiptData.delivery).toFixed(2)}</span>
+        </div>` : ''}
+        
         <div class="total-row grand-total">
           <span>Grand Total</span>
           <span>${Number(receiptData.total).toFixed(2)}</span>
@@ -140,8 +184,14 @@ const InvoiceOrderPage = () => {
             return sum + (price * qty);
         }, 0) || 0;
 
+        const discount = parseFloat(order.total_discount || order.coupon_discount || 0);
         const tax = parseFloat(order.total_tax || 0);
         const total = parseFloat(order.amount || 0);
+        
+        let delivery = total - (subtotal - discount + tax);
+        delivery = Math.round(delivery * 100) / 100;
+        if (delivery < 0) delivery = 0;
+
         const taxPercentage = subtotal > 0 ? (tax / subtotal) : 0;
 
         let orderTypeDisplay = "Takeaway";
@@ -150,22 +200,41 @@ const InvoiceOrderPage = () => {
         else if (typeStr.includes('delivery')) orderTypeDisplay = "Delivery";
 
         const receiptData = {
-            restaurantName: "food2go", 
+            restaurantName: "Food 2 Go", 
             branchName: order.branch?.name || "",
-            cashierName: order.admin?.name || "ola", 
+            cashierName: order.admin?.name || "Ola", 
             invoiceNumber: order.order_number || order.id,
             date: new Date(order.order_date).toLocaleString('en-US', {
                 year: 'numeric', month: '2-digit', day: '2-digit',
                 hour: '2-digit', minute: '2-digit', hour12: false
             }),
             orderType: orderTypeDisplay,
-            items: order.order_details.map(item => ({
-                qty: item.count || item.quantity || 1,
-                name: item.product?.name || item.name || "Item",
-                price: parseFloat(item.price || item.product?.price || 0),
-                total: (parseFloat(item.price || item.product?.price || 0)) * (parseFloat(item.count || item.quantity || 1)),
-            })),
-            subtotal, tax, taxPercentage, total
+            
+            customerName: order.user?.name || `${order.user?.f_name || ''} ${order.user?.l_name || ''}`,
+            customerPhone: order.user?.phone || "",
+            customerPhone2: order.user?.phone_2 || "",
+            customerOrdersCount: order.user?.orders_count || 0,
+            customerAddress: order.address?.address || "",
+
+            items: order.order_details.map(item => {
+                const variationOptions = item.variations?.map(v => {
+                    return v.options?.map(opt => opt.name).join(", ");
+                }).filter(Boolean).join(" - ");
+
+                const addons = item.addons?.map(a => a.name).join(", ");
+                
+                const fullNotes = [item.notes, variationOptions, addons].filter(Boolean).join(" + ");
+
+                return {
+                    qty: item.count || item.quantity || 1,
+                    name: item.product?.name || item.name || "Item",
+                    fullNotes: fullNotes, 
+                    price: parseFloat(item.price || item.product?.price || 0),
+                    total: (parseFloat(item.price || item.product?.price || 0)) * (parseFloat(item.count || item.quantity || 1)),
+                };
+            }),
+
+            subtotal, tax, taxPercentage, delivery, total
         };
 
         setInvoiceHtml(formatCashierReceipt(receiptData));
@@ -181,8 +250,6 @@ const InvoiceOrderPage = () => {
           printWindow.document.write('</body></html>');
           printWindow.document.close();
           printWindow.focus();
-          
-          // زيادة المهلة قليلاً للتأكد من تحميل الخطوط قبل الطباعة
           setTimeout(() => {
               printWindow.print();
               printWindow.close();
@@ -204,14 +271,12 @@ const InvoiceOrderPage = () => {
         </button>
       </div>
       
-      {/* معاينة الفاتورة */}
       <div className="flex justify-center">
           <div 
-            style={{width: '100%', maxWidth: '80mm', border: '1px solid #eee', padding: '10px', background: 'white'}}
+            style={{width: '320px', border: '1px solid #eee', padding: '10px', background: 'white'}}
             dangerouslySetInnerHTML={{ __html: invoiceHtml }} 
           />
       </div>
-
     </div>
   );
 };
