@@ -40,6 +40,7 @@ const AddCashierMan = () => {
   const [discount, setDiscount] = useState(0);
   const [orderOnline, setOrderOnline] = useState(0);
   const [voidOrder, setVoidOrder] = useState(0);
+  const [report, setReport] = useState(0);
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [selectedRoles, setSelectedRoles] = useState([]);
   const [image, setImage] = useState(null);
@@ -83,6 +84,7 @@ const AddCashierMan = () => {
   const handleDiscount = () => setDiscount((prev) => (prev === 0 ? 1 : 0));
   const handleOrderOnline = () => setOrderOnline((prev) => (prev === 0 ? 1 : 0));
   const handleVoidOrder = () => setVoidOrder((prev) => (prev === 0 ? 1 : 0));
+  const handleReport = () => setReport((prev) => (prev === 0 ? 1 : 0));
 
   // Reset form
   const handleReset = () => {
@@ -97,6 +99,7 @@ const AddCashierMan = () => {
     setDiscount(0);
     setOrderOnline(0);
     setVoidOrder(0);
+    setReport(0);
     setSelectedBranch(null);
     setSelectedRoles([]);
     setImage(null);
@@ -136,6 +139,7 @@ const AddCashierMan = () => {
     formData.append("online_order", orderOnline);
     formData.append("discount_perimission", discount);
     formData.append("void_order", voidOrder);
+    formData.append("report", report);
     selectedRoles.forEach((role, index) => {
       formData.append(`roles[${index}]`, role.value);
     });
@@ -373,6 +377,14 @@ const AddCashierMan = () => {
                   {t("Void Order")}:
                 </span>
                 <Switch handleClick={handleVoidOrder} checked={voidOrder} />
+              </div>
+
+              {/* Report */}
+              <div className="flex items-start justify-start gap-x-3 pt-8">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Report")}:
+                </span>
+                <Switch handleClick={handleReport} checked={report} />
               </div>
             </div>
 

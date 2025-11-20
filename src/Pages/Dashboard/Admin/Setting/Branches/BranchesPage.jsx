@@ -26,6 +26,11 @@ const BranchesPage = ({ refetch }) => {
   const [openReasonModal, setOpenReasonModal] = useState(null);
   const [reason, setReason] = useState("");
 
+  // State for priority editing
+  const [openPriority, setOpenPriority] = useState(null);
+  const [priorityChange, setPriorityChange] = useState("");
+  const [priorityBranchName, setPriorityBranchName] = useState("");
+
   const [currentPage, setCurrentPage] = useState(1);
   const branchesPerPage = 20;
   const totalPages = Math.ceil(branches.length / branchesPerPage);
@@ -107,6 +112,43 @@ const BranchesPage = ({ refetch }) => {
     }
   };
 
+  // Priority handlers
+  const handleOpenPriority = (branchId, branchName, currentPriority) => {
+    setOpenPriority(branchId);
+    setPriorityBranchName(branchName || "");
+    setPriorityChange(currentPriority?.toString() || "");
+  };
+
+  const handleClosePriority = () => {
+    setOpenPriority(null);
+    setPriorityChange("");
+    setPriorityBranchName("");
+  };
+
+  // Change branch priority
+  const handleChangePriority = async () => {
+    if (!openPriority || !priorityChange) return;
+
+    const success = await changeState(
+      `${apiUrl}/admin/branch/order_of_branch/${openPriority}?order=${priorityChange}`,
+      `${priorityBranchName} Changed Priority.`,
+      {} // empty data object since we're using query params
+    );
+
+    if (success) {
+      // Update local state
+      const updatedBranches = branches.map(branch =>
+        branch.id === openPriority
+          ? { ...branch, order: parseInt(priorityChange) }
+          : branch
+      );
+
+      setBranches(updatedBranches);
+      handleClosePriority();
+      refetchBranches();
+    }
+  };
+
   useEffect(() => {
     if (dataBranches && dataBranches.branches) {
       setBranches(dataBranches.branches);
@@ -126,7 +168,8 @@ const BranchesPage = ({ refetch }) => {
     t("BranchCategory"),
     t("ActiveBranchPhone"),
     t("PhoneStatus"),
-     t("Status"),
+    t("Priority"), // Added priority column
+    t("Status"),
     t("Action"),
   ];
 
@@ -155,7 +198,7 @@ const BranchesPage = ({ refetch }) => {
               {branches.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={12}
+                    colSpan={15} // Updated colSpan to 15
                     className="text-xl text-center text-mainColor font-TextFontMedium"
                   >
                     {t("NotfindBranches")}
@@ -200,7 +243,7 @@ const BranchesPage = ({ refetch }) => {
                         {t("Kitchens")}
                       </Link>
                     </td>
-                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-blue-500 cursor-pointer">
+                    <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-blue-500 cursor-pointer">
                       <Link
                         to={`branch_birsta/${branch.id}`}
                         className="text-xl border-b-2 cursor-pointer text-mainColor border-mainColor font-TextFontSemiBold"
@@ -226,6 +269,15 @@ const BranchesPage = ({ refetch }) => {
                     </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {branch?.phone_status === 1 ? "Active" : "Inactive" || "-"}
+                    </td>
+                    {/* Priority Column */}
+                    <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                      <span
+                        className="text-xl border-b-2 cursor-pointer text-mainColor border-mainColor font-TextFontSemiBold"
+                        onClick={() => handleOpenPriority(branch.id, branch.name, branch.order)}
+                      >
+                        {branch.order || "-"}
+                      </span>
                     </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       <Switch
@@ -295,6 +347,63 @@ const BranchesPage = ({ refetch }) => {
               )}
             </tbody>
           </table>
+
+          {/* Priority Edit Dialog */}
+          {openPriority && (
+            <Dialog open={true} onClose={handleClosePriority} className="relative z-10">
+              <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+              <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                  <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-md">
+                    <div className="px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
+                      <div className="sm:flex sm:items-start">
+                        <div className="w-full mt-3 text-center sm:mt-0 sm:text-left">
+                          <h3 className="text-lg font-medium leading-6 text-gray-900 font-TextFontSemiBold">
+                            {t("Change Priority")}
+                          </h3>
+                          <div className="mt-4">
+                            <p className="text-sm text-gray-500">
+                              {t("Change priority for")}: <strong>{priorityBranchName}</strong>
+                            </p>
+                            <div className="mt-4">
+                              <label htmlFor="priority" className="block text-sm font-medium text-gray-700">
+                                {t("New Priority")}
+                              </label>
+                              <input
+                                type="number"
+                                id="priority"
+                                value={priorityChange}
+                                onChange={(e) => setPriorityChange(e.target.value)}
+                                className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-mainColor focus:border-mainColor sm:text-sm"
+                                placeholder="Enter priority number"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                      <button
+                        type="button"
+                        onClick={handleChangePriority}
+                        className="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white bg-mainColor border border-transparent rounded-md shadow-sm hover:bg-mainColor-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-mainColor sm:ml-3 sm:w-auto sm:text-sm"
+                      >
+                        {t("Change Priority")}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleClosePriority}
+                        className="inline-flex justify-center w-full px-4 py-2 mt-3 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-mainColor sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                      >
+                        {t("Cancel")}
+                      </button>
+                    </div>
+                  </DialogPanel>
+                </div>
+              </div>
+            </Dialog>
+          )}
+
           {openReasonModal && (
             <Dialog
               open={true}
