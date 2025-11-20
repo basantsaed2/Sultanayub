@@ -177,6 +177,7 @@ import PurchaseTransfer from "./Pages/Dashboard/Admin/Purchase/PurchaseTransfer/
 import PreparationMan from "./Pages/Dashboard/Admin/PreparationMan/PreparationMan";
 import AddPreparationMan from "./Pages/Dashboard/Admin/PreparationMan/AddPreparationMan";
 import EditPreparationMan from "./Pages/Dashboard/Admin/PreparationMan/EditPreparationMan";
+// import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -799,6 +800,10 @@ export const router = createBrowserRouter([
                 path: 'policy_support',
                 element: <PolicySupportLayout />,
               },
+              // {
+              //   path: 'receipt_language',
+              //   element: <ReceiptLanguage />,
+              // },
               {
                 path: 'app_setup',
                 element: <AppSetupLayout />,

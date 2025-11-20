@@ -55,41 +55,36 @@ const CustomerLoginPage = () => {
       // Login condition
       if (dataLogin.customer_login?.login === "manuel") {
         setManualLogin(1);
+        setOTPLogin(0);
       } else if (dataLogin.customer_login?.login === "otp") {
         setOTPLogin(1);
+        setManualLogin(0);
+        
+        // Set verification based on API data
+        if (dataLogin.customer_login?.verification === "email") {
+          setEmailVerification(1);
+          setPhoneNumberVerification(0);
+          // Pre-fill email data if available
+          if (dataLogin.email_integration) {
+            setEmail(dataLogin.email_integration?.email || "");
+            setIntegrationPassword(dataLogin.email_integration?.integration_password || "");
+          }
+        } else if (dataLogin.customer_login?.verification === "phone") {
+          setPhoneNumberVerification(1);
+          setEmailVerification(0);
+          // Pre-fill phone data if available
+          if (dataLogin.sms_integration) {
+            setUser(dataLogin.sms_integration?.user || '');
+            setPwd(dataLogin.sms_integration?.pwd || '');
+            setSenderId(dataLogin.sms_integration?.senderid || '');
+            setMobileNo(dataLogin.sms_integration?.mobileno || '');
+            setCountryCode(dataLogin.sms_integration?.CountryCode || '');
+            setProfileId(dataLogin.sms_integration?.profileid || '');
+          }
+        }
       }
-
-      // Verification conditions
-      if (dataLogin.customer_login?.verification === "email" && dataLogin.email_integration) {
-        setEmailVerification(1);
-
-      } else if (dataLogin.customer_login?.verification === "phone" && dataLogin.sms_integration) {
-        setPhoneNumberVerification(1);
-        setUser(dataLogin.sms_integration?.user || '')
-        setPwd(dataLogin.sms_integration?.pwd)
-        setSenderId(dataLogin.sms_integration?.senderid || '')
-        setMobileNo(dataLogin.sms_integration?.mobileno || '')
-        setCountryCode(dataLogin.sms_integration?.CountryCode || '')
-        setProfileId(dataLogin.sms_integration?.profileid || '')
-      }
-
-      if (dataLogin.email_integration && emailVerification === 1) {
-        setPhoneNumberVerification(0);
-        setEmail(dataLogin.email_integration?.email)
-        setIntegrationPassword(dataLogin.email_integration?.integration_password)
-      }
-      if (dataLogin.sms_integration && phoneNumberVerification === 1) {
-        setEmailVerification(0);
-        setUser(dataLogin.sms_integration?.user || '')
-        setPwd(dataLogin.sms_integration?.pwd)
-        setSenderId(dataLogin.sms_integration?.senderid || '')
-        setMobileNo(dataLogin.sms_integration?.mobileno || '')
-        setCountryCode(dataLogin.sms_integration?.CountryCode || '')
-        setProfileId(dataLogin.sms_integration?.profileid || '')
-      }
-
     }
-  }, [dataLogin, phoneNumberVerification, emailVerification]);
+  }, [dataLogin]);
 
   const handleClickManualLogin = (e) => {
     const isChecked = e.target.checked;
@@ -108,13 +103,29 @@ const CustomerLoginPage = () => {
   const handleClickEmailVerification = (e) => {
     const isChecked = e.target.checked;
     setEmailVerification(isChecked ? 1 : 0);
-    setPhoneNumberVerification(0);
+    setPhoneNumberVerification(isChecked ? 0 : 1);
+    
+    // When switching to email, pre-fill with existing email data if available
+    if (isChecked && dataLogin?.email_integration) {
+      setEmail(dataLogin.email_integration.email || "");
+      setIntegrationPassword(dataLogin.email_integration.integration_password || "");
+    }
   };
 
   const handleClickPhoneNumberVerification = (e) => {
     const isChecked = e.target.checked;
     setPhoneNumberVerification(isChecked ? 1 : 0);
-    setEmailVerification(0);
+    setEmailVerification(isChecked ? 0 : 1);
+    
+    // When switching to phone, pre-fill with existing phone data if available
+    if (isChecked && dataLogin?.sms_integration) {
+      setUser(dataLogin.sms_integration.user || '');
+      setPwd(dataLogin.sms_integration.pwd || '');
+      setSenderId(dataLogin.sms_integration.senderid || '');
+      setMobileNo(dataLogin.sms_integration.mobileno || '');
+      setCountryCode(dataLogin.sms_integration.CountryCode || '');
+      setProfileId(dataLogin.sms_integration.profileid || '');
+    }
   };
 
   const handleReset = () => {
@@ -255,10 +266,7 @@ const CustomerLoginPage = () => {
               </div>
 
               {emailVerification === 1 && (
-                <form
-                  className="flex flex-wrap items-start justify-start w-full gap-4 sm:flex-col lg:flex-row"
-                  onSubmit={handleSubmit}
-                >
+                <div className="flex flex-wrap items-start justify-start w-full gap-4 sm:flex-col lg:flex-row">
                   {/* Email */}
                   <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                     <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -283,13 +291,10 @@ const CustomerLoginPage = () => {
                       placeholder={t("Password")}
                     />
                   </div>
-                </form>
+                </div>
               )}
               {phoneNumberVerification === 1 && (
-                <form
-                  className="flex flex-wrap items-start justify-start w-full gap-4 sm:flex-col lg:flex-row"
-                  onSubmit={handleSubmit}
-                >
+                <div className="flex flex-wrap items-start justify-start w-full gap-4 sm:flex-col lg:flex-row">
                   {/* User */}
                   <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                     <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -357,7 +362,7 @@ const CustomerLoginPage = () => {
                       placeholder={t("EnterProfileID")}
                     />
                   </div>
-                </form>
+                </div>
               )}
             </>
           )}
