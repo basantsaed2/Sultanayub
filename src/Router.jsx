@@ -174,6 +174,9 @@ import PurchaseList from "./Pages/Dashboard/Admin/Purchase/PurchaseList/Purchase
 import AddPurchaseList from "./Pages/Dashboard/Admin/Purchase/PurchaseList/AddPurchaseList";
 import EditPurchaseList from "./Pages/Dashboard/Admin/Purchase/PurchaseList/EditPurchaseList";
 import PurchaseTransfer from "./Pages/Dashboard/Admin/Purchase/PurchaseTransfer/PurchaseTransfer";
+import PreparationMan from "./Pages/Dashboard/Admin/PreparationMan/PreparationMan";
+import AddPreparationMan from "./Pages/Dashboard/Admin/PreparationMan/AddPreparationMan";
+import EditPreparationMan from "./Pages/Dashboard/Admin/PreparationMan/EditPreparationMan";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -1280,7 +1283,26 @@ export const router = createBrowserRouter([
               }
             ]
           },
- 
+
+          {
+            path: "preparation_man",
+            element: <Outlet />,
+            children: [
+              {
+                path: '',
+                element: <PreparationMan />
+              },
+              {
+                path: 'add',
+                element: <AddPreparationMan />
+              },
+              {
+                path: 'edit/:preparationManId',
+                element: <EditPreparationMan />
+              }
+            ]
+          },
+
           {
             path: 'purchase',
             element: <Outlet />,
@@ -1397,7 +1419,7 @@ export const router = createBrowserRouter([
               },
               {
                 path: "purchase_transfer",
-                element :<PurchaseTransfer/>
+                element: <PurchaseTransfer />
               }
             ]
           },

@@ -11,7 +11,7 @@ import {
 import { RiVipDiamondLine } from "react-icons/ri";
 import { CiSettings } from "react-icons/ci";
 import { useSelector } from "react-redux";
-import { FiUsers } from "react-icons/fi";
+import { FiUsers, FiPackage } from "react-icons/fi";
 import { FaUsersCog, FaCashRegister, FaShoppingBasket } from "react-icons/fa";
 import {
   MdOutlineDeliveryDining,
@@ -36,6 +36,9 @@ import { PiClockUserFill } from "react-icons/pi";
 import { LuBanknote } from "react-icons/lu";
 import { SiMaterialformkdocs } from "react-icons/si";
 import { GiManualMeatGrinder } from "react-icons/gi";
+import { RiHome2Line } from "react-icons/ri";
+import { IoBagAddOutline } from "react-icons/io5";
+import { TbCategory } from "react-icons/tb";
 
 // Admin routes configuration
 const adminRoutes = [
@@ -43,13 +46,13 @@ const adminRoutes = [
     name: "Home",
     path: "/dashboard",
     permission: "Home",
-    icon: HomeIcon,
+    icon: RiHome2Line,
   },
   {
     name: "Orders",
     path: "/dashboard/orders",
     permission: "Order",
-    icon: OrderIcon,
+    icon: IoBagAddOutline,
     subRoutes: [
       { name: "All", path: "/dashboard/orders/all", countKey: "ordersAll" },
       {
@@ -105,13 +108,13 @@ const adminRoutes = [
     name: "Category Setup",
     path: "/dashboard/category",
     permission: "Category",
-    icon: CategoryIcon,
+    icon: TbCategory,
   },
   {
     name: "Product Setup",
     path: "/dashboard/setup_product",
     permission: "Product",
-    icon: ProductIcon,
+    icon: FiPackage,
     subRoutes: [
       { name: "Product", path: "/dashboard/setup_product/product" },
       { name: "Add Product", path: "/dashboard/setup_product/product/add" },
@@ -151,6 +154,12 @@ const adminRoutes = [
     name: "Delivery Man",
     path: "/dashboard/delivery_man",
     permission: "Delivery",
+    icon: MdOutlineDeliveryDining,
+  },
+  {
+    name: "Preparation Man",
+    path: "/dashboard/preparation_man",
+    permission: "preparation_man",
     icon: MdOutlineDeliveryDining,
   },
   {
