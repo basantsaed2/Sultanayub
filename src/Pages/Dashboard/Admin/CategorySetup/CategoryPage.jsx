@@ -43,6 +43,9 @@ const CategoryPage = ({ refetch, setUpdate }) => {
   const [openPriority, setOpenPriority] = useState(null);
   const [openSupDelete, setOpenSupDelete] = useState(null);
   const [openDelete, setOpenDelete] = useState(null);
+  const [openProducts, setOpenProducts] = useState(null); // State for products dialog
+  const [categoryProducts, setCategoryProducts] = useState([]); // State to store products data
+  const [loadingProducts, setLoadingProducts] = useState(false); // Loading state for products
 
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
   const categoriesPerPage = 20; // Limit to 20 categories per page
@@ -67,13 +70,54 @@ const CategoryPage = ({ refetch, setUpdate }) => {
   }, [refetchCategory, refetch]); // Empty dependency array to only call refetch once on mount
 
   // View supp category
-
   const handleOpenSupCategory = (item) => {
     setOpenSupCategory(item);
   };
   const handleCloseSupCategory = () => {
     setOpenSupCategory(null);
   };
+
+  // Products handlers
+  const handleOpenProducts = async (categoryId) => {
+    setOpenProducts(categoryId);
+    setLoadingProducts(true);
+
+    try {
+      // Get the token from localStorage or wherever you store it
+      const token = localStorage.getItem('token'); // or sessionStorage, cookies, etc.
+
+      const response = await fetch(`${apiUrl}/admin/product/products_in_category/${categoryId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data && data.products) {
+        setCategoryProducts(data.products);
+      } else {
+        setCategoryProducts([]);
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setCategoryProducts([]);
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
+  const handleCloseProducts = () => {
+    setOpenProducts(null);
+    setCategoryProducts([]);
+  };
+
   const handleOpenPriority = (item) => {
     setOpenPriority(item);
   };
@@ -232,11 +276,13 @@ const CategoryPage = ({ refetch, setUpdate }) => {
     t("banner"),
     t("name"),
     t("subcategory"),
+    t("products"), // Added products column
     t("status"),
     t("active"),
     t("priority"),
     t("action"),
   ];
+
   return (
     <div className="flex items-start justify-start w-full overflow-x-scroll pb-28 scrollSection">
       {loadingCategory || loadingChange || loadingDelete ? (
@@ -262,7 +308,7 @@ const CategoryPage = ({ refetch, setUpdate }) => {
               {categories.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={12}
+                    colSpan={13} // Updated colSpan to 13
                     className="text-xl text-center text-mainColor font-TextFontMedium "
                   >
                     {t("Not find categories")}
@@ -354,58 +400,58 @@ const CategoryPage = ({ refetch, setUpdate }) => {
                                               </button>
                                               {openSupDelete ===
                                                 supcategory.id && (
-                                                <Dialog
-                                                  open={true}
-                                                  onClose={handleCloseSupDelete}
-                                                  className="relative z-10"
-                                                >
-                                                  <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
-                                                  <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                                                    <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
-                                                      <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg">
-                                                        <div className="flex flex-col items-center justify-center px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
-                                                          <Warning
-                                                            width="28"
-                                                            height="28"
-                                                            aria-hidden="true"
-                                                          />
-                                                          <div className="flex items-center">
-                                                            <div className="mt-2 text-center">
-                                                              {t("You will delete supcategory")}{" "}
-                                                              {supcategory?.name ||
-                                                                "-"}
+                                                  <Dialog
+                                                    open={true}
+                                                    onClose={handleCloseSupDelete}
+                                                    className="relative z-10"
+                                                  >
+                                                    <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                                                    <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                                                      <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                                                        <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg">
+                                                          <div className="flex flex-col items-center justify-center px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
+                                                            <Warning
+                                                              width="28"
+                                                              height="28"
+                                                              aria-hidden="true"
+                                                            />
+                                                            <div className="flex items-center">
+                                                              <div className="mt-2 text-center">
+                                                                {t("You will delete supcategory")}{" "}
+                                                                {supcategory?.name ||
+                                                                  "-"}
+                                                              </div>
                                                             </div>
                                                           </div>
-                                                        </div>
-                                                        <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                                                          <button
-                                                            className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto"
-                                                            onClick={() =>
-                                                              handleSupDelete(
-                                                                supcategory.id,
-                                                                supcategory.name
-                                                              )
-                                                            }
-                                                          >
-                                                            {t("Delete")}
-                                                          </button>
+                                                          <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                                                            <button
+                                                              className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto"
+                                                              onClick={() =>
+                                                                handleSupDelete(
+                                                                  supcategory.id,
+                                                                  supcategory.name
+                                                                )
+                                                              }
+                                                            >
+                                                              {t("Delete")}
+                                                            </button>
 
-                                                          <button
-                                                            type="button"
-                                                            data-autofocus
-                                                            onClick={
-                                                              handleCloseSupDelete
-                                                            }
-                                                            className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
-                                                          >
-                                                            {t("Cancel")}
-                                                          </button>
-                                                        </div>
-                                                      </DialogPanel>
+                                                            <button
+                                                              type="button"
+                                                              data-autofocus
+                                                              onClick={
+                                                                handleCloseSupDelete
+                                                              }
+                                                              className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
+                                                            >
+                                                              {t("Cancel")}
+                                                            </button>
+                                                          </div>
+                                                        </DialogPanel>
+                                                      </div>
                                                     </div>
-                                                  </div>
-                                                </Dialog>
-                                              )}
+                                                  </Dialog>
+                                                )}
                                             </div>
                                           );
                                         }
@@ -419,6 +465,75 @@ const CategoryPage = ({ refetch, setUpdate }) => {
                                       type="button"
                                       onClick={handleCloseSupCategory}
                                       className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontMedium sm:mt-0 sm:w-auto hover:bg-mainColor-dark focus:outline-none"
+                                    >
+                                      {t("Close")}
+                                    </button>
+                                  </div>
+                                </DialogPanel>
+                              </div>
+                            </div>
+                          </Dialog>
+                        )}
+                      </td>
+                      {/* Products Column */}
+                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                        <span
+                          className="text-xl border-b-2 cursor-pointer text-mainColor border-mainColor font-TextFontSemiBold"
+                          onClick={() => handleOpenProducts(category.id)}
+                        >
+                          {t("View")}
+                        </span>
+
+                        {openProducts === category.id && (
+                          <Dialog
+                            open={true}
+                            onClose={handleCloseProducts}
+                            className="relative z-10"
+                          >
+                            <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                            <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                              <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                                <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-4xl">
+                                  <div className="px-6 py-4 border-b border-gray-200">
+                                    <h3 className="text-lg font-medium text-gray-900 font-TextFontSemiBold">
+                                      {t("Products in")}: {category.name}
+                                    </h3>
+                                  </div>
+
+                                  {/* Products List */}
+                                  <div className="max-h-96 overflow-y-auto">
+                                    {loadingProducts ? (
+                                      <div className="flex items-center justify-center py-8">
+                                        <StaticLoader />
+                                      </div>
+                                    ) : categoryProducts.length === 0 ? (
+                                      <div className="w-full my-4 text-lg text-center text-gray-500 font-TextFontSemiBold py-8">
+                                        {t("No products available for this category")}
+                                      </div>
+                                    ) : (
+                                      <div className="p-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                          {categoryProducts.map((product, index) => (
+                                            <div
+                                              key={product.id}
+                                              className="flex flex-col items-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+                                            >
+                                              <span className="text-lg font-TextFontMedium text-mainColor text-center">
+                                                {index + 1}. {product.name}
+                                              </span>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* Dialog Footer */}
+                                  <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 border-t border-gray-200">
+                                    <button
+                                      type="button"
+                                      onClick={handleCloseProducts}
+                                      className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontMedium sm:mt-0 sm:w-auto hover:bg-mainColor-dark focus:outline-none"
                                     >
                                       {t("Close")}
                                     </button>
@@ -544,13 +659,8 @@ const CategoryPage = ({ refetch, setUpdate }) => {
                                       />
                                       <div className="flex items-center">
                                         <div className="mt-2 text-center">
-                                          {/* <DialogTitle
-                                                                                                                                            as="h3"
-                                                                                                                                            className="text-xl leading-10 text-gray-900 font-TextFontSemiBold"
-                                                                                                                                     > */}
-                                        {t("youwilldeletecategory")}{" "}
+                                          {t("youwilldeletecategory")}{" "}
                                           {category?.name || "-"}
-                                          {/* </DialogTitle> */}
                                         </div>
                                       </div>
                                     </div>
@@ -605,11 +715,10 @@ const CategoryPage = ({ refetch, setUpdate }) => {
                   <button
                     key={page}
                     onClick={() => handlePageChange(page)}
-                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${
-                      currentPage === page
+                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
                         ? "bg-mainColor text-white"
                         : " text-mainColor"
-                    }`}
+                      }`}
                   >
                     {page}
                   </button>
