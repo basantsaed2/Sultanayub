@@ -159,6 +159,8 @@ const AddProductPage = () => {
   // Product Price && Point
   const [productPrice, setProductPrice] = useState("");
   const [productPoint, setProductPoint] = useState("");
+  const [productPriority, setProductPriority] = useState("");
+  const [productCode, setProductCode] = useState("");
 
   // Product From && To Status
   const [productStatusFrom, setProductStatusFrom] = useState("");
@@ -617,6 +619,8 @@ const AddProductPage = () => {
     setProductStockNumber("");
     setProductPrice("");
     setProductPoint("");
+    setProductPriority("");
+    setProductCode("");
     setProductStatusFrom("");
     setProductStatusTo("");
     setProductStatus(0);
@@ -736,6 +740,8 @@ const AddProductPage = () => {
     formData.append("discount_id", selectedDiscountId);
     formData.append("tax_id", selectedTaxId);
     formData.append("points", productPoint);
+    formData.append("order", productPriority);
+    formData.append("product_code", productCode);
 
     formData.append("product_time_status", productTimeStatus);
     if (productStatusFrom) {
@@ -1192,29 +1198,29 @@ const AddProductPage = () => {
                 />
               </div>
 
-              {productTimeStatus === 1 && (
-                <>
-                  <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
-                    <span className="text-xl font-TextFontRegular text-thirdColor">
-                      {t("From")}:
-                    </span>
-                    <TimeInput
-                      value={productStatusFrom ?? ""}
-                      onChange={(e) => setProductStatusFrom(e.target.value)}
-                    />
-                  </div>
+              {/* Product Code */}
+              <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Code")}:
+                </span>
+                <NumberInput
+                  value={productCode}
+                  onChange={(e) => setProductCode(e.target.value)}
+                  placeholder={t("Code")}
+                />
+              </div>
 
-                  <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
-                    <span className="text-xl font-TextFontRegular text-thirdColor">
-                      {t("To")}:
-                    </span>
-                    <TimeInput
-                      value={productStatusTo ?? ""}
-                      onChange={(e) => setProductStatusTo(e.target.value)}
-                    />
-                  </div>
-                </>
-              )}
+              {/* Product Priority */}
+              <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Priority")}:
+                </span>
+                <NumberInput
+                  value={productPriority}
+                  onChange={(e) => setProductPriority(e.target.value)}
+                  placeholder={t("Priority")}
+                />
+              </div>
             </div>
 
             <div className="flex items-start justify-start w-full gap-4 sm:flex-col lg:flex-row">
@@ -1248,6 +1254,32 @@ const AddProductPage = () => {
                   checked={productTimeStatus}
                 />
               </div>
+            </div>
+
+              <div className="flex items-start justify-start w-full gap-4 sm:flex-col lg:flex-row">
+              {productTimeStatus === 1 && (
+                <>
+                  <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
+                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                      {t("From")}:
+                    </span>
+                    <TimeInput
+                      value={productStatusFrom ?? ""}
+                      onChange={(e) => setProductStatusFrom(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
+                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                      {t("To")}:
+                    </span>
+                    <TimeInput
+                      value={productStatusTo ?? ""}
+                      onChange={(e) => setProductStatusTo(e.target.value)}
+                    />
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Only show exclude and extra sections if weight_status is not 1 */}

@@ -200,9 +200,9 @@ const InvoiceOrderPage = () => {
         else if (typeStr.includes('delivery')) orderTypeDisplay = "Delivery";
 
         const receiptData = {
-            restaurantName: "Food 2 Go", 
+            restaurantName: t("projectName"), 
             branchName: order.branch?.name || "",
-            cashierName: order.admin?.name || "Ola", 
+            cashierName: order.admin?.name || "-", 
             invoiceNumber: order.order_number || order.id,
             date: new Date(order.order_date).toLocaleString('en-US', {
                 year: 'numeric', month: '2-digit', day: '2-digit',

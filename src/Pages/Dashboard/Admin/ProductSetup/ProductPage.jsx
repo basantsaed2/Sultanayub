@@ -347,6 +347,7 @@ const ProductPage = () => {
     t("Image"),
     t("Category"),
     t("Favorite POS"),
+    t("Code"),
     t("priority"),
     t("Recipes"),
     t("Discount"),
@@ -554,6 +555,11 @@ const ProductPage = () => {
                                 }}
                               />
                             </td>
+                            <td
+                              className="px-4 py-2 text-sm text-center text-red-800 lg:text-base"
+                            >
+                              {product?.product_code || "-"}
+                            </td>
                             <td className="relative min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
                               <span
                                 className="text-xl border-b-2 cursor-pointer text-mainColor border-mainColor font-TextFontSemiBold"
@@ -692,6 +698,9 @@ const ProductPage = () => {
                                               );
                                             }}
                                           />
+                                        </td>
+                                        <td className="relative min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
+                                          {product?.product_code || "-"}
                                         </td>
                                         <td className="relative min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
                                           <span

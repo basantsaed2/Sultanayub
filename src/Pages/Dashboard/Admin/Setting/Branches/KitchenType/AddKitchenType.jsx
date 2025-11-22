@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
-    DropDown,
     PasswordInput,
     StaticButton,
     StaticLoader,
     SubmitButton,
     Switch,
     TextInput,
-    TimeInput,
     TitlePage,
 } from "../../../../../../Components/Components";
 import { usePost } from "../../../../../../Hooks/usePostJson";
@@ -78,10 +76,31 @@ const AddKitchenType = () => {
     };
 
     const formatTimeToHHMMSS = (time) => {
-        if (!time) return '';
-        if (/^\d{2}:\d{2}$/.test(time)) return `${time}:00`;
-        if (/^\d{2}:\d{2}:\d{2}$/.test(time)) return time;
-        return time;
+        if (!time) return '00:00:00';
+        
+        // Remove any whitespace
+        time = time.toString().trim();
+        
+        // If it's already in HH:MM:SS format, return as is
+        if (/^\d{2}:\d{2}:\d{2}$/.test(time)) {
+            return time;
+        }
+        
+        // If it's in HH:MM format, add seconds
+        if (/^\d{2}:\d{2}$/.test(time)) {
+            return `${time}:00`;
+        }
+        
+        // If it's just numbers, try to format them
+        if (/^\d+$/.test(time)) {
+            // Pad with leading zeros to make it at least 6 digits
+            const paddedTime = time.padStart(6, '0');
+            // Format as HH:MM:SS
+            return `${paddedTime.slice(0, 2)}:${paddedTime.slice(2, 4)}:${paddedTime.slice(4, 6)}`;
+        }
+        
+        // If none of the above, return default time
+        return '00:00:00';
     };
 
     const handleAdd = (e) => {
@@ -100,7 +119,8 @@ const AddKitchenType = () => {
             return;
         }
 
-        const formattedTime = formatTimeToHHMMSS(preparing_time);
+        // Use default time if not provided
+        const formattedTime = preparing_time ? formatTimeToHHMMSS(preparing_time) : '00:00:00';
 
         const formData = new FormData();
         formData.append("name", name);
@@ -244,11 +264,11 @@ const AddKitchenType = () => {
                                     <span className="text-xl font-TextFontRegular text-thirdColor">
                                         {t("Preparing Time")}:
                                     </span>
-                                    <TimeInput
+                                    <TextInput
                                         value={preparing_time}
                                         onChange={(e) => setPreparingTime(e.target.value)}
                                         name="preparing_time"
-                                        placeholder={t("Enter Preparing Time")}
+                                        placeholder={t("Enter Preparing Time (HH:MM:SS)")}
                                         background="white"
                                     />
                                 </div>
