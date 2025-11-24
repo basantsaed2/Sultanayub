@@ -8,7 +8,7 @@ import { FaPrint, FaArrowLeft } from "react-icons/fa";
 // ===================================================================
 // 1. دالة تصميم الإيصال
 // ===================================================================
-const formatCashierReceipt = (receiptData) => {
+const formatCashierReceipt = (receiptData, t) => {
   const phones = [receiptData.customerPhone, receiptData.customerPhone2]
     .filter(Boolean)
     .join(" / ");
@@ -82,18 +82,17 @@ const formatCashierReceipt = (receiptData) => {
 
       <div class="info-section">
         <div class="info-left">
-          <div>Order Type</div>
-          <div>Source</div>
-          <div>Payment</div>
-          <div>Date</div>
-          <div>Invoice #</div>
+          <div>${t("OrderType")}</div>
+          <div>${t("Source")}</div>
+          <div>${t("Payment")}</div>
+          <div>${t("Date")}</div>
+          <div>${t("InvoiceNumber")}</div>
         </div>
         <div class="info-right">
           <div style="font-weight: bold;">${receiptData.orderType}</div>
           <div style="font-weight: bold;">${receiptData.source}</div>
-          <div style="font-weight: bold; font-size : 18px">${
-            receiptData.payment
-          }</div>
+          <div style="font-weight: bold; font-size : 18px">${receiptData.payment
+    }</div>
           <div dir="ltr">${receiptData.date}</div>
           <div class="invoice-num">${receiptData.invoiceNumber}</div>
         </div>
@@ -101,130 +100,122 @@ const formatCashierReceipt = (receiptData) => {
 
       <div class="customer-details">
         <div class="customer-row">
-            <span>Client:</span>
+            <span>${t("Client")}:</span>
             <span style="font-weight:bold;">${receiptData.customerName}</span>
         </div>
-        ${
-          phones
-            ? `
+        ${phones
+      ? `
         <div class="customer-row">
-            <span>Phone:</span>
+            <span>${t("Phone")}:</span>
             <span dir="ltr">${phones}</span>
         </div>`
-            : ""
-        }
+      : ""
+    }
         
-        ${
-          receiptData.orderType === "Delivery" && receiptData.customerAddress
-            ? `
+        ${(receiptData.orderType === t("Delivery") || receiptData.orderType === "Delivery") && receiptData.customerAddress
+      ? `
         <div class="address-box">
-            <span style="text-decoration:underline;">Delivery Address:</span><br/>
+            <span style="text-decoration:underline;">${t("DeliveryAddress")}:</span><br/>
             ${receiptData.customerAddress}
         </div>`
-            : ""
-        }
+      : ""
+    }
       </div>
 
       <div class="cashier-line">
-        Cashier: ${receiptData.cashierName}
+        ${t("Cashier")}: ${receiptData.cashierName}
       </div>
 
       <table>
         <thead>
           <tr>
-            <th style="width: 15%">Qty</th>
-            <th style="width: 45%">Item</th>
-            <th style="width: 20%">Price</th>
-            <th style="width: 20%">Total</th>
+            <th style="width: 15%">${t("Qty")}</th>
+            <th style="width: 45%">${t("Item")}</th>
+            <th style="width: 20%">${t("Price")}</th>
+            <th style="width: 20%">${t("Total")}</th>
           </tr>
         </thead>
         <tbody>
           ${receiptData.items
-            .map(
-              (item) => `
+      .map(
+        (item) => `
             <tr>
               <td style="vertical-align: top;">${item.qty}</td>
               <td class="item-name">
                 ${item.name}
-                ${
-                  item.variationString
-                    ? `<div class="item-variations">${item.variationString}</div>`
-                    : ""
-                }
-                ${
-                  item.addonsString
-                    ? `<div class="item-variations">+ ${item.addonsString}</div>`
-                    : ""
-                }
-               ${
-                 item.notesString
-                   ? `<div class="item-note">Note: ${item.notesString}</div>`
-                   : ""
-               }
+                ${item.variationString
+            ? `<div class="item-variations">${item.variationString}</div>`
+            : ""
+          }
+                ${item.addonsString
+            ? `<div class="item-variations">+ ${item.addonsString}</div>`
+            : ""
+          }
+               ${item.notesString
+            ? `<div class="item-note">${t("Note")}: ${item.notesString}</div>`
+            : ""
+          }
 
               </td>
               <td style="vertical-align: top;">${Number(item.price).toFixed(
-                2
-              )}</td>
+            2
+          )}</td>
               <td style="vertical-align: top;">${Number(item.total).toFixed(
-                2
-              )}</td>
+            2
+          )}</td>
             </tr>
           `
-            )
-            .join("")}
+      )
+      .join("")}
         </tbody>
       </table>
 
       <div class="totals-section">
         <div class="total-row">
-          <span>Total Product Price</span>
+          <span>${t("TotalProductPrice")}</span>
           <span>${Number(receiptData.productsTotal).toFixed(2)}</span>
         </div>
         
-        ${
-          receiptData.addonsTotal > 0
-            ? `
+        ${receiptData.addonsTotal > 0
+      ? `
         <div class="total-row">
-          <span>Total Extras/Addons</span>
+          <span>${t("TotalExtrasAddons")}</span>
           <span>${Number(receiptData.addonsTotal).toFixed(2)}</span>
         </div>`
-            : ""
-        }
+      : ""
+    }
 
         <div class="total-row">
-          <span>Tax</span>
+          <span>${t("Tax")}</span>
           <span>${Number(receiptData.tax).toFixed(2)}</span>
         </div>
 
-        ${
-          receiptData.delivery > 0
-            ? `
+        ${receiptData.delivery > 0
+      ? `
         <div class="total-row">
-           <span>Delivery Fees</span>
+           <span>${t("DeliveryFee")}</span>
            <span>${Number(receiptData.delivery).toFixed(2)}</span>
         </div>`
-            : ""
-        }
+      : ""
+    }
         
-        ${
-          receiptData.discount > 0
-            ? `
+        ${receiptData.discount > 0
+      ? `
         <div class="total-row">
-           <span>Discount</span>
+           <span>${t("Discount")}</span>
            <span>-${Number(receiptData.discount).toFixed(2)}</span>
         </div>`
-            : ""
-        }
+      : ""
+    }
         
         <div class="total-row grand-total">
-          <span>Grand Total</span>
+          <span>${t("GrandTotal")}</span>
           <span>${Number(receiptData.total).toFixed(2)}</span>
         </div>
       </div>
 
       <div class="footer">
-        شكراً لزيارتكم
+        ${t("ThankYouForVisit")}
       </div>
     </div>
   `;
@@ -235,14 +226,15 @@ const formatCashierReceipt = (receiptData) => {
 // ===================================================================
 const InvoiceOrderPage = () => {
   const { orderId } = useParams();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const userRole = localStorage.getItem("role") || "admin";
+  const locale = i18n.language;
   const apiEndpoint =
     userRole === "branch"
-      ? `${apiUrl}/branch/online_order/invoice/${orderId}`
-      : `${apiUrl}/admin/order/invoice/${orderId}`;
+      ? `${apiUrl}/branch/online_order/invoice/${orderId}?local=${locale}`
+      : `${apiUrl}/admin/order/invoice/${orderId}?local=${locale}`;
 
   const { refetch, loading, data } = useGet({ url: apiEndpoint });
   const [invoiceHtml, setInvoiceHtml] = useState("");
@@ -327,17 +319,17 @@ const InvoiceOrderPage = () => {
 
       const taxPercentage = subtotal > 0 ? tax / subtotal : 0;
 
-      let orderTypeDisplay = "Takeaway";
+      let orderTypeDisplay = t("TakeAway");
       const typeStr = (order.order_type || "").toLowerCase();
-      if (typeStr.includes("dine")) orderTypeDisplay = "Dine In";
-      else if (typeStr.includes("delivery")) orderTypeDisplay = "Delivery";
+      if (typeStr.includes("dine")) orderTypeDisplay = t("DineIn");
+      else if (typeStr.includes("delivery")) orderTypeDisplay = t("Delivery");
 
       const receiptData = {
         restaurantName: t("projectName"),
         branchName: order.branch?.name || "",
         cashierName: order.admin?.name || "-",
         invoiceNumber: order.order_number || order.id,
-        date: new Date(order.order_date).toLocaleString("en-US", {
+        date: new Date(order.order_date).toLocaleString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', {
           year: "numeric",
           month: "2-digit",
           day: "2-digit",
@@ -347,7 +339,7 @@ const InvoiceOrderPage = () => {
         }),
         orderType: orderTypeDisplay,
         source: order.source,
-        payment: order.payment,
+        payment: t(order.payment),
 
         customerName:
           order.user?.name ||
@@ -368,9 +360,9 @@ const InvoiceOrderPage = () => {
         discount,
       };
 
-      setInvoiceHtml(formatCashierReceipt(receiptData));
+      setInvoiceHtml(formatCashierReceipt(receiptData, t));
     }
-  }, [data]);
+  }, [data, t]);
 
   const handlePrint = () => {
     const printWindow = window.open("", "", "height=600,width=400");
