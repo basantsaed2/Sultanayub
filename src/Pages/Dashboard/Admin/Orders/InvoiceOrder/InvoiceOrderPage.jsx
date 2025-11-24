@@ -9,7 +9,7 @@ import { FaPrint, FaArrowLeft } from "react-icons/fa";
 // 1. دالة تصميم الإيصال
 // ===================================================================
 const formatCashierReceipt = (receiptData) => {
-  
+
   const phones = [receiptData.customerPhone, receiptData.customerPhone2]
     .filter(Boolean).join(" / ");
 
@@ -38,17 +38,28 @@ const formatCashierReceipt = (receiptData) => {
         th { border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; padding: 5px 2px; text-align: center; font-weight: bold; }
         td { padding: 5px 2px; text-align: center; font-weight: normal; }
         
-        .item-name { text-align: right; direction: rtl; padding-right: 5px; }
+        /* Increased font size for product name */
+        .item-name { 
+          text-align: right; 
+          direction: rtl; 
+          padding-right: 5px; 
+          font-size: 14px; 
+          font-weight: bold; 
+        }
         
-        /* ============================================== */
-        /* التعديل هنا: جعل الإضافات سوداء وعريضة وواضحة */
-        /* ============================================== */
         .item-variations { 
-            font-size: 11px;     /* تكبير الخط قليلاً */
-            color: #000;         /* أسود داكن */
-            font-weight: bold;   /* خط عريض */
-            margin-top: 3px; 
+            font-size: 11px;
+            color: #000;
+            font-weight: bold;
+            margin-top: 2px; 
             line-height: 1.3;
+        }
+
+        .item-note {
+            font-size: 11px;
+            color: #333;
+            margin-top: 2px;
+            font-style: italic;
         }
 
         .totals-section { text-align: right; font-size: 12px; margin-bottom: 10px; }
@@ -119,7 +130,9 @@ const formatCashierReceipt = (receiptData) => {
               <td style="vertical-align: top;">${item.qty}</td>
               <td class="item-name">
                 ${item.name}
-                ${item.fullNotes ? `<div class="item-variations">+ ${item.fullNotes}</div>` : ''}
+                ${item.variationString ? `<div class="item-variations">${item.variationString}</div>` : ''}
+                ${item.addonsString ? `<div class="item-variations">+ ${item.addonsString}</div>` : ''}
+                ${item.notesString ? `<div class="item-note">Note: ${item.notesString}</div>` : ''}
               </td>
               <td style="vertical-align: top;">${Number(item.price).toFixed(2)}</td>
               <td style="vertical-align: top;">${Number(item.total).toFixed(2)}</td>
@@ -130,17 +143,31 @@ const formatCashierReceipt = (receiptData) => {
 
       <div class="totals-section">
         <div class="total-row">
-          <span>Subtotal</span>
-          <span>${Number(receiptData.subtotal).toFixed(2)}</span>
+          <span>Total Product Price</span>
+          <span>${Number(receiptData.productsTotal).toFixed(2)}</span>
         </div>
+        
+        ${receiptData.addonsTotal > 0 ? `
         <div class="total-row">
-          <span>VAT (${(receiptData.taxPercentage * 100).toFixed(0)}%)</span>
+          <span>Total Extras/Addons</span>
+          <span>${Number(receiptData.addonsTotal).toFixed(2)}</span>
+        </div>` : ''}
+
+        <div class="total-row">
+          <span>Tax</span>
           <span>${Number(receiptData.tax).toFixed(2)}</span>
         </div>
+
         ${receiptData.delivery > 0 ? `
         <div class="total-row">
            <span>Service/Delivery</span>
            <span>${Number(receiptData.delivery).toFixed(2)}</span>
+        </div>` : ''}
+        
+        ${receiptData.discount > 0 ? `
+        <div class="total-row">
+           <span>Discount</span>
+           <span>-${Number(receiptData.discount).toFixed(2)}</span>
         </div>` : ''}
         
         <div class="total-row grand-total">
@@ -162,99 +189,130 @@ const formatCashierReceipt = (receiptData) => {
 const InvoiceOrderPage = () => {
   const { orderId } = useParams();
   const { t } = useTranslation();
-  
+
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const userRole = localStorage.getItem("role") || "admin";
   const apiEndpoint = userRole === "branch"
-      ? `${apiUrl}/branch/online_order/invoice/${orderId}`
-      : `${apiUrl}/admin/order/invoice/${orderId}`;
+    ? `${apiUrl}/branch/online_order/invoice/${orderId}`
+    : `${apiUrl}/admin/order/invoice/${orderId}`;
 
   const { refetch, loading, data } = useGet({ url: apiEndpoint });
   const [invoiceHtml, setInvoiceHtml] = useState("");
 
   useEffect(() => { refetch(); }, [refetch]);
 
-  useEffect(() => { 
+  useEffect(() => {
     if (data?.order) {
-        const order = data.order;
 
-        const subtotal = order.order_details?.reduce((sum, item) => {
-            const price = parseFloat(item.price || item.product?.price || 0);
-            const qty = parseFloat(item.count || item.quantity || 1);
-            return sum + (price * qty);
-        }, 0) || 0;
+      console.log(data.order);
+      const order = data.order;
 
-        const discount = parseFloat(order.total_discount || order.coupon_discount || 0);
-        const tax = parseFloat(order.total_tax || 0);
-        const total = parseFloat(order.amount || 0);
-        
-        let delivery = total - (subtotal - discount + tax);
-        delivery = Math.round(delivery * 100) / 100;
-        if (delivery < 0) delivery = 0;
+      let productsTotal = 0;
+      let addonsTotal = 0;
 
-        const taxPercentage = subtotal > 0 ? (tax / subtotal) : 0;
+      const items = order.order_details.map(item => {
+        const product = item.product || {};
+        const qty = parseFloat(item.count || item.quantity || product.count || 1);
+        const basePrice = parseFloat(product.price || item.price || 0);
 
-        let orderTypeDisplay = "Takeaway";
-        const typeStr = (order.order_type || '').toLowerCase();
-        if (typeStr.includes('dine')) orderTypeDisplay = "Dine In";
-        else if (typeStr.includes('delivery')) orderTypeDisplay = "Delivery";
+        // Calculate addons for this item
+        const itemAddons = item.addons || [];
+        const itemExtras = item.extras || [];
 
-        const receiptData = {
-            restaurantName: t("projectName"), 
-            branchName: order.branch?.name || "",
-            cashierName: order.admin?.name || "-", 
-            invoiceNumber: order.order_number || order.id,
-            date: new Date(order.order_date).toLocaleString('en-US', {
-                year: 'numeric', month: '2-digit', day: '2-digit',
-                hour: '2-digit', minute: '2-digit', hour12: false
-            }),
-            orderType: orderTypeDisplay,
-            
-            customerName: order.user?.name || `${order.user?.f_name || ''} ${order.user?.l_name || ''}`,
-            customerPhone: order.user?.phone || "",
-            customerPhone2: order.user?.phone_2 || "",
-            customerOrdersCount: order.user?.orders_count || 0,
-            customerAddress: order.address?.address || "",
+        const currentItemAddonsPrice = itemAddons.reduce((sum, a) => sum + parseFloat(a.price || 0), 0);
+        const currentItemExtrasPrice = itemExtras.reduce((sum, e) => sum + parseFloat(e.price || 0), 0);
+        const totalExtrasPerUnit = currentItemAddonsPrice + currentItemExtrasPrice;
 
-            items: order.order_details.map(item => {
-                const variationOptions = item.variations?.map(v => {
-                    return v.options?.map(opt => opt.name).join(", ");
-                }).filter(Boolean).join(" - ");
+        productsTotal += basePrice * qty;
+        addonsTotal += totalExtrasPerUnit * qty;
 
-                const addons = item.addons?.map(a => a.name).join(", ");
-                
-                const fullNotes = [item.notes, variationOptions, addons].filter(Boolean).join(" + ");
+        const variationOptions = item.variations?.map(v => {
+          return v.options?.map(opt => opt.name).join(", ");
+        }).filter(Boolean).join(" - ");
 
-                return {
-                    qty: item.count || item.quantity || 1,
-                    name: item.product?.name || item.name || "Item",
-                    fullNotes: fullNotes, 
-                    price: parseFloat(item.price || item.product?.price || 0),
-                    total: (parseFloat(item.price || item.product?.price || 0)) * (parseFloat(item.count || item.quantity || 1)),
-                };
-            }),
+        const addonsNames = item.addons?.map(a => a.name).join(", ");
 
-            subtotal, tax, taxPercentage, delivery, total
+        // Notes from product or item
+        const productNotes = product.notes;
+        const itemNotes = item.notes;
+        const notesString = [productNotes, itemNotes].filter(Boolean).join(" , ");
+
+        return {
+          qty,
+          name: product.name || item.name || "Item",
+          variationString: variationOptions,
+          addonsString: addonsNames,
+          notesString: notesString,
+          price: basePrice,
+          total: (basePrice + totalExtrasPerUnit) * qty,
         };
+      });
 
-        setInvoiceHtml(formatCashierReceipt(receiptData));
-    } 
+      const discount = parseFloat(order.total_discount || order.coupon_discount || 0);
+      const tax = parseFloat(order.total_tax || 0);
+      const total = parseFloat(order.amount || 0);
+
+      // Calculate delivery
+      // If delivery fee is not explicitly in data, infer it
+      // Total = (Products + Addons) + Tax + Delivery - Discount
+      const subtotal = productsTotal + addonsTotal;
+      let delivery = total - (subtotal + tax - discount);
+      delivery = Math.round(delivery * 100) / 100;
+      if (delivery < 0) delivery = 0;
+
+      const taxPercentage = subtotal > 0 ? (tax / subtotal) : 0;
+
+      let orderTypeDisplay = "Takeaway";
+      const typeStr = (order.order_type || '').toLowerCase();
+      if (typeStr.includes('dine')) orderTypeDisplay = "Dine In";
+      else if (typeStr.includes('delivery')) orderTypeDisplay = "Delivery";
+
+      const receiptData = {
+        restaurantName: t("projectName"),
+        branchName: order.branch?.name || "",
+        cashierName: order.admin?.name || "-",
+        invoiceNumber: order.order_number || order.id,
+        date: new Date(order.order_date).toLocaleString('en-US', {
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', hour12: false
+        }),
+        orderType: orderTypeDisplay,
+
+        customerName: order.user?.name || `${order.user?.f_name || ''} ${order.user?.l_name || ''}`,
+        customerPhone: order.user?.phone || "",
+        customerPhone2: order.user?.phone_2 || "",
+        customerOrdersCount: order.user?.orders_count || 0,
+        customerAddress: order.address?.address || "",
+
+        items,
+        productsTotal,
+        addonsTotal,
+        subtotal,
+        tax,
+        taxPercentage,
+        delivery,
+        total,
+        discount
+      };
+
+      setInvoiceHtml(formatCashierReceipt(receiptData));
+    }
   }, [data]);
 
   const handlePrint = () => {
-      const printWindow = window.open('', '', 'height=600,width=400');
-      if (printWindow) {
-          printWindow.document.write('<html><head><title>Print Receipt</title>');
-          printWindow.document.write('</head><body>');
-          printWindow.document.write(invoiceHtml);
-          printWindow.document.write('</body></html>');
-          printWindow.document.close();
-          printWindow.focus();
-          setTimeout(() => {
-              printWindow.print();
-              printWindow.close();
-          }, 500);
-      }
+    const printWindow = window.open('', '', 'height=600,width=400');
+    if (printWindow) {
+      printWindow.document.write('<html><head><title>Print Receipt</title>');
+      printWindow.document.write('</head><body>');
+      printWindow.document.write(invoiceHtml);
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+      }, 500);
+    }
   };
 
   if (loading) return <div className="flex justify-center items-center min-h-screen"><LoaderLogin /></div>;
@@ -270,12 +328,12 @@ const InvoiceOrderPage = () => {
           <FaPrint /> {t("طباعة")}
         </button>
       </div>
-      
+
       <div className="flex justify-center">
-          <div 
-            style={{width: '320px', border: '1px solid #eee', padding: '10px', background: 'white'}}
-            dangerouslySetInnerHTML={{ __html: invoiceHtml }} 
-          />
+        <div
+          style={{ width: '320px', border: '1px solid #eee', padding: '10px', background: 'white' }}
+          dangerouslySetInnerHTML={{ __html: invoiceHtml }}
+        />
       </div>
     </div>
   );
