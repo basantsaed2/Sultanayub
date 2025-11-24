@@ -179,6 +179,7 @@ import AddPreparationMan from "./Pages/Dashboard/Admin/PreparationMan/AddPrepara
 import EditPreparationMan from "./Pages/Dashboard/Admin/PreparationMan/EditPreparationMan";
 import DeliveryManOrdersParent from "./Pages/Dashboard/Admin/DeliveryMan/DeliveryManOrder/DeliveryManOrdersParent";
 import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
+import OrdersDeliveryParent from "./Pages/Dashboard/Admin/OrdersDelivery/OrdersDeliveryParent";
 // import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
 
 const ProductSetupLayout = () => {
@@ -1161,6 +1162,11 @@ export const router = createBrowserRouter([
                 element: <InvoiceOrderLayout />
               },
             ]
+          },
+
+          {
+            path: "all_orders_delivery",
+            element: <OrdersDeliveryParent />
           },
 
           {

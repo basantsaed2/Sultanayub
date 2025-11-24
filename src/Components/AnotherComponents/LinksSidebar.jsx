@@ -105,6 +105,12 @@ const adminRoutes = [
     redirectTo: "/dashboard/orders/all",
   },
   {
+    name: "Delivery Orders",
+    path: "/dashboard/all_orders_delivery",
+    permission: "Order",
+    icon: IoBagAddOutline,
+  },
+  {
     name: "Category Setup",
     path: "/dashboard/category",
     permission: "Category",
