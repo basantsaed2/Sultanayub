@@ -32,7 +32,7 @@ const EditPurchaseList = () => {
         loading: loadingAllPurchaseCategories,
         data: dataAllPurchaseCategories,
     } = useGet({
-        url: `${apiUrl}/admin/purchase`,
+        url: `${apiUrl}/admin/purchase/lists`,
     });
 
     const { postData, loadingPost, response } = usePost({

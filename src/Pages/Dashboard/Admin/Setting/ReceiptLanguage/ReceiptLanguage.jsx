@@ -3,10 +3,10 @@ import {
     StaticLoader,
     SubmitButton,
     TitlePage,
-} from "../../../../Components/Components";
-import { useGet } from "../../../../Hooks/useGet";
-import { usePost } from "../../../../Hooks/usePostJson";
-import { useAuth } from "../../../../Context/Auth";
+} from "../../../../../Components/Components";
+import { useGet } from "../../../../../Hooks/useGet";
+import { usePost } from "../../../../../Hooks/usePostJson";
+import { useAuth } from "../../../../../Context/Auth";
 import { useTranslation } from "react-i18next";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
@@ -41,12 +41,16 @@ const ReceiptLanguage = () => {
         { value: 'en', label: 'English' }
     ];
 
+    useEffect(() => {
+        refetchLanguageSettings();
+    }, [refetchLanguageSettings]);
+
     // Set form fields when settings data is available
     useEffect(() => {
-        if (dataSettings && dataSettings.settings) {
-            const currentLang = dataSettings.settings.lang;
+        if (dataSettings && dataSettings.lang) {
+            const currentLang = dataSettings.lang;
             const foundLanguage = languageOptions.find(option => option.value === currentLang);
-            
+
             setSelectedLanguage(foundLanguage || null);
             setInitialLanguage(foundLanguage || null);
         }
@@ -55,7 +59,7 @@ const ReceiptLanguage = () => {
     // Navigate back after successful submission
     useEffect(() => {
         if (!loadingPost && response) {
-            auth.toastSuccess(t("Language settings updated successfully"));
+            refetchLanguageSettings();
         }
     }, [response, loadingPost, auth, t]);
 
@@ -108,11 +112,25 @@ const ReceiptLanguage = () => {
         }),
         option: (base, state) => ({
             ...base,
-            backgroundColor: state.isSelected ? '#3B82F6' : state.isFocused ? '#EFF6FF' : 'white',
-            color: state.isSelected ? 'white' : '#374151',
+            backgroundColor: state.isSelected
+                ? '#3B82F6'
+                : state.isFocused
+                    ? '#EFF6FF'
+                    : 'white',
+            color: state.isSelected
+                ? 'white'
+                : state.isFocused
+                    ? '#1F2937'  // Dark color when focused/hovered
+                    : '#374151', // Default dark color
             padding: '12px 16px',
+            cursor: 'pointer',
             '&:hover': {
-                backgroundColor: '#EFF6FF'
+                backgroundColor: '#EFF6FF',
+                color: '#1F2937' // Ensure dark text on hover
+            },
+            '&:active': {
+                backgroundColor: '#3B82F6',
+                color: 'white'
             }
         }),
         singleValue: (base) => ({
@@ -134,7 +152,7 @@ const ReceiptLanguage = () => {
                     <StaticLoader />
                 </div>
             ) : (
-                <section className="max-w-4xl mx-auto">
+                <section className="w-full pb-12">
                     {/* Header */}
                     <div className="flex items-center justify-between p-6 border-b border-gray-200">
                         <div className="flex items-center gap-x-3">
@@ -196,7 +214,7 @@ const ReceiptLanguage = () => {
                                         </span>
                                     )}
                                 </div>
-                                
+
                                 <div className="flex items-center gap-4">
                                     <button
                                         type="button"
@@ -206,7 +224,7 @@ const ReceiptLanguage = () => {
                                     >
                                         {t("Reset")}
                                     </button>
-                                    
+
                                     <SubmitButton
                                         text={t("Save Changes")}
                                         rounded="rounded-full"
@@ -217,19 +235,6 @@ const ReceiptLanguage = () => {
                             </div>
                         </div>
 
-                        {/* Current Settings Info */}
-                        {initialLanguage && (
-                            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                <div className="flex items-center gap-2">
-                                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <span className="text-sm font-TextFontMedium text-blue-800">
-                                        {t("Current receipt language")}: <strong>{initialLanguage.label}</strong>
-                                    </span>
-                                </div>
-                            </div>
-                        )}
                     </form>
                 </section>
             )}

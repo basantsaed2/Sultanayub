@@ -49,7 +49,7 @@ const adminRoutes = [
     icon: RiHome2Line,
   },
   {
-    name: "Orders",
+    name: "Online Orders",
     path: "/dashboard/orders",
     permission: "Order",
     icon: IoBagAddOutline,
@@ -397,7 +397,7 @@ const branchRoutes = [
     icon: BiSolidOffer,
   },
   {
-    name: "Orders",
+    name: "Online Orders",
     path: "/branch/orders",
     permission: "Order",
     icon: OrderIcon,

@@ -177,6 +177,8 @@ import PurchaseTransfer from "./Pages/Dashboard/Admin/Purchase/PurchaseTransfer/
 import PreparationMan from "./Pages/Dashboard/Admin/PreparationMan/PreparationMan";
 import AddPreparationMan from "./Pages/Dashboard/Admin/PreparationMan/AddPreparationMan";
 import EditPreparationMan from "./Pages/Dashboard/Admin/PreparationMan/EditPreparationMan";
+import DeliveryManOrdersParent from "./Pages/Dashboard/Admin/DeliveryMan/DeliveryManOrder/DeliveryManOrdersParent";
+import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
 // import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
 
 const ProductSetupLayout = () => {
@@ -800,10 +802,10 @@ export const router = createBrowserRouter([
                 path: 'policy_support',
                 element: <PolicySupportLayout />,
               },
-              // {
-              //   path: 'receipt_language',
-              //   element: <ReceiptLanguage />,
-              // },
+              {
+                path: 'receipt_language',
+                element: <ReceiptLanguage />,
+              },
               {
                 path: 'app_setup',
                 element: <AppSetupLayout />,
@@ -937,6 +939,10 @@ export const router = createBrowserRouter([
               {
                 path: 'edit/:deliveryManId',
                 element: <EditDeliveryManLayout />,
+              },
+              {
+                path: 'delivery-man-orders/:id',
+                element: <DeliveryManOrdersParent />
               }
             ]
           },

@@ -23,7 +23,7 @@ const AddPurchase = () => {
         loading: loadingPurchaseData,
         data: purchaseData,
     } = useGet({
-        url: `${apiUrl}/admin/purchase`,
+        url: `${apiUrl}/admin/purchase/lists`,
     });
 
     const { postData, loadingPost, response } = usePost({

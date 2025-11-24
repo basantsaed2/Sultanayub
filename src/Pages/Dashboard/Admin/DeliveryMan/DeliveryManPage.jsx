@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useChangeState } from '../../../../Hooks/useChangeState';
 import { useDelete } from '../../../../Hooks/useDelete';
 import { LoaderLogin, StaticLoader, Switch } from '../../../../Components/Components';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { DeleteIcon, EditIcon } from '../../../../Assets/Icons/AllIcons';
 import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react';
 import Warning from '../../../../Assets/Icons/AnotherIcons/WarningIcon';
@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 
 const DeliveryManPage = ({ data, setDeliveries, loading }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const navigate = useNavigate();
   const { changeState, loadingChange, responseChange } = useChangeState();
   const { deleteData, loadingDelete, responseDelete } = useDelete();
   const [openDelete, setOpenDelete] = useState(null);
@@ -83,17 +84,17 @@ const DeliveryManPage = ({ data, setDeliveries, loading }) => {
 
 
   const headers = [
-  t('sl'),
-  t('image'),
-  t('name'),
-  t('email'),
-  t('phone'),
-  t('identityType'),
-  t('identityNumber'),
-  t('orders'),
-  t('status'),
-  t('action'),
-];
+    t('sl'),
+    t('image'),
+    t('name'),
+    t('email'),
+    t('phone'),
+    t('identityType'),
+    t('identityNumber'),
+    t('orders'),
+    t('status'),
+    t('action'),
+  ];
 
   return (
     <div className="flex items-start justify-start w-full overflow-x-scroll pb-28 scrollSection">
@@ -133,8 +134,12 @@ const DeliveryManPage = ({ data, setDeliveries, loading }) => {
                       </div>
                     </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                      {delivery?.f_name + ' ' + delivery?.l_name || '-'}
-                    </td>
+                      <button
+                        onClick={() => navigate(`delivery-man-orders/${delivery.id}`)}
+                        className="text-mainColor font-bold underline"
+                      >
+                        {delivery?.f_name + ' ' + delivery?.l_name}
+                      </button>                    </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {delivery?.email || '-'}
                     </td>
@@ -191,7 +196,7 @@ const DeliveryManPage = ({ data, setDeliveries, loading }) => {
                                   </div>
                                   <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                                     <button className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto" onClick={() => handleDelete(delivery.id, delivery?.f_name + ' ' + delivery?.l_name)}>
-                                                                            {t("Delete")}
+                                      {t("Delete")}
 
                                     </button>
 
