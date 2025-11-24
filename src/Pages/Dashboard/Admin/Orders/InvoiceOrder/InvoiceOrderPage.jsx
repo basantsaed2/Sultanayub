@@ -8,13 +8,13 @@ import { FaPrint, FaArrowLeft } from "react-icons/fa";
 // ===================================================================
 // 1. دالة تصميم الإيصال
 // ===================================================================
-const formatCashierReceipt = (receiptData, t) => {
+const formatCashierReceipt = (receiptData, t, isRtl) => {
   const phones = [receiptData.customerPhone, receiptData.customerPhone2]
     .filter(Boolean)
     .join(" / ");
 
   return `
-    <div style="width: 100%; max-width:100%; margin: 0 auto; font-family: Arial, Helvetica, sans-serif; color: #000; padding: 10px;box-sizing: border-box; word-wrap: break-word;">
+    <div dir="${isRtl ? 'rtl' : 'ltr'}" style="width: 100%; max-width:100%; margin: 0 auto; font-family: Arial, Helvetica, sans-serif; color: #000; padding: 10px;box-sizing: border-box; word-wrap: break-word;">
       
       <style>
         @page { size: auto; margin: 0mm; }
@@ -25,15 +25,15 @@ const formatCashierReceipt = (receiptData, t) => {
 
         .header { text-align: center; margin-bottom: 10px; }
         .header h1 { font-size: 22px; font-weight: bold; margin: 0; text-transform: uppercase; }
-        .header p { font-size: 12px; margin: 2px 0; font-weight: normal; }
+        .header p { font-size: 15px; margin: 2px 0; font-weight: normal; }
         
         .info-section { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; font-weight: normal; }
-        .info-left { text-align: left; }
-        .info-right { text-align: right; }
+        .info-left { text-align: ${isRtl ? 'right' : 'left'}; }
+        .info-right { text-align: ${isRtl ? 'left' : 'right'}; }
         
         .invoice-num { font-size: 16px; font-weight: bold; margin-top: 5px; }
         
-        .cashier-line { text-align: left; font-size: 12px; margin-bottom: 8px; border-bottom: 1px solid #000; padding-bottom: 5px; }
+        .cashier-line { text-align: ${isRtl ? 'right' : 'left'}; font-size: 12px; margin-bottom: 8px; border-bottom: 1px solid #000; padding-bottom: 5px; }
 
         table { width: 100%; font-size: 12px; margin-bottom: 10px; }
         th { border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; padding: 5px 2px; text-align: center; font-weight: bold; }
@@ -41,8 +41,8 @@ const formatCashierReceipt = (receiptData, t) => {
         
         /* Increased font size for product name */
         .item-name { 
-          text-align: right; 
-          direction: rtl; 
+          text-align: ${isRtl ? 'right' : 'left'}; 
+          direction: ${isRtl ? 'rtl' : 'ltr'}; 
           padding-right: 5px; 
           font-size: 18px; 
           font-weight: bold; 
@@ -62,7 +62,7 @@ const formatCashierReceipt = (receiptData, t) => {
             font-weight : normal;
         }
 
-        .totals-section { text-align: right; font-size: 12px; margin-bottom: 10px; }
+        .totals-section { text-align: ${isRtl ? 'left' : 'right'}; font-size: 12px; margin-bottom: 10px; }
         .total-row { margin-bottom: 4px; display: flex; justify-content: space-between; }
         
         .grand-total { font-size: 18px; font-weight: bold; margin-top: 8px; border-top: 2px solid #000; padding-top: 5px; }
@@ -231,10 +231,12 @@ const InvoiceOrderPage = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const userRole = localStorage.getItem("role") || "admin";
   const locale = i18n.language;
+  const isRtl = locale === 'ar';
+
   const apiEndpoint =
     userRole === "branch"
-      ? `${apiUrl}/branch/online_order/invoice/${orderId}?local=${locale}`
-      : `${apiUrl}/admin/order/invoice/${orderId}?local=${locale}`;
+      ? `${apiUrl}/branch/online_order/invoice/${orderId}?locale=${locale}`
+      : `${apiUrl}/admin/order/invoice/${orderId}?locale=${locale}`;
 
   const { refetch, loading, data } = useGet({ url: apiEndpoint });
   const [invoiceHtml, setInvoiceHtml] = useState("");
@@ -329,7 +331,7 @@ const InvoiceOrderPage = () => {
         branchName: order.branch?.name || "",
         cashierName: order.admin?.name || "-",
         invoiceNumber: order.order_number || order.id,
-        date: new Date(order.order_date).toLocaleString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', {
+        date: new Date(order.order_date).toLocaleString(isRtl ? 'ar-EG' : 'en-US', {
           year: "numeric",
           month: "2-digit",
           day: "2-digit",
@@ -360,9 +362,9 @@ const InvoiceOrderPage = () => {
         discount,
       };
 
-      setInvoiceHtml(formatCashierReceipt(receiptData, t));
+      setInvoiceHtml(formatCashierReceipt(receiptData, t, isRtl));
     }
-  }, [data, t]);
+  }, [data, t, isRtl]);
 
   const handlePrint = () => {
     const printWindow = window.open("", "", "height=600,width=400");
