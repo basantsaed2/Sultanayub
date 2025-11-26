@@ -170,6 +170,7 @@ const AddProductPage = () => {
   const [productStatus, setProductStatus] = useState(0);
   const [productRecommended, setProductRecommended] = useState(0);
   const [productTimeStatus, setProductTimeStatus] = useState(0);
+  const [productRecipe, setProductRecipe] = useState(0);
 
   // Product Image
   const [productImage, setProductImage] = useState(null);
@@ -497,6 +498,12 @@ const AddProductPage = () => {
     setProductStatusFrom(null);
     setProductStatusTo(null);
   };
+  const handleProductRecipe = () => {
+    const currentState = productRecipe;
+    {
+      currentState === 0 ? setProductRecipe(1) : setProductRecipe(0);
+    }
+  };
   // Image
   const handleProductImageClick = (ref) => {
     if (ref.current) {
@@ -626,6 +633,7 @@ const AddProductPage = () => {
     setProductStatus(0);
     setProductRecommended(0);
     setProductTimeStatus(0);
+    setProductRecipe(0);
     setProductImage(null);
     setProductImageName(t("Choose Photo"));
     // Reset weight fields
@@ -752,6 +760,7 @@ const AddProductPage = () => {
     }
     formData.append("recommended", productRecommended);
     formData.append("status", productStatus);
+    formData.append("recipe", productRecipe);
     formData.append("image", productImage);
 
     // Add weight status and related fields
@@ -1244,6 +1253,16 @@ const AddProductPage = () => {
                   checked={productRecommended}
                 />
               </div>
+              {/* Product Recipe */}
+              <div className="sm:w-full lg:w-[20%] flex items-center justify-start gap-x-3">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Recipe")}:
+                </span>
+                <Switch
+                  handleClick={handleProductRecipe}
+                  checked={productRecipe}
+                />
+              </div>
               {/* Product Time Status */}
               <div className="sm:w-full lg:w-[35%] flex items-center justify-start gap-x-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -1256,7 +1275,7 @@ const AddProductPage = () => {
               </div>
             </div>
 
-              <div className="flex items-start justify-start w-full gap-4 sm:flex-col lg:flex-row">
+            <div className="flex items-start justify-start w-full gap-4 sm:flex-col lg:flex-row">
               {productTimeStatus === 1 && (
                 <>
                   <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">

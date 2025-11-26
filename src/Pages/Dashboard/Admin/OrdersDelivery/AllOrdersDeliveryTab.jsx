@@ -1,118 +1,214 @@
-// tabs/DeliveredOrdersTab.jsx
+// tabs/AllOrdersDeliveryTab.jsx
 import React, { useState, useEffect } from 'react';
+import Select from 'react-select';
 import { useGet } from '../../../../Hooks/useGet';
 import { usePost } from '../../../../Hooks/usePostJson';
-import DateInput from '../../../../Components/Inputs/DateInput';
 import OrdersTable from '../../../../Components/AnotherComponents/OrdersTable';
 import { StaticLoader } from '../../../../Components/Components';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../../../Context/Auth';
 
 const AllOrdersDeliveryTab = () => {
   const { t } = useTranslation();
+  const auth = useAuth();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
-
+  // ---------- APIs ----------
   const getUrl = `${apiUrl}/admin/delivery/single_page/orders`;
   const getDeliveryUrl = `${apiUrl}/admin/delivery_balance/lists`;
-  const filterUrl = `${apiUrl}/admin/delivery/single_page/orders_delivery`;
+  const assignUrl = `${apiUrl}/admin/delivery/single_page/orders_delivery`;
 
-  const { data: normalData, loading: loadingNormal } = useGet({ url: getUrl });
+  const { refetch: refetchNormalData, data: normalData, loading: loadingNormal } = useGet({ url: getUrl });
   const { data: deliveryData, loading: loadingDelivery } = useGet({ url: getDeliveryUrl });
-  const { postData, loading: loadingFilter, response: filterResponse } = usePost({ url: filterUrl });
+  const { postData: assignOrders, loading: assigning, response } = usePost({ url: assignUrl });
 
-  // Auto apply filter
-  useEffect(() => {
-    if (fromDate && toDate) {
-      postData({ from: fromDate, to: toDate });
+  const loading = loadingNormal || loadingDelivery;
+
+  // ---------- Selection ----------
+  const [selectedOrderIds, setSelectedOrderIds] = useState([]);
+  const [selectedDeliveryOption, setSelectedDeliveryOption] = useState(null); // react-select value
+
+  const allOrders = normalData?.orders || [];
+  const deliveries = deliveryData?.deliveries || [];
+
+  const allSelected = allOrders.length > 0 && selectedOrderIds.length === allOrders.length;
+  const someSelected = selectedOrderIds.length > 0;
+
+  // ---------- react-select options ----------
+  const deliveryOptions = deliveries.map(del => ({
+    value: del.id,
+    label: `${del.name} (${del.phone})`
+  }));
+
+  // ---------- Handlers ----------
+  const handleSelectAll = () => {
+    if (allSelected) {
+      setSelectedOrderIds([]);
+    } else {
+      setSelectedOrderIds(allOrders.map(o => o.id));
     }
-  }, [fromDate, toDate]);
+  };
 
-  const hasFilter = !!fromDate && !!toDate;
+  const handleSelectOrder = (orderId) => {
+    setSelectedOrderIds(prev =>
+      prev.includes(orderId)
+        ? prev.filter(id => id !== orderId)
+        : [...prev, orderId]
+    );
+  };
 
-  // Use filtered response or normal data
-  const responseData = hasFilter ? filterResponse?.data : normalData;
-  const deliveryResponseData = deliveryData?.deliveries || [];
-  const loading = loadingNormal || loadingFilter;
+  const handleAssign = async () => {
+    if (!selectedDeliveryOption) {
+      auth.toastError(t('Please select a delivery man'));
+      return;
+    }
+    if (selectedOrderIds.length === 0) {
+      auth.toastError(t('Please select at least one order'));
+      return;
+    }
 
-  // Extract data safely
-  const totalOrders = responseData?.total_orders || 0;
-  const expectedOrders = responseData?.expected_orders || 0;
-  const dueOrders = responseData?.due_orders || [];
+    try {
+      await assignOrders({
+        'order_ids[]': selectedOrderIds,
+        delivery_id: selectedDeliveryOption.value,
+      });
+    } catch (err) {
+      auth.toastError(err?.response?.data?.message || t('Something went wrong'));
+    }
+  };
 
+  // Success feedback
+  useEffect(() => {
+    if (response && response.status === 200 && !assigning) {
+      auth.toastSuccess(t('Orders assigned successfully!'));
+      refetchNormalData();
+      setSelectedOrderIds([]);
+      setSelectedDeliveryOption(null); // Clear react-select
+    }
+  }, [response, assigning]);
+
+  // ---------- Custom Styles for react-select ----------
+  const customStyles = {
+    control: (base, state) => ({
+      ...base,
+      minHeight: '48px',
+      borderRadius: '12px',
+      borderColor: state.isFocused ? '#3B82F6' : '#D1D5DB',
+      boxShadow: state.isFocused ? '0 0 0 3px rgba(59, 130, 246, 0.1)' : 'none',
+      '&:hover': { borderColor: '#9CA3AF' },
+      fontSize: '16px',
+      paddingLeft: '8px',
+      backgroundColor: assigning ? '#F3F4F6' : 'white',
+    }),
+    placeholder: (base) => ({
+      ...base,
+      color: '#9CA3AF',
+      fontSize: '16px',
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: '#1F2937',
+      fontSize: '16px',
+    }),
+    menu: (base) => ({
+      ...base,
+      borderRadius: '12px',
+      marginTop: '8px',
+      boxShadow: '0 10px 25px rgba(0,0,0,0.12)',
+      zIndex: 50,
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected
+        ? '#3B82F6'
+        : state.isFocused
+          ? '#EFF6FF'
+          : 'white',
+      color: state.isSelected ? 'white' : '#1F2937',
+      padding: '12px 16px',
+      fontSize: '16px',
+    }),
+    dropdownIndicator: (base) => ({
+      ...base,
+      color: '#6B7280',
+    }),
+  };
+
+  // ---------- Render ----------
   return (
-    <div>
-      {/* Filter Section */}
-      <div className="bg-white p-6 rounded-xl shadow-md mb-6 flex flex-col md:flex-row gap-4 items-end">
-        <div className="flex-1">
-          <label className="block text-lg font-medium mb-2">{t('From Date')}</label>
-          <DateInput value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-        </div>
-        <div className="flex-1">
-          <label className="block text-lg font-medium mb-2">{t('To Date')}</label>
-          <DateInput value={toDate} onChange={(e) => setToDate(e.target.value)} />
-        </div>
+    <div className="pb-16">
 
-        {hasFilter && (
-          <button
-            onClick={() => {
-              setFromDate('');
-              setToDate('');
-            }}
-            className="px-6 py-4 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition"
-          >
-            {t('Clear Filter')}
-          </button>
-        )}
-      </div>
+      {/* Assignment Bar - Only show when orders exist */}
+      {allOrders.length > 0 && (
+        <div className="bg-white p-4 md:p-6 rounded-xl shadow-md mb-6">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
 
-      {/* Filter Status */}
-      {hasFilter && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-300 rounded-xl text-green-800 font-semibold text-center">
-          {t('Showing delivered orders from')} {fromDate} → {toDate}
+            {/* Left: Selected Count + Delivery Select */}
+            <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 w-full xl:w-auto">
+
+              {/* Selected Count */}
+              <span className="text-base sm:text-lg font-medium text-gray-800 whitespace-nowrap">
+                {t('Selected')}: <strong className="font-bold">{selectedOrderIds.length}</strong> {t('orders')}
+              </span>
+
+              {/* react-select - Fully responsive & searchable */}
+              <div className="w-full md:w-80 min-w-0">
+                <Select
+                  value={selectedDeliveryOption}
+                  onChange={setSelectedDeliveryOption}
+                  options={deliveryOptions}
+                  placeholder={t('Choose Delivery Man')}
+                  isDisabled={assigning}
+                  isLoading={loadingDelivery}
+                  isSearchable={true}
+                  styles={customStyles}
+                  className="text-base sm:text-lg"
+                  classNamePrefix="react-select"
+                  noOptionsMessage={() => t('No delivery men found')}
+                />
+              </div>
+            </div>
+
+            {/* Assign Button */}
+            <button
+              onClick={handleAssign}
+              disabled={assigning || !someSelected || !selectedDeliveryOption}
+              className={`w-full xl:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all whitespace-nowrap
+                ${(someSelected && selectedDeliveryOption && !assigning)
+                  ? 'bg-mainColor text-white hover:bg-mainColor/90 shadow-md active:scale-98'
+                  : 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                }`}
+            >
+              {assigning ? t('Assigning…') : t('Assign Selected Orders')}
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg">
-          <h3 className="text-lg font-medium opacity-90">{t('Total Delivered')}</h3>
-          <p className="text-3xl font-bold mt-2">{totalOrders.toFixed(2)} EGP</p>
-        </div>
-
-        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-xl shadow-lg">
-          <h3 className="text-lg font-medium opacity-90">{t('Expected Amount')}</h3>
-          <p className="text-3xl font-bold mt-2">{expectedOrders.toFixed(2)} EGP</p>
-        </div>
-
-        <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-xl shadow-lg">
-          <h3 className="text-lg font-medium opacity-90">{t('Due Amount')}</h3>
-          <p className="text-3xl font-bold mt-2">
-            {(totalOrders - expectedOrders).toFixed(2)} EGP
-          </p>
-          <p className="text-sm mt-2 opacity-90">
-            {dueOrders.length} {t('orders not fully paid')}
-          </p>
-        </div>
-      </div>
-
-      {/* Due Orders Table */}
+      {/* Orders Table */}
       {loading ? (
         <div className="flex justify-center py-20">
           <StaticLoader />
         </div>
-      ) : dueOrders.length === 0 ? (
+      ) : allOrders.length === 0 ? (
         <div className="text-center py-12 bg-green-50 rounded-xl border border-green-200">
           <p className="text-2xl font-bold text-green-800">{t('All payments collected!')}</p>
-          <p className="text-green-600 mt-2">{t('No due orders')}</p>
+          <p className="text-green-600 mt-2">{t('No orders')}</p>
         </div>
       ) : (
         <>
           <h2 className="text-2xl font-bold text-thirdColor mb-4">
-            {t('Due Orders')} ({dueOrders.length})
+            {t('Orders')} ({allOrders.length})
           </h2>
-          <OrdersTable orders={dueOrders} />
+
+          <OrdersTable
+            orders={allOrders}
+            showCheckbox={true}
+            selectedOrders={selectedOrderIds}
+            onSelectOrder={handleSelectOrder}
+            onSelectAll={handleSelectAll}
+            allSelected={allSelected}
+          />
         </>
       )}
     </div>

@@ -1,20 +1,20 @@
 // DeliveryManOrdersParent.jsx
 import React, { useState } from 'react';
+import AllOrdersDeliveryTab from './AllOrdersDeliveryTab';
 import CurrentOrdersTab from './CurrentOrdersTab';
-import DeliveredOrdersTab from './AllOrdersDeliveryTab';
 import FailedOrdersTab from './FailedOrdersTab';
 import { useTranslation } from 'react-i18next';
 
 const TABS = {
+  ALL: 'all',
   CURRENT: 'current',
-  DELIVERED: 'delivered',
   FAILED: 'failed',
 };
 
 const OrdersDeliveryParent = () => {
   const { t } = useTranslation();
 
-  const [activeTab, setActiveTab] = useState(TABS.CURRENT);
+  const [activeTab, setActiveTab] = useState(TABS.ALL);
 
   return (
     <div className="p-2 md:p-6 pb-32">
@@ -25,8 +25,8 @@ const OrdersDeliveryParent = () => {
       {/* Tabs - Always visible */}
       <div className="flex border-b mb-6 overflow-x-auto">
         {[
+          { key: TABS.ALL, label: t('All Orders') },
           { key: TABS.CURRENT, label: t('Current Orders') },
-          { key: TABS.DELIVERED, label: t('Delivered Orders') },
           { key: TABS.FAILED, label: t('Returned / Failed') },
         ].map((tab) => (
           <button
@@ -44,8 +44,8 @@ const OrdersDeliveryParent = () => {
 
       {/* Tab Content */}
       <div>
+        {activeTab === TABS.ALL && <AllOrdersDeliveryTab />}
         {activeTab === TABS.CURRENT && <CurrentOrdersTab />}
-        {activeTab === TABS.DELIVERED && <DeliveredOrdersTab />}
         {activeTab === TABS.FAILED && <FailedOrdersTab />}
       </div>
     </div>

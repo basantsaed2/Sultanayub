@@ -4,7 +4,7 @@ import {
   StaticLoader,
   SubmitButton,
   Switch,
-  TextInput,NumberInput,
+  TextInput, NumberInput,
   TitlePage,
 } from "../../../../../Components/Components";
 import { useGet } from "../../../../../Hooks/useGet";
@@ -51,6 +51,7 @@ const EditGroupModules = () => {
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
   const [selectedModules, setSelectedModules] = useState([]);
   const [moduleOptions, setModuleOptions] = useState([]);
+  const [due, setDue] = useState(0);
 
   useEffect(() => {
     refetchGroupData();
@@ -71,10 +72,11 @@ const EditGroupModules = () => {
   useEffect(() => {
     if (dataGroupData?.group_product && !initialDataLoaded && moduleOptions.length > 0) {
       const groupData = dataGroupData.group_product;
-      
+
       setName(groupData.name || "");
       setStatus(groupData.status || 1);
-      
+      setDue(groupData.due || 0);
+
       if (groupData.increase_precentage > 0) {
         setPercentageType("increase");
         setPercentageValue(groupData.increase_precentage.toString());
@@ -87,14 +89,14 @@ const EditGroupModules = () => {
       }
 
       // Set selected modules
-      if (groupData.modules && groupData.modules.length > 0) {
-        const selectedModuleOptions = groupData.modules.map(module => {
+      if (groupData.module && groupData.module.length > 0) {
+        const selectedModuleOptions = groupData.module.map(module => {
           const option = moduleOptions.find(opt => opt.value === module);
           return option || { value: module, label: module.charAt(0).toUpperCase() + module.slice(1).replace('_', ' ') };
         });
         setSelectedModules(selectedModuleOptions);
       }
-      
+
       setInitialDataLoaded(true);
     }
   }, [dataGroupData, initialDataLoaded, moduleOptions]);
@@ -109,6 +111,10 @@ const EditGroupModules = () => {
     setStatus(prev => prev === 1 ? 0 : 1);
   };
 
+  const handleDueChange = () => {
+    setDue(prev => prev === 1 ? 0 : 1);
+  };
+
   const handlePercentageTypeChange = (type) => {
     setPercentageType(type);
   };
@@ -118,7 +124,8 @@ const EditGroupModules = () => {
       const groupData = dataGroupData.group_product;
       setName(groupData.name || "");
       setStatus(groupData.status || 1);
-      
+      setDue(groupData.due || 0);
+
       if (groupData.increase_precentage > 0) {
         setPercentageType("increase");
         setPercentageValue(groupData.increase_precentage.toString());
@@ -128,8 +135,8 @@ const EditGroupModules = () => {
       }
 
       // Reset modules
-      if (groupData.modules && groupData.modules.length > 0) {
-        const selectedModuleOptions = groupData.modules.map(module => {
+      if (groupData.module && groupData.module.length > 0) {
+        const selectedModuleOptions = groupData.module.map(module => {
           const option = moduleOptions.find(opt => opt.value === module);
           return option || { value: module, label: module.charAt(0).toUpperCase() + module.slice(1).replace('_', ' ') };
         });
@@ -166,7 +173,7 @@ const EditGroupModules = () => {
 
     const formData = new FormData();
     formData.append("name", name.trim());
-    
+
     if (percentageType === "increase") {
       formData.append("increase_precentage", parseFloat(percentageValue));
       formData.append("decrease_precentage", 0);
@@ -174,13 +181,14 @@ const EditGroupModules = () => {
       formData.append("increase_precentage", 0);
       formData.append("decrease_precentage", parseFloat(percentageValue));
     }
-    
+
     // Append selected modules as array
     selectedModules.forEach(module => {
-      formData.append("modules[]", module.value);
+      formData.append("module[]", module.value);
     });
-    
+
     formData.append("status", status);
+    formData.append("due", due);
 
     postData(formData, "Group module updated successfully")
       .finally(() => {
@@ -254,7 +262,7 @@ const EditGroupModules = () => {
           <form onSubmit={handleSubmit}>
             <div className="sm:py-3 lg:py-6">
               <div className="flex flex-wrap items-start justify-start w-full gap-4 sm:flex-col lg:flex-row">
-                
+
                 <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
                     {t("Group Name")}:
@@ -346,6 +354,18 @@ const EditGroupModules = () => {
                     <Switch
                       handleClick={handleStatusChange}
                       checked={status === 1}
+                    />
+                  </div>
+                </div>
+
+                <div className="sm:w-full xl:w-[30%] flex items-start justify-start gap-x-1 pt-8">
+                  <div className="flex items-center justify-start w-2/4 gap-x-1">
+                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                      {t("Due")}:
+                    </span>
+                    <Switch
+                      handleClick={handleDueChange}
+                      checked={due === 1}
                     />
                   </div>
                 </div>

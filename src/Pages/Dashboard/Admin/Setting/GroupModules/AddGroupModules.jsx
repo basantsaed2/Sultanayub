@@ -4,7 +4,7 @@ import {
   StaticLoader,
   SubmitButton,
   Switch,
-  TextInput,NumberInput,
+  TextInput, NumberInput,
   TitlePage,
 } from "../../../../../Components/Components";
 import { useGet } from "../../../../../Hooks/useGet";
@@ -41,6 +41,7 @@ const AddGroupModules = () => {
   const [loading, setLoading] = useState(false);
   const [selectedModules, setSelectedModules] = useState([]);
   const [moduleOptions, setModuleOptions] = useState([]);
+  const [due, setDue] = useState(0);
 
   useEffect(() => {
     refetchModules();
@@ -67,6 +68,10 @@ const AddGroupModules = () => {
     setStatus(prev => prev === 1 ? 0 : 1);
   };
 
+  const handleDueChange = () => {
+    setDue(prev => prev === 1 ? 0 : 1);
+  };
+
   const handlePercentageTypeChange = (type) => {
     setPercentageType(type);
     setPercentageValue("");
@@ -77,6 +82,7 @@ const AddGroupModules = () => {
     setPercentageType("increase");
     setPercentageValue("");
     setStatus(1);
+    setDue(0);
     setSelectedModules([]);
   };
 
@@ -106,7 +112,7 @@ const AddGroupModules = () => {
 
     const formData = new FormData();
     formData.append("name", name.trim());
-    
+
     if (percentageType === "increase") {
       formData.append("increase_precentage", parseFloat(percentageValue));
       formData.append("decrease_precentage", 0);
@@ -114,13 +120,14 @@ const AddGroupModules = () => {
       formData.append("increase_precentage", 0);
       formData.append("decrease_precentage", parseFloat(percentageValue));
     }
-    
+
     // Append selected modules as array
     selectedModules.forEach(module => {
       formData.append("module[]", module.value);
     });
-    
+
     formData.append("status", status);
+    formData.append("due", due);
 
     postData(formData, "Group module added successfully")
       .finally(() => {
@@ -194,7 +201,7 @@ const AddGroupModules = () => {
           <form onSubmit={handleSubmit}>
             <div className="sm:py-3 lg:py-6">
               <div className="flex flex-wrap items-start justify-start w-full gap-4 sm:flex-col lg:flex-row">
-                
+
                 <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
                     {t("Group Name")}:
@@ -286,6 +293,18 @@ const AddGroupModules = () => {
                     <Switch
                       handleClick={handleStatusChange}
                       checked={status === 1}
+                    />
+                  </div>
+                </div>
+
+                <div className="sm:w-full xl:w-[30%] flex items-start justify-start gap-x-1 pt-8">
+                  <div className="flex items-center justify-start w-2/4 gap-x-1">
+                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                      {t("Due")}:
+                    </span>
+                    <Switch
+                      handleClick={handleDueChange}
+                      checked={due === 1}
                     />
                   </div>
                 </div>

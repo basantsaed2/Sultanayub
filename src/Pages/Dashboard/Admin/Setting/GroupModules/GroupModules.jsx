@@ -109,7 +109,7 @@ const GroupModules = () => {
     const handleOpenDelete = (id) => {
         setOpenDelete(id);
     };
-    
+
     const handleCloseDelete = () => {
         setOpenDelete(null);
     };
@@ -126,6 +126,7 @@ const GroupModules = () => {
         t("Decrease Percentage"),
         t("Modules"),
         t("Products"),
+        t("Due"),
         t("Status"),
         t("Action"),
     ];
@@ -208,6 +209,13 @@ const GroupModules = () => {
                                             >
                                                 {t("View Products")}
                                             </button>
+                                        </td>
+                                        <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                            {group.due === 1 ? (
+                                                <span className="text-green-500">{t("Yes")}</span>
+                                            ) : (
+                                                <span className="text-red-500">{t("No")}</span>
+                                            )}
                                         </td>
                                         <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                             <Switch

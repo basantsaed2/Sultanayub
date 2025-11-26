@@ -55,7 +55,7 @@ const FailedOrdersTab = ({ deliveryManId }) => {
     <div>
       {/* Confirm Button - Only show if any selected */}
       {selectedOrders.length > 0 && (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-300 rounded-xl flex items-center justify-between">
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-300 rounded-xl flex flex-col md:flex-row gap-4 items-center justify-between">
           <span className="text-blue-800 font-semibold">
             {selectedOrders.length} {t('orders selected')}
           </span>

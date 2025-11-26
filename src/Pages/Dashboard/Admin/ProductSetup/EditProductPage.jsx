@@ -132,6 +132,7 @@ const EditProductPage = () => {
   const [productStatus, setProductStatus] = useState(0);
   const [productRecommended, setProductRecommended] = useState(0);
   const [productTimeStatus, setProductTimeStatus] = useState(0);
+  const [productRecipe, setProductRecipe] = useState(0);
   const [productImage, setProductImage] = useState(null);
   const [productImageName, setProductImageName] = useState(t("Choose Photo"));
 
@@ -300,6 +301,7 @@ const EditProductPage = () => {
       setProductStatus(productEdit.status ?? 0);
       setProductRecommended(productEdit.recommended ?? 0);
       setProductTimeStatus(productEdit.product_time_status ?? 0);
+      setProductRecipe(productEdit.recipe ?? 0);
       setProductStatusFrom(productEdit.from || "");
       setProductStatusTo(productEdit.to || "");
       setProductImage(productEdit.image_link || null);
@@ -409,6 +411,7 @@ const EditProductPage = () => {
     }
     formData.append("recommended", productRecommended);
     formData.append("status", productStatus);
+    formData.append("recipe", productRecipe);
     formData.append("image", productImage);
 
     // Add weight status and related fields
@@ -799,6 +802,13 @@ const EditProductPage = () => {
     if (productTimeStatus === 1) {
       setProductStatusFrom("");
       setProductStatusTo("");
+    }
+  };
+
+  const handleProductRecipe = () => {
+    const currentState = productRecipe;
+    {
+      currentState === 0 ? setProductRecipe(1) : setProductRecipe(0);
     }
   };
 
@@ -1276,6 +1286,16 @@ const EditProductPage = () => {
                 <Switch
                   handleClick={handleProductRecommended}
                   checked={productRecommended}
+                />
+              </div>
+              {/* Product Recipe */}
+              <div className="sm:w-full lg:w-[20%] flex items-center justify-start gap-x-3">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Recipe")}:
+                </span>
+                <Switch
+                  handleClick={handleProductRecipe}
+                  checked={productRecipe}
                 />
               </div>
               {/* Product Time Status */}
