@@ -5,10 +5,10 @@ import {
   Switch,
   TitlePage,
   TextInput,
-} from "../../../../../Components/Components";
-import { useGet } from "../../../../../Hooks/useGet";
-import { useChangeState } from "../../../../../Hooks/useChangeState";
-import { useAuth } from "../../../../../Context/Auth";
+} from "../../../../Components/Components";
+import { useGet } from "../../../../Hooks/useGet";
+import { useChangeState } from "../../../../Hooks/useChangeState";
+import { useAuth } from "../../../../Context/Auth";
 import { t } from "i18next";
 import { IoArrowBack } from "react-icons/io5";
 
@@ -18,7 +18,7 @@ const GroupModuleProducts = () => {
   const { groupId } = useParams();
   const location = useLocation();
   const auth = useAuth();
-  
+
   const {
     refetch: refetchGroupProducts,
     loading: loadingGroupProducts,
@@ -57,7 +57,7 @@ const GroupModuleProducts = () => {
   useEffect(() => {
     if (dataGroupProducts && dataGroupProducts.products) {
       setProducts(dataGroupProducts.products);
-      
+
       // Set group name from navigation state
       const navGroupName = location.state?.groupName;
       if (navGroupName) {
@@ -111,7 +111,7 @@ const GroupModuleProducts = () => {
   // Change product status using useChangeState hook
   const handleChangeStatus = async (productId, productName, currentStatus) => {
     const newStatus = !currentStatus;
-    
+
     setLoadingActions(prev => ({ ...prev, [`status_${productId}`]: true }));
 
     // Use URL parameters for status update
@@ -124,8 +124,8 @@ const GroupModuleProducts = () => {
         // Update local state
         setProducts((prevProducts) =>
           prevProducts.map((product) =>
-            product.product_id === productId 
-              ? { ...product, status: newStatus } 
+            product.product_id === productId
+              ? { ...product, status: newStatus }
               : product
           )
         );
@@ -310,9 +310,8 @@ const GroupModuleProducts = () => {
                 <button
                   key={page}
                   onClick={() => handlePageChange(page)}
-                  className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${
-                    currentPage === page ? "bg-mainColor text-white" : "text-mainColor"
-                  }`}
+                  className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page ? "bg-mainColor text-white" : "text-mainColor"
+                    }`}
                 >
                   {page}
                 </button>

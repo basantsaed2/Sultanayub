@@ -6,10 +6,10 @@ import {
   Switch,
   TextInput, NumberInput,
   TitlePage,
-} from "../../../../../Components/Components";
-import { useGet } from "../../../../../Hooks/useGet";
-import { usePost } from "../../../../../Hooks/usePostJson";
-import { useAuth } from "../../../../../Context/Auth";
+} from "../../../../Components/Components";
+import { useGet } from "../../../../Hooks/useGet";
+import { usePost } from "../../../../Hooks/usePostJson";
+import { useAuth } from "../../../../Context/Auth";
 import { useTranslation } from "react-i18next";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";

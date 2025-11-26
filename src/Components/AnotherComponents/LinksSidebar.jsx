@@ -235,7 +235,6 @@ const adminRoutes = [
       { name: "Menu", path: "/dashboard/setting/menu", permission: "Menue" },
       { name: "Hall", path: "/dashboard/setting/hall_locations", permission: "Hall" },
       { name: "Tables", path: "/dashboard/setting/hall_tables", permission: "Tables" },
-      { name: "Group Modules", path: "/dashboard/setting/group_modules", permission: "GroupModules" },
       { name: "Order Percentage", path: "/dashboard/setting/order_percentage", permission: "OrderPercentage" },
       { name: "Discount Code", path: "/dashboard/setting/discount_code", permission: "DiscountCode" },
       { name: "Cancelation Notification", path: "/dashboard/setting/cancelation_notification", permission: "CancelationNotification" },
@@ -311,6 +310,12 @@ const adminRoutes = [
     path: "/dashboard/discount_module",
     permission: "Discount Module",
     icon: BiSolidDiscount,
+  },
+  {
+    name: "Group Modules",
+    path: "/dashboard/group_modules",
+    permission: "GroupModules",
+    icon: TbBorderAll,
   },
   {
     name: "Emails",

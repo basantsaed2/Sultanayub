@@ -122,10 +122,10 @@ import CustomersDue from "./Pages/Dashboard/Admin/Users/CustomersDue/CustomersDu
 import Upselling from "./Pages/Dashboard/Admin/Upselling/Upselling";
 import AddUpselling from "./Pages/Dashboard/Admin/Upselling/AddUpselling";
 import EditUpselling from "./Pages/Dashboard/Admin/Upselling/EditUpselling";
-import GroupModules from "./Pages/Dashboard/Admin/Setting/GroupModules/GroupModules";
-import GroupModuleProducts from "./Pages/Dashboard/Admin/Setting/GroupModules/GroupModuleProduct";
-import AddGroupModules from "./Pages/Dashboard/Admin/Setting/GroupModules/AddGroupModules";
-import EditGroupModules from "./Pages/Dashboard/Admin/Setting/GroupModules/EditGroupModules";
+import GroupModules from "./Pages/Dashboard/Admin/GroupModules/GroupModules";
+import GroupModuleProducts from "./Pages/Dashboard/Admin/GroupModules/GroupModuleProduct";
+import AddGroupModules from "./Pages/Dashboard/Admin/GroupModules/AddGroupModules";
+import EditGroupModules from "./Pages/Dashboard/Admin/GroupModules/EditGroupModules";
 import OrderPercentage from "./Pages/Dashboard/Admin/Setting/OrderPercentage/OrderPercentage";
 import Recipes from "./Pages/Dashboard/Admin/ProductSetup/Recipes/Recipes";
 import AddRecipes from "./Pages/Dashboard/Admin/ProductSetup/Recipes/AddRecipes";
@@ -824,32 +824,6 @@ export const router = createBrowserRouter([
                       {
                         path: 'edit/:voidReasonId',
                         element: <EditVoidReasonLayout />
-                      }
-                    ]
-                  },
-                ]
-              },
-              {
-                path: 'group_modules',
-                children: [
-                  {
-                    path: '',
-                    children: [
-                      {
-                        index: true,
-                        element: <GroupModules />,
-                      },
-                      {
-                        path: 'products/:groupId',
-                        element: <GroupModuleProducts />,
-                      },
-                      {
-                        path: 'add',
-                        element: <AddGroupModules />
-                      },
-                      {
-                        path: 'edit/:groupId',
-                        element: <EditGroupModules />
                       }
                     ]
                   },
@@ -1585,6 +1559,32 @@ export const router = createBrowserRouter([
             ]
           },
 
+          {
+            path: 'group_modules',
+            children: [
+              {
+                path: '',
+                children: [
+                  {
+                    index: true,
+                    element: <GroupModules />,
+                  },
+                  {
+                    path: 'products/:groupId',
+                    element: <GroupModuleProducts />,
+                  },
+                  {
+                    path: 'add',
+                    element: <AddGroupModules />
+                  },
+                  {
+                    path: 'edit/:groupId',
+                    element: <EditGroupModules />
+                  }
+                ]
+              },
+            ]
+          },
         ]
       },
     ],
