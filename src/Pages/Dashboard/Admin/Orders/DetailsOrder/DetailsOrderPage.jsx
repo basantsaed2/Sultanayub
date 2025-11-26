@@ -52,6 +52,10 @@ const DetailsOrderPage = () => {
     url: deliveryUrl,
   });
 
+  const { postData: transferPostData, loadingPost: transferLoadingPost, response: transferResponse } = usePost({
+    url: `${apiUrl}/admin/order/transfer_branch/${orderId}`,
+  });
+
   const { t, i18n } = useTranslation();
 
   const { changeState, loadingChange, responseChange } = useChangeState();
@@ -89,6 +93,12 @@ const DetailsOrderPage = () => {
   const dispatch = useDispatch();
   const canceledOrders = useSelector((state) => state.canceledOrders); // Add this line
 
+  const [openTransferModal, setOpenTransferModal] = useState(false);
+  const [branches, setBranches] = useState([]);
+  const [loadingBranches, setLoadingBranches] = useState(false);
+  const [selectedBranchId, setSelectedBranchId] = useState(null);
+  const [loadingTransfer, setLoadingTransfer] = useState(false);
+
   useEffect(() => {
     // Only remove if the order exists in canceled orders
     const orderExists = canceledOrders.orders.includes(orderId);
@@ -121,6 +131,9 @@ const DetailsOrderPage = () => {
       setDeliveries(dataDetailsOrder?.deliveries);
       setDeliveriesFilter(dataDetailsOrder?.deliveries);
       setPreparationTime(dataDetailsOrder?.preparing_time);
+      // Filter out current branch if needed
+      const filtered = dataDetailsOrder.branches.filter(b => b.id != detailsData.order?.branch_id);
+      setBranches(filtered);
     }
   }, [dataDetailsOrder]);
 
@@ -188,6 +201,27 @@ const DetailsOrderPage = () => {
       refetchDetailsOrder(); // Refetch to update the UI with new status and delivery info.
     }
   }, [response]);
+
+
+  const handleTransferBranch = async () => {
+    if (!selectedBranchId) {
+      auth.toastError(t("Please select a branch"));
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("branch_id", selectedBranchId);
+
+    transferPostData(formData, t("Order transferred successfully!"));
+
+  };
+
+  useEffect(() => {
+    if (transferResponse && transferResponse.status === 200) {
+      refetchDetailsOrder();
+      setOpenTransferModal(false);
+    }
+  }, [transferResponse]);
 
   const handleOpenReceipt = (id) => {
     setOpenReceipt(id);
@@ -978,6 +1012,88 @@ const DetailsOrderPage = () => {
                     </>
                   )}
                 </div>
+
+                {/* Transfer Branch Button & Modal */}
+                {role !== "branch" && detailsData.order_status !== "delivered" && detailsData.order_status !== "canceled" && (
+                  <>
+                    <button
+                      onClick={() => setOpenTransferModal(true)}
+                      className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium transition shadow-md"
+                    >
+                      {t("Transfer to Another Branch")}
+                    </button>
+
+                    {/* Transfer Branch Modal */}
+                    <Dialog open={openTransferModal} onClose={() => setOpenTransferModal(false)} className="relative z-50">
+                      <DialogBackdrop className="fixed inset-0 bg-black bg-opacity-30" />
+
+                      <div className="fixed inset-0 flex items-center justify-center p-4">
+                        <DialogPanel className="w-full max-w-md bg-white rounded-xl shadow-2xl p-6">
+                          <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                            {t("Transfer Order to Branch")}
+                          </h3>
+
+                          {/* Loading state */}
+                          {loadingBranches ? (
+                            <div className="flex justify-center py-8">
+                              <LoaderLogin />
+                            </div>
+                          ) : branches.length === 0 ? (
+                            <p className="text-center text-gray-500 py-8">{t("No branches available")}</p>
+                          ) : (
+                            <div className="space-y-3 max-h-96 overflow-y-auto">
+                              {branches.map((branch) => (
+                                <label
+                                  key={branch.id}
+                                  className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition
+                    ${selectedBranchId === branch.id
+                                      ? "border-green-600 bg-green-50"
+                                      : "border-gray-300 hover:bg-gray-50"
+                                    }`}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <input
+                                      type="radio"
+                                      name="branch"
+                                      value={branch.id}
+                                      checked={selectedBranchId === branch.id}
+                                      onChange={() => setSelectedBranchId(branch.id)}
+                                      className="w-5 h-5 text-green-600"
+                                    />
+                                    <div>
+                                      <p className="font-medium text-gray-900">{branch.name}</p>
+                                      <p className="text-sm text-gray-500">{branch.zone?.name || ""}</p>
+                                    </div>
+                                  </div>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+
+                          <div className="flex gap-3 mt-6">
+                            <button
+                              onClick={() => setOpenTransferModal(false)}
+                              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition"
+                            >
+                              {t("Cancel")}
+                            </button>
+                            <button
+                              onClick={handleTransferBranch}
+                              disabled={!selectedBranchId || loadingTransfer}
+                              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+                            >
+                              {loadingTransfer ? (
+                                <>Transferring...</>
+                              ) : (
+                                <>{t("Transfer Order")}</>
+                              )}
+                            </button>
+                          </div>
+                        </DialogPanel>
+                      </div>
+                    </Dialog>
+                  </>
+                )}
 
                 <div className="w-full p-4 mt-4 bg-white shadow-md rounded-xl">
                   <div className="flex flex-col gap-y-2">

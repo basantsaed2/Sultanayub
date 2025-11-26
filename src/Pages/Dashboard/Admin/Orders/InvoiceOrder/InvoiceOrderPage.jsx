@@ -138,33 +138,58 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
         <tbody>
           ${receiptData.items
       .map(
-        (item) => `
+        (item) => {
+          let rows = `
             <tr>
               <td style="vertical-align: top;">${item.qty}</td>
               <td class="item-name">
                 ${item.name}
                 ${item.variationString
-            ? `<div class="item-variations">${item.variationString}</div>`
-            : ""
-          }
-                ${item.addonsString
-            ? `<div class="item-variations">+ ${item.addonsString}</div>`
-            : ""
-          }
+              ? `<div class="item-variations">${item.variationString}</div>`
+              : ""
+            }
                ${item.notesString
-            ? `<div class="item-note">${t("Note")}: ${item.notesString}</div>`
-            : ""
-          }
-
+              ? `<div class="item-note">${t("Note")}: ${item.notesString}</div>`
+              : ""
+            }
               </td>
               <td style="vertical-align: top;">${Number(item.price).toFixed(
-            2
-          )}</td>
+              2
+            )}</td>
               <td style="vertical-align: top;">${Number(item.total).toFixed(
-            2
-          )}</td>
+              2
+            )}</td>
             </tr>
-          `
+          `;
+
+          if (item.addons && item.addons.length > 0) {
+            item.addons.forEach((addon) => {
+              rows += `
+              <tr>
+                <td></td>
+                <td class="item-name" style="font-size: 14px; font-weight: normal; ${isRtl ? 'padding-right: 15px' : 'padding-left: 15px'}">+ ${addon.name}</td>
+                <td style="vertical-align: top;">${Number(addon.price).toFixed(2)}</td>
+                <td></td>
+              </tr>
+              `;
+            });
+          }
+
+          if (item.extras && item.extras.length > 0) {
+            item.extras.forEach((extra) => {
+              rows += `
+              <tr>
+                <td></td>
+                <td class="item-name" style="font-size: 14px; font-weight: normal; ${isRtl ? 'padding-right: 15px' : 'padding-left: 15px'}">+ ${extra.name}</td>
+                <td style="vertical-align: top;">${Number(extra.price).toFixed(2)}</td>
+                <td></td>
+              </tr>
+              `;
+            });
+          }
+
+          return rows;
+        }
       )
       .join("")}
         </tbody>
@@ -176,17 +201,10 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
           <span>${Number(receiptData.productsTotal).toFixed(2)}</span>
         </div>
         
-        ${receiptData.addonsTotal > 0
-      ? `
-        <div class="total-row">
-          <span>${t("TotalExtrasAddons")}</span>
-          <span>${Number(receiptData.addonsTotal).toFixed(2)}</span>
-        </div>`
-      : ""
-    }
+
 
         <div class="total-row">
-          <span>${t("Tax")}</span>
+          <span>${t("Tax")} %:</span>
           <span>${Number(receiptData.tax).toFixed(2)}</span>
         </div>
 
@@ -285,8 +303,6 @@ const InvoiceOrderPage = () => {
           .filter(Boolean)
           .join(" - ");
 
-        const addonsNames = item.addons?.map((a) => a.name).join(", ");
-
         // Notes from product or item
         const productNotes = product.notes;
         const itemNotes = item.notes;
@@ -298,7 +314,8 @@ const InvoiceOrderPage = () => {
           qty,
           name: product.name || item.name || "Item",
           variationString: variationOptions,
-          addonsString: addonsNames,
+          addons: itemAddons,
+          extras: itemExtras,
           notesString: notesString,
           price: basePrice,
           total: (basePrice + totalExtrasPerUnit) * qty,

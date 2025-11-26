@@ -1134,6 +1134,20 @@ const resources = {
         "paid": "Paid",
         "unpaid": "UnPaid"
       },
+      "InvoiceNumber": "Invoice #",
+      "Client": "Client",
+      "DeliveryAddress": "Delivery Address",
+      "Cashier": "Cashier",
+      "Item": "Item",
+      "Note": "Note",
+      "TotalProductPrice": "Total Product Price",
+      "TotalExtrasAddons": "Total Extras/Addons",
+      "GrandTotal": "Grand Total",
+      "ThankYouForVisit": "Thank you for your visit",
+      "Paid": "Paid",
+      "UnPaid": "UnPaid",
+      "paid": "Paid",
+      "unpaid": "UnPaid"
     },
   },
 
