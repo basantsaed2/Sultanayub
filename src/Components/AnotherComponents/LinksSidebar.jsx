@@ -334,7 +334,7 @@ const adminRoutes = [
       { name: "Transfer", path: "/dashboard/purchase/purchase_transfer", permission: "purchase", },
       { name: "Category", path: "/dashboard/purchase/purchase_category", permission: "purchase", },
       { name: "Products", path: "/dashboard/purchase/purchase_product", permission: "purchase", },
-      { name: "Consumersion", path: "/dashboard/purchase/purchase_consumersion", permission: "purchase", },
+      { name: "Consumption", path: "/dashboard/purchase/purchase_consumption", permission: "purchase", },
       { name: "Wasted", path: "/dashboard/purchase/purchase_wasted", permission: "purchase", },
     ],
     redirectTo: "/dashboard/purchase/purchase_list",

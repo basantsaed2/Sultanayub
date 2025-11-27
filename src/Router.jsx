@@ -1371,7 +1371,7 @@ export const router = createBrowserRouter([
                 ]
               },
               {
-                path: "purchase_consumersion",
+                path: "purchase_consumption",
                 children: [
                   {
                     path: '',

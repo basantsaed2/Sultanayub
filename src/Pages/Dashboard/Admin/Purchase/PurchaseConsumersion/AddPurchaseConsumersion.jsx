@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+    DateInput,
     StaticButton,
     StaticLoader,
     SubmitButton,
@@ -16,198 +17,133 @@ import Select from 'react-select';
 
 const AddPurchaseConsumersion = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const {
-        refetch: refetchLists,
-        loading: loadingLists,
-        data: dataLists,
-    } = useGet({
-        url: `${apiUrl}/admin/purchase_consumersion/lists`,
-    });
-    const { postData, loadingPost, response } = usePost({
-        url: `${apiUrl}/admin/purchase_consumersion/add`,
-    });
-
     const { t } = useTranslation();
     const auth = useAuth();
     const navigate = useNavigate();
 
-    const [branches, setBranches] = useState([]);
-    const [stores, setStores] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [products, setProducts] = useState([]);
-    const [filteredProducts, setFilteredProducts] = useState([]);
+    const {
+        refetch: refetchLists,
+        loading: loadingLists,
+        data: dataLists,
+    } = useGet({ url: `${apiUrl}/admin/purchase_consumersion/lists` });
+
+    const { postData, loadingPost, response } = usePost({
+        url: `${apiUrl}/admin/purchase_consumersion/add`,
+    });
+
+    // Form States
+    const [type, setType] = useState("product"); // "product" | "material"
     const [selectedBranch, setSelectedBranch] = useState(null);
     const [selectedStore, setSelectedStore] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState(null);
-    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [selectedMaterialCategory, setSelectedMaterialCategory] = useState(null);
+    const [selectedItem, setSelectedItem] = useState(null); // product or material
     const [quantity, setQuantity] = useState("");
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
+    // Options
+    const [branches, setBranches] = useState([]);
+    const [stores, setStores] = useState([]);
+    const [categories, setCategories] = useState([]); // product categories
+    const [materialCategories, setMaterialCategories] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [materials, setMaterials] = useState([]);
+    const [filteredItems, setFilteredItems] = useState([]);
+
     useEffect(() => {
         refetchLists();
-    }, [refetchLists]);
+    }, []);
 
     useEffect(() => {
         if (dataLists) {
-            // Set branches
-            if (dataLists.branches) {
-                const branchOptions = dataLists.branches.map((branch) => ({
-                    value: branch.id,
-                    label: branch.name,
-                }));
-                setBranches(branchOptions);
-            }
+            setBranches(dataLists.branches?.map(b => ({ value: b.id, label: b.name })) || []);
+            setStores(dataLists.stores?.map(s => ({ value: s.id, label: s.name })) || []);
+            setCategories(dataLists.categories?.map(c => ({ value: c.id, label: c.name })) || []);
+            setMaterialCategories(dataLists.material_categories?.map(c => ({ value: c.id, label: c.name })) || []);
 
-            // Set stores
-            if (dataLists.stores) {
-                const storeOptions = dataLists.stores.map((store) => ({
-                    value: store.id,
-                    label: store.name,
-                }));
-                setStores(storeOptions);
-            }
+            const productOpts = dataLists.products?.map(p => ({
+                value: p.id,
+                label: p.name,
+                category_id: p.category_id
+            })) || [];
+            setProducts(productOpts);
 
-            // Set categories
-            if (dataLists.categories) {
-                const categoryOptions = dataLists.categories.map((category) => ({
-                    value: category.id,
-                    label: category.name,
-                }));
-                setCategories(categoryOptions);
-            }
-
-            // Set products
-            if (dataLists.products) {
-                const productOptions = dataLists.products.map((product) => ({
-                    value: product.id,
-                    label: product.name,
-                    category_id: product.category_id
-                }));
-                setProducts(productOptions);
-            }
+            const materialOpts = dataLists.materials?.map(m => ({
+                value: m.id,
+                label: m.name,
+                category_id: m.category_id
+            })) || [];
+            setMaterials(materialOpts);
         }
     }, [dataLists]);
 
+    // Filter items based on selected category
     useEffect(() => {
-        if (selectedCategory && products.length > 0) {
-            const filtered = products.filter(product =>
-                product.category_id === selectedCategory.value
-            );
-            setFilteredProducts(filtered);
-            setSelectedProduct(null);
+        const list = type === "product" ? products : materials;
+        const catId = type === "product" ? selectedCategory?.value : selectedMaterialCategory?.value;
+
+        if (catId && list.length > 0) {
+            const filtered = list.filter(item => item.category_id === catId);
+            setFilteredItems(filtered);
         } else {
-            setFilteredProducts(products);
+            setFilteredItems([]);
         }
-    }, [selectedCategory, products]);
+        setSelectedItem(null);
+    }, [type, selectedCategory, selectedMaterialCategory, products, materials]);
+
+    // Reset category & item on type change
+    useEffect(() => {
+        setSelectedCategory(null);
+        setSelectedMaterialCategory(null);
+        setSelectedItem(null);
+        setFilteredItems([]);
+    }, [type]);
 
     useEffect(() => {
-        if (!loadingPost && response) {
-            handleBack();
+        if (!loadingPost && response?.status === 200) {
+            auth.toastSuccess(t("Purchase Consumption Added Successfully"));
+            navigate(-1);
         }
     }, [response, loadingPost]);
 
-    // Handle branch selection change
-    const handleBranchChange = (selectedOption) => {
-        setSelectedBranch(selectedOption);
-    };
-
-    // Handle store selection change
-    const handleStoreChange = (selectedOption) => {
-        setSelectedStore(selectedOption);
-    };
-
-    // Handle category selection change
-    const handleCategoryChange = (selectedOption) => {
-        setSelectedCategory(selectedOption);
-        setFormData(prev => ({ 
-            ...prev, 
-            category_id: selectedOption ? selectedOption.value : "" 
-        }));
-
-        // Check if currently selected product belongs to the new category
-        if (selectedProduct && selectedOption) {
-            const productBelongsToNewCategory = products.some(
-                product => product.id === selectedProduct.value && product.category_id === selectedOption.value
-            );
-            
-            // If product doesn't belong to new category, remove it
-            if (!productBelongsToNewCategory) {
-                setSelectedProduct(null);
-                auth.toastInfo(t("Product selection cleared because it doesn't belong to the selected category"));
-            }
-        } else if (selectedProduct && !selectedOption) {
-            // If category is cleared, also clear product
-            setSelectedProduct(null);
-        }
-    };
-
-    // Handle product selection change
-    const handleProductChange = (selectedOption) => {
-        setSelectedProduct(selectedOption);
-    };
-
-    // Handle quantity change
-    const handleQuantityChange = (e) => {
-        setQuantity(e.target.value);
-    };
-
-    // Handle date change
-    const handleDateChange = (e) => {
-        setDate(e.target.value);
-    };
-
     const handleSubmit = (e) => {
         e.preventDefault();
-        
-        // Validation
-        if (!selectedBranch) {
-            auth.toastError(t("Please Select Branch"));
-            return;
-        }
-        if (!selectedCategory) {
-            auth.toastError(t("Please Select Category"));
-            return;
-        }
-        if (!selectedProduct) {
-            auth.toastError(t("Please Select Product"));
-            return;
-        }
-        if (!selectedStore) {
-            auth.toastError(t("Please Select Store"));
-            return;
-        }
-        if (!quantity || quantity <= 0) {
-            auth.toastError(t("Please Enter Valid Quantity"));
-            return;
-        }
-        if (!date) {
-            auth.toastError(t("Please Select Date"));
-            return;
+
+        if (!selectedBranch) return auth.toastError(t("Please select branch"));
+        if (!selectedStore) return auth.toastError(t("Please select store"));
+        if (!selectedItem) return auth.toastError(t("Please select item"));
+        if (!quantity || quantity <= 0) return auth.toastError(t("Please enter valid quantity"));
+        if (!date) return auth.toastError(t("Please select date"));
+
+        const fd = new FormData();
+        fd.append("branch_id", selectedBranch.value);
+        fd.append("store_id", selectedStore.value);
+        fd.append("quintity", quantity);
+        fd.append("date", date);
+
+        if (type === "product") {
+            fd.append("category_id", selectedCategory.value);
+            fd.append("product_id", selectedItem.value);
+        } else {
+            fd.append("category_material_id", selectedMaterialCategory.value);
+            fd.append("material_id", selectedItem.value);
         }
 
-        const formData = new FormData();
-        formData.append("branch_id", selectedBranch.value);
-        formData.append("category_id", selectedCategory.value);
-        formData.append("product_id", selectedProduct.value);
-        formData.append("store_id", selectedStore.value);
-        formData.append("quintity", quantity);
-        formData.append("date", date);
-
-        postData(formData, t("Purchase Consumersion Added Success"));
+        postData(fd);
     };
 
     const handleReset = () => {
+        setType("product");
         setSelectedBranch(null);
         setSelectedStore(null);
         setSelectedCategory(null);
-        setSelectedProduct(null);
+        setSelectedMaterialCategory(null);
+        setSelectedItem(null);
         setQuantity("");
         setDate(new Date().toISOString().split('T')[0]);
     };
 
-    const handleBack = () => {
-        navigate(-1);
-    };
+    const handleBack = () => navigate(-1);
 
     const selectStyles = {
         control: (base, state) => ({
@@ -217,23 +153,12 @@ const AddPurchaseConsumersion = () => {
             padding: '0.5rem',
             boxShadow: state.isFocused ? '0 0 0 2px rgba(59, 130, 246, 0.1)' : 'none',
             borderColor: state.isFocused ? '#3B82F6' : '#D1D5DB',
-            '&:hover': {
-                borderColor: state.isFocused ? '#3B82F6' : '#9CA3AF'
-            }
-        }),
-        option: (base, state) => ({
-            ...base,
-            backgroundColor: state.isSelected ? '#3B82F6' : state.isFocused ? '#EFF6FF' : 'white',
-            color: state.isSelected ? 'white' : '#374151',
-            '&:hover': {
-                backgroundColor: '#EFF6FF'
-            }
         })
     };
 
     return (
         <>
-            {loadingPost || loadingLists ? (
+            {loadingLists || loadingPost ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
                 </div>
@@ -241,126 +166,117 @@ const AddPurchaseConsumersion = () => {
                 <section className="pb-32">
                     <div className="flex items-center justify-between p-2">
                         <div className="flex items-center gap-x-2">
-                            <button
-                                onClick={handleBack}
-                                className="text-mainColor hover:text-red-700 transition-colors"
-                                title={t("Back")}
-                            >
+                            <button onClick={handleBack} className="text-mainColor hover:text-red-700">
                                 <IoArrowBack size={24} />
                             </button>
-                            <TitlePage text={t("Add Purchase Consumersion")} />
+                            <TitlePage text={t("Add Purchase Consumption")} />
                         </div>
                     </div>
 
-                    <form className="p-2" onSubmit={handleSubmit}>
-                        <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                            {/* Branch */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">{t("Branch")}:</span>
-                                <Select
-                                    value={selectedBranch}
-                                    onChange={handleBranchChange}
-                                    options={branches}
-                                    placeholder={t("Select Branch")}
-                                    isClearable
-                                    isSearchable
-                                    styles={selectStyles}
-                                    className="w-full"
-                                    noOptionsMessage={() => t("No branches available")}
+                    <form onSubmit={handleSubmit} className="p-2">
+                        {/* Type Selection */}
+                        <div className="flex justify-center gap-12 mb-8 p-6 rounded-lg">
+                            <label className="flex items-center gap-3 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="type"
+                                    value="product"
+                                    checked={type === "product"}
+                                    onChange={(e) => setType(e.target.value)}
+                                    className="w-6 h-6 text-blue-600"
                                 />
+                                <span className="text-xl font-medium">{t("Product")}</span>
+                            </label>
+                            <label className="flex items-center gap-3 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="type"
+                                    value="material"
+                                    checked={type === "material"}
+                                    onChange={(e) => setType(e.target.value)}
+                                    className="w-6 h-6 text-blue-600"
+                                />
+                                <span className="text-xl font-medium">{t("Material")}</span>
+                            </label>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            {/* Branch */}
+                            <div>
+                                <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">{t("Branch")} *</span>
+                                <Select value={selectedBranch} onChange={setSelectedBranch} options={branches}
+                                    placeholder={t("Select Branch")} isClearable isSearchable styles={selectStyles} />
                             </div>
 
                             {/* Store */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">{t("Store")}:</span>
-                                <Select
-                                    value={selectedStore}
-                                    onChange={handleStoreChange}
-                                    options={stores}
-                                    placeholder={t("Select Store")}
-                                    isClearable
-                                    isSearchable
-                                    styles={selectStyles}
-                                    className="w-full"
-                                    noOptionsMessage={() => t("No stores available")}
-                                />
+                            <div>
+                                <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">{t("Store")} *</span>
+                                <Select value={selectedStore} onChange={setSelectedStore} options={stores}
+                                    placeholder={t("Select Store")} isClearable isSearchable styles={selectStyles} />
                             </div>
 
                             {/* Category */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">{t("Category")}:</span>
+                            <div>
+                                <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">
+                                    {type === "product" ? t("Product Category") : t("Material Category")} *
+                                </span>
                                 <Select
-                                    value={selectedCategory}
-                                    onChange={handleCategoryChange}
-                                    options={categories}
+                                    value={type === "product" ? selectedCategory : selectedMaterialCategory}
+                                    onChange={type === "product" ? setSelectedCategory : setSelectedMaterialCategory}
+                                    options={type === "product" ? categories : materialCategories}
                                     placeholder={t("Select Category")}
-                                    isClearable
-                                    isSearchable
-                                    styles={selectStyles}
-                                    className="w-full"
-                                    noOptionsMessage={() => t("No categories available")}
+                                    isClearable isSearchable styles={selectStyles}
                                 />
                             </div>
 
-                            {/* Product */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">{t("Product")}:</span>
+                            {/* Item (Product/Material) */}
+                            <div>
+                                <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">
+                                    {type === "product" ? t("Product") : t("Material")} *
+                                </span>
                                 <Select
-                                    value={selectedProduct}
-                                    onChange={handleProductChange}
-                                    options={filteredProducts}
-                                    placeholder={selectedCategory ? t("Select Product") : t("Select category first")}
-                                    isClearable
-                                    isSearchable
+                                    value={selectedItem}
+                                    onChange={setSelectedItem}
+                                    options={filteredItems}
+                                    placeholder={selectedCategory || selectedMaterialCategory ? t("Select...") : t("Select category first")}
+                                    isClearable isSearchable
+                                    isDisabled={!selectedCategory && !selectedMaterialCategory}
                                     styles={selectStyles}
-                                    className="w-full"
-                                    isDisabled={!selectedCategory}
-                                    noOptionsMessage={() => t("No products available for this category")}
                                 />
                             </div>
 
                             {/* Quantity */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">{t("Quantity")}:</span>
-                                <TextInput
-                                    type="number"
-                                    value={quantity}
-                                    onChange={handleQuantityChange}
-                                    placeholder={t("Enter Quantity")}
-                                    min="1"
-                                />
+                            <div>
+                                <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">{t("Quantity")} *</span>
+                                <TextInput type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)}
+                                    placeholder={t("Enter Quantity")} min="0.01" step="0.01" />
                             </div>
 
                             {/* Date */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">{t("Date")}:</span>
-                                <TextInput
-                                    type="date"
-                                    value={date}
-                                    onChange={handleDateChange}
-                                />
+                            <div>
+                                <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">{t("Date")} *</span>
+                                <DateInput value={date} onChange={(e) => setDate(e.target.value)} />
                             </div>
                         </div>
 
-                        {/* Submit & Reset */}
                         <div className="flex items-center justify-end w-full gap-x-4 mt-6">
                             <div>
-                            <StaticButton
-                                text={t("Reset")}
-                                handleClick={handleReset}
-                                bgColor="bg-transparent"
-                                Color="text-mainColor"
-                                border="border-2"
-                                borderColor="border-mainColor"
-                                rounded="rounded-full"
-                            />
+                                <StaticButton
+                                    text={t("Reset")}
+                                    handleClick={handleReset}
+                                    bgColor="bg-transparent"
+                                    Color="text-mainColor"
+                                    border="border-2"
+                                    borderColor="border-mainColor"
+                                    rounded="rounded-full"
+                                />
                             </div>
                             <div>
-                            <SubmitButton
-                                text={t("Submit")}
-                                rounded="rounded-full"
-                                handleClick={handleSubmit}
-                            />
+                                <SubmitButton
+                                    text={t("Submit")}
+                                    rounded="rounded-full"
+                                    handleClick={handleSubmit}
+                                />
                             </div>
                         </div>
                     </form>

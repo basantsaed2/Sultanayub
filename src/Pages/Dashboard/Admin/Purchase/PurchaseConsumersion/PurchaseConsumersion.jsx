@@ -84,6 +84,7 @@ const PurchaseConsumersion = () => {
 
     const headers = [
         t("SL"),
+        t("Type"),
         t("Category"),
         t("Product"),
         t("Branch"),
@@ -105,7 +106,7 @@ const PurchaseConsumersion = () => {
                 <div className="flex flex-col w-full">
                     <div className='flex flex-col items-center justify-between md:flex-row'>
                         <div className='w-full md:w-1/2'>
-                            <TitlePage text={t('Purchase Consumersion')} />
+                            <TitlePage text={t('Purchase Consumption')} />
                         </div>
                         <div className='flex justify-end w-full py-4 md:w-1/2'>
                             <Link to='add'>
@@ -133,12 +134,16 @@ const PurchaseConsumersion = () => {
                                         colSpan={headers.length}
                                         className="text-xl text-center text-mainColor font-TextFontMedium "
                                     >
-                                        {t("No Purchase Consumersion Found")}
+                                        {t("No Purchase Consumption Found")}
                                     </td>
                                 </tr>
                             ) : (
                                 currentPurchaseConsumersions.map((consumersion, index) => {
                                     const statusDisplay = getStatusDisplay(consumersion.status);
+
+                                    // Smart display logic
+                                    const itemName = consumersion.product || consumersion.material || "-";
+                                    const categoryName = consumersion.category || consumersion.category_material || "-";
 
                                     return (
                                         <tr className="w-full border-b-2" key={consumersion.id}>
@@ -146,10 +151,13 @@ const PurchaseConsumersion = () => {
                                                 {(currentPage - 1) * PurchaseConsumersionsPerPage + index + 1}
                                             </td>
                                             <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                                {consumersion?.category || "-"}
+                                                {(consumersion.product && consumersion.category) ? "Product" : "Material"}
                                             </td>
                                             <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                                {consumersion?.product || "-"}
+                                                {categoryName}
+                                            </td>
+                                            <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                                {itemName}
                                             </td>
                                             <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                                 {consumersion?.branch || "-"}
@@ -163,7 +171,7 @@ const PurchaseConsumersion = () => {
                                             <td className="min-w-[200px] sm:min-w-[150px] sm:w-3/12 lg:w-3/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                                 {consumersion?.date ? formatDate(consumersion.date) : "-"}
                                             </td>
-                                             <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                            <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                                 {consumersion?.admin || "-"}
                                             </td>
                                             <td className="min-w-[150px] sm:min-w-[120px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">

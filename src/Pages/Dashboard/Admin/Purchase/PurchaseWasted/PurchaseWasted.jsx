@@ -49,7 +49,7 @@ const PurchaseWasted = () => {
         refetchPurchaseWasted();
     }, [refetchPurchaseWasted]);
 
-    // Change PurchaseConsumersion status
+    // Change PurchaseConsumption status
     const handleChangeStatus = async (id, name, status) => {
         const newStatus = status === "approve" ? "reject" : "approve";
         const response = await changeState(
@@ -131,7 +131,7 @@ const PurchaseWasted = () => {
                             ) : (
                                 currentPurchaseWasteds.map((wasted, index) => {
                                     const statusDisplay = getStatusDisplay(wasted.status);
-                                    
+
                                     return (
                                         <tr className="w-full border-b-2" key={wasted.id}>
                                             <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
@@ -164,7 +164,7 @@ const PurchaseWasted = () => {
                                             <td className="px-4 py-3 text-center">
                                                 <div className="flex items-center justify-center gap-2">
                                                     <Link to={`edit/${wasted.id}`}>
-                                                        <EditIcon/>
+                                                        <EditIcon />
                                                     </Link>
                                                 </div>
                                             </td>

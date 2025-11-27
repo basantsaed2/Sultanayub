@@ -121,6 +121,7 @@ const CashierMan = () => {
     t("Branch"),
     t("Image"),
     t("Shift Number"),
+    t("Report Permission"),
     t("Take Away"),
     t("Dine In"),
     t("Delivery"),
@@ -128,7 +129,6 @@ const CashierMan = () => {
     t("Online Order"),
     t("Discount Perimission"),
     t("Void Order"),
-    t("Report"),
     t("Status"),
     t("Roles"),
     t("Action"),
@@ -215,6 +215,9 @@ const CashierMan = () => {
                     <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {cashier?.shift_number || "-"}
                     </td>
+                    <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                      {cashier?.report || "-"}
+                    </td>
                     <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
                       {cashier.take_away === 1 ? "✔" : "✘"}
                     </td>
@@ -235,9 +238,6 @@ const CashierMan = () => {
                     </td>
                     <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
                       {cashier.void_order === 1 ? "✔" : "✘"}
-                    </td>
-                    <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
-                      {cashier.report === 1 ? "✔" : "✘"}
                     </td>
                     <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       <Switch

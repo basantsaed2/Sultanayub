@@ -24,7 +24,7 @@ const EditCashierMan = () => {
     url: `${apiUrl}/admin/cashier_man/item/${cashierManId}`,
   });
   const { refetch: refetchBranch, loading: loadingBranch, data: dataBranch } = useGet({
-    url: `${apiUrl}/admin/cashier_man`, // Corrected to fetch branches
+    url: `${apiUrl}/admin/cashier_man`,
   });
   const { postData, loadingPost, response } = usePost({
     url: `${apiUrl}/admin/cashier_man/update/${cashierManId}`,
@@ -45,11 +45,12 @@ const EditCashierMan = () => {
   const [discount, setDiscount] = useState(0);
   const [orderOnline, setOrderOnline] = useState(0);
   const [voidOrder, setVoidOrder] = useState(0);
-  const [report, setReport] = useState(0);
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [selectedRoles, setSelectedRoles] = useState([]);
   const [image, setImage] = useState(null);
   const [existingImage, setExistingImage] = useState(null);
+  const [reportPermission, setReportPermission] = useState([]);
+  const [selectedReportPermission, setSelectedReportPermission] = useState(null);
 
   // Role options for react-select
   const roleOptions = [
@@ -58,22 +59,47 @@ const EditCashierMan = () => {
     { value: "table_status", label: t("Table Status") },
   ];
 
+  // Report permission options mapping
+  const getReportPermissionOptions = (roles) => {
+    if (!roles) return [];
+
+    const roleTranslations = {
+      unactive: t("Unactive"),
+      financial: t("Financial"),
+      all: t("All Reports")
+    };
+
+    return roles.map(role => ({
+      value: role,
+      label: roleTranslations[role] || role
+    }));
+  };
+
   // Fetch cashier and branches on component mount
   useEffect(() => {
     refetchCashierManItem();
     refetchBranch();
   }, [refetchCashierManItem, refetchBranch]);
 
-  // Update branches state when dataBranch is available
+  // Update branches and report permissions when dataBranch is available
   useEffect(() => {
-    if (dataBranch && dataBranch.branches) {
-      const branchOptions = dataBranch.branches.map((branch) => ({
-        value: branch.id,
-        label: branch.name,
-      }));
-      setBranches(branchOptions);
+    if (dataBranch) {
+      // Set branches
+      if (dataBranch.branches) {
+        const branchOptions = dataBranch.branches.map((branch) => ({
+          value: branch.id,
+          label: branch.name,
+        }));
+        setBranches(branchOptions);
+      }
+
+      // Set report permissions
+      if (dataBranch.report_role) {
+        const reportOptions = getReportPermissionOptions(dataBranch.report_role);
+        setReportPermission(reportOptions);
+      }
     }
-  }, [dataBranch]);
+  }, [dataBranch, t]);
 
   // Pre-populate form with cashier data
   useEffect(() => {
@@ -89,13 +115,14 @@ const EditCashierMan = () => {
       setDiscount(cashier.discount_perimission || 0);
       setOrderOnline(cashier.online_order || 0);
       setVoidOrder(cashier.void_order || 0);
-      setReport(cashier.report || 0);
       setExistingImage(cashier.image_link || null);
+
       // Set branch
       if (cashier.branch_id && branches.length > 0) {
         const branch = branches.find((b) => b.value === cashier.branch_id);
         setSelectedBranch(branch || null);
       }
+
       // Set roles
       if (cashier.roles && cashier.roles.length > 0) {
         const roles = cashier.roles.map((role) => ({
@@ -104,8 +131,14 @@ const EditCashierMan = () => {
         }));
         setSelectedRoles(roles);
       }
+
+      // Set report permission (this is the key fix)
+      if (cashier.report && reportPermission.length > 0) {
+        const reportOption = reportPermission.find(option => option.value === cashier.report);
+        setSelectedReportPermission(reportOption || null);
+      }
     }
-  }, [dataCashierManItem, branches, t]);
+  }, [dataCashierManItem, branches, reportPermission, t]);
 
   // Navigate back after successful submission
   useEffect(() => {
@@ -123,7 +156,10 @@ const EditCashierMan = () => {
   const handleDiscount = () => setDiscount((prev) => (prev === 0 ? 1 : 0));
   const handleOrderOnline = () => setOrderOnline((prev) => (prev === 0 ? 1 : 0));
   const handleVoidOrder = () => setVoidOrder((prev) => (prev === 0 ? 1 : 0));
-  const handleReport = () => setReport((prev) => (prev === 0 ? 1 : 0));
+
+  const handleReportPermission = (selectedOption) => {
+    setSelectedReportPermission(selectedOption);
+  };
 
   // Reset form to fetched data
   const handleReset = () => {
@@ -140,13 +176,14 @@ const EditCashierMan = () => {
       setDiscount(cashier.discount_perimission || 0);
       setOrderOnline(cashier.online_order || 0);
       setVoidOrder(cashier.void_order || 0);
-      setReport(cashier.report || 0);
       setImage(null);
       setExistingImage(cashier.image_link || null);
+
       if (cashier.branch_id && branches.length > 0) {
         const branch = branches.find((b) => b.value === cashier.branch_id);
         setSelectedBranch(branch || null);
       }
+
       if (cashier.roles && cashier.roles.length > 0) {
         const roles = cashier.roles.map((role) => ({
           value: role.roles,
@@ -155,6 +192,14 @@ const EditCashierMan = () => {
         setSelectedRoles(roles);
       } else {
         setSelectedRoles([]);
+      }
+
+      // Reset report permission
+      if (cashier.report && reportPermission.length > 0) {
+        const reportOption = reportPermission.find(option => option.value === cashier.report);
+        setSelectedReportPermission(reportOption || null);
+      } else {
+        setSelectedReportPermission(null);
       }
     }
   };
@@ -191,10 +236,16 @@ const EditCashierMan = () => {
     formData.append("online_order", orderOnline);
     formData.append("discount_perimission", discount);
     formData.append("void_order", voidOrder);
-    formData.append("report", report);
+
+    // Append report permission if selected
+    if (selectedReportPermission) {
+      formData.append("report", selectedReportPermission.value);
+    }
+
     selectedRoles.forEach((role, index) => {
       formData.append(`roles[${index}]`, role.value);
     });
+
     if (image) {
       formData.append("image", image);
     }
@@ -212,11 +263,11 @@ const EditCashierMan = () => {
     const file = e.target.files[0];
     if (file) {
       setImage(file);
-      setExistingImage(URL.createObjectURL(file)); // Preview new image
+      setExistingImage(URL.createObjectURL(file));
     }
   };
 
-  // Custom styles for react-select
+  // Fixed custom styles for react-select (hover issue)
   const customStyles = {
     control: (provided) => ({
       ...provided,
@@ -230,10 +281,11 @@ const EditCashierMan = () => {
     }),
     option: (provided, state) => ({
       ...provided,
-      backgroundColor: state.isSelected ? "#9E090F" : state.isFocused ? "#E6F0FA" : "white",
+      backgroundColor: state.isSelected ? "#9E090F" : "white",
       color: state.isSelected ? "white" : "black",
       "&:hover": {
-        backgroundColor: "#E6F0FA",
+        backgroundColor: state.isSelected ? "#9E090F" : "#E6F0FA",
+        color: state.isSelected ? "white" : "black",
       },
     }),
     singleValue: (provided) => ({
@@ -350,6 +402,22 @@ const EditCashierMan = () => {
                 />
               </div>
 
+              {/* Report Permission */}
+              <div className="flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("ReportPermission")}:
+                </span>
+                <Select
+                  options={reportPermission}
+                  value={selectedReportPermission}
+                  onChange={handleReportPermission}
+                  placeholder={t("SelectReportPermission")}
+                  styles={customStyles}
+                  isSearchable
+                  className="w-full"
+                />
+              </div>
+
               {/* Image Upload */}
               <div className="flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -441,14 +509,6 @@ const EditCashierMan = () => {
                   {t("Void Order")}:
                 </span>
                 <Switch handleClick={handleVoidOrder} checked={voidOrder} />
-              </div>
-
-              {/* Report */}
-              <div className="flex items-start justify-start gap-x-3 pt-8">
-                <span className="text-xl font-TextFontRegular text-thirdColor">
-                  {t("Report")}:
-                </span>
-                <Switch handleClick={handleReport} checked={report} />
               </div>
             </div>
 

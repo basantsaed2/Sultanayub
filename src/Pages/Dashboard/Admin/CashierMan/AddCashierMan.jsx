@@ -19,7 +19,7 @@ import Select from "react-select";
 const AddCashierMan = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const { refetch: refetchBranch, loading: loadingBranch, data: dataBranch } = useGet({
-    url: `${apiUrl}/admin/cashier_man`, // Adjust if this should be /admin/branches
+    url: `${apiUrl}/admin/cashier_man`,
   });
   const { postData, loadingPost, response } = usePost({
     url: `${apiUrl}/admin/cashier_man/add`,
@@ -40,10 +40,11 @@ const AddCashierMan = () => {
   const [discount, setDiscount] = useState(0);
   const [orderOnline, setOrderOnline] = useState(0);
   const [voidOrder, setVoidOrder] = useState(0);
-  const [report, setReport] = useState(0);
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [selectedRoles, setSelectedRoles] = useState([]);
   const [image, setImage] = useState(null);
+  const [reportPermission, setReportPermission] = useState([]);
+  const [selectedReportPermission, setSelectedReportPermission] = useState(null);
 
   // Role options for react-select
   const roleOptions = [
@@ -52,6 +53,22 @@ const AddCashierMan = () => {
     { value: "table_status", label: t("Table Status") },
   ];
 
+  // Report permission options mapping
+  const getReportPermissionOptions = (roles) => {
+    if (!roles) return [];
+
+    const roleTranslations = {
+      unactive: t("Unactive"),
+      financial: t("Financial"),
+      all: t("All Reports")
+    };
+
+    return roles.map(role => ({
+      value: role,
+      label: roleTranslations[role] || role
+    }));
+  };
+
   // Fetch branches on component mount
   useEffect(() => {
     refetchBranch();
@@ -59,14 +76,18 @@ const AddCashierMan = () => {
 
   // Update branches state when dataBranch is available
   useEffect(() => {
-    if (dataBranch && dataBranch.branches) {
+    if (dataBranch && dataBranch.branches && dataBranch.report_role) {
       const branchOptions = dataBranch.branches.map((branch) => ({
         value: branch.id,
         label: branch.name,
       }));
       setBranches(branchOptions);
+
+      // Use the mapping function for report permissions
+      const reportOptions = getReportPermissionOptions(dataBranch.report_role);
+      setReportPermission(reportOptions);
     }
-  }, [dataBranch]);
+  }, [dataBranch, t]);
 
   // Navigate back after successful submission
   useEffect(() => {
@@ -84,7 +105,6 @@ const AddCashierMan = () => {
   const handleDiscount = () => setDiscount((prev) => (prev === 0 ? 1 : 0));
   const handleOrderOnline = () => setOrderOnline((prev) => (prev === 0 ? 1 : 0));
   const handleVoidOrder = () => setVoidOrder((prev) => (prev === 0 ? 1 : 0));
-  const handleReport = () => setReport((prev) => (prev === 0 ? 1 : 0));
 
   // Reset form
   const handleReset = () => {
@@ -99,10 +119,14 @@ const AddCashierMan = () => {
     setDiscount(0);
     setOrderOnline(0);
     setVoidOrder(0);
-    setReport(0);
     setSelectedBranch(null);
     setSelectedRoles([]);
     setImage(null);
+    setSelectedReportPermission(null);
+  };
+
+  const handleReportPermission = (selectedOption) => {
+    setSelectedReportPermission(selectedOption);
   };
 
   // Handle form submission
@@ -139,12 +163,19 @@ const AddCashierMan = () => {
     formData.append("online_order", orderOnline);
     formData.append("discount_perimission", discount);
     formData.append("void_order", voidOrder);
-    formData.append("report", report);
+
+    // Append roles if any selected
     selectedRoles.forEach((role, index) => {
       formData.append(`roles[${index}]`, role.value);
     });
+
     if (image) {
       formData.append("image", image);
+    }
+
+    // Append report permission if selected
+    if (selectedReportPermission) {
+      formData.append("report", selectedReportPermission.value);
     }
 
     postData(formData, t("CashierManAddedSuccess"));
@@ -177,10 +208,11 @@ const AddCashierMan = () => {
     }),
     option: (provided, state) => ({
       ...provided,
-      backgroundColor: state.isSelected ? "#9E090F" : state.isFocused ? "#E6F0FA" : "white",
+      backgroundColor: state.isSelected ? "#9E090F" : "white",
       color: state.isSelected ? "white" : "black",
       "&:hover": {
-        backgroundColor: "#E6F0FA",
+        backgroundColor: state.isSelected ? "#9E090F" : "#E6F0FA", // Fixed hover color
+        color: state.isSelected ? "white" : "black",
       },
     }),
     singleValue: (provided) => ({
@@ -297,6 +329,22 @@ const AddCashierMan = () => {
                 />
               </div>
 
+              {/* Report Permission */}
+              <div className="flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("ReportPermission")}:
+                </span>
+                <Select
+                  options={reportPermission}
+                  value={selectedReportPermission}
+                  onChange={handleReportPermission}
+                  placeholder={t("SelectReportPermission")}
+                  styles={customStyles}
+                  isSearchable
+                  className="w-full"
+                />
+              </div>
+
               {/* Image Upload */}
               <div className="flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -377,14 +425,6 @@ const AddCashierMan = () => {
                   {t("Void Order")}:
                 </span>
                 <Switch handleClick={handleVoidOrder} checked={voidOrder} />
-              </div>
-
-              {/* Report */}
-              <div className="flex items-start justify-start gap-x-3 pt-8">
-                <span className="text-xl font-TextFontRegular text-thirdColor">
-                  {t("Report")}:
-                </span>
-                <Switch handleClick={handleReport} checked={report} />
               </div>
             </div>
 
