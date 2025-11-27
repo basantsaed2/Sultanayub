@@ -180,6 +180,8 @@ import EditPreparationMan from "./Pages/Dashboard/Admin/PreparationMan/EditPrepa
 import DeliveryManOrdersParent from "./Pages/Dashboard/Admin/DeliveryMan/DeliveryManOrder/DeliveryManOrdersParent";
 import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
 import OrdersDeliveryParent from "./Pages/Dashboard/Admin/OrdersDelivery/OrdersDeliveryParent";
+import DeletedCustomer from "./Pages/Dashboard/Admin/Users/DeletedCustomer/DeletedCustomer";
+import DueGroupModule from "./Pages/Dashboard/Admin/GroupModules/DueGroupModule";
 // import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
 
 const ProductSetupLayout = () => {
@@ -958,6 +960,10 @@ export const router = createBrowserRouter([
                 path: "due_customers",
                 element: <CustomersDue />,
               },
+              {
+                path: "deleted_customers",
+                element: <DeletedCustomer />,
+              }
             ]
           },
           {
@@ -1580,6 +1586,10 @@ export const router = createBrowserRouter([
                   {
                     path: 'edit/:groupId',
                     element: <EditGroupModules />
+                  },
+                  {
+                    path: 'due/:groupId',
+                    element: <DueGroupModule />
                   }
                 ]
               },

@@ -180,7 +180,8 @@ const adminRoutes = [
         path: "/dashboard/users/customers",
         permission: "Customer",
       },
-      { name: "Due Customer", path: "/dashboard/users/due_customers" }
+      { name: "Due Customer", path: "/dashboard/users/due_customers" },
+      { name: "Deleted Customer", path: "/dashboard/users/deleted_customers" },
     ],
     redirectTo: "/dashboard/users/admins",
   },
