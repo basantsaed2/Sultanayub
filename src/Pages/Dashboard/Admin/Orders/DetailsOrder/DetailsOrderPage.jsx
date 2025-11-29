@@ -492,7 +492,7 @@ const DetailsOrderPage = () => {
                             </p>
 
                             {/* CREATIVE PLACEMENT: Elegant floating badge on the right */}
-                            <div className="absolute top-1/2 -translate-y-1/2 right-0
+                            <div className="absolute top-1/2 -translate-y-1/2 right-0 rtl:right-auto rtl:left-0
                     hidden sm:block"> {/* Hidden on mobile, appears from sm+ */}
                               <Link
                                 to={`/dashboard/orders/invoice/${detailsData?.id}`}
@@ -528,7 +528,7 @@ const DetailsOrderPage = () => {
                               <span className="font-TextFontSemiBold text-mainColor">
                                 {t("Status")}:
                               </span>{" "}
-                              {detailsData?.order_status || ""}
+                              {t(detailsData?.order_status) || ""}
                             </p>
                             <p className="text-gray-800 text-md">
                               <span className="font-TextFontSemiBold text-mainColor">
@@ -543,7 +543,7 @@ const DetailsOrderPage = () => {
                                     <span className="font-TextFontSemiBold text-mainColor">
                                       {t("PaymentStatus")}:
                                     </span>{" "}
-                                    {detailsData?.status_payment || ""}
+                                    {t(detailsData?.status_payment) || ""}
                                   </p>
                                   <p className="text-gray-800 text-md">
                                     <span className="font-TextFontSemiBold text-mainColor">
@@ -565,7 +565,7 @@ const DetailsOrderPage = () => {
                                   : "text-blue-700 bg-blue-100" // Adjust for delivery (blue as example)
                                   }`}
                               >
-                                {detailsData?.order_type || ""}
+                                {t(detailsData?.order_type) || ""}
                               </span>{" "}
                             </p>
                             <p className="text-gray-800 text-md">
@@ -1087,7 +1087,7 @@ const DetailsOrderPage = () => {
                               className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
                             >
                               {loadingTransfer ? (
-                                <>Transferring...</>
+                                <>{t("Transferring...")}</>
                               ) : (
                                 <>{t("Transfer Order")}</>
                               )}
@@ -1127,47 +1127,47 @@ const DetailsOrderPage = () => {
                           const allStatuses = [
                             {
                               name: "pending",
-                              label: "Pending",
+                              label: t("Pending"),
                               icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
                             },
                             {
                               name: "processing",
-                              label: "Accept",
+                              label: t("Accept"),
                               icon: "M5 13l4 4L19 7",
                             },
                             {
                               name: "confirmed",
-                              label: "Processing",
+                              label: t("Processing"),
                               icon: "M5 13l4 4L19 7",
                             },
                             {
                               name: "out_for_delivery",
-                              label: "Out for Delivery",
+                              label: t("OutForDelivery"),
                               icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
                             },
                             {
                               name: "delivered",
-                              label: "Delivered",
+                              label: t("Delivered"),
                               icon: "M5 13l4 4L19 7",
                             },
                             {
                               name: "faild_to_deliver",
-                              label: "Failed to Deliver",
+                              label: t("FailedToDeliver"),
                               icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z",
                             },
                             {
                               name: "returned",
-                              label: "Returned",
+                              label: t("Returned"),
                               icon: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15",
                             },
                             {
                               name: "canceled",
-                              label: "Canceled",
+                              label: t("Canceled"),
                               icon: "M6 18L18 6M6 6l12 12",
                             },
                             {
                               name: "refund",
-                              label: "Refund",
+                              label: t("Refund"),
                               icon: "M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z",
                             },
                           ];
@@ -1474,7 +1474,7 @@ const DetailsOrderPage = () => {
                     className="w-full bg-mainColor text-white py-2 rounded-md mt-4"
                     onClick={() => handleOpenDeliviers(detailsData.id)}
                   >
-                    {t("Assign Delivery Man")}
+                    {t("AssignDeliveryMan")}
                   </button>
                 )}
 
@@ -1489,7 +1489,7 @@ const DetailsOrderPage = () => {
                         >
                           <div className="mb-2 px-2">
                             <SearchBar
-                              placeholder="Search Delivery"
+                              placeholder={t("SearchDelivery")}
                               value={searchDelivery}
                               handleChange={handleChangeDeliveries}
                             />
@@ -1570,10 +1570,10 @@ const DetailsOrderPage = () => {
                           <div className="flex items-center gap-2 mb-1 status-change">
                             <span className="px-2 py-1 text-sm text-gray-700 bg-gray-200 rounded from-status">
                               {log.from_status === "processing"
-                                ? "Accepted"
+                                ? t("Accept")
                                 : log.from_status === "confirmed"
-                                  ? "Processing"
-                                  : log.from_status.replace(/_/g, " ")}
+                                  ? t("Processing")
+                                  : t(log.from_status)}
                             </span>
                             <span className="text-gray-400 arrow">
                               <svg
@@ -1594,10 +1594,10 @@ const DetailsOrderPage = () => {
 
                             <span className="px-2 py-1 text-sm text-gray-700 bg-gray-200 rounded from-status">
                               {log.to_status === "processing"
-                                ? "Accepted"
+                                ? t("Accept")
                                 : log.to_status === "confirmed"
-                                  ? "Processing"
-                                  : log.to_status.replace(/_/g, " ")}
+                                  ? t("Processing")
+                                  : t(log.to_status)}
                             </span>
                           </div>
 
@@ -1668,7 +1668,7 @@ const DetailsOrderPage = () => {
                                   {olderMinutes +
                                     preparationTime.minutes -
                                     initialTime.currentMinute}
-                                  m {preparationTime.seconds}s Over
+                                  m {preparationTime.seconds}s {t("Over")}
                                 </>
                               ) : (
                                 <>
@@ -1677,7 +1677,7 @@ const DetailsOrderPage = () => {
                                   {olderMinutes +
                                     preparationTime.minutes -
                                     initialTime.currentMinute}
-                                  m {preparationTime.seconds}s Left
+                                  m {preparationTime.seconds}s {t("Left")}
                                 </>
                               )}
                             </span>
