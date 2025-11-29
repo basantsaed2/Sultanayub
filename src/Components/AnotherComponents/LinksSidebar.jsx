@@ -119,7 +119,7 @@ const adminRoutes = [
   {
     name: "Product Setup",
     path: "/dashboard/setup_product",
-    permission: "Product",
+    permission: "product",
     icon: FiPackage,
     subRoutes: [
       { name: "Product", path: "/dashboard/setup_product/product" },

@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next";
 import { requestPermission } from "../../NotificationHelper";
 
 const LoginPage = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const auth = useAuth();
   const dispatch = useDispatch();
@@ -25,46 +25,46 @@ const LoginPage = () => {
 
   const { postData, loadingPost, response } = usePost({
     url: `${apiUrl}/api/admin/auth/login`,
-  }); // Destructure as an object
+  });
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
- const handleLogin = async (e) => {  // Add async here
-  e.preventDefault();
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-  if (!email) {
-    auth.toastError(t("Please Enter The Email"));
-    return;
-  }
-  if (!password) {
-    auth.toastError(t("Please Enter The Password"));
-    return;
-  }
+    if (!email) {
+      auth.toastError(t("Please Enter The Email"));
+      return;
+    }
+    if (!password) {
+      auth.toastError(t("Please Enter The Password"));
+      return;
+    }
 
-  const fcmToken = await requestPermission();
-  const payload = {
-    email,
-    password,
-    fcm_token: fcmToken || null,
-  };
+    const fcmToken = await requestPermission();
 
-  postData(payload);
+    const payload = {
+      email,
+      password,
+      fcm_token: fcmToken || null,
+    };
+
+    postData(payload);
   };
 
   useEffect(() => {
     if (response) {
-
       auth.login(response.data.admin);
 
       const userRole = response.data.role;
 
-      // تخزين التوكن في localStorage بعد تسجيل الدخول
-      localStorage.setItem("token", response.data.token); // تخزين التوكن بعد تسجيل الدخول
+      localStorage.setItem("token", response.data.token);
       localStorage.setItem("role", response.data.role);
 
-      if (userRole === 'admin') {
+      if (userRole === "admin") {
         navigate("/dashboard", { replace: true });
-      } else if (userRole === 'branch') {
+      } else if (userRole === "branch") {
         navigate("/branch", { replace: true });
       } else {
         navigate("/dashboard", { replace: true });
@@ -81,11 +81,9 @@ const LoginPage = () => {
         <div className="flex items-start justify-between w-11/12 h-5/6">
           <div className="flex flex-col items-start justify-start h-full sm:w-full xl:w-5/12 gap-y-8">
             {loadingPost ? (
-              <>
-                <div className="w-full h-full">
-                  <LoaderLogin />
-                </div>
-              </>
+              <div className="w-full h-full">
+                <LoaderLogin />
+              </div>
             ) : (
               <>
                 <div className="flex flex-col items-start justify-start w-full gap-y-4">
@@ -96,6 +94,7 @@ const LoginPage = () => {
                     {t("welcomeback")}
                   </span>
                 </div>
+
                 <div className="flex flex-col justify-center w-full gap-y-10 h-3/5">
                   <div className="flex flex-col justify-center w-full gap-y-6">
                     <div className="w-11/12 mx-auto">
@@ -118,7 +117,8 @@ const LoginPage = () => {
                   </div>
 
                   <div className="w-11/12 mx-auto">
-                    <SubmitButton text={t("Login")} handleClick={handleLogin} />
+                    {/* SubmitButton no longer needs handleClick */}
+                    <SubmitButton text={t("Login")} />
                   </div>
                 </div>
               </>

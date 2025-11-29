@@ -86,7 +86,7 @@ const PurchaseConsumersion = () => {
         t("SL"),
         t("Type"),
         t("Category"),
-        t("Product"),
+        t("Item"),
         t("Branch"),
         t("Store"),
         t("Quantity"),

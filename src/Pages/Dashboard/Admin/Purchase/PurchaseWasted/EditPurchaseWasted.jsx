@@ -17,20 +17,15 @@ import Select from 'react-select';
 const EditPurchaseWasted = () => {
     const { purchaseWastedId } = useParams();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const { t } = useTranslation();
+    const auth = useAuth();
+    const navigate = useNavigate();
 
-    const {
-        refetch: refetchWastedData,
-        loading: loadingWastedData,
-        data: wastedData,
-    } = useGet({
+    const { refetch: refetchLists, loading: loadingLists, data: dataLists } = useGet({
         url: `${apiUrl}/admin/wasted`,
     });
 
-    const {
-        refetch: refetchWastedItem,
-        loading: loadingWastedItem,
-        data: wastedItemData,
-    } = useGet({
+    const { refetch: refetchItem, loading: loadingItem, data: itemData } = useGet({
         url: `${apiUrl}/admin/wasted/item/${purchaseWastedId}`,
     });
 
@@ -38,257 +33,150 @@ const EditPurchaseWasted = () => {
         url: `${apiUrl}/admin/wasted/update/${purchaseWastedId}`,
     });
 
-    const { t } = useTranslation();
-    const auth = useAuth();
-    const navigate = useNavigate();
-
-    const [formData, setFormData] = useState({
-        category_id: "",
-        product_id: "",
-        store_id: "",
-        quintity: "",
-    });
-
-    const [categories, setCategories] = useState([]);
-    const [products, setProducts] = useState([]);
-    const [filteredProducts, setFilteredProducts] = useState([]);
-    const [stores, setStores] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState(null);
-    const [selectedProduct, setSelectedProduct] = useState(null);
+    // Form States
+    const [type, setType] = useState("product");
     const [selectedStore, setSelectedStore] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [selectedMaterialCategory, setSelectedMaterialCategory] = useState(null);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [quantity, setQuantity] = useState("");
+    const [reason, setReason] = useState(""); // ← NEW
+
+    const [stores, setStores] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [materialCategories, setMaterialCategories] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [materials, setMaterials] = useState([]);
+    const [filteredItems, setFilteredItems] = useState([]);
 
     useEffect(() => {
-        refetchWastedData();
-        refetchWastedItem();
-    }, [refetchWastedData, refetchWastedItem]);
+        refetchLists();
+        refetchItem();
+    }, []);
 
-    // Update data when wastedData changes
     useEffect(() => {
-        if (wastedData) {
-            // Set categories
-            if (wastedData.categories) {
-                const categoryOptions = wastedData.categories.map(category => ({
-                    value: category.id,
-                    label: category.name,
-                }));
-                setCategories(categoryOptions);
-            }
+        if (dataLists) {
+            setStores(dataLists.stores?.map(s => ({ value: s.id, label: s.name })) || []);
+            setCategories(dataLists.categories?.map(c => ({ value: c.id, label: c.name })) || []);
+            setMaterialCategories(dataLists.material_categories?.map(c => ({ value: c.id, label: c.name })) || []);
 
-            // Set products
-            if (wastedData.products) {
-                setProducts(wastedData.products);
-            }
+            setProducts(dataLists.products?.map(p => ({
+                value: p.id,
+                label: p.name,
+                category_id: p.category_id
+            })) || []);
 
-            // Set stores
-            if (wastedData.stores) {
-                const storeOptions = wastedData.stores.map(store => ({
-                    value: store.id,
-                    label: store.name,
-                }));
-                setStores(storeOptions);
-            }
+            setMaterials(dataLists.materials?.map(m => ({
+                value: m.id,
+                label: m.name,
+                category_id: m.category_id
+            })) || []);
         }
-    }, [wastedData]);
+    }, [dataLists]);
 
-    // Set form data when wasted item data is available
+    // Prefill form
     useEffect(() => {
-        if (wastedItemData && wastedItemData) {
-            const wasted = wastedItemData;
-            
-            setFormData({
-                category_id: wasted.category_id || "",
-                product_id: wasted.product_id || "",
-                store_id: wasted.store_id || "",
-                quintity: wasted.quantity || wasted.quintity || "",
-            });
+        if (itemData && dataLists) {
+            const c = itemData;
 
-            // Set selected values for dropdowns
-            if (wasted.category_id) {
-                const category = categories.find(cat => cat.value === wasted.category_id);
-                setSelectedCategory(category || null);
-            }
+            setQuantity(c.quantity || c.quintity || "");
+            setReason(c.reason || ""); // ← Prefill reason
 
-            if (wasted.product_id) {
-                const product = products.find(prod => prod.id === wasted.product_id);
-                if (product) {
-                    setSelectedProduct({ value: product.id, label: product.name });
+            if (c.product_id || c.product) setType("product");
+            else if (c.material_id || c.material) setType("material");
+
+            setTimeout(() => {
+                setSelectedStore(stores.find(s => s.value === c.store_id) || null);
+
+                if (type === "product" && c.category_id) {
+                    const cat = categories.find(cat => cat.value === c.category_id);
+                    setSelectedCategory(cat || null);
                 }
-            }
+                if (type === "material" && c.category_material_id) {
+                    const mcat = materialCategories.find(cat => cat.value === c.category_material_id);
+                    setSelectedMaterialCategory(mcat || null);
+                }
 
-            if (wasted.store_id) {
-                const store = stores.find(s => s.value === wasted.store_id);
-                setSelectedStore(store || null);
-            }
+                if (type === "product" && (c.product_id || c.product)) {
+                    const prod = products.find(p => p.value === (c.product_id || c.product?.id)) ||
+                        { value: c.product_id, label: c.product?.name || "Unknown" };
+                    setSelectedItem(prod);
+                }
+                if (type === "material" && (c.material_id || c.material)) {
+                    const mat = materials.find(m => m.value === (c.material_id || c.material?.id)) ||
+                        { value: c.material_id, label: c.material?.name || "Unknown" };
+                    setSelectedItem(mat);
+                }
+            }, 100);
         }
-    }, [wastedItemData, categories, products, stores]);
+    }, [itemData, dataLists, stores, categories, materialCategories, products, materials, type]);
 
-    // Filter products when category changes
     useEffect(() => {
-        if (selectedCategory && products.length > 0) {
-            const filtered = products.filter(product => 
-                product.category_id === selectedCategory.value
-            );
-            const productOptions = filtered.map(product => ({
-                value: product.id,
-                label: product.name,
-            }));
-            setFilteredProducts(productOptions);
+        const list = type === "product" ? products : materials;
+        const catId = type === "product" ? selectedCategory?.value : selectedMaterialCategory?.value;
+
+        if (catId && list.length > 0) {
+            setFilteredItems(list.filter(item => item.category_id === catId));
         } else {
-            setFilteredProducts([]);
+            setFilteredItems([]);
         }
-    }, [selectedCategory, products]);
+    }, [type, selectedCategory, selectedMaterialCategory, products, materials]);
 
-    // Navigate back after successful submission
     useEffect(() => {
-        if (!loadingPost && response) {
-            handleBack();
+        setSelectedCategory(null);
+        setSelectedMaterialCategory(null);
+        setSelectedItem(null);
+        setFilteredItems([]);
+    }, [type]);
+
+    useEffect(() => {
+        if (!loadingPost && response?.status === 200) {
+            auth.toastSuccess(t("Wasted Item Updated Successfully"));
+            navigate(-1);
         }
     }, [response, loadingPost]);
 
-    // Handle category selection change
-    const handleCategoryChange = (selectedOption) => {
-        setSelectedCategory(selectedOption);
-        setFormData(prev => ({ 
-            ...prev, 
-            category_id: selectedOption ? selectedOption.value : "" 
-        }));
-
-        // Check if currently selected product belongs to the new category
-        if (selectedProduct && selectedOption) {
-            const productBelongsToNewCategory = products.some(
-                product => product.id === selectedProduct.value && product.category_id === selectedOption.value
-            );
-            
-            // If product doesn't belong to new category, remove it
-            if (!productBelongsToNewCategory) {
-                setSelectedProduct(null);
-                setFormData(prev => ({ ...prev, product_id: "" }));
-                auth.toastInfo(t("Product selection cleared because it doesn't belong to the selected category"));
-            }
-        } else if (selectedProduct && !selectedOption) {
-            // If category is cleared, also clear product
-            setSelectedProduct(null);
-            setFormData(prev => ({ ...prev, product_id: "" }));
-        }
-    };
-
-    // Handle product selection change
-    const handleProductChange = (selectedOption) => {
-        setSelectedProduct(selectedOption);
-        setFormData(prev => ({ 
-            ...prev, 
-            product_id: selectedOption ? selectedOption.value : "" 
-        }));
-    };
-
-    // Handle store selection change
-    const handleStoreChange = (selectedOption) => {
-        setSelectedStore(selectedOption);
-        setFormData(prev => ({ 
-            ...prev, 
-            store_id: selectedOption ? selectedOption.value : "" 
-        }));
-    };
-
-    // Handle input change for simple fields
-    const handleInputChange = (field, value) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
-    };
-
-    // Reset form to original values
-    const handleReset = () => {
-        if (wastedItemData && wastedItemData) {
-            const wasted = wastedItemData;
-            
-            setFormData({
-                category_id: wasted.category_id || "",
-                product_id: wasted.product_id || "",
-                store_id: wasted.store_id || "",
-                quintity: wasted.quantity || wasted.quintity || "",
-            });
-
-            // Reset selected values
-            if (wasted.category_id) {
-                const category = categories.find(cat => cat.value === wasted.category_id);
-                setSelectedCategory(category || null);
-            }
-
-            if (wasted.product_id) {
-                const product = products.find(prod => prod.id === wasted.product_id);
-                if (product) {
-                    setSelectedProduct({ value: product.id, label: product.name });
-                }
-            }
-
-            if (wasted.store_id) {
-                const store = stores.find(s => s.value === wasted.store_id);
-                setSelectedStore(store || null);
-            }
-        }
-    };
-
-    // Handle form submission
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Validation
-        if (!formData.category_id) {
-            auth.toastError(t("Please select a category"));
-            return;
-        }
-        if (!formData.product_id) {
-            auth.toastError(t("Please select a product"));
-            return;
-        }
-        if (!formData.store_id) {
-            auth.toastError(t("Please select a store"));
-            return;
-        }
-        if (!formData.quintity || formData.quintity <= 0) {
-            auth.toastError(t("Please enter a valid quantity"));
-            return;
+        if (!selectedStore) return auth.toastError(t("Please select store"));
+        if (!selectedItem) return auth.toastError(t("Please select item"));
+        if (!quantity || quantity <= 0) return auth.toastError(t("Please enter valid quantity"));
+        if (!reason.trim()) return auth.toastError(t("Please enter a reason"));
+
+        const fd = new FormData();
+        fd.append("store_id", selectedStore.value);
+        fd.append("quantity", quantity);
+        fd.append("reason", reason.trim());
+
+        if (type === "product") {
+            fd.append("category_id", selectedCategory.value);
+            fd.append("product_id", selectedItem.value);
+        } else {
+            fd.append("category_material_id", selectedMaterialCategory.value);
+            fd.append("material_id", selectedItem.value);
         }
 
-        const submitData = new FormData();
-        submitData.append("category_id", formData.category_id);
-        submitData.append("product_id", formData.product_id);
-        submitData.append("store_id", formData.store_id);
-        submitData.append("quantity", formData.quintity);
-
-        postData(submitData, t("Purchase Wasted Updated Successfully"));
+        postData(fd);
     };
 
-    // Handle back navigation
-    const handleBack = () => {
-        navigate(-1);
-    };
+    const handleReset = () => refetchItem();
+    const handleBack = () => navigate(-1);
 
-    // Custom styles for react-select
     const selectStyles = {
         control: (base, state) => ({
             ...base,
             border: '1px solid #D1D5DB',
             borderRadius: '0.5rem',
-            padding: '0.25rem',
+            padding: '0.5rem',
             boxShadow: state.isFocused ? '0 0 0 2px rgba(59, 130, 246, 0.1)' : 'none',
             borderColor: state.isFocused ? '#3B82F6' : '#D1D5DB',
-            '&:hover': {
-                borderColor: state.isFocused ? '#3B82F6' : '#9CA3AF'
-            }
-        }),
-        option: (base, state) => ({
-            ...base,
-            backgroundColor: state.isSelected ? '#3B82F6' : state.isFocused ? '#EFF6FF' : 'white',
-            color: state.isSelected ? 'white' : '#374151',
-            '&:hover': {
-                backgroundColor: '#EFF6FF'
-            }
         })
     };
 
     return (
         <>
-            {loadingPost || loadingWastedData || loadingWastedItem ? (
+            {loadingLists || loadingItem || loadingPost ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
                 </div>
@@ -296,86 +184,77 @@ const EditPurchaseWasted = () => {
                 <section className="pb-32">
                     <div className="flex items-center justify-between p-2">
                         <div className="flex items-center gap-x-2">
-                            <button
-                                onClick={handleBack}
-                                className="text-mainColor hover:text-red-700 transition-colors"
-                                title={t("Back")}
-                            >
+                            <button onClick={handleBack} className="text-mainColor hover:text-red-700">
                                 <IoArrowBack size={24} />
                             </button>
-                            <TitlePage text={t("Edit Purchase Wasted")} />
+                            <TitlePage text={t("Edit Wasted Item")} />
                         </div>
                     </div>
-                    <form className="p-2" onSubmit={handleSubmit}>
-                        <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                            {/* Category */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Category")}:
+
+                    <form onSubmit={handleSubmit} className="p-2">
+                        {/* Type Toggle */}
+                        <div className="flex justify-center gap-12 mb-8 p-6 rounded-lg">
+                            <label className="flex items-center gap-3 cursor-pointer">
+                                <input type="radio" name="type" value="product" checked={type === "product"} onChange={(e) => setType(e.target.value)} className="w-6 h-6 text-red-600" />
+                                <span className="text-xl font-medium">{t("Product")}</span>
+                            </label>
+                            <label className="flex items-center gap-3 cursor-pointer">
+                                <input type="radio" name="type" value="material" checked={type === "material"} onChange={(e) => setType(e.target.value)} className="w-6 h-6 text-red-600" />
+                                <span className="text-xl font-medium">{t("Material")}</span>
+                            </label>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            <div>
+                                <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">{t("Store")} *</span>
+                                <Select value={selectedStore} onChange={setSelectedStore} options={stores} placeholder={t("Select Store")} isClearable isSearchable styles={selectStyles} />
+                            </div>
+
+                            <div>
+                                <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">
+                                    {type === "product" ? t("Product Category") : t("Material Category")} *
                                 </span>
                                 <Select
-                                    value={selectedCategory}
-                                    onChange={handleCategoryChange}
-                                    options={categories}
+                                    value={type === "product" ? selectedCategory : selectedMaterialCategory}
+                                    onChange={type === "product" ? setSelectedCategory : setSelectedMaterialCategory}
+                                    options={type === "product" ? categories : materialCategories}
                                     placeholder={t("Select Category")}
-                                    isClearable
-                                    isSearchable
-                                    styles={selectStyles}
-                                    className="w-full"
-                                    noOptionsMessage={() => t("No categories available")}
+                                    isClearable isSearchable styles={selectStyles}
                                 />
                             </div>
 
-                            {/* Product */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Product")}:
+                            <div>
+                                <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">
+                                    {type === "product" ? t("Product") : t("Material")} *
                                 </span>
                                 <Select
-                                    value={selectedProduct}
-                                    onChange={handleProductChange}
-                                    options={filteredProducts}
-                                    placeholder={selectedCategory ? t("Select Product") : t("Select category first")}
-                                    isClearable
-                                    isSearchable
+                                    value={selectedItem}
+                                    onChange={setSelectedItem}
+                                    options={filteredItems}
+                                    placeholder={(selectedCategory || selectedMaterialCategory) ? t("Select...") : t("Select category first")}
+                                    isClearable isSearchable
+                                    isDisabled={!selectedCategory && !selectedMaterialCategory}
                                     styles={selectStyles}
-                                    className="w-full"
-                                    isDisabled={!selectedCategory}
-                                    noOptionsMessage={() => t("No products available for this category")}
                                 />
                             </div>
 
-                            {/* Store */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Store")}:
-                                </span>
-                                <Select
-                                    value={selectedStore}
-                                    onChange={handleStoreChange}
-                                    options={stores}
-                                    placeholder={t("Select Store")}
-                                    isClearable
-                                    isSearchable
-                                    styles={selectStyles}
-                                    className="w-full"
-                                    noOptionsMessage={() => t("No stores available")}
-                                />
+                            <div>
+                                <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">{t("Quantity")} *</span>
+                                <TextInput type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder={t("Enter Quantity")} min="0.01" step="0.01" />
                             </div>
+                        </div>
 
-                            {/* Quantity */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Quantity")}:
-                                </span>
-                                <TextInput
-                                    type="number"
-                                    value={formData.quintity}
-                                    onChange={(e) => handleInputChange("quintity", e.target.value)}
-                                    placeholder={t("Enter Quantity")}
-                                    min="1"
-                                />
-                            </div>
+                        {/* Reason Field */}
+                        <div className="mt-8">
+                            <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">{t("Reason")} *</span>
+                            <textarea
+                                value={reason}
+                                onChange={(e) => setReason(e.target.value)}
+                                placeholder={t("Enter reason for wasted item")}
+                                required
+                                rows={5}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all resize-none"
+                            />
                         </div>
 
                         {/* Buttons */}

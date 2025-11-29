@@ -79,8 +79,9 @@ const PurchaseWasted = () => {
 
     const headers = [
         t("SL"),
-        t("Product"),
+        t("Type"),
         t("Category"),
+        t("Item"),
         t("Store"),
         t("Quantity"),
         t("Approval"),
@@ -131,6 +132,10 @@ const PurchaseWasted = () => {
                             ) : (
                                 currentPurchaseWasteds.map((wasted, index) => {
                                     const statusDisplay = getStatusDisplay(wasted.status);
+                                    // Smart display logic
+                                    const itemName = wasted.product || wasted.material || "-";
+                                    const categoryName = wasted.category || wasted.category_material || "-";
+
 
                                     return (
                                         <tr className="w-full border-b-2" key={wasted.id}>
@@ -138,10 +143,13 @@ const PurchaseWasted = () => {
                                                 {(currentPage - 1) * PurchaseWastedsPerPage + index + 1}
                                             </td>
                                             <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                                {wasted?.product || "-"}
+                                                {(wasted.product && wasted.category) ? "Product" : "Material"}
                                             </td>
                                             <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                                {wasted?.category || "-"}
+                                                {categoryName}
+                                            </td>
+                                            <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                                {itemName}
                                             </td>
                                             <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                                 {wasted?.store || "-"}

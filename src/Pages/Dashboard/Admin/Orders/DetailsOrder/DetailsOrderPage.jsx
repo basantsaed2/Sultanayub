@@ -126,14 +126,18 @@ const DetailsOrderPage = () => {
       const formattedOrderStatus = dataDetailsOrder?.order_status.map(
         (status) => ({ name: status })
       );
-
       setOrderStatus(formattedOrderStatus); // Update state with the transformed data
       setDeliveries(dataDetailsOrder?.deliveries);
       setDeliveriesFilter(dataDetailsOrder?.deliveries);
       setPreparationTime(dataDetailsOrder?.preparing_time);
-      // Filter out current branch if needed
-      const filtered = dataDetailsOrder.branches.filter(b => b.id != detailsData.order?.branch_id);
-      setBranches(filtered);
+
+      // FIX: Use the fresh current branch ID from dataDetailsOrder
+      const currentBranchId = dataDetailsOrder.order.branch_id;
+      const filteredBranches = dataDetailsOrder.branches.filter(
+        branch => branch.id !== currentBranchId
+      );
+
+      setBranches(filteredBranches);
     }
   }, [dataDetailsOrder]);
 

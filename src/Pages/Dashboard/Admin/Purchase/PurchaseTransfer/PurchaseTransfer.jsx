@@ -256,8 +256,9 @@ const PurchaseTransfer = () => {
     // Updated headers to show correct item & category
     const headers = [
         t("SL"),
-        t("Item"),           // Will show Product OR Material
+        t("Type"),
         t("Category"),        // Will show Product Category OR Material Category
+        t("Item"),           // Will show Product OR Material
         t("From Store"),
         t("To Store"),
         t("Quantity"),
@@ -385,6 +386,7 @@ const PurchaseTransfer = () => {
                                     const statusDisplay = getStatusDisplay(transfer.status);
 
                                     // Smart display logic
+                                    const transferType = transfer.product && transfer.category ? "product" : "material";
                                     const itemName = transfer.product || transfer.material || "-";
                                     const categoryName = transfer.category || transfer.category_material || "-";
 
@@ -394,10 +396,13 @@ const PurchaseTransfer = () => {
                                                 {(currentPage - 1) * itemsPerPage + index + 1}
                                             </td>
                                             <td className="min-w-[180px] py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl font-medium overflow-hidden">
-                                                {itemName}
+                                                {transferType === "product" ? "Product" : "Material"}
                                             </td>
                                             <td className="min-w-[160px] py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                                 {categoryName}
+                                            </td>
+                                            <td className="min-w-[180px] py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl font-medium overflow-hidden">
+                                                {itemName}
                                             </td>
                                             <td className="min-w-[150px] py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                                 {transfer.from_store || "-"}

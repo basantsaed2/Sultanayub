@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
+    DateInput,
     StaticButton,
     StaticLoader,
     SubmitButton,
     TextInput,
     TitlePage,
-    UploadInput,
 } from "../../../../../Components/Components";
 import { usePost } from "../../../../../Hooks/usePostJson";
 import { useAuth } from "../../../../../Context/Auth";
@@ -17,213 +17,140 @@ import Select from 'react-select';
 
 const AddPurchaseWasted = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const { t } = useTranslation();
+    const auth = useAuth();
+    const navigate = useNavigate();
 
     const {
-        refetch: refetchPurchaseWasted,
-        loading: loadingPurchaseWasted,
-        data: purchaseData,
-    } = useGet({
-        url: `${apiUrl}/admin/wasted`,
-    });
+        refetch: refetchLists,
+        loading: loadingLists,
+        data: dataLists,
+    } = useGet({ url: `${apiUrl}/admin/wasted` });
 
     const { postData, loadingPost, response } = usePost({
         url: `${apiUrl}/admin/wasted/add`,
     });
 
-    const { t } = useTranslation();
-    const auth = useAuth();
-    const navigate = useNavigate();
-
-    const [formData, setFormData] = useState({
-        category_id: "",
-        product_id: "",
-        store_id: "",
-        quintity: "",
-    });
-
-    const [categories, setCategories] = useState([]);
-    const [products, setProducts] = useState([]);
-    const [filteredProducts, setFilteredProducts] = useState([]);
-    const [stores, setStores] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState(null);
-    const [selectedProduct, setSelectedProduct] = useState(null);
+    // Form States
+    const [type, setType] = useState("product");
     const [selectedStore, setSelectedStore] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [selectedMaterialCategory, setSelectedMaterialCategory] = useState(null);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [quantity, setQuantity] = useState("");
+    const [reason, setReason] = useState(""); // ← NEW: Reason field
+
+    // Options
+    const [stores, setStores] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [materialCategories, setMaterialCategories] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [materials, setMaterials] = useState([]);
+    const [filteredItems, setFilteredItems] = useState([]);
 
     useEffect(() => {
-        refetchPurchaseWasted();
-    }, [refetchPurchaseWasted]);
+        refetchLists();
+    }, []);
 
-    // Update data when purchaseData changes
     useEffect(() => {
-        if (purchaseData) {
-            // Set categories
-            if (purchaseData.categories) {
-                const categoryOptions = purchaseData.categories.map(category => ({
-                    value: category.id,
-                    label: category.name,
-                }));
-                setCategories(categoryOptions);
-            }
+        if (dataLists) {
+            setStores(dataLists.stores?.map(s => ({ value: s.id, label: s.name })) || []);
+            setCategories(dataLists.categories?.map(c => ({ value: c.id, label: c.name })) || []);
+            setMaterialCategories(dataLists.material_categories?.map(c => ({ value: c.id, label: c.name })) || []);
 
-            // Set products
-            if (purchaseData.products) {
-                setProducts(purchaseData.products);
-            }
+            const productOpts = dataLists.products?.map(p => ({
+                value: p.id,
+                label: p.name,
+                category_id: p.category_id
+            })) || [];
+            setProducts(productOpts);
 
-            // Set stores
-            if (purchaseData.stores) {
-                const storeOptions = purchaseData.stores.map(store => ({
-                    value: store.id,
-                    label: store.name,
-                }));
-                setStores(storeOptions);
-            }
-
-            // Set financials
-            if (purchaseData.financials) {
-                const financialOptions = purchaseData.financials.map(financial => ({
-                    value: financial.id,
-                    label: financial.name,
-                }));
-                setFinancials(financialOptions);
-            }
+            const materialOpts = dataLists.materials?.map(m => ({
+                value: m.id,
+                label: m.name,
+                category_id: m.category_id
+            })) || [];
+            setMaterials(materialOpts);
         }
-    }, [purchaseData]);
+    }, [dataLists]);
 
-    // Filter products when category changes
     useEffect(() => {
-        if (selectedCategory && products.length > 0) {
-            const filtered = products.filter(product =>
-                product.category_id === selectedCategory.value
-            );
-            const productOptions = filtered.map(product => ({
-                value: product.id,
-                label: product.name,
-            }));
-            setFilteredProducts(productOptions);
+        const list = type === "product" ? products : materials;
+        const catId = type === "product" ? selectedCategory?.value : selectedMaterialCategory?.value;
 
-            // Reset product selection when category changes
-            setSelectedProduct(null);
-            setFormData(prev => ({ ...prev, product_id: "" }));
+        if (catId && list.length > 0) {
+            const filtered = list.filter(item => item.category_id === catId);
+            setFilteredItems(filtered);
         } else {
-            setFilteredProducts([]);
+            setFilteredItems([]);
         }
-    }, [selectedCategory, products]);
+        setSelectedItem(null);
+    }, [type, selectedCategory, selectedMaterialCategory, products, materials]);
 
-    // Navigate back after successful submission
     useEffect(() => {
-        if (!loadingPost && response) {
-            handleBack();
+        setSelectedCategory(null);
+        setSelectedMaterialCategory(null);
+        setSelectedItem(null);
+        setFilteredItems([]);
+    }, [type]);
+
+    useEffect(() => {
+        if (!loadingPost && response?.status === 200) {
+            auth.toastSuccess(t("Wasted Item Added Successfully"));
+            navigate(-1);
         }
     }, [response, loadingPost]);
 
-    // Handle category selection change
-    const handleCategoryChange = (selectedOption) => {
-        setSelectedCategory(selectedOption);
-        setFormData(prev => ({
-            ...prev,
-            category_id: selectedOption ? selectedOption.value : ""
-        }));
-    };
-
-    // Handle product selection change
-    const handleProductChange = (selectedOption) => {
-        setSelectedProduct(selectedOption);
-        setFormData(prev => ({
-            ...prev,
-            product_id: selectedOption ? selectedOption.value : ""
-        }));
-    };
-
-    // Handle store selection change
-    const handleStoreChange = (selectedOption) => {
-        setSelectedStore(selectedOption);
-        setFormData(prev => ({
-            ...prev,
-            store_id: selectedOption ? selectedOption.value : ""
-        }));
-    };
-
-    // Handle input change for simple fields
-    const handleInputChange = (field, value) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
-    };
-
-    // Reset form
-    const handleReset = () => {
-        setFormData({
-            category_id: "",
-            product_id: "",
-            store_id: "",
-            quintity: "",
-        });
-        setSelectedCategory(null);
-        setSelectedProduct(null);
-        setSelectedStore(null);
-    };
-
-    // Handle form submission
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Validation
-        if (!formData.category_id) {
-            auth.toastError(t("Please select a category"));
-            return;
-        }
-        if (!formData.product_id) {
-            auth.toastError(t("Please select a product"));
-            return;
-        }
-        if (!formData.store_id) {
-            auth.toastError(t("Please select a store"));
-            return;
-        }
-        if (!formData.quintity || formData.quintity <= 0) {
-            auth.toastError(t("Please enter a valid quantity"));
-            return;
+        if (!selectedStore) return auth.toastError(t("Please select store"));
+        if (!selectedItem) return auth.toastError(t("Please select item"));
+        if (!quantity || quantity <= 0) return auth.toastError(t("Please enter valid quantity"));
+        if (!reason.trim()) return auth.toastError(t("Please enter a reason"));
+
+        const fd = new FormData();
+        fd.append("store_id", selectedStore.value);
+        fd.append("quantity", quantity);
+        fd.append("reason", reason.trim()); // ← SEND REASON
+
+        if (type === "product") {
+            fd.append("category_id", selectedCategory.value);
+            fd.append("product_id", selectedItem.value);
+        } else {
+            fd.append("category_material_id", selectedMaterialCategory.value);
+            fd.append("material_id", selectedItem.value);
         }
 
-        const submitData = new FormData();
-        submitData.append("category_id", formData.category_id);
-        submitData.append("product_id", formData.product_id);
-        submitData.append("store_id", formData.store_id);
-        submitData.append("quantity", formData.quintity);
-
-        postData(submitData, t("Purchase Wasted Added Successfully"));
+        postData(fd);
     };
 
-    // Handle back navigation
-    const handleBack = () => {
-        navigate(-1);
+    const handleReset = () => {
+        setType("product");
+        setSelectedStore(null);
+        setSelectedCategory(null);
+        setSelectedMaterialCategory(null);
+        setSelectedItem(null);
+        setQuantity("");
+        setReason(""); // ← Reset reason
     };
 
-    // Custom styles for react-select
+    const handleBack = () => navigate(-1);
+
     const selectStyles = {
         control: (base, state) => ({
             ...base,
             border: '1px solid #D1D5DB',
             borderRadius: '0.5rem',
-            padding: '0.25rem',
+            padding: '0.5rem',
             boxShadow: state.isFocused ? '0 0 0 2px rgba(59, 130, 246, 0.1)' : 'none',
             borderColor: state.isFocused ? '#3B82F6' : '#D1D5DB',
-            '&:hover': {
-                borderColor: state.isFocused ? '#3B82F6' : '#9CA3AF'
-            }
-        }),
-        option: (base, state) => ({
-            ...base,
-            backgroundColor: state.isSelected ? '#3B82F6' : state.isFocused ? '#EFF6FF' : 'white',
-            color: state.isSelected ? 'white' : '#374151',
-            '&:hover': {
-                backgroundColor: '#EFF6FF'
-            }
         })
     };
 
     return (
         <>
-            {loadingPost || loadingPurchaseWasted ? (
+            {loadingLists || loadingPost ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
                 </div>
@@ -231,86 +158,105 @@ const AddPurchaseWasted = () => {
                 <section className="pb-32">
                     <div className="flex items-center justify-between p-2">
                         <div className="flex items-center gap-x-2">
-                            <button
-                                onClick={handleBack}
-                                className="text-mainColor hover:text-red-700 transition-colors"
-                                title={t("Back")}
-                            >
+                            <button onClick={handleBack} className="text-mainColor hover:text-red-700">
                                 <IoArrowBack size={24} />
                             </button>
-                            <TitlePage text={t("Add Purchase Wasted")} />
+                            <TitlePage text={t("Add Wasted Item")} />
                         </div>
                     </div>
-                    <form className="p-2" onSubmit={handleSubmit}>
-                        <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                            {/* Category */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Category")}:
-                                </span>
-                                <Select
-                                    value={selectedCategory}
-                                    onChange={handleCategoryChange}
-                                    options={categories}
-                                    placeholder={t("Select Category")}
-                                    isClearable
-                                    isSearchable
-                                    styles={selectStyles}
-                                    className="w-full"
-                                    noOptionsMessage={() => t("No categories available")}
-                                />
-                            </div>
 
-                            {/* Product */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Product")}:
-                                </span>
-                                <Select
-                                    value={selectedProduct}
-                                    onChange={handleProductChange}
-                                    options={filteredProducts}
-                                    placeholder={selectedCategory ? t("Select Product") : t("Select category first")}
-                                    isClearable
-                                    isSearchable
-                                    styles={selectStyles}
-                                    className="w-full"
-                                    isDisabled={!selectedCategory}
-                                    noOptionsMessage={() => t("No products available for this category")}
+                    <form onSubmit={handleSubmit} className="p-2">
+                        {/* Type Selection */}
+                        <div className="flex justify-center gap-12 mb-8 p-6 rounded-lg">
+                            <label className="flex items-center gap-3 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="type"
+                                    value="product"
+                                    checked={type === "product"}
+                                    onChange={(e) => setType(e.target.value)}
+                                    className="w-6 h-6 text-red-600"
                                 />
-                            </div>
+                                <span className="text-xl font-medium">{t("Product")}</span>
+                            </label>
+                            <label className="flex items-center gap-3 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="type"
+                                    value="material"
+                                    checked={type === "material"}
+                                    onChange={(e) => setType(e.target.value)}
+                                    className="w-6 h-6 text-red-600"
+                                />
+                                <span className="text-xl font-medium">{t("Material")}</span>
+                            </label>
+                        </div>
 
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                             {/* Store */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Store")}:
+                            <div>
+                                <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">{t("Store")} *</span>
+                                <Select value={selectedStore} onChange={setSelectedStore} options={stores}
+                                    placeholder={t("Select Store")} isClearable isSearchable styles={selectStyles} />
+                            </div>
+
+                            {/* Category */}
+                            <div>
+                                <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">
+                                    {type === "product" ? t("Product Category") : t("Material Category")} *
                                 </span>
                                 <Select
-                                    value={selectedStore}
-                                    onChange={handleStoreChange}
-                                    options={stores}
-                                    placeholder={t("Select Store")}
-                                    isClearable
-                                    isSearchable
+                                    value={type === "product" ? selectedCategory : selectedMaterialCategory}
+                                    onChange={type === "product" ? setSelectedCategory : setSelectedMaterialCategory}
+                                    options={type === "product" ? categories : materialCategories}
+                                    placeholder={t("Select Category")}
+                                    isClearable isSearchable styles={selectStyles}
+                                />
+                            </div>
+
+                            {/* Item */}
+                            <div>
+                                <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">
+                                    {type === "product" ? t("Product") : t("Material")} *
+                                </span>
+                                <Select
+                                    value={selectedItem}
+                                    onChange={setSelectedItem}
+                                    options={filteredItems}
+                                    placeholder={(selectedCategory || selectedMaterialCategory) ? t("Select...") : t("Select category first")}
+                                    isClearable isSearchable
+                                    isDisabled={!selectedCategory && !selectedMaterialCategory}
                                     styles={selectStyles}
-                                    className="w-full"
-                                    noOptionsMessage={() => t("No stores available")}
                                 />
                             </div>
 
                             {/* Quantity */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Quantity")}:
-                                </span>
+                            <div>
+                                <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">{t("Quantity")} *</span>
                                 <TextInput
                                     type="number"
-                                    value={formData.quintity}
-                                    onChange={(e) => handleInputChange("quintity", e.target.value)}
+                                    value={quantity}
+                                    onChange={(e) => setQuantity(e.target.value)}
                                     placeholder={t("Enter Quantity")}
-                                    min="1"
+                                    min="0.01"
+                                    step="0.01"
                                 />
                             </div>
+                        </div>
+
+                        {/* Reason - Full Width */}
+                        <div className="mt-8">
+                            <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">
+                                {t("Reason")} *
+                            </span>
+                            <textarea
+                                value={reason}
+                                onChange={(e) => setReason(e.target.value)}
+                                placeholder={t("Enter reason for wasted item (e.g. expired, damaged, lost, etc.)")}
+                                required
+                                rows={5}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all resize-none"
+                            />
                         </div>
 
                         {/* Buttons */}
