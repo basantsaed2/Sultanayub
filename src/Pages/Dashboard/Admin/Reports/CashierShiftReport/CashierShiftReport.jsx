@@ -10,7 +10,7 @@ const CashierShiftReport = () => {
 
   const [selectedShiftId, setSelectedShiftId] = useState(null);
   const { refetch: refetchOrder, loading: loadingOrder, data: dataOrder } = useGet({
-    url: selectedShiftId ? `${apiUrl}/admin/reports/cashier_report/3` : null,
+    url: selectedShiftId ? `${apiUrl}/admin/reports/cashier_report/${selectedShiftId}` : null,
     skip: !selectedShiftId,
   });
 
