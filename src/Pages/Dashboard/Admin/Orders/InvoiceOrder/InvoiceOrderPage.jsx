@@ -186,8 +186,8 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
               rows += `
               <tr>
                 <td></td>
-                <td class="item-name" style="font-size: 14px; font-weight: normal; ${isRtl ? 'padding-right: 15px' : 'padding-left: 15px'}">+ ${addon.name}</td>
-                <td style="vertical-align: top;">${Number(addon.price).toFixed(2)}</td>
+                <td class="item-name" style="font-size: 14px; font-weight: normal; ${isRtl ? 'padding-right: 15px' : 'padding-left: 15px'}">+ ${addon.name} \n (${t("Count")}:${addon.count})</td>
+                <td style="vertical-align: top;">${Number(addon.price * addon.count).toFixed(2)}</td>
                 <td style="vertical-align: top;">${showTotalHere ? Number(item.total).toFixed(2) : ""}</td>
               </tr>
               `;
