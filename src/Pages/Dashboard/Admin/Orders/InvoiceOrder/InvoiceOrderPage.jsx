@@ -304,7 +304,7 @@ const InvoiceOrderPage = () => {
         const itemExtras = item.extras || [];
 
         const currentItemAddonsPrice = itemAddons.reduce(
-          (sum, a) => sum + parseFloat(a.price || 0),
+          (sum, a) => sum + parseFloat(a.price || 0) * a.count,
           0
         );
         const currentItemExtrasPrice = itemExtras.reduce(
