@@ -44,14 +44,14 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
           text-align: ${isRtl ? 'right' : 'left'}; 
           direction: ${isRtl ? 'rtl' : 'ltr'}; 
           padding-right: 5px; 
-          font-size: 18px; 
+          font-size: 16px; 
           font-weight: bold; 
         }
         
         .item-variations { 
-            font-size: 14px;
+            font-size: 12px;
             color: #000;
-            font-weight: bold;
+            font-weight: normal;
             margin-top: 2px; 
             line-height: 1.3;
         }
@@ -73,6 +73,7 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
         .customer-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
         
         .address-box { margin-top: 5px; border-top: 1px dotted #000; padding-top: 3px; font-size: 11px; line-height: 1.4; font-weight: bold; }
+        .order-notes { margin-top: 5px; border-top: 1px dotted #000; padding-top: 3px; font-size: 12px; font-weight: bold; }
       </style>
 
       <div class="header">
@@ -80,23 +81,28 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
         <p>${receiptData.branchName}</p>
       </div>
 
-      <div class="info-section">
-        <div class="info-left">
-          <div>${t("OrderType")}</div>
-          <div>${t("Source")}</div>
-          <div>${t("Payment")}</div>
-          <div>${t("Date")}</div>
-          <div>${t("InvoiceNumber")}</div>
-        </div>
-        <div class="info-right">
-          <div style="font-weight: bold;">${receiptData.orderType}</div>
-          <div style="font-weight: bold;">${receiptData.source}</div>
-          <div style="font-weight: bold; font-size : 18px">${receiptData.payment
-    }</div>
-          <div dir="ltr">${receiptData.date}</div>
-          <div class="invoice-num">${receiptData.invoiceNumber}</div>
-        </div>
-      </div>
+      <table class="info-table" style="width: 100%; margin-bottom: 8px;">
+        <tr>
+          <td style="text-align: ${isRtl ? 'right' : 'left'}; width: 40%;">${t("OrderType")}</td>
+          <td style="text-align: ${isRtl ? 'left' : 'right'}; font-weight: bold;">${receiptData.orderType}</td>
+        </tr>
+        <tr>
+          <td style="text-align: ${isRtl ? 'right' : 'left'};">${t("Source")}</td>
+          <td style="text-align: ${isRtl ? 'left' : 'right'}; font-weight: bold;">${receiptData.source}</td>
+        </tr>
+        <tr>
+          <td style="text-align: ${isRtl ? 'right' : 'left'};">${t("Payment")}</td>
+          <td style="text-align: ${isRtl ? 'left' : 'right'}; font-weight: bold; font-size: 18px;">${receiptData.payment}</td>
+        </tr>
+        <tr>
+          <td style="text-align: ${isRtl ? 'right' : 'left'};">${t("Date")}</td>
+          <td style="text-align: ${isRtl ? 'left' : 'right'};" dir="ltr">${receiptData.date}</td>
+        </tr>
+        <tr>
+          <td style="text-align: ${isRtl ? 'right' : 'left'};">${t("InvoiceNumber")}</td>
+          <td style="text-align: ${isRtl ? 'left' : 'right'};" class="invoice-num">${receiptData.invoiceNumber}</td>
+        </tr>
+      </table>
 
       <div class="customer-details">
         <div class="customer-row">
@@ -120,6 +126,15 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
         </div>`
       : ""
     }
+
+        ${receiptData.orderNotes
+      ? `
+        <div class="order-notes">
+            <span style="text-decoration:underline;">${t("Notes")}:</span><br/>
+            ${receiptData.orderNotes}
+        </div>`
+      : ""
+    }
       </div>
 
       <div class="cashier-line">
@@ -139,6 +154,10 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
           ${receiptData.items
       .map(
         (item) => {
+          const hasAddons = item.addons && item.addons.length > 0;
+          const hasExtras = item.extras && item.extras.length > 0;
+          const showTotalOnMainRow = !hasAddons && !hasExtras;
+
           let rows = `
             <tr>
               <td style="vertical-align: top;">${item.qty}</td>
@@ -156,33 +175,35 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
               <td style="vertical-align: top;">${Number(item.price).toFixed(
               2
             )}</td>
-              <td style="vertical-align: top;">${Number(item.total).toFixed(
-              2
-            )}</td>
+              <td style="vertical-align: top;">${showTotalOnMainRow ? Number(item.total).toFixed(2) : ""}</td>
             </tr>
           `;
 
-          if (item.addons && item.addons.length > 0) {
-            item.addons.forEach((addon) => {
+          if (hasAddons) {
+            item.addons.forEach((addon, index) => {
+              const isLastAddon = index === item.addons.length - 1;
+              const showTotalHere = isLastAddon && !hasExtras;
               rows += `
               <tr>
                 <td></td>
                 <td class="item-name" style="font-size: 14px; font-weight: normal; ${isRtl ? 'padding-right: 15px' : 'padding-left: 15px'}">+ ${addon.name}</td>
                 <td style="vertical-align: top;">${Number(addon.price).toFixed(2)}</td>
-                <td></td>
+                <td style="vertical-align: top;">${showTotalHere ? Number(item.total).toFixed(2) : ""}</td>
               </tr>
               `;
             });
           }
 
-          if (item.extras && item.extras.length > 0) {
-            item.extras.forEach((extra) => {
+          if (hasExtras) {
+            item.extras.forEach((extra, index) => {
+              const isLastExtra = index === item.extras.length - 1;
+              const showTotalHere = isLastExtra;
               rows += `
               <tr>
                 <td></td>
                 <td class="item-name" style="font-size: 14px; font-weight: normal; ${isRtl ? 'padding-right: 15px' : 'padding-left: 15px'}">+ ${extra.name}</td>
                 <td style="vertical-align: top;">${Number(extra.price).toFixed(2)}</td>
-                <td></td>
+                <td style="vertical-align: top;">${showTotalHere ? Number(item.total).toFixed(2) : ""}</td>
               </tr>
               `;
             });
@@ -198,7 +219,7 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
       <div class="totals-section">
         <div class="total-row">
           <span>${t("TotalProductPrice")}</span>
-          <span>${Number(receiptData.productsTotal).toFixed(2)}</span>
+          <span>${Number(receiptData.subtotal).toFixed(2)}</span>
         </div>
         
 
@@ -293,7 +314,14 @@ const InvoiceOrderPage = () => {
         const totalExtrasPerUnit =
           currentItemAddonsPrice + currentItemExtrasPrice;
 
-        productsTotal += basePrice * qty;
+        // Calculate variations price
+        const variationPrice = item.variations?.reduce((acc, v) => {
+          return acc + (v.options?.reduce((optAcc, opt) => optAcc + parseFloat(opt.price || 0), 0) || 0);
+        }, 0) || 0;
+
+        const finalUnitPrice = basePrice + variationPrice;
+
+        productsTotal += finalUnitPrice * qty;
         addonsTotal += totalExtrasPerUnit * qty;
 
         const variationOptions = item.variations
@@ -317,8 +345,8 @@ const InvoiceOrderPage = () => {
           addons: itemAddons,
           extras: itemExtras,
           notesString: notesString,
-          price: basePrice,
-          total: (basePrice + totalExtrasPerUnit) * qty,
+          price: finalUnitPrice,
+          total: (finalUnitPrice + totalExtrasPerUnit) * qty,
         };
       });
 
@@ -330,11 +358,8 @@ const InvoiceOrderPage = () => {
 
       // Calculate delivery
       // If delivery fee is not explicitly in data, infer it
-      // Total = (Products + Addons) + Tax + Delivery - Discount
       const subtotal = productsTotal + addonsTotal;
-      let delivery = total - (subtotal + tax - discount);
-      delivery = Math.round(delivery * 100) / 100;
-      if (delivery < 0) delivery = 0;
+      let delivery = parseFloat(order.address?.zone?.price || 0);
 
       const taxPercentage = subtotal > 0 ? tax / subtotal : 0;
 
@@ -348,14 +373,7 @@ const InvoiceOrderPage = () => {
         branchName: order.branch?.name || "",
         cashierName: order.admin?.name || "-",
         invoiceNumber: order.order_number || order.id,
-        date: new Date(order.order_date).toLocaleString(isRtl ? 'ar-EG' : 'en-US', {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        }),
+        date: order.order_date,
         orderType: orderTypeDisplay,
         source: order.source,
         payment: t(order.payment),
@@ -367,6 +385,7 @@ const InvoiceOrderPage = () => {
         customerPhone2: order.user?.phone_2 || "",
         customerOrdersCount: order.user?.orders_count || 0,
         customerAddress: order.address?.address || "",
+        orderNotes: order.notes || "",
 
         items,
         productsTotal,
