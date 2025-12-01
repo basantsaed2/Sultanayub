@@ -50,7 +50,7 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
         .item-variations { font-size: 12px; margin-top: 2px; font-weight: normal; }
         .item-note { font-size: 12px; margin-top: 2px; font-style: italic; }
 
-        .totals-section { text-align: ${isRtl ? 'left' : 'right'}; font-size: 14px; margin-bottom: 20px; }
+        .totals-section { text-align: ${isRtl ? 'left' : 'right'}; font-size: 14px; margin-bottom: 5px; }
         .total-row { margin-bottom: 2px; display: flex; justify-content: space-between; }
         .grand-total { font-size: 18px; font-weight: bold; border-top: 2px solid #000; padding-top: 2px; margin-top: 2px; }
         
