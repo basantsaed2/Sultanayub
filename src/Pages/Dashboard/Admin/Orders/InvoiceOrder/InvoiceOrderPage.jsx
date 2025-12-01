@@ -99,6 +99,10 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
           <td style="text-align: ${isRtl ? 'left' : 'right'};" dir="ltr">${receiptData.date}</td>
         </tr>
         <tr>
+          <td style="text-align: ${isRtl ? 'right' : 'left'};">${t("Time")}</td>
+          <td style="text-align: ${isRtl ? 'left' : 'right'};" dir="ltr">${receiptData.orderTime}</td>
+        </tr>
+        <tr>
           <td style="text-align: ${isRtl ? 'right' : 'left'};">${t("InvoiceNumber")}</td>
           <td style="text-align: ${isRtl ? 'left' : 'right'};" class="invoice-num">${receiptData.invoiceNumber}</td>
         </tr>
@@ -374,6 +378,7 @@ const InvoiceOrderPage = () => {
         cashierName: order.admin?.name || "-",
         invoiceNumber: order.order_number || order.id,
         date: order.order_date,
+        orderTime: order.order_time,
         orderType: orderTypeDisplay,
         source: order.source,
         payment: t(order.payment),
