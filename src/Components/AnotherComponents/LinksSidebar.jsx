@@ -119,7 +119,7 @@ const adminRoutes = [
   {
     name: "Product Setup",
     path: "/dashboard/setup_product",
-    permission: "product",
+    permission: "Product",
     icon: FiPackage,
     subRoutes: [
       { name: "Product", path: "/dashboard/setup_product/product" },
@@ -228,7 +228,7 @@ const adminRoutes = [
       { name: "Zones", path: "/dashboard/setting/zones", permission: "Zone" },
       { name: "Extra Groups", path: "/dashboard/setting/groups", permission: "Extra" },
       { name: "Order Type", path: "/dashboard/setting/order_type", permission: "OrderType" },
-      { name: "Restaurant Time", path: "/dashboard/setting/resturant_time", permission: "RestaurantTime" },
+      { name: "Restaurant Time", path: "/dashboard/setting/resturant_time", permission: "ResturantTime" },
       { name: "Schedule Time", path: "/dashboard/setting/schedule_time", permission: "ScheduleTime" },
       { name: "Cancel Time", path: "/dashboard/setting/cancel_time", permission: "CancelTime" },
       { name: "Delivery Time", path: "/dashboard/setting/delivery_time", permission: "DeliveryTime" },
