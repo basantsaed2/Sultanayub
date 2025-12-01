@@ -134,6 +134,7 @@ const BusinessSettingsPage = () => {
   const [customerApp, setCustomerApp] = useState(0);
   const [webApp, setWebApp] = useState(0);
   const [deliverymanApp, setDeliverymanApp] = useState(0);
+  const [preparationNumber, setPreparationNumber] = useState(0);
 
   const [forDay, setForDay] = useState(0);
   const [forWeek, setForWeek] = useState(0);
@@ -202,6 +203,7 @@ const BusinessSettingsPage = () => {
       setOrderAcive(dataCompany?.company_info?.order_online || 0)
       setAndroidActive(dataCompany?.company_info?.android_switch || 0)
       setIOSAcive(dataCompany?.company_info?.ios_switch || 0)
+      setPreparationNumber(dataCompany?.company_info?.preparation_num_status || 0)
 
       setStateTimeZone(dataCompany?.company_info?.time_zone || '');
       setSelectedTimeZone({ name: dataCompany?.company_info?.time_zone || '' });
@@ -336,6 +338,7 @@ const BusinessSettingsPage = () => {
     formData.append("order_online", orderActive || 0);
     formData.append("android_switch", androidActive || 0);
     formData.append("ios_switch", iosActive || 0);
+    formData.append("preparation_num_status", preparationNumber || 0);
 
     formData.append("logo", logoFile);
     formData.append("cover_app_image", coverImageFile);
@@ -460,6 +463,10 @@ const BusinessSettingsPage = () => {
   const handleClickIOSActive = (e) => {
     const isChecked = e.target.checked;
     setIOSAcive(isChecked ? 1 : 0);
+  };
+  const handleClickPreparationNumber = (e) => {
+    const isChecked = e.target.checked;
+    setPreparationNumber(isChecked ? 1 : 0);
   };
 
   const handleClickMaintenanceMode = (e) => {
@@ -618,7 +625,7 @@ const BusinessSettingsPage = () => {
     setLeftCurrency(0);
     setRightCurrency(0);
     setCompanyCopyrightText("");
-
+    setPreparationNumber(0);
     setMaintenanceMode(0);
     setAllSystem(0);
     setBranchPanel(0);
@@ -826,6 +833,16 @@ const BusinessSettingsPage = () => {
           </div>
 
           <div className="sm:w-full lg:w-[30%] flex items-center gap-2 mt-8 justify-center gap-y-1">
+            <span className="text-xl font-TextFontRegular text-thirdColor">Preparation Number : </span>
+            <div>
+              <Switch
+                checked={preparationNumber}
+                handleClick={handleClickPreparationNumber}
+              />
+            </div>
+          </div>
+
+          <div className="sm:w-full lg:w-[30%] flex items-center gap-2 mt-8 justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">Android  Active : </span>
             <div>
               <Switch
@@ -845,8 +862,8 @@ const BusinessSettingsPage = () => {
             </div>
           </div>
 
-            {qrCode !== null && (
-          <div className="sm:w-full lg:w-[30%] flex flex-col items-center justify-center gap-y-1 mt-5">
+          {qrCode !== null && (
+            <div className="sm:w-full lg:w-[30%] flex flex-col items-center justify-center gap-y-1 mt-5">
               <img
                 src={qrCode}
                 alt="QR Code"
