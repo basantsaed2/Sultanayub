@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { FaPrint, FaArrowLeft } from "react-icons/fa";
 
 // ===================================================================
-// دالة تنظيف رابط اللوجو من التكرارات (مثل storage/storage/storage...)
+// Helper: Clean Logo URL
 // ===================================================================
 const cleanLogoUrl = (url) => {
   if (!url) return "";
@@ -21,7 +21,7 @@ const cleanLogoUrl = (url) => {
 };
 
 // ===================================================================
-// دالة الإيصال - تم تعديل الـ header لعرض اللوجو
+// RECEIPT FORMATTING FUNCTION
 // ===================================================================
 const formatCashierReceipt = (receiptData, t, isRtl) => {
   const phones = [receiptData.customerPhone, receiptData.customerPhone2]
@@ -30,86 +30,116 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
 
   const logoUrl = cleanLogoUrl(receiptData.logoLink);
 
+  // NOTE: We wrap everything in "receipt-only" class
   return `
-    <div dir="${isRtl ? 'rtl' : 'ltr'}" style="width: 100%; max-width:100%; margin: 0 auto; font-family: Arial, Helvetica, sans-serif; color: #000; padding: 10px; box-sizing: border-box; word-wrap: break-word;">
+    <div class="receipt-only" dir="${isRtl ? 'rtl' : 'ltr'}">
       
       <style>
-        @page { size: auto; margin: 0mm; }
-        body { margin: 0; padding: 0; }
-        * { box-sizing: border-box; }
-        
-        .header { text-align: center; margin-bottom: 15px; }
-        .header h1 { font-size: 24px; font-weight: bold; margin: 0; text-transform: uppercase; }
-        .header p { font-size: 16px; margin: 5px 0 0 0; }
-        .header img { max-width: 200px; max-height: 90px; height: auto; width: auto; margin: 10px auto; display: block; }
-        
-        .info-box { 
-          padding: 10px; 
-          margin-bottom: 15px; 
-          font-size: 14px;
-          border-bottom: 1px solid #000;
+        /* 1. Global Print Settings (These don't affect screen) */
+        @page { 
+            size: 80mm auto; 
+            margin: 0mm; 
         }
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
-        .info-label { font-weight: bold; }
+
+        /* 2. Scoped Styles - Only affect elements inside .receipt-only */
         
-        .address-notes-section { margin-bottom: 15px; font-size: 14px; }
-        .section-title { font-weight: bold; text-decoration: underline; margin-bottom: 5px; display: block; }
+        .receipt-only {
+            width: 80mm; 
+            font-family: sans-serif;
+            color: #000;
+            background: #fff;
+            padding: 5px;
+            /* No Zoom - Text size is "as it is" */
+        }
+
+        /* Reset box sizing just for receipt */
+        .receipt-only * { 
+            box-sizing: border-box; 
+        }
         
-        table { 
+        /* Headers */
+        .receipt-only .header { text-align: center; margin-bottom: 5px; border-bottom: 1px dashed #000; padding-bottom: 5px;}
+        .receipt-only .header h1 { font-size: 18px; font-weight: bold; margin: 0; }
+        .receipt-only .header p { font-size: 14px; margin: 2px 0 0 0; }
+        .receipt-only .header img { max-width: 150px; max-height: 80px; height: auto; width: auto; margin: 0 auto; display: block; }
+        
+        /* Info Box */
+        .receipt-only .info-box { 
+          padding: 5px 0; 
+          margin-bottom: 5px; 
+          font-size: 12px;
+          border-bottom: 1px dashed #000;
+        }
+        .receipt-only .info-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+        .receipt-only .info-label { font-weight: bold; }
+        
+        /* Address Section */
+        .receipt-only .address-notes-section { margin-bottom: 5px; font-size: 12px; border-bottom: 1px dashed #000; padding-bottom: 5px;}
+        .receipt-only .section-title { font-weight: bold; text-decoration: underline; margin-bottom: 2px; display: block; }
+        
+        /* Tables - SCOPED to avoid affecting main page tables */
+        .receipt-only table { 
           width: 100%; 
-          font-size: 14px; 
+          font-size: 12px; 
           border-collapse: collapse; 
-          margin-bottom: 8px;
+          margin-bottom: 5px;
         }
-        th { 
+        .receipt-only th { 
           border: none !important; 
-          border-bottom: 2px solid #000 !important; 
-          padding: 8px 4px; 
+          border-bottom: 1px solid #000 !important; 
+          padding: 4px 0; 
           text-align: center; 
-          background-color: #f0f0f0; 
           font-weight: bold; 
+          background: transparent; /* Reset any global backgrounds */
         }
-        td { 
+        .receipt-only td { 
           border: none; 
-          padding: 8px 4px; 
+          padding: 4px 0; 
           text-align: center; 
         }
         
-        .item-name { 
+        .receipt-only .item-name { 
           text-align: ${isRtl ? 'right' : 'left'}; 
           direction: ${isRtl ? 'rtl' : 'ltr'}; 
         }
-        .item-variations { font-size: 12px; margin-top: 2px; }
-        .item-note { font-size: 12px; margin-top: 2px; font-style: italic; }
-        .item-block-last td { border-bottom: 1px solid #999; }
+        .receipt-only .item-variations { font-size: 11px; margin-top: 1px; color: #333; }
+        .receipt-only .item-note { font-size: 11px; margin-top: 1px; font-style: italic; }
+        .receipt-only .item-block-last td { border-bottom: 1px solid #ccc; }
 
-        .totals-section { 
+        /* Totals */
+        .receipt-only .totals-section { 
           text-align: ${isRtl ? 'left' : 'right'}; 
-          font-size: 14px; 
-          margin: 8px 0 10px 0;
+          font-size: 12px; 
+          margin: 5px 0 0 0; 
         }
-        .total-row { margin-bottom: 3px; display: flex; justify-content: space-between; }
-        .grand-total { 
-          font-size: 18px; 
+        .receipt-only .total-row { margin-bottom: 2px; display: flex; justify-content: space-between; }
+        
+        .receipt-only .grand-total { 
+          font-size: 16px; 
           font-weight: bold; 
           border-top: 2px solid #000; 
-          padding-top: 4px 0; 
+          padding-top: 4px; 
           margin-top: 4px; 
+          margin-bottom: 0px; 
         }
         
-        .footer { 
+        /* Footer */
+        .receipt-only .footer { 
           text-align: center; 
-          font-size: 14px; 
+          font-size: 12px; 
           font-weight: bold; 
-          margin-top: 10px;
+          margin-top: 5px; 
+          padding-top: 5px;
+          border-top: 1px dashed #000; 
         }
       </style>
 
       <div class="header">
         ${logoUrl 
           ? `<img src="${logoUrl}" alt="Restaurant Logo" />`
-          : `<h1>${receiptData.restaurantName}</h1>`
+          : ``
         }
+        <h1>${receiptData.restaurantName}</h1>
         ${receiptData.branchName ? `<p>${receiptData.branchName}</p>` : ''}
       </div>
 
@@ -127,15 +157,15 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
 
       <div class="address-notes-section">
         ${(receiptData.orderType === t("Delivery") || receiptData.orderType === "Delivery") && receiptData.customerAddress ? 
-          `<div style="margin-bottom:10px"><span class="section-title">${t("DeliveryAddress")}:</span><div>${receiptData.customerAddress}</div></div>` : ''}
+          `<div style="margin-bottom:5px"><span class="section-title">${t("DeliveryAddress")}:</span><div>${receiptData.customerAddress}</div></div>` : ''}
         ${receiptData.orderNotes ? 
           `<div><span class="section-title">${t("Notes")}:</span><div>${receiptData.orderNotes}</div></div>` : ''}
       </div>
 
       <table>
         <thead>
-          <tr>
-            <th style="width:40%">${t("Item")}</th>
+          <tr style="font-weight:bold;font-size:14px;">
+            <th style="width:40%;text-align:left">${t("Item")}</th>
             <th style="width:15%">${t("Qty")}</th>
             <th style="width:20%">${t("Price")}</th>
             <th style="width:25%">${t("Total")}</th>
@@ -151,21 +181,21 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
 
             const isMainLast = !hasAddons && !hasExtras;
             rows += `<tr ${isMainLast ? 'class="item-block-last"' : ''}>
-              <td class="item-name">
+              <td class="item-name" style="font-size:14px;font-weight:600;">
                 ${item.name}
                 ${item.variationString ? `<div class="item-variations">${item.variationString}</div>` : ''}
                 ${item.notesString ? `<div class="item-note">${t("Note")}: ${item.notesString}</div>` : ''}
               </td>
               <td>${item.qty}</td>
               <td>${Number(item.price).toFixed(2)}</td>
-              <td>${showTotalOnMainRow ? Number(item.total).toFixed(2) : ''}</td>
+              <td style="font-size:14px;font-weight:600;">${showTotalOnMainRow ? Number(item.total).toFixed(2) : ''}</td>
             </tr>`;
 
             if (hasAddons) {
               item.addons.forEach((addon, i) => {
                 const isLast = i === item.addons.length - 1 && !hasExtras;
                 rows += `<tr ${isLast ? 'class="item-block-last"' : ''}>
-                  <td class="item-name" style="font-size:12px; ${isRtl ? 'padding-right:15px' : 'padding-left:15px'};">+ ${addon.name}</td>
+                  <td class="item-name" style="font-size:11px; ${isRtl ? 'padding-right:15px' : 'padding-left:15px'};">+ ${addon.name}</td>
                   <td>${addon.count > 1 ? addon.count : ''}</td>
                   <td>${Number(addon.price).toFixed(2)}</td>
                   <td>${isLast ? Number(item.total).toFixed(2) : ''}</td>
@@ -177,7 +207,7 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
               item.extras.forEach((extra, i) => {
                 const isLast = i === item.extras.length - 1;
                 rows += `<tr ${isLast ? 'class="item-block-last"' : ''}>
-                  <td class="item-name" style="font-size:12px; ${isRtl ? 'padding-right:15px' : 'padding-left:15px'};">+ ${extra.name}</td>
+                  <td class="item-name" style="font-size:11px; ${isRtl ? 'padding-right:15px' : 'padding-left:15px'};">+ ${extra.name}</td>
                   <td></td>
                   <td>${Number(extra.price).toFixed(2)}</td>
                   <td>${isLast ? Number(item.total).toFixed(2) : ''}</td>
@@ -199,16 +229,16 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
       </div>
 
       <div class="footer">
-        ${t("ThankYouForVisit")}
-        <div style="font-size:10px;margin-top:5px;">Powered by Food2Go</div>
-        <div style="font-size:10px;margin-top:5px;">food2go.online</div>
+        ${t("ThankYouForYourOrder")}
+        <div style="font-size:10px;margin-top:2px;">Powered by Food2Go</div>
+        <div style="font-size:10px;">food2go.online</div>
       </div>
     </div>
   `;
 };
 
 // ===================================================================
-// المكون الرئيسي
+// MAIN COMPONENT
 // ===================================================================
 const InvoiceOrderPage = () => {
   const { orderId } = useParams();
@@ -287,7 +317,7 @@ const InvoiceOrderPage = () => {
 
       const receiptData = {
         restaurantName:  t("projectName"),
-        logoLink:logo || "", // تأكد من الحقل الصحيح
+        logoLink:logo || "", 
         branchName: order.branch?.name || "",
         invoiceNumber: order.order_number || order.id,
         date: order.order_date,
@@ -313,13 +343,16 @@ const InvoiceOrderPage = () => {
   }, [data, t, isRtl]);
 
   const handlePrint = () => {
-    const pw = window.open("", "", "width=400,height=600");
+    // Open a new window
+    const pw = window.open("", "", "width=500,height=600");
     if (pw) {
-      pw.document.write("<html><head><title>Print</title></head><body style='margin:0'>");
+      // Inline style on the NEW window body to remove margins, 
+      // This is safe because it is a new window, not your React app.
+      pw.document.write("<html><head><title>Print</title></head><body style='margin:0; padding:0;'>");
       pw.document.write(invoiceHtml);
       pw.document.write("</body></html>");
       pw.document.close();
-      setTimeout(() => { pw.print(); pw.close(); }, 500);
+      setTimeout(() => { pw.focus(); pw.print(); pw.close(); }, 500);
     }
   };
 
@@ -338,6 +371,7 @@ const InvoiceOrderPage = () => {
       </div>
 
       <div className="flex justify-center">
+        {/* The preview container */}
         <div style={{ width: "320px", border: "1px solid #eee", padding: "10px", background: "white" }}
           dangerouslySetInnerHTML={{ __html: invoiceHtml }}
         />
