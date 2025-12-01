@@ -6,12 +6,29 @@ import { useTranslation } from "react-i18next";
 import { FaPrint, FaArrowLeft } from "react-icons/fa";
 
 // ===================================================================
-// 1. دالة الإيصال - تم تعديلها فقط لحل المشكلتين المطلوبتين
+// دالة تنظيف رابط اللوجو من التكرارات (مثل storage/storage/storage...)
+// ===================================================================
+const cleanLogoUrl = (url) => {
+  if (!url) return "";
+  try {
+    const clean = url.replace(/(https?:\/\/[^\/]+)?\/storage\/+/g, (match, p1) => {
+      return p1 ? p1 + "/storage/" : "/storage/";
+    });
+    return clean;
+  } catch (e) {
+    return url;
+  }
+};
+
+// ===================================================================
+// دالة الإيصال - تم تعديل الـ header لعرض اللوجو
 // ===================================================================
 const formatCashierReceipt = (receiptData, t, isRtl) => {
   const phones = [receiptData.customerPhone, receiptData.customerPhone2]
     .filter(Boolean)
     .join(" / ");
+
+  const logoUrl = cleanLogoUrl(receiptData.logoLink);
 
   return `
     <div dir="${isRtl ? 'rtl' : 'ltr'}" style="width: 100%; max-width:100%; margin: 0 auto; font-family: Arial, Helvetica, sans-serif; color: #000; padding: 10px; box-sizing: border-box; word-wrap: break-word;">
@@ -24,6 +41,7 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
         .header { text-align: center; margin-bottom: 15px; }
         .header h1 { font-size: 24px; font-weight: bold; margin: 0; text-transform: uppercase; }
         .header p { font-size: 16px; margin: 5px 0 0 0; }
+        .header img { max-width: 200px; max-height: 90px; height: auto; width: auto; margin: 10px auto; display: block; }
         
         .info-box { 
           padding: 10px; 
@@ -37,12 +55,11 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
         .address-notes-section { margin-bottom: 15px; font-size: 14px; }
         .section-title { font-weight: bold; text-decoration: underline; margin-bottom: 5px; display: block; }
         
-        /* الجدول: فقط خط أسفل العناوين + لا مسافات كبيرة */
         table { 
           width: 100%; 
           font-size: 14px; 
           border-collapse: collapse; 
-          margin-bottom: 8px; /* تم تقليله من 15px */
+          margin-bottom: 8px;
         }
         th { 
           border: none !important; 
@@ -64,14 +81,12 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
         }
         .item-variations { font-size: 12px; margin-top: 2px; }
         .item-note { font-size: 12px; margin-top: 2px; font-style: italic; }
-
-        /* خط فاصل خفيف بعد كل عنصر (اختياري لكن جميل) */
         .item-block-last td { border-bottom: 1px solid #999; }
 
         .totals-section { 
           text-align: ${isRtl ? 'left' : 'right'}; 
           font-size: 14px; 
-          margin: 8px 0 10px 0; /* تم تقليله بشدة */
+          margin: 8px 0 10px 0;
         }
         .total-row { margin-bottom: 3px; display: flex; justify-content: space-between; }
         .grand-total { 
@@ -86,13 +101,16 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
           text-align: center; 
           font-size: 14px; 
           font-weight: bold; 
-          margin-top: 10px; /* تم تقليله من قيم كبيرة */
+          margin-top: 10px;
         }
       </style>
 
       <div class="header">
-        <h1>${receiptData.restaurantName}</h1>
-        <p>${receiptData.branchName}</p>
+        ${logoUrl 
+          ? `<img src="${logoUrl}" alt="Restaurant Logo" />`
+          : `<h1>${receiptData.restaurantName}</h1>`
+        }
+        ${receiptData.branchName ? `<p>${receiptData.branchName}</p>` : ''}
       </div>
 
       <div class="info-box">
@@ -131,7 +149,6 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
 
             let rows = '';
 
-            // الصف الرئيسي
             const isMainLast = !hasAddons && !hasExtras;
             rows += `<tr ${isMainLast ? 'class="item-block-last"' : ''}>
               <td class="item-name">
@@ -144,7 +161,6 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
               <td>${showTotalOnMainRow ? Number(item.total).toFixed(2) : ''}</td>
             </tr>`;
 
-            // Addons
             if (hasAddons) {
               item.addons.forEach((addon, i) => {
                 const isLast = i === item.addons.length - 1 && !hasExtras;
@@ -157,7 +173,6 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
               });
             }
 
-            // Extras
             if (hasExtras) {
               item.extras.forEach((extra, i) => {
                 const isLast = i === item.extras.length - 1;
@@ -193,7 +208,7 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
 };
 
 // ===================================================================
-// 2. باقي الكود بدون أي تغيير في المنطق
+// المكون الرئيسي
 // ===================================================================
 const InvoiceOrderPage = () => {
   const { orderId } = useParams();
@@ -215,8 +230,9 @@ const InvoiceOrderPage = () => {
   useEffect(() => { refetch(); }, [refetch]);
 
   useEffect(() => {
-    if (data?.order) {
-      const order = data.order;
+    if (data) {
+      const logo = data?.logo_link || "";
+      const order = data?.order;
 
       let productsTotal = 0;
       let addonsTotal = 0;
@@ -270,7 +286,8 @@ const InvoiceOrderPage = () => {
       else if (type.includes("delivery")) orderTypeDisplay = t("Delivery");
 
       const receiptData = {
-        restaurantName: t("projectName"),
+        restaurantName:  t("projectName"),
+        logoLink:logo || "", // تأكد من الحقل الصحيح
         branchName: order.branch?.name || "",
         invoiceNumber: order.order_number || order.id,
         date: order.order_date,
