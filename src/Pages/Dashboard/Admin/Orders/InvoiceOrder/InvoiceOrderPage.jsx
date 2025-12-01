@@ -21,59 +21,40 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
         body { margin: 0; padding: 0; width: 100%; height: 100%; }
         * { box-sizing: border-box; }
         
-        table, th, td { border: none !important; border-collapse: collapse !important; }
-
-        .header { text-align: center; margin-bottom: 10px; }
-        .header h1 { font-size: 22px; font-weight: bold; margin: 0; text-transform: uppercase; }
-        .header p { font-size: 15px; margin: 2px 0; font-weight: normal; }
+        .header { text-align: center; margin-bottom: 15px; }
+        .header h1 { font-size: 24px; font-weight: bold; margin: 0; text-transform: uppercase; }
+        .header p { font-size: 16px; margin: 5px 0 0 0; font-weight: normal; }
         
-        .info-section { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; font-weight: normal; }
-        .info-left { text-align: ${isRtl ? 'right' : 'left'}; }
-        .info-right { text-align: ${isRtl ? 'left' : 'right'}; }
+        .info-box { 
+          padding: 10px; 
+          margin-bottom: 15px; 
+          font-size: 14px;
+          border-bottom: 1px solid #000;
+        }
         
-        .invoice-num { font-size: 16px; font-weight: bold; margin-top: 5px; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .info-label { font-weight: bold; }
         
-        .cashier-line { text-align: ${isRtl ? 'right' : 'left'}; font-size: 12px; margin-bottom: 8px; border-bottom: 1px solid #000; padding-bottom: 5px; }
-
-        table { width: 100%; font-size: 12px; margin-bottom: 10px; }
-        th { border-top: 1px solid #000 !important; border-bottom: 1px solid #000 !important; padding: 5px 2px; text-align: center; font-weight: bold; }
-        td { padding: 5px 2px; text-align: center; font-weight: normal; }
+        .address-notes-section { margin-bottom: 15px; font-size: 14px; }
+        .section-title { font-weight: bold; text-decoration: underline; margin-bottom: 5px; display: block; }
         
-        /* Increased font size for product name */
+        table { width: 100%; font-size: 14px; margin-bottom: 15px; border-collapse: collapse; }
+        th { border: 1px solid #000; padding: 8px 4px; text-align: center; background-color: #f0f0f0; font-weight: bold; }
+        td { border: none; padding: 8px 4px; text-align: center; }
+        
         .item-name { 
           text-align: ${isRtl ? 'right' : 'left'}; 
           direction: ${isRtl ? 'rtl' : 'ltr'}; 
-          padding-right: 5px; 
-          font-size: 16px; 
-          font-weight: bold; 
         }
         
-        .item-variations { 
-            font-size: 12px;
-            color: #000;
-            font-weight: normal;
-            margin-top: 2px; 
-            line-height: 1.3;
-        }
+        .item-variations { font-size: 12px; margin-top: 2px; font-weight: normal; }
+        .item-note { font-size: 12px; margin-top: 2px; font-style: italic; }
 
-        .item-note {
-            font-size: 12px ;
-            margin-top: 2px;
-            font-weight : normal;
-        }
-
-        .totals-section { text-align: ${isRtl ? 'left' : 'right'}; font-size: 12px; margin-bottom: 10px; }
-        .total-row { margin-bottom: 4px; display: flex; justify-content: space-between; }
+        .totals-section { text-align: ${isRtl ? 'left' : 'right'}; font-size: 14px; margin-bottom: 20px; }
+        .total-row { margin-bottom: 5px; display: flex; justify-content: space-between; }
+        .grand-total { font-size: 18px; font-weight: bold; border-top: 2px solid #000; padding-top: 5px; margin-top: 5px; }
         
-        .grand-total { font-size: 18px; font-weight: bold; margin-top: 8px; border-top: 2px solid #000; padding-top: 5px; }
-        
-        .footer { text-align: center; font-size: 12px; margin-top: 15px; font-weight: normal; padding-bottom: 30px }
-        
-        .customer-details { font-size: 11px; margin-bottom: 10px; border-bottom: 1px dashed #000; padding-bottom: 5px; }
-        .customer-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
-        
-        .address-box { margin-top: 5px; border-top: 1px dotted #000; padding-top: 3px; font-size: 11px; line-height: 1.4; font-weight: bold; }
-        .order-notes { margin-top: 5px; border-top: 1px dotted #000; padding-top: 3px; font-size: 12px; font-weight: bold; }
+        .footer { text-align: center; font-size: 14px; font-weight: bold; }
       </style>
 
       <div class="header">
@@ -81,142 +62,128 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
         <p>${receiptData.branchName}</p>
       </div>
 
-      <table class="info-table" style="width: 100%; margin-bottom: 8px;">
-        <tr>
-          <td style="text-align: ${isRtl ? 'right' : 'left'}; width: 40%;">${t("OrderType")}</td>
-          <td style="text-align: ${isRtl ? 'left' : 'right'}; font-weight: bold;">${receiptData.orderType}</td>
-        </tr>
-        <tr>
-          <td style="text-align: ${isRtl ? 'right' : 'left'};">${t("Source")}</td>
-          <td style="text-align: ${isRtl ? 'left' : 'right'}; font-weight: bold;">${receiptData.source}</td>
-        </tr>
-        <tr>
-          <td style="text-align: ${isRtl ? 'right' : 'left'};">${t("Payment")}</td>
-          <td style="text-align: ${isRtl ? 'left' : 'right'}; font-weight: bold; font-size: 18px;">${receiptData.payment}</td>
-        </tr>
-        <tr>
-          <td style="text-align: ${isRtl ? 'right' : 'left'};">${t("Date")}</td>
-          <td style="text-align: ${isRtl ? 'left' : 'right'};" dir="ltr">${receiptData.date}</td>
-        </tr>
-        <tr>
-          <td style="text-align: ${isRtl ? 'right' : 'left'};">${t("Time")}</td>
-          <td style="text-align: ${isRtl ? 'left' : 'right'};" dir="ltr">${receiptData.orderTime}</td>
-        </tr>
-        <tr>
-          <td style="text-align: ${isRtl ? 'right' : 'left'};">${t("InvoiceNumber")}</td>
-          <td style="text-align: ${isRtl ? 'left' : 'right'};" class="invoice-num">${receiptData.invoiceNumber}</td>
-        </tr>
-      </table>
-
-      <div class="customer-details">
-        <div class="customer-row">
-            <span>${t("Client")}:</span>
-            <span style="font-weight:bold;">${receiptData.customerName}</span>
+      <div class="info-box">
+        <div class="info-row">
+          <span class="info-label">${t("InvoiceNumber")}:</span>
+          <span>${receiptData.invoiceNumber}</span>
         </div>
-        ${phones
-      ? `
-        <div class="customer-row">
-            <span>${t("Phone")}:</span>
-            <span dir="ltr">${phones}</span>
-        </div>`
-      : ""
-    }
+        <div class="info-row">
+          <span class="info-label">${t("Date")}:</span>
+          <span dir="ltr">${receiptData.date} ${receiptData.orderTime || ''}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">${t("Client")}:</span>
+          <span>${receiptData.customerName}</span>
+        </div>
+        ${phones ? `
+        <div class="info-row">
+          <span class="info-label">${t("Phone")}:</span>
+          <span dir="ltr">${phones}</span>
+        </div>` : ''}
         
-        ${(receiptData.orderType === t("Delivery") || receiptData.orderType === "Delivery") && receiptData.customerAddress
-      ? `
-        <div class="address-box">
-            <span style="text-decoration:underline;">${t("DeliveryAddress")}:</span><br/>
-            ${receiptData.customerAddress}
-        </div>`
-      : ""
-    }
-
-        ${receiptData.orderNotes
-      ? `
-        <div class="order-notes">
-            <span style="text-decoration:underline;">${t("Notes")}:</span><br/>
-            ${receiptData.orderNotes}
-        </div>`
-      : ""
-    }
+        ${(receiptData.orderType === t("Delivery") || receiptData.orderType === "Delivery") && receiptData.deliveryMan ? `
+        <div class="info-row">
+          <span class="info-label">${t("DeliveryMan")}:</span>
+          <span>${receiptData.deliveryMan}</span>
+        </div>` : ''}
+        
+        <div class="info-row">
+            <span class="info-label">${t("OrderType")}:</span>
+            <span>${receiptData.orderType}</span>
+        </div>
+         <div class="info-row">
+            <span class="info-label">${t("Payment")}:</span>
+            <span>${receiptData.payment}</span>
+        </div>
       </div>
 
-      <div class="cashier-line">
-        ${t("Cashier")}: ${receiptData.cashierName}
+      <div class="address-notes-section">
+        ${(receiptData.orderType === t("Delivery") || receiptData.orderType === "Delivery") && receiptData.customerAddress ? `
+        <div style="margin-bottom: 10px;">
+          <span class="section-title">${t("DeliveryAddress")}:</span>
+          <div>${receiptData.customerAddress}</div>
+        </div>` : ''}
+
+        ${receiptData.orderNotes ? `
+        <div>
+          <span class="section-title">${t("Notes")}:</span>
+          <div>${receiptData.orderNotes}</div>
+        </div>` : ''}
       </div>
 
       <table>
         <thead>
           <tr>
+            <th style="width: 40%">${t("Item")}</th>
             <th style="width: 15%">${t("Qty")}</th>
-            <th style="width: 45%">${t("Item")}</th>
             <th style="width: 20%">${t("Price")}</th>
-            <th style="width: 20%">${t("Total")}</th>
+            <th style="width: 25%">${t("Total")}</th>
           </tr>
         </thead>
         <tbody>
-          ${receiptData.items
-      .map(
-        (item) => {
-          const hasAddons = item.addons && item.addons.length > 0;
-          const hasExtras = item.extras && item.extras.length > 0;
-          const showTotalOnMainRow = !hasAddons && !hasExtras;
+          ${receiptData.items.map(item => {
+    const hasAddons = item.addons && item.addons.length > 0;
+    const hasExtras = item.extras && item.extras.length > 0;
+    const showTotalOnMainRow = !hasAddons && !hasExtras;
 
-          let rows = `
-            <tr>
-              <td style="vertical-align: top;">${item.qty}</td>
-              <td class="item-name">
-                ${item.name}
-                ${item.variationString
-              ? `<div class="item-variations">${item.variationString}</div>`
-              : ""
-            }
-               ${item.notesString
-              ? `<div class="item-note">${t("Note")}: ${item.notesString}</div>`
-              : ""
-            }
-              </td>
-              <td style="vertical-align: top;">${Number(item.price).toFixed(
-              2
-            )}</td>
-              <td style="vertical-align: top;">${showTotalOnMainRow ? Number(item.total).toFixed(2) : ""}</td>
-            </tr>
-          `;
+    // Determine if the main row is the last row for this item
+    const isMainRowLast = !hasAddons && !hasExtras;
+    const mainRowStyle = isMainRowLast ? 'border-bottom: 1px solid #000;' : '';
 
-          if (hasAddons) {
-            item.addons.forEach((addon, index) => {
-              const isLastAddon = index === item.addons.length - 1;
-              const showTotalHere = isLastAddon && !hasExtras;
-              rows += `
+    let rows = `
               <tr>
-                <td></td>
-                <td class="item-name" style="font-size: 14px; font-weight: normal; ${isRtl ? 'padding-right: 15px' : 'padding-left: 15px'}">+ ${addon.name}</td>
-                <td style="vertical-align: top;">${Number(addon.price).toFixed(2)}</td>
-                <td style="vertical-align: top;">${showTotalHere ? Number(item.total).toFixed(2) : ""}</td>
+                <td class="item-name" style="${mainRowStyle}">
+                  ${item.name}
+                  ${item.variationString ? `<div class="item-variations">${item.variationString}</div>` : ""}
+                  ${item.notesString ? `<div class="item-note">${t("Note")}: ${item.notesString}</div>` : ""}
+                </td>
+                <td style="${mainRowStyle}">${item.qty}</td>
+                <td style="${mainRowStyle}">${Number(item.price).toFixed(2)}</td>
+                <td style="${mainRowStyle}">${showTotalOnMainRow ? Number(item.total).toFixed(2) : ""}</td>
               </tr>
-              `;
-            });
-          }
+            `;
 
-          if (hasExtras) {
-            item.extras.forEach((extra, index) => {
-              const isLastExtra = index === item.extras.length - 1;
-              const showTotalHere = isLastExtra;
-              rows += `
-              <tr>
-                <td></td>
-                <td class="item-name" style="font-size: 14px; font-weight: normal; ${isRtl ? 'padding-right: 15px' : 'padding-left: 15px'}">+ ${extra.name}</td>
-                <td style="vertical-align: top;">${Number(extra.price).toFixed(2)}</td>
-                <td style="vertical-align: top;">${showTotalHere ? Number(item.total).toFixed(2) : ""}</td>
-              </tr>
-              `;
-            });
-          }
+    if (hasAddons) {
+      item.addons.forEach((addon, index) => {
+        const isLastAddon = index === item.addons.length - 1;
+        const showTotalHere = isLastAddon && !hasExtras;
 
-          return rows;
-        }
-      )
-      .join("")}
+        // Determine if this addon row is the last row for the entire item block
+        const isItemBlockLast = isLastAddon && !hasExtras;
+        const rowStyle = isItemBlockLast ? 'border-bottom: 1px solid #000;' : '';
+
+        rows += `
+                <tr>
+                  <td class="item-name" style="font-size: 12px; ${isRtl ? 'padding-right: 15px' : 'padding-left: 15px'}; ${rowStyle}">+ ${addon.name}</td>
+                  <td style="${rowStyle}">${addon.count > 1 ? addon.count : ''}</td>
+                  <td style="${rowStyle}">${Number(addon.price).toFixed(2)}</td>
+                  <td style="${rowStyle}">${showTotalHere ? Number(item.total).toFixed(2) : ""}</td>
+                </tr>
+                `;
+      });
+    }
+
+    if (hasExtras) {
+      item.extras.forEach((extra, index) => {
+        const isLastExtra = index === item.extras.length - 1;
+        const showTotalHere = isLastExtra;
+
+        // This is always the last block if extras exist, so the last extra is the end of the item block
+        const isItemBlockLast = isLastExtra;
+        const rowStyle = isItemBlockLast ? 'border-bottom: 1px solid #000;' : '';
+
+        rows += `
+                <tr>
+                  <td class="item-name" style="font-size: 12px; ${isRtl ? 'padding-right: 15px' : 'padding-left: 15px'}; ${rowStyle}">+ ${extra.name}</td>
+                  <td style="${rowStyle}"></td>
+                  <td style="${rowStyle}">${Number(extra.price).toFixed(2)}</td>
+                  <td style="${rowStyle}">${showTotalHere ? Number(item.total).toFixed(2) : ""}</td>
+                </tr>
+                `;
+      });
+    }
+    return rows;
+  }).join("")}
         </tbody>
       </table>
 
@@ -225,32 +192,20 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
           <span>${t("TotalProductPrice")}</span>
           <span>${Number(receiptData.subtotal).toFixed(2)}</span>
         </div>
-        
-
-
         <div class="total-row">
           <span>${t("Tax")} %:</span>
           <span>${Number(receiptData.tax).toFixed(2)}</span>
         </div>
-
-        ${receiptData.delivery > 0
-      ? `
+        ${receiptData.delivery > 0 ? `
         <div class="total-row">
            <span>${t("DeliveryFee")}</span>
            <span>${Number(receiptData.delivery).toFixed(2)}</span>
-        </div>`
-      : ""
-    }
-        
-        ${receiptData.discount > 0
-      ? `
+        </div>` : ""}
+        ${receiptData.discount > 0 ? `
         <div class="total-row">
            <span>${t("Discount")}</span>
            <span>-${Number(receiptData.discount).toFixed(2)}</span>
-        </div>`
-      : ""
-    }
-        
+        </div>` : ""}
         <div class="total-row grand-total">
           <span>${t("GrandTotal")}</span>
           <span>${Number(receiptData.total).toFixed(2)}</span>
@@ -385,12 +340,13 @@ const InvoiceOrderPage = () => {
 
         customerName:
           order.user?.name ||
-          `${order.user?.f_name || ""} ${order.user?.l_name || ""}`,
+          `${order.user?.f_name || ""} ${order.user?.l_name || ""} `,
         customerPhone: order.user?.phone || "",
         customerPhone2: order.user?.phone_2 || "",
         customerOrdersCount: order.user?.orders_count || 0,
         customerAddress: order.address?.address || "",
         orderNotes: order.notes || "",
+        deliveryMan: order.delivery ? `${order.delivery.f_name || ''} ${order.delivery.l_name || ''} `.trim() : "",
 
         items,
         productsTotal,
