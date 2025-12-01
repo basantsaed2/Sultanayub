@@ -51,8 +51,8 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
         .item-note { font-size: 12px; margin-top: 2px; font-style: italic; }
 
         .totals-section { text-align: ${isRtl ? 'left' : 'right'}; font-size: 14px; margin-bottom: 20px; }
-        .total-row { margin-bottom: 5px; display: flex; justify-content: space-between; }
-        .grand-total { font-size: 18px; font-weight: bold; border-top: 2px solid #000; padding-top: 5px; margin-top: 5px; }
+        .total-row { margin-bottom: 2px; display: flex; justify-content: space-between; }
+        .grand-total { font-size: 18px; font-weight: bold; border-top: 2px solid #000; padding-top: 2px; margin-top: 2px; }
         
         .footer { text-align: center; font-size: 14px; font-weight: bold; }
       </style>
@@ -214,6 +214,7 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
 
       <div class="footer">
         ${t("ThankYouForVisit")}
+        <div style="font-size: 10px; margin-top: 5px;">Powered by food2go.online</div>
       </div>
     </div>
   `;
