@@ -3,11 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useGet } from '../../../../../Hooks/useGet';
 import { useChangeState } from '../../../../../Hooks/useChangeState';
 import { useDelete } from '../../../../../Hooks/useDelete';
-import { AddButton, StaticLoader, Switch, TitleSection } from '../../../../../Components/Components';
-import { DeleteIcon, EditIcon } from '../../../../../Assets/Icons/AllIcons';
+import { AddButton, StaticLoader, Switch, TitleSection, TextInput } from '../../../../../Components/Components';
+import { DeleteIcon, EditIcon, TransferIcon } from '../../../../../Assets/Icons/AllIcons';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import Warning from '../../../../../Assets/Icons/AnotherIcons/WarningIcon';
 import { useTranslation } from "react-i18next";
+import { usePost } from '../../../../../Hooks/usePostJson';
+import Select from 'react-select';
 
 const FinancialAccountPage = ({ refetch }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -21,6 +23,14 @@ const FinancialAccountPage = ({ refetch }) => {
   const navigate = useNavigate();
   const [openDelete, setOpenDelete] = useState(null);
   const [openBranchesModal, setOpenBranchesModal] = useState(null);
+
+  const [openTransfer, setOpenTransfer] = useState(null);
+  const [transferTo, setTransferTo] = useState('');
+  const [transferAmount, setTransferAmount] = useState('');
+  const { postData, loadingPost } = usePost({
+    url: `${apiUrl}/admin/settings/financial_transfer/transfer`,
+  });
+
   const [currentPage, setCurrentPage] = useState(1);
   const financialAccountsPerPage = 20;
 
@@ -84,6 +94,32 @@ const FinancialAccountPage = ({ refetch }) => {
 
   const handleCloseBranchesModal = () => {
     setOpenBranchesModal(null);
+  };
+
+  const handleOpenTransfer = (account) => {
+    setOpenTransfer(account);
+    setTransferTo('');
+    setTransferAmount('');
+  };
+
+  const handleCloseTransfer = () => {
+    setOpenTransfer(null);
+  };
+
+  const handleTransfer = async () => {
+    if (!transferTo || !transferAmount) return;
+
+    const data = {
+      from_financial_id: openTransfer.id,
+      to_financial_id: transferTo,
+      amount: transferAmount
+    };
+
+    const success = await postData(data, t('TransferSuccess'));
+    if (success) {
+      handleCloseTransfer();
+      refetchFinancialAccount();
+    }
   };
 
   const headers = [
@@ -235,10 +271,18 @@ const FinancialAccountPage = ({ refetch }) => {
                         </Link>
                         <button
                           type="button"
-                          onClick={() => handleOpenDelete(financialAccount.id)}
+                          onClick={() => handleOpenTransfer(financialAccount)}
                         >
-                          <DeleteIcon />
+                          <TransferIcon />
                         </button>
+                        {financialAccount.balance == 0 && (
+                          <button
+                            type="button"
+                            onClick={() => handleOpenDelete(financialAccount.id)}
+                          >
+                            <DeleteIcon />
+                          </button>
+                        )}
                         {openDelete === financialAccount.id && (
                           <Dialog
                             open={true}
@@ -276,6 +320,88 @@ const FinancialAccountPage = ({ refetch }) => {
                             </div>
                           </Dialog>
                         )}
+                        {openTransfer?.id === financialAccount.id && (
+                          <Dialog
+                            open={true}
+                            onClose={handleCloseTransfer}
+                            className="relative z-30"
+                          >
+                            <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                            <div className="fixed inset-0 z-30 w-screen overflow-y-auto">
+                              <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                                <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg">
+                                  <div className="px-4 pt-5 pb-4 sm:p-6">
+                                    <DialogTitle as="h3" className="text-lg font-TextFontSemiBold text-mainColor mb-4">
+                                      {t('TransferMoney')}
+                                    </DialogTitle>
+
+                                    <div className="space-y-4">
+                                      <div>
+                                        <label className="block text-sm font-medium text-gray-700">{t('From')}</label>
+                                        <input type="text" disabled value={financialAccount.name} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 sm:text-sm p-2" />
+                                      </div>
+
+                                      <div>
+                                        <label className="block text-sm font-medium text-gray-700">{t('To')}</label>
+                                        <Select
+                                          className="mt-1"
+                                          options={financialAccounts
+                                            .filter(acc => acc.id !== financialAccount.id)
+                                            .map(acc => ({ value: acc.id, label: acc.name }))}
+                                          value={financialAccounts
+                                            .filter(acc => acc.id !== financialAccount.id)
+                                            .find(acc => acc.id === transferTo)
+                                            ? { value: transferTo, label: financialAccounts.find(a => a.id === transferTo)?.name }
+                                            : null}
+                                          onChange={(option) => setTransferTo(option ? option.value : '')}
+                                          placeholder={t('SelectAccount')}
+                                          isClearable
+                                          menuPortalTarget={document.body}
+                                          menuPosition="fixed"
+                                          menuPlacement="auto" // or "top" if modal is low on screen
+                                          styles={{
+                                            menuPortal: (provided) => ({
+                                              ...provided,
+                                              zIndex: 9999,
+                                            }),
+                                          }}
+                                        />
+                                      </div>
+
+                                      <div>
+                                        <label className="block text-sm font-medium text-gray-700">{t('Amount')}</label>
+                                        <TextInput
+                                          value={transferAmount}
+                                          onChange={(e) => setTransferAmount(e.target.value)}
+                                          placeholder={t('Amount')}
+                                          name="amount"
+                                          type="number"
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                                    <button
+                                      type="button"
+                                      className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto"
+                                      onClick={handleTransfer}
+                                      disabled={loadingPost}
+                                    >
+                                      {loadingPost ? t('Processing') : t('Transfer')}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={handleCloseTransfer}
+                                      className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
+                                    >
+                                      {t('Cancel')}
+                                    </button>
+                                  </div>
+                                </DialogPanel>
+                              </div>
+                            </div>
+                          </Dialog>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -299,9 +425,8 @@ const FinancialAccountPage = ({ refetch }) => {
                 <button
                   key={page}
                   onClick={() => handlePageChange(page)}
-                  className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${
-                    currentPage === page ? 'bg-mainColor text-white' : 'text-mainColor'
-                  }`}
+                  className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page ? 'bg-mainColor text-white' : 'text-mainColor'
+                    }`}
                 >
                   {page}
                 </button>

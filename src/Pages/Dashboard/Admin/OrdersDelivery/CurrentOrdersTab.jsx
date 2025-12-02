@@ -208,7 +208,7 @@ const CurrentOrdersTab = () => {
             onClick={() => setShowPayModal(true)}
             className="px-8 py-3 bg-mainColor text-white rounded-xl font-bold hover:bg-mainColor/90 transition"
           >
-            {t('Pay Delivery')}
+            {t('Collect Payment')}
           </button>
         </div>
       )}

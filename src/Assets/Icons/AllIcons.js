@@ -16,3 +16,4 @@ export { default as DeliveredIcon } from "./AnotherIcons/DeliveredIcon";
 export { default as CanceledIcon } from "./AnotherIcons/CanceledIcon";
 export { default as ReturnedIcon } from "./AnotherIcons/ReturnedIcon";
 export { default as FailedToDeliverIcon } from "./AnotherIcons/FailedToDeliverIcon";
+export { default as TransferIcon } from "./AnotherIcons/TransferIcon";
