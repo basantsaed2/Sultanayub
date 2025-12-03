@@ -162,12 +162,12 @@ const adminRoutes = [
     permission: "Delivery",
     icon: MdOutlineDeliveryDining,
   },
-  {
-    name: "Preparation Man",
-    path: "/dashboard/preparation_man",
-    permission: "preparation_man",
-    icon: MdOutlineDeliveryDining,
-  },
+  // {
+  //   name: "Preparation Man",
+  //   path: "/dashboard/preparation_man",
+  //   permission: "preparation_man",
+  //   icon: MdOutlineDeliveryDining,
+  // },
   {
     name: "Users",
     path: "/dashboard/users",

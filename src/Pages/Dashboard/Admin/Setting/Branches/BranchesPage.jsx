@@ -156,6 +156,7 @@ const BranchesPage = ({ refetch }) => {
     t("kitchen"),
     t("Brista"),
     t("Category"),
+    t("PreparationMan"),
     t("PhoneStatus"),
     t("Priority"),
     t("Status"),
@@ -242,6 +243,14 @@ const BranchesPage = ({ refetch }) => {
                       <td className="px-4 py-4 text-center">
                         <Link
                           to={`branch_category/${branch.id}`}
+                          className="text-mainColor font-bold hover:underline"
+                        >
+                          {t("View")}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-4 text-center">
+                        <Link
+                          to={`preparation_man/${branch.id}`}
                           className="text-mainColor font-bold hover:underline"
                         >
                           {t("View")}

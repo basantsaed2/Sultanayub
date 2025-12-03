@@ -7,16 +7,17 @@ import {
     PasswordInput,
     TextInput,
     TitlePage,
-} from "../../../../Components/Components";
-import { usePost } from "../../../../Hooks/usePostJson";
-import { useAuth } from "../../../../Context/Auth";
+} from "../../../../../../Components/Components";
+import { usePost } from "../../../../../../Hooks/usePostJson";
+import { useAuth } from "../../../../../../Context/Auth";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
-import { useGet } from "../../../../Hooks/useGet";
-import Select from 'react-select';
+import { useGet } from "../../../../../../Hooks/useGet";
+import { useParams } from "react-router-dom";
 
 const AddPreparationMan = () => {
+    const { branchId } = useParams();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const {
         refetch: refetchPreparationMan,
@@ -24,14 +25,6 @@ const AddPreparationMan = () => {
         data: dataPreparationMan,
     } = useGet({
         url: `${apiUrl}/admin/preparation_man/lists`,
-    });
-
-    const {
-        refetch: refetchBranches,
-        loading: loadingBranches,
-        data: dataBranches,
-    } = useGet({
-        url: `${apiUrl}/admin/branch`,
     });
 
     const { postData, loadingPost, response } = usePost({
@@ -44,24 +37,10 @@ const AddPreparationMan = () => {
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [status, setStatus] = useState(1);
-    const [selectedBranch, setSelectedBranch] = useState(null);
-    const [branches, setBranches] = useState([]);
 
     useEffect(() => {
         refetchPreparationMan();
-        refetchBranches();
-    }, [refetchPreparationMan, refetchBranches]);
-
-    // Update branches when data changes
-    useEffect(() => {
-        if (dataBranches && dataBranches.branches) {
-            const branchOptions = dataBranches.branches.map((branch) => ({
-                value: branch.id,
-                label: branch.name,
-            }));
-            setBranches(branchOptions);
-        }
-    }, [dataBranches]);
+    }, [refetchPreparationMan]);
 
     // Navigate back after successful submission
     useEffect(() => {
@@ -75,17 +54,11 @@ const AddPreparationMan = () => {
         setStatus((prev) => (prev === 1 ? 0 : 1));
     };
 
-    // Handle branch selection change
-    const handleBranchChange = (selectedOption) => {
-        setSelectedBranch(selectedOption);
-    };
-
     // Reset form
     const handleReset = () => {
         setName("");
         setPassword("");
         setStatus(1);
-        setSelectedBranch(null);
     };
 
     // Handle form submission
@@ -102,16 +75,11 @@ const AddPreparationMan = () => {
             return;
         }
 
-        if (!selectedBranch) {
-            auth.toastError(t("Select Branch"));
-            return;
-        }
-
         const formData = new FormData();
         formData.append("name", name);
         formData.append("password", password);
         formData.append("status", status);
-        formData.append("branch_id", selectedBranch.value);
+        formData.append("branch_id", branchId);
 
         postData(formData, t("Preparation Man Added Success"));
     };
@@ -121,32 +89,9 @@ const AddPreparationMan = () => {
         navigate(-1);
     };
 
-    // Custom styles for react-select
-    const selectStyles = {
-        control: (base, state) => ({
-            ...base,
-            border: '1px solid #D1D5DB',
-            borderRadius: '0.5rem',
-            padding: '0.5rem',
-            boxShadow: state.isFocused ? '0 0 0 2px rgba(59, 130, 246, 0.1)' : 'none',
-            borderColor: state.isFocused ? '#3B82F6' : '#D1D5DB',
-            '&:hover': {
-                borderColor: state.isFocused ? '#3B82F6' : '#9CA3AF'
-            }
-        }),
-        option: (base, state) => ({
-            ...base,
-            backgroundColor: state.isSelected ? '#3B82F6' : state.isFocused ? '#EFF6FF' : 'white',
-            color: state.isSelected ? 'white' : '#374151',
-            '&:hover': {
-                backgroundColor: '#EFF6FF'
-            }
-        })
-    };
-
     return (
         <>
-            {loadingPost || loadingPreparationMan || loadingBranches ? (
+            {loadingPost || loadingPreparationMan ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
                 </div>
@@ -188,24 +133,6 @@ const AddPreparationMan = () => {
                                     backgound="bg-white"
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder={t("Enter Password")}
-                                />
-                            </div>
-
-                            {/* Branch */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Branch")}:
-                                </span>
-                                <Select
-                                    value={selectedBranch}
-                                    onChange={handleBranchChange}
-                                    options={branches}
-                                    placeholder={t("Select Branch")}
-                                    isClearable
-                                    isSearchable
-                                    styles={selectStyles}
-                                    className="w-full"
-                                    noOptionsMessage={() => t("No branches available")}
                                 />
                             </div>
 

@@ -174,9 +174,9 @@ import PurchaseList from "./Pages/Dashboard/Admin/Purchase/PurchaseList/Purchase
 import AddPurchaseList from "./Pages/Dashboard/Admin/Purchase/PurchaseList/AddPurchaseList";
 import EditPurchaseList from "./Pages/Dashboard/Admin/Purchase/PurchaseList/EditPurchaseList";
 import PurchaseTransfer from "./Pages/Dashboard/Admin/Purchase/PurchaseTransfer/PurchaseTransfer";
-import PreparationMan from "./Pages/Dashboard/Admin/PreparationMan/PreparationMan";
-import AddPreparationMan from "./Pages/Dashboard/Admin/PreparationMan/AddPreparationMan";
-import EditPreparationMan from "./Pages/Dashboard/Admin/PreparationMan/EditPreparationMan";
+import PreparationMan from "./Pages/Dashboard/Admin/Setting/Branches/PreparationMan/PreparationMan";
+import AddPreparationMan from "./Pages/Dashboard/Admin/Setting/Branches/PreparationMan/AddPreparationMan";
+import EditPreparationMan from "./Pages/Dashboard/Admin/Setting/Branches/PreparationMan/EditPreparationMan";
 import DeliveryManOrdersParent from "./Pages/Dashboard/Admin/DeliveryMan/DeliveryManOrder/DeliveryManOrdersParent";
 import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
 import OrdersDeliveryParent from "./Pages/Dashboard/Admin/OrdersDelivery/OrdersDeliveryParent";
@@ -546,7 +546,25 @@ export const router = createBrowserRouter([
                     element: <VariationOptionLayout />,
                   }
                 ]
-              }
+              },
+              {
+                path: "preparation_man/:branchId",
+                element: <Outlet />,
+                children: [
+                  {
+                    path: '',
+                    element: <PreparationMan />
+                  },
+                  {
+                    path: 'add',
+                    element: <AddPreparationMan />
+                  },
+                  {
+                    path: 'edit/:preparationManId',
+                    element: <EditPreparationMan />
+                  }
+                ]
+              },
             ]
           },
           {
@@ -1280,26 +1298,6 @@ export const router = createBrowserRouter([
               }
             ]
           },
-
-          {
-            path: "preparation_man",
-            element: <Outlet />,
-            children: [
-              {
-                path: '',
-                element: <PreparationMan />
-              },
-              {
-                path: 'add',
-                element: <AddPreparationMan />
-              },
-              {
-                path: 'edit/:preparationManId',
-                element: <EditPreparationMan />
-              }
-            ]
-          },
-
           {
             path: 'purchase',
             element: <Outlet />,
