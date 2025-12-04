@@ -182,6 +182,7 @@ import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/Rec
 import OrdersDeliveryParent from "./Pages/Dashboard/Admin/OrdersDelivery/OrdersDeliveryParent";
 import DeletedCustomer from "./Pages/Dashboard/Admin/Users/DeletedCustomer/DeletedCustomer";
 import DueGroupModule from "./Pages/Dashboard/Admin/GroupModules/DueGroupModule";
+import LanguageSystem from "./Pages/Dashboard/Admin/Setting/LanguageSystem/LanguageSystem";
 // import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
 
 const ProductSetupLayout = () => {
@@ -885,6 +886,10 @@ export const router = createBrowserRouter([
                   },
                 ]
               },
+              {
+                path: 'language_system',
+                element: <LanguageSystem/>
+              }
             ]
           },
           {
@@ -1515,28 +1520,28 @@ export const router = createBrowserRouter([
                   },
                 ]
               },
-              {
-                path: 'expenses_list',
-                children: [
-                  {
-                    path: '',
-                    children: [
-                      {
-                        index: true,
-                        element: <ExpensesList />,
-                      },
-                      {
-                        path: 'add',
-                        element: <AddExpensesList />,
-                      },
-                      {
-                        path: 'edit/:expensesId',
-                        element: <EditExpensesList />
-                      }
-                    ]
-                  },
-                ]
-              },
+              // {
+              //   path: 'expenses_list',
+              //   children: [
+              //     {
+              //       path: '',
+              //       children: [
+              //         {
+              //           index: true,
+              //           element: <ExpensesList />,
+              //         },
+              //         {
+              //           path: 'add',
+              //           element: <AddExpensesList />,
+              //         },
+              //         {
+              //           path: 'edit/:expensesId',
+              //           element: <EditExpensesList />
+              //         }
+              //       ]
+              //     },
+              //   ]
+              // },
               {
                 path: 'expenses_payment',
                 element: <ExpensesPayment />,

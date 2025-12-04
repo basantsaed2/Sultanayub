@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import {
     AddButton,
     StaticLoader,
-    Switch,
     TitlePage,
 } from "../../../../Components/Components";
 import { useGet } from "../../../../Hooks/useGet";
@@ -22,29 +21,23 @@ const ServiceFees = () => {
     } = useGet({
         url: `${apiUrl}/admin/service_fees`,
     });
-    const { deleteData, loadingDelete, responseDelete } = useDelete();
+    const { deleteData, loadingDelete } = useDelete();
 
     const [serviceFees, setServiceFees] = useState([]);
     const [openDelete, setOpenDelete] = useState(null);
     const [openView, setOpenView] = useState(null);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const serviceFeesPerPage = 20;
+    const serviceFeesPerPage = 15;
 
     const totalPages = Math.ceil(serviceFees.length / serviceFeesPerPage);
-
     const currentServiceFees = serviceFees.slice(
         (currentPage - 1) * serviceFeesPerPage,
         currentPage * serviceFeesPerPage
     );
 
-    const handlePageChange = (pageNumber) => {
-        setCurrentPage(pageNumber);
-    };
-
-    // Update Service Fees when `data` changes
     useEffect(() => {
-        if (dataServiceFees && dataServiceFees.service_fees) {
+        if (dataServiceFees?.service_fees) {
             setServiceFees(dataServiceFees.service_fees);
         }
     }, [dataServiceFees]);
@@ -53,283 +46,261 @@ const ServiceFees = () => {
         refetchServiceFees();
     }, [refetchServiceFees]);
 
-    const handleOpenDelete = (id) => {
-        setOpenDelete(id);
-    };
-    const handleCloseDelete = () => {
-        setOpenDelete(null);
-    };
+    const handleOpenDelete = (id) => setOpenDelete(id);
+    const handleCloseDelete = () => setOpenDelete(null);
+    const handleOpenView = (item) => setOpenView(item);
+    const handleCloseView = () => setOpenView(null);
 
-    const handleOpenView = (item) => {
-        setOpenView(item);
-    };
-    const handleCloseView = () => {
-        setOpenView(null);
-    };
-
-    // Delete Service Fee
     const handleDelete = async (id) => {
         const success = await deleteData(
             `${apiUrl}/admin/service_fees/delete/${id}`,
-            `Service Fee Deleted Successfully.`
+            t("Service Fee Deleted Successfully")
         );
-
         if (success) {
-            setServiceFees(serviceFees.filter((serviceFee) => serviceFee.id !== id));
+            setServiceFees(prev => prev.filter(fee => fee.id !== id));
             setOpenDelete(null);
         }
     };
 
+    // Helper: Format Type
+    const getTypeLabel = (type) => {
+        return type === "precentage" ? t("Percentage") : t("Fixed Amount");
+    };
+
+    // Helper: Format Module
+    const getModuleLabel = (module) => {
+        return module === "pos" ? t("POS") : t("Online");
+    };
+
+    // Helper: Format Online Type
+    const getOnlineTypeLabel = (type) => {
+        const map = { all: t("All"), app: t("App"), web: t("Web") };
+        return map[type] || "-";
+    };
+
+    // Helper: Format Amount
+    const formatAmount = (fee) => {
+        return fee.type === "precentage" ? `${fee.amount}%` : `${fee.amount} ${t("EGP")}`;
+    };
+
+    // Table Headers
     const headers = [
         t("SL"),
         t("Amount"),
+        t("Type"),
+        t("Module"),
+        t("Online Type"),
         t("Branches"),
         t("Action"),
     ];
 
-    // Get branch names for display
-    const getBranchNames = (branches) => {
-        if (!branches || !Array.isArray(branches)) return "-";
-        return branches.map(branch => branch.name).join(", ");
-    };
-
-    // Format amount based on type
-    const formatAmount = (serviceFee) => {
-        if (serviceFee.type === "precentage") {
-            return `${serviceFee.amount}%`;
-        }
-        return serviceFee.amount; // For fixed amount
-    };
-
     return (
-        <div className="flex items-start justify-start w-full overflow-x-scroll p-2 pb-28 scrollSection">
+        <div className="flex flex-col items-start justify-start w-full overflow-x-auto p-2">
             {loadingServiceFees || loadingDelete ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
                 </div>
             ) : (
-                <div className="flex flex-col w-full">
-                    <div className='flex flex-col items-center justify-between md:flex-row'>
-                        <div className='w-full md:w-1/2'>
-                            <TitlePage text={t('Service Fees')} />
-                        </div>
-                        <div className='flex justify-end w-full py-4 md:w-1/2'>
-                            <Link to='add'>
-                                <AddButton Text={t("Add Service Fees")} />
-                            </Link>
-                        </div>
+                <div className="w-full pb-32">
+                    {/* Header */}
+                    <div className="flex flex-col md:flex-row items-center justify-between mb-6">
+                        <TitlePage text={t("Service Fees")} />
+                        <Link to="add">
+                            <AddButton Text={t("Add")} />
+                        </Link>
                     </div>
-                    <table className="block w-full overflow-x-scroll sm:min-w-0 scrollPage">
-                        <thead className="w-full">
-                            <tr className="w-full border-b-2">
-                                {headers.map((name, index) => (
-                                    <th
-                                        className="min-w-[120px] sm:w-[8%] lg:w-[5%] text-mainColor text-center font-TextFontLight sm:text-sm lg:text-base xl:text-lg pb-3"
-                                        key={index}
-                                    >
-                                        {name}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody className="w-full">
-                            {serviceFees.length === 0 ? (
-                                <tr>
-                                    <td
-                                        colSpan={headers.length}
-                                        className="text-xl text-center text-mainColor font-TextFontMedium "
-                                    >
-                                        {t("No service fees found")}
-                                    </td>
+
+                    {/* Table */}
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-max table-auto border-collapse">
+                            <thead>
+                                <tr className="bg-gray-50 border-b-2 border-gray-200">
+                                    {headers.map((header, i) => (
+                                        <th
+                                            key={i}
+                                            className="px-4 py-3 text-xs sm:text-sm lg:text-base font-TextFontSemiBold text-mainColor text-center uppercase tracking-wider"
+                                        >
+                                            {header}
+                                        </th>
+                                    ))}
                                 </tr>
-                            ) : (
-                                currentServiceFees.map(
-                                    (serviceFee, index) => (
-                                        <tr className="w-full border-b-2" key={serviceFee.id}>
-                                            <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {currentServiceFees.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={headers.length} className="text-center py-10 text-gray-500 text-lg">
+                                            {t("No service fees found")}
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    currentServiceFees.map((fee, index) => (
+                                        <tr key={fee.id} className="hover:bg-gray-50 transition">
+                                            {/* SL */}
+                                            <td className="px-4 py-4 text-center text-sm sm:text-base text-thirdColor">
                                                 {(currentPage - 1) * serviceFeesPerPage + index + 1}
                                             </td>
-                                            <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                                {formatAmount(serviceFee)}
+
+                                            {/* Amount */}
+                                            <td className="px-4 py-4 text-center font-TextFontMedium text-mainColor">
+                                                {formatAmount(fee)}
                                             </td>
-                                            <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+
+                                            {/* Type */}
+                                            <td className="px-4 py-4 text-center">
+                                                <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                                                    fee.type === "precentage"
+                                                        ? "bg-purple-100 text-purple-800"
+                                                        : "bg-blue-100 text-blue-800"
+                                                }`}>
+                                                    {getTypeLabel(fee.type)}
+                                                </span>
+                                            </td>
+
+                                            {/* Module */}
+                                            <td className="px-4 py-4 text-center">
+                                                <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                                                    fee.module === "pos"
+                                                        ? "bg-green-100 text-green-800"
+                                                        : "bg-orange-100 text-orange-800"
+                                                }`}>
+                                                    {getModuleLabel(fee.module)}
+                                                </span>
+                                            </td>
+
+                                            {/* Online Type */}
+                                            <td className="px-4 py-4 text-center text-sm">
+                                                {fee.module === "online" ? (
+                                                    <span className="inline-block px-3 py-1 rounded-full bg-indigo-100 text-indigo-800 text-xs font-medium">
+                                                        {getOnlineTypeLabel(fee.online_type)}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-gray-400">—</span>
+                                                )}
+                                            </td>
+
+                                            {/* Branches */}
+                                            <td className="px-4 py-4 text-center">
                                                 <button
-                                                    type="button"
-                                                    onClick={() => handleOpenView(serviceFee)}
-                                                    className="p-1 text-red-600 hover:text-red-800 underline"
-                                                    title={t("View Details")}
+                                                    onClick={() => handleOpenView(fee)}
+                                                    className="text-mainColor underline hover:text-red-700 text-sm"
                                                 >
-                                                    {t("view")}
+                                                    {fee.branches?.length || 0} {t("branch", { count: fee.branches?.length || 0 })}
                                                 </button>
                                             </td>
-                                            <td className="px-4 py-3 text-center">
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <Link to={`edit/${serviceFee.id}`}>
-                                                        <EditIcon />
-                                                    </Link>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleOpenDelete(serviceFee.id)}
-                                                    >
-                                                        <DeleteIcon />
-                                                    </button>
-                                                    {openDelete === serviceFee.id && (
-                                                        <Dialog
-                                                            open={true}
-                                                            onClose={handleCloseDelete}
-                                                            className="relative z-10"
-                                                        >
-                                                            <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
-                                                            <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                                                                <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
-                                                                    <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg">
-                                                                        <div className="flex flex-col items-center justify-center px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
-                                                                            <Warning
-                                                                                width="28"
-                                                                                height="28"
-                                                                                aria-hidden="true"
-                                                                            />
-                                                                            <div className="flex items-center">
-                                                                                <div className="mt-2 text-center">
-                                                                                    {t("You will delete this service fee")}
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                                                                            <button
-                                                                                className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto"
-                                                                                onClick={() =>
-                                                                                    handleDelete(serviceFee.id)
-                                                                                }
-                                                                            >
-                                                                                {t("Delete")}
-                                                                            </button>
 
-                                                                            <button
-                                                                                type="button"
-                                                                                data-autofocus
-                                                                                onClick={handleCloseDelete}
-                                                                                className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
-                                                                            >
-                                                                                {t("Cancel")}
-                                                                            </button>
-                                                                        </div>
-                                                                    </DialogPanel>
-                                                                </div>
-                                                            </div>
-                                                        </Dialog>
-                                                    )}
+                                            {/* Actions */}
+                                            <td className="px-4 py-4 text-center">
+                                                <div className="flex items-center justify-center gap-3">
+                                                    <Link to={`edit/${fee.id}`}>
+                                                        <EditIcon className="w-5 h-5 text-blue-600 hover:text-blue-800" />
+                                                    </Link>
+                                                    <button onClick={() => handleOpenDelete(fee.id)}>
+                                                        <DeleteIcon className="w-5 h-5 text-red-600 hover:text-red-800" />
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
-                                    )
-                                )
-                            )}
-                        </tbody>
-                    </table>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
 
-                    {/* View Modal */}
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="flex flex-wrap justify-center gap-2 mt-8">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                disabled={currentPage === 1}
+                                className="px-4 py-2 rounded bg-mainColor text-white disabled:opacity-50"
+                            >
+                                {t("Prev")}
+                            </button>
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                <button
+                                    key={page}
+                                    onClick={() => setCurrentPage(page)}
+                                    className={`px-4 py-2 rounded-full font-medium transition ${
+                                        currentPage === page
+                                            ? "bg-mainColor text-white"
+                                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                    }`}
+                                >
+                                    {page}
+                                </button>
+                            ))}
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                disabled={currentPage === totalPages}
+                                className="px-4 py-2 rounded bg-mainColor text-white disabled:opacity-50"
+                            >
+                                {t("Next")}
+                            </button>
+                        </div>
+                    )}
+
+                    {/* View Branches Modal */}
                     {openView && (
-                        <Dialog
-                            open={true}
-                            onClose={handleCloseView}
-                            className="relative z-10"
-                        >
-                            <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
-                            <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                                <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
-                                    <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-2xl">
-                                        <div className="px-4 pt-5 pb-4 bg-white sm:p-6">
-                                            <div className="sm:flex sm:items-start">
-                                                <div className="w-full mt-3 text-center sm:mt-0 sm:text-left">
-                                                    <div className="mt-4">
-                                                        <div className="mt-6">
-                                                            <h4 className="mb-3 font-semibold text-mainColor">
-                                                                {t("Branches")}:
-                                                            </h4>
-                                                            <div className="overflow-hidden border border-gray-200 rounded-lg">
-                                                                <table className="min-w-full divide-y divide-gray-200">
-                                                                    <thead className="bg-gray-50">
-                                                                        <tr>
-                                                                            <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
-                                                                                {t("Branch Name")}
-                                                                            </th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody className="bg-white divide-y divide-gray-200">
-                                                                        {openView.branches && openView.branches.length > 0 ? (
-                                                                            openView.branches.map((branch, index) => (
-                                                                                <tr key={branch.id || index}>
-                                                                                    <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">
-                                                                                        {branch.name || "-"}
-                                                                                    </td>
-                                                                                </tr>
-                                                                            ))
-                                                                        ) : (
-                                                                            <tr>
-                                                                                <td colSpan="2" className="px-4 py-3 text-sm text-center text-gray-500">
-                                                                                    {t("No branches found")}
-                                                                                </td>
-                                                                            </tr>
-                                                                        )}
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="px-4 py-3 bg-gray-50 sm:flex sm:flex-row-reverse sm:px-6">
-                                            <button
-                                                type="button"
-                                                onClick={handleCloseView}
-                                                className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white rounded-md bg-mainColor hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto"
-                                            >
-                                                {t("Close")}
-                                            </button>
-                                        </div>
-                                    </DialogPanel>
-                                </div>
+                        <Dialog open={true} onClose={handleCloseView} className="relative z-50">
+                            <DialogBackdrop className="fixed inset-0 bg-black bg-opacity-30" />
+                            <div className="fixed inset-0 flex items-center justify-center p-4">
+                                <DialogPanel className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+                                    <h3 className="text-xl font-bold text-mainColor mb-4">
+                                        {t("Branches")} ({openView.branches?.length || 0})
+                                    </h3>
+                                    <div className="max-h-96 overflow-y-auto border rounded-lg">
+                                        {openView.branches?.length > 0 ? (
+                                            <ul className="divide-y divide-gray-200">
+                                                {openView.branches.map(branch => (
+                                                    <li key={branch.id} className="px-4 py-3 hover:bg-gray-50">
+                                                        {branch.name}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <p className="text-center text-gray-500 py-8">{t("No branches assigned")}</p>
+                                        )}
+                                    </div>
+                                    <div className="mt-6 text-right">
+                                        <button
+                                            onClick={handleCloseView}
+                                            className="px-6 py-2 bg-mainColor text-white rounded-lg hover:bg-red-700 transition"
+                                        >
+                                            {t("Close")}
+                                        </button>
+                                    </div>
+                                </DialogPanel>
                             </div>
                         </Dialog>
                     )}
 
-                    {serviceFees.length > 0 && (
-                        <div className="flex flex-wrap items-center justify-center my-6 gap-x-4">
-                            {currentPage !== 1 && (
-                                <button
-                                    type="button"
-                                    className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
-                                    onClick={() => setCurrentPage(currentPage - 1)}
-                                >
-                                    {t("Prev")}
-                                </button>
-                            )}
-                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                                (page) => (
-                                    <button
-                                        key={page}
-                                        onClick={() => handlePageChange(page)}
-                                        className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
-                                            ? "bg-mainColor text-white"
-                                            : " text-mainColor"
-                                            }`}
-                                    >
-                                        {page}
-                                    </button>
-                                )
-                            )}
-                            {totalPages !== currentPage && (
-                                <button
-                                    type="button"
-                                    className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
-                                    onClick={() => setCurrentPage(currentPage + 1)}
-                                >
-                                    {t("Next")}
-                                </button>
-                            )}
-                        </div>
+                    {/* Delete Confirmation */}
+                    {openDelete && (
+                        <Dialog open={true} onClose={handleCloseDelete} className="relative z-50">
+                            <DialogBackdrop className="fixed inset-0 bg-black bg-opacity-30" />
+                            <div className="fixed inset-0 flex items-center justify-center p-4">
+                                <DialogPanel className="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6 text-center">
+                                    <Warning width="48" height="48" className="mx-auto text-red-600 mb-4" />
+                                    <p className="text-lg font-medium text-gray-800">
+                                        {t("Are you sure you want to delete this service fee?")}
+                                    </p>
+                                    <div className="mt-6 flex gap-4 justify-center">
+                                        <button
+                                            onClick={() => handleDelete(openDelete)}
+                                            className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                                        >
+                                            {t("Delete")}
+                                        </button>
+                                        <button
+                                            onClick={handleCloseDelete}
+                                            className="px-6 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition"
+                                        >
+                                            {t("Cancel")}
+                                        </button>
+                                    </div>
+                                </DialogPanel>
+                            </div>
+                        </Dialog>
                     )}
                 </div>
             )}

@@ -243,6 +243,7 @@ const adminRoutes = [
       { name: "Policy & Support", path: "/dashboard/setting/policy_support", permission: "PolicySupport" },
       { name: "App Setup", path: "/dashboard/setting/app_setup", permission: "AppSetup" },
       { name: "Void Reason", path: "/dashboard/setting/void_reason", permission: "VoidReason" },
+      { name: "Language System", path: "/dashboard/setting/language_system", permission: "Settings" },
     ],
     redirectTo: "/dashboard/setting/roles",
   },
@@ -363,8 +364,8 @@ const adminRoutes = [
     icon: LuBanknote,
     subRoutes: [
       { name: "Category", path: "/dashboard/expenses/expenses_category", permission: "expenses", },
-      { name: "List", path: "/dashboard/expenses/expenses_list", permission: "expenses", },
-      { name: "Expenses Payment", path: "/dashboard/expenses/expenses_payment", permission: "expenses", },
+      // { name: "List", path: "/dashboard/expenses/expenses_list", permission: "expenses", },
+      { name: "Payment", path: "/dashboard/expenses/expenses_payment", permission: "expenses", },
     ],
     redirectTo: "/dashboard/expenses/expenses_category",
   },
