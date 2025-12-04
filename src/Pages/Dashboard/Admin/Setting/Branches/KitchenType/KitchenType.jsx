@@ -464,7 +464,7 @@ const KitchenType = () => {
                             </div>
 
                             <div className="flex gap-3 mt-8">
-                                <SubmitButton
+                                <StaticButton
                                     text={loadingPost ? t("Submitting") : t("Save")}
                                     handleClick={handleAddProducts}
                                     disabled={loadingPost || selectedProducts.length === 0}
