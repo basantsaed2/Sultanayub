@@ -182,6 +182,12 @@ import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/Rec
 import OrdersDeliveryParent from "./Pages/Dashboard/Admin/OrdersDelivery/OrdersDeliveryParent";
 import DeletedCustomer from "./Pages/Dashboard/Admin/Users/DeletedCustomer/DeletedCustomer";
 import DueGroupModule from "./Pages/Dashboard/Admin/GroupModules/DueGroupModule";
+import Store from "./Pages/Dashboard/Admin/Store/Store";
+import AddStore from "./Pages/Dashboard/Admin/Store/AddStore";
+import EditStore from "./Pages/Dashboard/Admin/Store/EditStore";
+import StoreMan from "./Pages/Dashboard/Admin/StoreMan/StoreMan";
+import AddStoreMan from "./Pages/Dashboard/Admin/StoreMan/AddStoreMan";
+import EditStoreMan from "./Pages/Dashboard/Admin/StoreMan/EditStoreMan";
 // import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
 
 const ProductSetupLayout = () => {
@@ -1485,6 +1491,57 @@ export const router = createBrowserRouter([
                   {
                     path: 'add',
                     element: <AddManufacturing />,
+                  },
+                ]
+              },
+            ]
+          },
+
+          {
+            path: 'store',
+            element: <Outlet />,
+            children: [
+              {
+                path: '',
+                children: [
+                  {
+                    path: 'store_list',
+                    children: [
+                      {
+                        index: true,
+                        element: <Store />,
+                      },
+                      {
+                        path: 'add',
+                        element: <AddStore />,
+                      },
+                      {
+                        path: 'edit/:storeId',
+                        element: <EditStore />
+                      }
+                    ]
+                  },
+                ]
+              },
+              {
+                path: 'store_man',
+                children: [
+                  {
+                    path: '',
+                    children: [
+                      {
+                        index: true,
+                        element: <StoreMan />,
+                      },
+                      {
+                        path: 'add',
+                        element: <AddStoreMan />,
+                      },
+                      {
+                        path: 'edit/:storeManId',
+                        element: <EditStoreMan />
+                      }
+                    ]
                   },
                 ]
               },

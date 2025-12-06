@@ -325,6 +325,17 @@ const adminRoutes = [
     icon: BiSolidEnvelope,
   },
   {
+    name: "Store",
+    path: "/dashboard/store",
+    permission: "Store",
+    icon: FaShoppingBasket,
+    subRoutes: [
+      { name: "List", path: "/dashboard/store/store_list", permission: "Store", },
+      { name: "Store Man", path: "/dashboard/store/store_man", permission: "StoreMan", },
+    ],
+    redirectTo: "/dashboard/store/store_list",
+  },
+  {
     name: "Purchase",
     path: "/dashboard/purchase",
     permission: "purchase",

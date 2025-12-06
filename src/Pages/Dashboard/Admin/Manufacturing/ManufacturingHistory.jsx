@@ -3,14 +3,15 @@ import { Link } from "react-router-dom";
 import {
     AddButton,
     StaticLoader,
-    Switch,
     TitlePage,
 } from "../../../../Components/Components";
-import { useGet } from "../../../../Hooks/useGet";
+import { useGet } from "../../../../Hooks/useGet"; // ← Your existing hook
 import { t } from "i18next";
 
 const ManufacturingHistory = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
+    // Main manufacturing history
     const {
         refetch: refetchManufacturing,
         loading: loadingManufacturing,
@@ -20,22 +21,27 @@ const ManufacturingHistory = () => {
     });
 
     const [Manufacturings, setManufacturings] = useState([]);
-
     const [currentPage, setCurrentPage] = useState(1);
     const ManufacturingsPerPage = 20;
 
-    const totalPages = Math.ceil(Manufacturings.length / ManufacturingsPerPage);
+    // State for modal and selected manufacturing ID
+    const [selectedId, setSelectedId] = useState(null);
 
-    const currentManufacturings = Manufacturings.slice(
-        (currentPage - 1) * ManufacturingsPerPage,
-        currentPage * ManufacturingsPerPage
-    );
+    // Use your `useGet` hook for recipe — only runs when selectedId changes
+    const {
+        data: recipeData,
+        loading: loadingRecipe,
+        refetch: refetchRecipe,
+    } = useGet({
+        url: selectedId
+            ? `${apiUrl}/admin/manufacturing/manufacturing_recipe/${selectedId}`
+            : null, // ← No request if no ID
+        enabled: !!selectedId, // ← This prevents request when selectedId is null
+    });
 
-    const handlePageChange = (pageNumber) => {
-        setCurrentPage(pageNumber);
-    };
+    // Extract recipe array
+    const recipeItems = recipeData?.maufaturing_recipe || [];
 
-    // Update Manufacturings when `data` changes
     useEffect(() => {
         if (dataManufacturing && dataManufacturing.maufaturing) {
             setManufacturings(dataManufacturing.maufaturing);
@@ -46,11 +52,24 @@ const ManufacturingHistory = () => {
         refetchManufacturing();
     }, [refetchManufacturing]);
 
-    // Format date to readable format
     const formatDate = (dateString) => {
         const date = new Date(dateString);
-        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        return date.toLocaleDateString() + " " + date.toLocaleTimeString();
     };
+
+    const openRecipeModal = (id) => {
+        setSelectedId(id); // Triggers useGet to fetch recipe
+    };
+
+    const closeModal = () => {
+        setSelectedId(null);
+    };
+
+    const totalPages = Math.ceil(Manufacturings.length / ManufacturingsPerPage);
+    const currentManufacturings = Manufacturings.slice(
+        (currentPage - 1) * ManufacturingsPerPage,
+        currentPage * ManufacturingsPerPage
+    );
 
     const headers = [
         t("SL"),
@@ -58,6 +77,8 @@ const ManufacturingHistory = () => {
         t("Store"),
         t("Quantity"),
         t("Date"),
+        t("Cost"),
+        t("Receipt"), // ← New column
     ];
 
     return (
@@ -68,99 +89,150 @@ const ManufacturingHistory = () => {
                 </div>
             ) : (
                 <div className="flex flex-col w-full">
-                    <div className='flex flex-col items-center justify-between md:flex-row'>
-                        <div className='w-full md:w-1/2'>
-                            <TitlePage text={t('Manufacturing History')} />
-                        </div>
-                        <div className='flex justify-end w-full py-4 md:w-1/2'>
-                            <Link to='add'>
-                                <AddButton Text={t("Add Manufacturing")} />
-                            </Link>
-                        </div>
+                    <div className="flex flex-col items-center justify-between md:flex-row mb-6">
+                        <TitlePage text={t("Manufacturing History")} />
+                        <Link to="add">
+                            <AddButton Text={t("Add Manufacturing")} />
+                        </Link>
                     </div>
-                    <table className="block w-full overflow-x-scroll sm:min-w-0 scrollPage">
-                        <thead className="w-full">
-                            <tr className="w-full border-b-2">
-                                {headers.map((name, index) => (
-                                    <th
-                                        className="min-w-[120px] sm:w-[8%] lg:w-[5%] text-mainColor text-center font-TextFontLight sm:text-sm lg:text-base xl:text-lg pb-3"
-                                        key={index}
-                                    >
-                                        {name}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody className="w-full">
-                            {Manufacturings.length === 0 ? (
-                                <tr>
-                                    <td
-                                        colSpan={headers.length}
-                                        className="text-xl text-center text-mainColor font-TextFontMedium "
-                                    >
-                                        {t("No Manufacturing Found")}
-                                    </td>
+
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-max border-collapse">
+                            <thead>
+                                <tr className="border-b-2">
+                                    {headers.map((header, i) => (
+                                        <th
+                                            key={i}
+                                            className="text-center py-3 px-4 text-mainColor font-TextFontLight text-sm lg:text-base"
+                                        >
+                                            {header}
+                                        </th>
+                                    ))}
                                 </tr>
-                            ) : (
-                                currentManufacturings.map((manufacturing, index) => (
-                                    <tr className="w-full border-b-2" key={manufacturing.id}>
-                                        <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {(currentPage - 1) * ManufacturingsPerPage + index + 1}
-                                        </td>
-                                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {manufacturing?.product || "-"}
-                                        </td>
-                                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {manufacturing?.store || "-"}
-                                        </td>
-                                        <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {manufacturing?.quantity || "0"}
-                                        </td>
-                                        <td className="min-w-[200px] sm:min-w-[150px] sm:w-3/12 lg:w-3/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {manufacturing?.date ? formatDate(manufacturing.date) : "-"}
+                            </thead>
+                            <tbody>
+                                {Manufacturings.length === 0 ? (
+                                    <tr>
+                                        <td
+                                            colSpan={headers.length}
+                                            className="text-center py-10 text-xl text-mainColor"
+                                        >
+                                            {t("No Manufacturing Found")}
                                         </td>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                                ) : (
+                                    currentManufacturings.map((item, index) => (
+                                        <tr key={item.id} className="border-b hover:bg-gray-50">
+                                            <td className="text-center py-3 text-thirdColor">
+                                                {(currentPage - 1) * ManufacturingsPerPage + index + 1}
+                                            </td>
+                                            <td className="text-center py-3 text-thirdColor">{item.product || "-"}</td>
+                                            <td className="text-center py-3 text-thirdColor">{item.store || "-"}</td>
+                                            <td className="text-center py-3 text-thirdColor">{item.quantity || "0"}</td>
+                                            <td className="text-center py-3 text-thirdColor">
+                                                {item.date ? formatDate(item.date) : "-"}
+                                            </td>
+                                            <td className="text-center py-3 text-thirdColor">{item.cost || "0"}</td>
+                                            <td className="text-center py-3">
+                                                <button
+                                                    onClick={() => openRecipeModal(item.id)}
+                                                    className="text-red-600 hover:text-red-800 underline font-medium"
+                                                >
+                                                    {t("View")}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
 
-                    {Manufacturings.length > 0 && (
-                        <div className="flex flex-wrap items-center justify-center my-6 gap-x-4">
-                            {currentPage !== 1 && (
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="flex justify-center gap-2 mt-6 flex-wrap">
+                            {currentPage > 1 && (
                                 <button
-                                    type="button"
-                                    className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
-                                    onClick={() => setCurrentPage(currentPage - 1)}
+                                    onClick={() => setCurrentPage(p => p - 1)}
+                                    className="px-4 py-2 bg-mainColor text-white rounded-lg"
                                 >
                                     {t("Prev")}
                                 </button>
                             )}
-                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                                (page) => (
-                                    <button
-                                        key={page}
-                                        onClick={() => handlePageChange(page)}
-                                        className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
-                                                ? "bg-mainColor text-white"
-                                                : " text-mainColor"
-                                            }`}
-                                    >
-                                        {page}
-                                    </button>
-                                )
-                            )}
-                            {totalPages !== currentPage && (
+                            {[...Array(totalPages)].map((_, i) => (
                                 <button
-                                    type="button"
-                                    className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
-                                    onClick={() => setCurrentPage(currentPage + 1)}
+                                    key={i + 1}
+                                    onClick={() => setCurrentPage(i + 1)}
+                                    className={`px-4 py-2 rounded-full ${currentPage === i + 1
+                                        ? "bg-mainColor text-white"
+                                        : "bg-gray-200 text-mainColor"
+                                        }`}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+                            {currentPage < totalPages && (
+                                <button
+                                    onClick={() => setCurrentPage(p => p + 1)}
+                                    className="px-4 py-2 bg-mainColor text-white rounded-lg"
                                 >
                                     {t("Next")}
                                 </button>
                             )}
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* Recipe Modal - Using your useGet hook */}
+            {selectedId && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-2xl font-bold text-mainColor">
+                                {t("Manufacturing Recipe")}
+                            </h2>
+                            <button
+                                onClick={closeModal}
+                                className="text-3xl text-gray-500 hover:text-gray-800"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        {loadingRecipe ? (
+                            <div className="flex justify-center py-12">
+                                <StaticLoader />
+                            </div>
+                        ) : recipeItems.length > 0 ? (
+                            <div className="overflow-x-auto">
+                                <table className="w-full border-collapse">
+                                    <thead>
+                                        <tr className="bg-gray-100">
+                                            <th className="border px-6 py-3 text-left text-sm font-medium text-gray-700">
+                                                {t("Material")}
+                                            </th>
+                                            <th className="border px-6 py-3 text-left text-sm font-medium text-gray-700">
+                                                {t("Quantity")}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {recipeItems.map((row) => (
+                                            <tr key={row.id} className="hover:bg-gray-50">
+                                                <td className="border px-6 py-4 text-gray-800">{row.material}</td>
+                                                <td className="border px-6 py-4 text-gray-800">{row.quantity}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <p className="text-center text-gray-500 py-10">
+                                {t("No recipe items found")}
+                            </p>
+                        )}
+                    </div>
                 </div>
             )}
         </div>
