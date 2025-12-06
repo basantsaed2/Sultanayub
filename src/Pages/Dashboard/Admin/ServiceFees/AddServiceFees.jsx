@@ -13,7 +13,6 @@ import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import Select from "react-select";
 
-// AmountInput component moved outside to prevent re-renders
 const AmountInput = ({ value, onChange, placeholder, className, type }) => (
     <div className="relative w-full">
         <input
@@ -34,13 +33,13 @@ const AmountInput = ({ value, onChange, placeholder, className, type }) => (
 
 const AddServiceFees = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const { refetch: refetchData, loading: loadingData, data: data } = useGet({
+    const { refetch: refetchData, loading: loadingData, data } = useGet({
         url: `${apiUrl}/admin/service_fees/lists`,
     });
     const { postData, loadingPost, response } = usePost({
         url: `${apiUrl}/admin/service_fees/add`,
     });
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const auth = useAuth();
     const navigate = useNavigate();
 
@@ -49,12 +48,26 @@ const AddServiceFees = () => {
     const [selectedBranches, setSelectedBranches] = useState([]);
     const [type, setType] = useState("percentage"); // "percentage" or "value"
 
-    // Fetch data on component mount
+    // NEW STATES
+    const [module, setModule] = useState("pos"); // "pos" or "online"
+    const [onlineType, setOnlineType] = useState("all"); // "all", "app", "web"
+
+    // Options from your data
+    const moduleOptions = [
+        { value: "pos", label: t("POS") },
+        { value: "online", label: t("Online") },
+    ];
+
+    const onlineTypeOptions = [
+        { value: "all", label: t("All") },
+        { value: "app", label: t("App") },
+        { value: "web", label: t("Web") },
+    ];
+
     useEffect(() => {
         refetchData();
     }, [refetchData]);
 
-    // Update branches state when data is available
     useEffect(() => {
         if (data) {
             if (data.branches) {
@@ -67,33 +80,29 @@ const AddServiceFees = () => {
         }
     }, [data]);
 
-    // Reset form fields after successful submission
     useEffect(() => {
         if (!loadingPost && response) {
             handleBack();
         }
     }, [response, loadingPost]);
 
-    // Handle branch selection
     const handleBranchChange = (selectedOptions) => {
         setSelectedBranches(selectedOptions || []);
     };
 
-    // Handle type change
     const handleTypeChange = (selectedType) => {
         setType(selectedType);
-        // Reset amount when type changes
         setAmount("");
     };
 
-    // Reset form
     const handleReset = () => {
         setAmount("");
         setSelectedBranches([]);
         setType("percentage");
+        setModule("pos");
+        setOnlineType("all");
     };
 
-    // Handle form submission
     const handleAdd = (e) => {
         e.preventDefault();
 
@@ -107,26 +116,26 @@ const AddServiceFees = () => {
             return;
         }
 
-        // Validate amount based on type
         if (type === "percentage") {
-            const percentageValue = parseFloat(amount);
-            if (percentageValue < 0 || percentageValue > 100) {
+            const val = parseFloat(amount);
+            if (val < 0 || val > 100) {
                 auth.toastError(t("PercentageMustBeBetween0And100"));
                 return;
             }
-        } else {
-            const fixedValue = parseFloat(amount);
-            if (fixedValue < 0) {
-                auth.toastError(t("AmountMustBePositive"));
-                return;
-            }
+        } else if (parseFloat(amount) < 0) {
+            auth.toastError(t("AmountMustBePositive"));
+            return;
         }
 
         const formData = new FormData();
         formData.append("type", type === "percentage" ? "precentage" : "value");
         formData.append("amount", amount);
-        
-        // Add branches - using the first selected branch or all selected branches
+        formData.append("module", module); // pos or online
+
+        if (module === "online") {
+            formData.append("online_type", onlineType); // all, app, web
+        }
+
         selectedBranches.forEach((branch, index) => {
             formData.append(`branches[${index}]`, branch.value);
         });
@@ -134,12 +143,10 @@ const AddServiceFees = () => {
         postData(formData, t("Service Fee Added Success"));
     };
 
-    // Handle back navigation
     const handleBack = () => {
         navigate(-1);
     };
 
-    // Custom styles for react-select
     const customStyles = {
         control: (provided) => ({
             ...provided,
@@ -147,33 +154,12 @@ const AddServiceFees = () => {
             borderRadius: "8px",
             padding: "6px",
             boxShadow: "none",
-            "&:hover": {
-                borderColor: "#9E090F",
-            },
+            "&:hover": { borderColor: "#9E090F" },
         }),
         option: (provided, state) => ({
             ...provided,
             backgroundColor: state.isSelected ? "#9E090F" : state.isFocused ? "#E6F0FA" : "white",
             color: state.isSelected ? "white" : "black",
-            "&:hover": {
-                backgroundColor: "#E6F0FA",
-            },
-        }),
-        multiValue: (provided) => ({
-            ...provided,
-            backgroundColor: "#E6F0FA",
-        }),
-        multiValueLabel: (provided) => ({
-            ...provided,
-            color: "#9E090F",
-        }),
-        multiValueRemove: (provided) => ({
-            ...provided,
-            color: "#9E090F",
-            ':hover': {
-                backgroundColor: '#9E090F',
-                color: 'white',
-            },
         }),
     };
 
@@ -187,24 +173,58 @@ const AddServiceFees = () => {
                 <section>
                     <div className="flex items-center justify-between p-2">
                         <div className="flex items-center gap-x-2">
-                            <button
-                                onClick={handleBack}
-                                className="text-mainColor hover:text-red-700 transition-colors"
-                                title={t("Back")}
-                            >
+                            <button onClick={handleBack} className="text-mainColor hover:text-red-700" title={t("Back")}>
                                 <IoArrowBack size={24} />
                             </button>
                             <TitlePage text={t("Add Service Fee")} />
                         </div>
                     </div>
+
                     <form className="p-2" onSubmit={handleAdd}>
-                        <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                            {/* Type Selection - Radio Buttons */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-3">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Type")}:
-                                </span>
-                                <div className="flex items-center gap-6">
+                        <div className="w-full gap-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+
+                            {/* Module: POS or Online */}
+                            <div className="flex flex-col gap-y-3">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">{t("Module")}:</span>
+                                <div className="flex gap-8">
+                                    {moduleOptions.map((opt) => (
+                                        <label key={opt.value} className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                name="module"
+                                                value={opt.value}
+                                                checked={module === opt.value}
+                                                onChange={(e) => setModule(e.target.value)}
+                                                className="w-4 h-4 text-mainColor"
+                                            />
+                                            <span className="text-lg font-TextFontMedium text-thirdColor">
+                                                {opt.label}
+                                            </span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Online Type - Only show if Online is selected */}
+                            {module === "online" && (
+                                <div className="flex flex-col gap-y-1">
+                                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                                        {t("Online Type")}:
+                                    </span>
+                                    <Select
+                                        options={onlineTypeOptions}
+                                        value={onlineTypeOptions.find(o => o.value === onlineType) || onlineTypeOptions[0]}
+                                        onChange={(selected) => setOnlineType(selected.value)}
+                                        styles={customStyles}
+                                        className="w-full"
+                                    />
+                                </div>
+                            )}
+
+                            {/* Type: Percentage or Value */}
+                            <div className="flex flex-col gap-y-3">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">{t("Type")}:</span>
+                                <div className="flex gap-6">
                                     <label className="flex items-center gap-2 cursor-pointer">
                                         <input
                                             type="radio"
@@ -212,11 +232,9 @@ const AddServiceFees = () => {
                                             value="percentage"
                                             checked={type === "percentage"}
                                             onChange={() => handleTypeChange("percentage")}
-                                            className="w-4 h-4 text-mainColor focus:ring-mainColor border-mainColor"
+                                            className="w-4 h-4 text-mainColor"
                                         />
-                                        <span className="text-lg font-TextFontMedium text-thirdColor">
-                                            {t("Percentage")}
-                                        </span>
+                                        <span className="text-lg font-TextFontMedium text-thirdColor">{t("Percentage")}</span>
                                     </label>
                                     <label className="flex items-center gap-2 cursor-pointer">
                                         <input
@@ -225,43 +243,33 @@ const AddServiceFees = () => {
                                             value="value"
                                             checked={type === "value"}
                                             onChange={() => handleTypeChange("value")}
-                                            className="w-4 h-4 text-mainColor focus:ring-mainColor border-mainColor"
+                                            className="w-4 h-4 text-mainColor"
                                         />
-                                        <span className="text-lg font-TextFontMedium text-thirdColor">
-                                            {t("Fixed Amount")}
-                                        </span>
+                                        <span className="text-lg font-TextFontMedium text-thirdColor">{t("Fixed Amount")}</span>
                                     </label>
                                 </div>
                             </div>
 
                             {/* Amount Input */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                            <div className="flex flex-col gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
                                     {type === "percentage" ? t("Percentage") : t("Amount")}:
                                 </span>
                                 <AmountInput
                                     value={amount}
                                     onChange={(e) => setAmount(e.target.value)}
-                                    placeholder={
-                                        type === "percentage" 
-                                            ? t("Enter percentage") 
-                                            : t("Enter amount")
-                                    }
+                                    placeholder={type === "percentage" ? t("Enter percentage") : t("Enter amount")}
                                     className="pr-12"
                                     type={type}
                                 />
                                 {type === "percentage" && (
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        {t("Enter value between 0 and 100")}
-                                    </p>
+                                    <p className="text-xs text-gray-500 mt-1">{t("Enter value between 0 and 100")}</p>
                                 )}
                             </div>
 
-                            {/* Branch Selection */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Branches")}:
-                                </span>
+                            {/* Branches */}
+                            <div className="flex flex-col gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">{t("Branches")}:</span>
                                 <Select
                                     options={branches}
                                     value={selectedBranches}
@@ -273,7 +281,6 @@ const AddServiceFees = () => {
                                     className="w-full"
                                 />
                             </div>
-
                         </div>
 
                         {/* Buttons */}

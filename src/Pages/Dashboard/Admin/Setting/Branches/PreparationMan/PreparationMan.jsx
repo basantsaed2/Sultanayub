@@ -1,27 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { DeleteIcon, EditIcon } from "../../../../Assets/Icons/AllIcons";
+import { DeleteIcon, EditIcon } from "../../../../../../Assets/Icons/AllIcons";
 import { Link } from "react-router-dom";
 import {
     AddButton,
     StaticLoader,
     Switch,
     TitlePage,
-} from "../../../../Components/Components";
-import { useGet } from "../../../../Hooks/useGet";
-import { useChangeState } from "../../../../Hooks/useChangeState";
-import { useDelete } from "../../../../Hooks/useDelete";
+} from "../../../../../../Components/Components";
+import { useGet } from "../../../../../../Hooks/useGet";
+import { useChangeState } from "../../../../../../Hooks/useChangeState";
+import { useDelete } from "../../../../../../Hooks/useDelete";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
-import Warning from "../../../../Assets/Icons/AnotherIcons/WarningIcon";
+import Warning from "../../../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { t } from "i18next";
+import { useParams } from "react-router-dom";
 
 const PreparationMan = () => {
+    const { branchId } = useParams();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const {
         refetch: refetchPreparationMan,
         loading: loadingPreparationMan,
         data: dataPreparationMan,
     } = useGet({
-        url: `${apiUrl}/admin/preparation_man`,
+        url: `${apiUrl}/admin/preparation_man/${branchId}`,
     });
     const { deleteData, loadingDelete, responseDelete } = useDelete();
     const { changeState, loadingChange, responseChange } = useChangeState();

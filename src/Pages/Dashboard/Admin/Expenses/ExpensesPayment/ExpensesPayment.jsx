@@ -3,7 +3,6 @@ import {
     StaticButton,
     StaticLoader,
     SubmitButton,
-    Switch,
     TextInput,
     TitlePage,
 } from "../../../../../Components/Components";
@@ -11,13 +10,18 @@ import { usePost } from "../../../../../Hooks/usePostJson";
 import { useAuth } from "../../../../../Context/Auth";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { IoArrowBack, IoEye, IoCash, IoChevronForward, IoChevronBack } from "react-icons/io5";
+import { IoArrowBack, IoEye, IoCash, IoPencil, IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { useGet } from "../../../../../Hooks/useGet";
 import Select from 'react-select';
 
-const PayExpenses = () => {
+const ExpensesPayment = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const { refetch: refetchLists, loading: loadingLists, data: dataLists } = useGet({
+    const { t } = useTranslation();
+    const auth = useAuth();
+    const navigate = useNavigate();
+
+    // API Calls
+    const { refetch: refetchLists, data: dataLists ,loading:loadingList } = useGet({
         url: `${apiUrl}/admin/expenses_list/lists`,
     });
 
@@ -25,25 +29,26 @@ const PayExpenses = () => {
         url: `${apiUrl}/admin/expenses_list`,
     });
 
-    const { postData, loadingPost, response } = usePost({
+    const { postData: postAdd, loadingPost: loadingAdd } = usePost({
         url: `${apiUrl}/admin/expenses_list/add`,
     });
 
-    const { t } = useTranslation();
-    const auth = useAuth();
-    const navigate = useNavigate();
+    // Modals
+    const [showPayModal, setShowPayModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [selectedExpense, setSelectedExpense] = useState(null);
+
+    const { postData: postUpdate, loadingPost: loadingUpdate } = usePost({ url: (selectedExpense && showEditModal) ? `${apiUrl}/admin/expenses_list/update/${selectedExpense.id}` : "" });
 
     const [expenses, setExpenses] = useState([]);
-    const [selectedExpense, setSelectedExpense] = useState(null);
-    const [showPayModal, setShowPayModal] = useState(false);
-    const [showDetailsModal, setShowDetailsModal] = useState(false);
 
-    // Pagination states
+    // Pagination States
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [itemsPerPage] = useState(10);
 
-    // Form states
-    const [expenseId, setExpenseId] = useState("");
+    // Add Modal - All fields
+    const [expenseName, setExpenseName] = useState("");
     const [branchId, setBranchId] = useState("");
     const [cashierId, setCashierId] = useState("");
     const [cashierManId, setCashierManId] = useState("");
@@ -52,8 +57,14 @@ const PayExpenses = () => {
     const [amount, setAmount] = useState("");
     const [note, setNote] = useState("");
 
-    // Options for selects
-    const [expenseOptions, setExpenseOptions] = useState([]);
+    // Edit Modal - Only these
+    const [editExpenseName, setEditExpenseName] = useState("");
+    const [editCategoryId, setEditCategoryId] = useState("");
+    const [editFinancialAccountId, setEditFinancialAccountId] = useState("");
+    const [editAmount, setEditAmount] = useState("");
+    const [editNote, setEditNote] = useState("");
+
+    // Options
     const [branchOptions, setBranchOptions] = useState([]);
     const [cashierOptions, setCashierOptions] = useState([]);
     const [cashierManOptions, setCashierManOptions] = useState([]);
@@ -63,588 +74,362 @@ const PayExpenses = () => {
     useEffect(() => {
         refetchLists();
         refetchExpenses();
-    }, [refetchLists, refetchExpenses]);
+    }, []);
 
-    // Set data when APIs return
     useEffect(() => {
-        if (dataExpenses && dataExpenses.expenses) {
+        if (dataExpenses?.expenses) {
             setExpenses(dataExpenses.expenses);
+            // Reset to page 1 when data changes (e.g. after add/edit)
+            setCurrentPage(1);
         }
+    }, [dataExpenses]);
 
+    useEffect(() => {
         if (dataLists) {
-            // Set expenses options
-            if (dataLists.expenses) {
-                setExpenseOptions(dataLists.expenses.map(exp => ({
-                    value: exp.id,
-                    label: exp.name
-                })));
-            }
-
-            // Set branches options
-            if (dataLists.branches) {
-                setBranchOptions(dataLists.branches.map(branch => ({
-                    value: branch.id,
-                    label: branch.name
-                })));
-            }
-
-            // Set cashiers options
-            if (dataLists.cashiers) {
-                setCashierOptions(dataLists.cashiers.map(cashier => ({
-                    value: cashier.id,
-                    label: cashier.name
-                })));
-            }
-
-            // Set cashier man options
-            if (dataLists.cashier_man) {
-                setCashierManOptions(dataLists.cashier_man.map(cashierMan => ({
-                    value: cashierMan.id,
-                    label: cashierMan.user_name
-                })));
-            }
-
-            // Set financial accounts options
-            if (dataLists.financial) {
-                setFinancialOptions(dataLists.financial.map(financial => ({
-                    value: financial.id,
-                    label: financial.name
-                })));
-            }
-
-            // Set categories options
-            if (dataLists.categories) {
-                setCategoryOptions(dataLists.categories.map(category => ({
-                    value: category.id,
-                    label: category.name
-                })));
-            }
+            setBranchOptions(dataLists.branches?.map(b => ({ value: b.id, label: b.name })) || []);
+            setCashierOptions(dataLists.cashiers?.map(c => ({ value: c.id, label: c.name })) || []);
+            setCashierManOptions(dataLists.cashier_man?.map(cm => ({ value: cm.id, label: cm.user_name })) || []);
+            setFinancialOptions(dataLists.financial?.map(f => ({ value: f.id, label: f.name })) || []);
+            setCategoryOptions(dataLists.categories?.map(c => ({ value: c.id, label: c.name })) || []);
         }
-    }, [dataExpenses, dataLists]);
+    }, [dataLists]);
 
-    // Pagination calculations
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentExpenses = expenses.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(expenses.length / itemsPerPage);
+    // Pagination Logic
+    const totalItems = expenses.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const currentExpenses = expenses.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-    // Handle page change
-    const handlePageChange = (pageNumber) => {
-        setCurrentPage(pageNumber);
+    const goToPage = (page) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
     };
 
-    // Handle items per page change
-    const handleItemsPerPageChange = (e) => {
-        setItemsPerPage(Number(e.target.value));
-        setCurrentPage(1);
-    };
-
-    // Handle pay button click (from top button)
-    const handlePayClick = () => {
-        // Reset form when opening from top button
-        setExpenseId("");
-        setCategoryId("");
-        setAmount("");
-        setNote("");
-        setBranchId("");
-        setCashierId("");
-        setCashierManId("");
-        setFinancialAccountId("");
+    // Open Add Modal
+    const openAddModal = () => {
+        setExpenseName(""); setBranchId(""); setCashierId(""); setCashierManId("");
+        setFinancialAccountId(""); setCategoryId(""); setAmount(""); setNote("");
         setShowPayModal(true);
     };
 
-    // Handle pay button click from table row
-    const handlePayFromTable = (expense) => {
+    // Open Edit Modal
+    const handleEdit = (expense) => {
         setSelectedExpense(expense);
-        // Auto-fill form with selected expense data
-        setExpenseId(expense.expense?.id || "");
-        setCategoryId(expense.category?.id || "");
-        setAmount(expense.amount || "");
-        setNote(expense.note || "");
-        setShowPayModal(true);
+        setEditExpenseName(expense.expense || "");
+        setEditCategoryId(expense.category?.id || "");
+        setEditFinancialAccountId(expense.financial_account?.id || "");
+        setEditAmount(expense.amount || "");
+        setEditNote(expense.note || "");
+        setShowEditModal(true);
     };
 
-    // Handle view details click
-    const handleViewDetails = (expense) => {
-        setSelectedExpense(expense);
-        setShowDetailsModal(true);
-    };
-
-    // Handle form submission for payment
-    const handleSubmitPayment = (e) => {
+    // Submit Add
+    const handleSubmitPayment = async (e) => {
         e.preventDefault();
-
-        if (!expenseId || !branchId || !cashierId || !cashierManId || !financialAccountId || !categoryId || !amount) {
+        if (!expenseName || !branchId || !cashierId || !cashierManId || !financialAccountId || !categoryId || !amount) {
             auth.toastError(t("Please fill all required fields"));
             return;
         }
 
         const formData = new FormData();
-        formData.append("expense_id", expenseId);
+        formData.append("expense", expenseName);
         formData.append("branch_id", branchId);
         formData.append("cashier_id", cashierId);
         formData.append("cahier_man_id", cashierManId);
         formData.append("financial_account_id", financialAccountId);
         formData.append("category_id", categoryId);
         formData.append("amount", amount);
-        formData.append("note", note);
+        if (note) formData.append("note", note);
 
-        postData(formData, t("Expense Paid Successfully"));
-    };
-
-    // Reset form and close modal after successful payment
-    useEffect(() => {
-        if (!loadingPost && response) {
+        const success = await postAdd(formData, t("Expense Paid Successfully"));
+        if (success) {
             setShowPayModal(false);
-            handleResetForm();
             refetchExpenses();
         }
-    }, [loadingPost, response]);
-
-    // Reset form
-    const handleResetForm = () => {
-        setExpenseId("");
-        setCategoryId("");
-        setAmount("");
-        setNote("");
-        setBranchId("");
-        setCashierId("");
-        setCashierManId("");
-        setFinancialAccountId("");
     };
 
-    // Handle back navigation
-    const handleBack = () => {
-        navigate(-1);
+    // Submit Edit
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+        if (!editExpenseName || !editCategoryId || !editFinancialAccountId || !editAmount) {
+            auth.toastError(t("Please fill all required fields"));
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("expense", editExpenseName);
+        formData.append("category_id", editCategoryId);
+        formData.append("financial_account_id", editFinancialAccountId);
+        formData.append("amount", editAmount);
+        if (editNote) formData.append("note", editNote);
+
+        const success = await postUpdate(formData, t("Expense Updated Successfully"));
+        if (success) {
+            setShowEditModal(false);
+            refetchExpenses();
+        }
     };
 
-    // Custom styles for react-select with mainColor
+    // useEffect(() => {
+    //     if (selectedExpense && showEditModal) {
+    //         postUpdate.url = `${apiUrl}/admin/expenses_list/update/${selectedExpense.id}`;
+    //     }
+    // }, [selectedExpense, showEditModal]);
+
     const customStyles = {
-        control: (base, state) => ({
+        control: (base) => ({
             ...base,
             border: '2px solid #e5e7eb',
             borderRadius: '8px',
-            padding: '4px 8px',
-            fontSize: '16px',
-            fontFamily: 'inherit',
-            boxShadow: state.isFocused ? '0 0 0 2px var(--mainColor, #3b82f6)' : 'none',
-            borderColor: state.isFocused ? 'var(--mainColor, #3b82f6)' : '#e5e7eb',
-            '&:hover': {
-                borderColor: state.isFocused ? 'var(--mainColor, #3b82f6)' : '#d1d5db'
-            }
+            padding: '4px',
+            '&:hover': { borderColor: '#9E090F' },
+            boxShadow: 'none',
         }),
-        option: (base, state) => ({
-            ...base,
-            fontSize: '16px',
-            fontFamily: 'inherit',
-            backgroundColor: state.isSelected ? 'var(--mainColor, #3b82f6)' : state.isFocused ? '#eff6ff' : 'white',
-            color: state.isSelected ? 'white' : '#374151',
-            '&:hover': {
-                backgroundColor: state.isSelected ? 'var(--mainColor, #3b82f6)' : '#eff6ff'
-            }
-        })
-    };
-
-    // Generate page numbers for pagination
-    const renderPageNumbers = () => {
-        const pageNumbers = [];
-        const maxPagesToShow = 5;
-
-        let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
-        let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-
-        if (endPage - startPage + 1 < maxPagesToShow) {
-            startPage = Math.max(1, endPage - maxPagesToShow + 1);
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-            pageNumbers.push(
-                <button
-                    key={i}
-                    onClick={() => handlePageChange(i)}
-                    className={`px-3 py-1 rounded-md mx-1 ${currentPage === i
-                        ? 'bg-mainColor text-white'
-                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                        }`}
-                >
-                    {i}
-                </button>
-            );
-        }
-        return pageNumbers;
     };
 
     return (
         <>
-            <section>
-                <div className="flex flex-col md:flex-row md:items-center justify-between p-2">
-                    <div className="flex items-center gap-x-2">
-                        <button
-                            onClick={handleBack}
-                            className="text-mainColor hover:text-red-700 transition-colors"
-                            title={t("Back")}
-                        >
-                            <IoArrowBack size={24} />
-                        </button>
-                        <TitlePage text={t("Pay Expenses")} />
-                    </div>
-                    {/* Pay Button - Moved to top right */}
-                    <div className="flex items-center gap-4 mt-2">
-                        <SubmitButton
-                            text={t("Pay Expense")}
-                            rounded="rounded-full"
-                            handleClick={handlePayClick}
-                            icon={<IoCash size={18} className="mr-2" />}
-                        />
-                    </div>
+            {/* Header */}
+            <div className="flex justify-between items-center p-4 bg-white shadow-sm">
+                <div className="flex items-center gap-3">
+                    <button onClick={() => navigate(-1)} className="text-mainColor hover:text-red-700">
+                        <IoArrowBack size={28} />
+                    </button>
+                    <TitlePage text={t("Pay Expenses")} />
                 </div>
+                <div className="flex items-center gap-4 mt-2">
+                    <StaticButton
+                        text={t("Pay New Expense")}
+                        icon={<IoCash size={20} className="mr-2" />}
+                        rounded="rounded-full"
+                        handleClick={openAddModal}
+                    />
+                </div>
+            </div>
 
-                {/* Expenses Table */}
-                <div className="p-2">
-                    <div className="bg-white rounded-lg shadow overflow-hidden">
-                        {loadingExpenses ? (
-                            <div className="flex items-center justify-center w-full h-56">
-                                <StaticLoader />
-                            </div>
-                        ) : (
-                            <>
-                                <div className="overflow-x-auto">
-                                    <table className="min-w-full divide-y divide-gray-200">
-                                        <thead className="bg-mainColor">
-                                            <tr>
-                                                <th className="px-6 py-3 text-left text-base font-medium text-white uppercase tracking-wider">
-                                                    {t("ID")}
-                                                </th>
-                                                <th className="px-6 py-3 text-left text-base font-medium text-white uppercase tracking-wider">
-                                                    {t("Expense")}
-                                                </th>
-                                                <th className="px-6 py-3 text-left text-base font-medium text-white uppercase tracking-wider">
-                                                    {t("Category")}
-                                                </th>
-                                                <th className="px-6 py-3 text-left text-base font-medium text-white uppercase tracking-wider">
-                                                    {t("Amount")}
-                                                </th>
-                                                <th className="px-6 py-3 text-left text-base font-medium text-white uppercase tracking-wider">
-                                                    {t("Branch")}
-                                                </th>
-                                                <th className="px-6 py-3 text-left text-base font-medium text-white uppercase tracking-wider">
-                                                    {t("Note")}
-                                                </th>
-                                                <th className="px-6 py-3 text-left text-base font-medium text-white uppercase tracking-wider">
-                                                    {t("Actions")}
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="bg-white divide-y divide-gray-200">
-                                            {currentExpenses.map((expense, index) => (
-                                                <tr
-                                                    key={expense.id}
-                                                    className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
-                                                >
-                                                    <td className="px-6 py-4 whitespace-nowrap text-lg text-gray-900">
-                                                        {expense.id}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-lg text-gray-900">
-                                                        {expense.expense?.name}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-lg text-gray-900">
-                                                        {expense.category?.name}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-lg font-medium text-green-600">
-                                                        {expense.amount}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-lg text-gray-900">
-                                                        {expense.branch?.name}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-lg text-gray-900">
-                                                        {expense.note || "-"}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-lg font-medium">
-                                                        <div className="flex items-center">
-                                                            <button
-                                                                onClick={() => handleViewDetails(expense)}
-                                                                className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition-colors"
-                                                            >
-                                                                <IoEye size={16} />
-                                                                {t("Details")}
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+            {/* Table + Pagination */}
+            <div className="p-4 bg-white rounded-lg shadow mt-4 pb-20">
+                {loadingExpenses || loadingList ? (
+                    <div className="flex justify-center py-20">
+                        <StaticLoader />
+                    </div>
+                ) : (
+                    <>
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-mainColor text-white">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left">{t("ID")}</th>
+                                        <th className="px-6 py-3 text-left">{t("Expense")}</th>
+                                        <th className="px-6 py-3 text-left">{t("Category")}</th>
+                                        <th className="px-6 py-3 text-left">{t("Amount")}</th>
+                                        <th className="px-6 py-3 text-left">{t("Branch")}</th>
+                                        <th className="px-6 py-3 text-left">{t("Note")}</th>
+                                        <th className="px-6 py-3 text-center">{t("Actions")}</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200">
+                                    {currentExpenses.map(exp => (
+                                        <tr key={exp.id} className="hover:bg-gray-50 transition">
+                                            <td className="px-6 py-4">{exp.id}</td>
+                                            <td className="px-6 py-4 font-medium">{exp.expense}</td>
+                                            <td className="px-6 py-4">{exp.category?.name || "-"}</td>
+                                            <td className="px-6 py-4 text-green-600 font-bold">{exp.amount}</td>
+                                            <td className="px-6 py-4">{exp.branch?.name || "-"}</td>
+                                            <td className="px-6 py-4 text-gray-600">{exp.note || "-"}</td>
+                                            <td className="px-6 py-4 text-center">
+                                                <div className="flex justify-center gap-4">
+                                                    <button onClick={() => handleEdit(exp)} className="text-blue-600 hover:text-blue-800">
+                                                        <IoPencil size={22} />
+                                                    </button>
+                                                    <button onClick={() => { setSelectedExpense(exp); setShowDetailsModal(true); }} className="text-gray-600 hover:text-gray-800">
+                                                        <IoEye size={22} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* PAGINATION */}
+                        {totalPages > 1 && (
+                            <div className="flex flex-col sm:flex-row justify-between items-center mt-6 p-4 border-t">
+                                <div className="text-sm text-gray-600 mb-4 sm:mb-0">
+                                    {t("Showing")} {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, totalItems)} {t("of")} {totalItems} {t("entries")}
                                 </div>
 
-                                {/* Pagination */}
-                                {expenses.length > 0 && (
-                                    <div className="flex flex-col md:flex-row gap-y-2 items-center justify-between p-4 border-t border-gray-200 bg-white">
-                                        <div className="flex items-center space-x-2 mb-4 sm:mb-0">
-                                            <span className="text-sm text-gray-700">
-                                                {t("Items per page")}:
-                                            </span>
-                                            <select
-                                                value={itemsPerPage}
-                                                onChange={handleItemsPerPageChange}
-                                                className="border border-gray-300 rounded-md px-2 py-1 text-sm"
-                                            >
-                                                <option value={5}>5</option>
-                                                <option value={10}>10</option>
-                                                <option value={20}>20</option>
-                                                <option value={50}>50</option>
-                                            </select>
-                                        </div>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => goToPage(currentPage - 1)}
+                                        disabled={currentPage === 1}
+                                        className="p-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <IoChevronBack size={20} />
+                                    </button>
 
-                                        <div className="flex items-center space-x-2">
-                                            <span className="text-sm text-gray-700">
-                                                {t("Page")} {currentPage} {t("of")} {totalPages}
-                                            </span>
-                                        </div>
+                                    {/* Page Numbers */}
+                                    {[...Array(totalPages)].map((_, i) => (
+                                        <button
+                                            key={i + 1}
+                                            onClick={() => goToPage(i + 1)}
+                                            className={`px-3 py-1.5 rounded text-sm font-medium transition ${currentPage === i + 1
+                                                ? "bg-mainColor text-white"
+                                                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                                                }`}
+                                        >
+                                            {i + 1}
+                                        </button>
+                                    ))}
 
-                                        <div className="flex items-center space-x-1">
-                                            <button
-                                                onClick={() => handlePageChange(currentPage - 1)}
-                                                disabled={currentPage === 1}
-                                                className={`p-2 rounded-md ${currentPage === 1
-                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                                    : 'bg-white text-mainColor border border-gray-300 hover:bg-gray-50'
-                                                    }`}
-                                            >
-                                                <IoChevronBack size={16} />
-                                            </button>
-
-                                            {renderPageNumbers()}
-
-                                            <button
-                                                onClick={() => handlePageChange(currentPage + 1)}
-                                                disabled={currentPage === totalPages}
-                                                className={`p-2 rounded-md ${currentPage === totalPages
-                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                                    : 'bg-white text-mainColor border border-gray-300 hover:bg-gray-50'
-                                                    }`}
-                                            >
-                                                <IoChevronForward size={16} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-                            </>
+                                    <button
+                                        onClick={() => goToPage(currentPage + 1)}
+                                        disabled={currentPage === totalPages}
+                                        className="p-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <IoChevronForward size={20} />
+                                    </button>
+                                </div>
+                            </div>
                         )}
+                    </>
+                )}
+            </div>
+
+            {/* ADD / PAY MODAL */}
+            {showPayModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="p-4 border-b flex justify-between items-center sticky top-0 bg-white z-10">
+                            <h3 className="text-2xl font-bold text-mainColor">{t("Pay New Expense")}</h3>
+                            <button onClick={() => setShowPayModal(false)} className="text-3xl text-gray-500 hover:text-gray-700">×</button>
+                        </div>
+                        <form onSubmit={handleSubmitPayment} className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t("Expense")} *</label>
+                                <TextInput value={expenseName} onChange={e => setExpenseName(e.target.value)} placeholder={t("Enter expense name")} />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t("Category")} *</label>
+                                <Select options={categoryOptions} value={categoryOptions.find(o => o.value === categoryId)} onChange={o => setCategoryId(o?.value || "")} styles={customStyles} isSearchable placeholder={t("Select Category")} />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t("Branch")} *</label>
+                                <Select options={branchOptions} value={branchOptions.find(o => o.value === branchId)} onChange={o => setBranchId(o?.value || "")} styles={customStyles} isSearchable placeholder={t("Select Branch")} />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t("Cashier")} *</label>
+                                <Select options={cashierOptions} value={cashierOptions.find(o => o.value === cashierId)} onChange={o => setCashierId(o?.value || "")} styles={customStyles} isSearchable placeholder={t("Select Cashier")} />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t("Cashier Man")} *</label>
+                                <Select options={cashierManOptions} value={cashierManOptions.find(o => o.value === cashierManId)} onChange={o => setCashierManId(o?.value || "")} styles={customStyles} isSearchable placeholder={t("Select Cashier Man")} />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t("Financial Account")} *</label>
+                                <Select options={financialOptions} value={financialOptions.find(o => o.value === financialAccountId)} onChange={o => setFinancialAccountId(o?.value || "")} styles={customStyles} isSearchable placeholder={t("Select Account")} />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t("Amount")} *</label>
+                                <TextInput type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t("Note")}</label>
+                                <textarea value={note} onChange={e => setNote(e.target.value)} rows={3} className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-mainColor outline-none" placeholder={t("Optional note...")} />
+                            </div>
+
+                            <div className="md:col-span-2 flex justify-end gap-4 pt-4 border-t">
+                                <StaticButton text={t("Cancel")} handleClick={() => setShowPayModal(false)} bgColor="bg-gray-300" Color="text-gray-700" />
+                                <SubmitButton text={t("Pay Now")} loading={loadingAdd} />
+                            </div>
+                        </form>
                     </div>
                 </div>
+            )}
 
-                {/* Pay Modal */}
-                {showPayModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                        <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                            <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white z-10">
-                                <h3 className="text-lg font-semibold">{t("Pay Expense")}</h3>
-                                <button
-                                    onClick={() => setShowPayModal(false)}
-                                    className="text-gray-500 hover:text-gray-700 text-xl font-bold"
-                                >
-                                    ×
-                                </button>
+            {/* EDIT MODAL */}
+            {showEditModal && selectedExpense && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="p-5 border-b flex justify-between items-center">
+                            <h3 className="text-2xl font-bold text-mainColor">{t("Edit Expense")}</h3>
+                            <button onClick={() => setShowEditModal(false)} className="text-3xl">×</button>
+                        </div>
+                        <form onSubmit={handleUpdate} className="p-6 space-y-6">
+                            <div className="grid md:grid-cols-2 gap-5">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("Expense Name")} *</label>
+                                    <TextInput value={editExpenseName} onChange={e => setEditExpenseName(e.target.value)} placeholder={t("Enter expense name")} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("Category")} *</label>
+                                    <Select options={categoryOptions} value={categoryOptions.find(o => o.value === editCategoryId)} onChange={o => setEditCategoryId(o?.value || "")} styles={customStyles} isSearchable />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("Financial Account")} *</label>
+                                    <Select options={financialOptions} value={financialOptions.find(o => o.value === editFinancialAccountId)} onChange={o => setEditFinancialAccountId(o?.value || "")} styles={customStyles} isSearchable />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("Amount")} *</label>
+                                    <TextInput type="number" value={editAmount} onChange={e => setEditAmount(e.target.value)} placeholder="0.00" />
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("Note")}</label>
+                                    <textarea value={editNote} onChange={e => setEditNote(e.target.value)} rows={3} className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-mainColor outline-none" placeholder={t("Optional note...")} />
+                                </div>
                             </div>
-                            <form onSubmit={handleSubmitPayment} className="p-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {/* Expense - Selectable */}
-                                    <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                        <span className="text-sm font-TextFontRegular text-thirdColor">
-                                            {t("Expense")} *
-                                        </span>
-                                        <Select
-                                            options={expenseOptions}
-                                            value={expenseOptions.find(opt => opt.value === expenseId)}
-                                            onChange={(selected) => setExpenseId(selected?.value || "")}
-                                            placeholder={t("Select Expense")}
-                                            styles={customStyles}
-                                            isSearchable
-                                            className="w-full"
-                                        />
-                                    </div>
+                            <div className="flex justify-end gap-4 pt-4 border-t">
+                                <StaticButton text={t("Cancel")} handleClick={() => setShowEditModal(false)} bgColor="bg-gray-300" Color="text-gray-700" />
+                                <SubmitButton text={t("Update Expense")} loading={loadingUpdate} />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
-                                    {/* Category - Selectable */}
-                                    <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                        <span className="text-sm font-TextFontRegular text-thirdColor">
-                                            {t("Category")} *
-                                        </span>
-                                        <Select
-                                            options={categoryOptions}
-                                            value={categoryOptions.find(opt => opt.value === categoryId)}
-                                            onChange={(selected) => setCategoryId(selected?.value || "")}
-                                            placeholder={t("Select Category")}
-                                            styles={customStyles}
-                                            isSearchable
-                                            className="w-full"
-                                        />
-                                    </div>
-
-                                    {/* Branch */}
-                                    <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                        <span className="text-sm font-TextFontRegular text-thirdColor">
-                                            {t("Branch")} *
-                                        </span>
-                                        <Select
-                                            options={branchOptions}
-                                            value={branchOptions.find(opt => opt.value === branchId)}
-                                            onChange={(selected) => setBranchId(selected?.value || "")}
-                                            placeholder={t("Select Branch")}
-                                            styles={customStyles}
-                                            isSearchable
-                                            className="w-full"
-                                        />
-                                    </div>
-
-                                    {/* Cashier */}
-                                    <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                        <span className="text-sm font-TextFontRegular text-thirdColor">
-                                            {t("Cashier")} *
-                                        </span>
-                                        <Select
-                                            options={cashierOptions}
-                                            value={cashierOptions.find(opt => opt.value === cashierId)}
-                                            onChange={(selected) => setCashierId(selected?.value || "")}
-                                            placeholder={t("Select Cashier")}
-                                            styles={customStyles}
-                                            isSearchable
-                                            className="w-full"
-                                        />
-                                    </div>
-
-                                    {/* Cashier Man */}
-                                    <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                        <span className="text-sm font-TextFontRegular text-thirdColor">
-                                            {t("Cashier Man")} *
-                                        </span>
-                                        <Select
-                                            options={cashierManOptions}
-                                            value={cashierManOptions.find(opt => opt.value === cashierManId)}
-                                            onChange={(selected) => setCashierManId(selected?.value || "")}
-                                            placeholder={t("Select Cashier Man")}
-                                            styles={customStyles}
-                                            isSearchable
-                                            className="w-full"
-                                        />
-                                    </div>
-
-                                    {/* Financial Account */}
-                                    <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                        <span className="text-sm font-TextFontRegular text-thirdColor">
-                                            {t("Financial Account")} *
-                                        </span>
-                                        <Select
-                                            options={financialOptions}
-                                            value={financialOptions.find(opt => opt.value === financialAccountId)}
-                                            onChange={(selected) => setFinancialAccountId(selected?.value || "")}
-                                            placeholder={t("Select Financial Account")}
-                                            styles={customStyles}
-                                            isSearchable
-                                            className="w-full"
-                                        />
-                                    </div>
-
-                                    {/* Amount */}
-                                    <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                        <span className="text-sm font-TextFontRegular text-thirdColor">
-                                            {t("Amount")} *
-                                        </span>
-                                        <TextInput
-                                            type="number"
-                                            value={amount}
-                                            onChange={(e) => setAmount(e.target.value)}
-                                            placeholder={t("Enter Amount")}
-                                        />
-                                    </div>
-
-                                    {/* Note */}
-                                    <div className="w-full flex flex-col items-start justify-center gap-y-1 md:col-span-2">
-                                        <span className="text-sm font-TextFontRegular text-thirdColor">
-                                            {t("Note")}
-                                        </span>
-                                        <textarea
-                                            value={note}
-                                            onChange={(e) => setNote(e.target.value)}
-                                            placeholder={t("Enter Note")}
-                                            className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-mainColor focus:outline-none transition-colors"
-                                            rows="3"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-end w-full gap-x-4 mt-6 sticky bottom-4 bg-white pt-4 border-t">
-                                    <StaticButton
-                                        text={t("Cancel")}
-                                        handleClick={() => setShowPayModal(false)}
-                                        bgColor="bg-transparent"
-                                        Color="text-mainColor"
-                                        border="border-2"
-                                        borderColor="border-mainColor"
-                                        rounded="rounded-full"
-                                        Size="text-xl"
-                                    />
-                                    <SubmitButton
-                                        text={t("Pay Now")}
-                                        rounded="rounded-full"
-                                        handleClick={handleSubmitPayment}
-                                        loading={loadingPost}
-                                        Size="text-xl"
-                                    />
-                                </div>
-                            </form>
+            {/* DETAILS MODAL */}
+            {showDetailsModal && selectedExpense && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full">
+                        <div className="p-5 border-b flex justify-between items-center">
+                            <h3 className="text-2xl font-bold text-mainColor">{t("Expense Details")}</h3>
+                            <button onClick={() => setShowDetailsModal(false)} className="text-3xl text-gray-500 hover:text-gray-700">×</button>
+                        </div>
+                        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <DetailItem label={t("ID")} value={selectedExpense.id} />
+                            <DetailItem label={t("Expense")} value={selectedExpense.expense} />
+                            <DetailItem label={t("Category")} value={selectedExpense.category?.name} />
+                            <DetailItem label={t("Amount")} value={selectedExpense.amount} />
+                            <DetailItem label={t("Branch")} value={selectedExpense.branch?.name} />
+                            <DetailItem label={t("Cashier")} value={selectedExpense.cashier?.name} />
+                            <DetailItem label={t("Cashier Man")} value={selectedExpense.cahier_man?.user_name} />
+                            <DetailItem label={t("Financial Account")} value={selectedExpense.financial_account?.name} />
+                            <DetailItem label={t("Admin")} value={selectedExpense.admin?.name} />
+                            <DetailItem label={t("Note")} value={selectedExpense.note || "-"} />
+                            <DetailItem label={t("Created At")} value={new Date(selectedExpense.created_at).toLocaleString()} />
+                        </div>
+                        <div className="p-5 border-t text-right">
+                            <StaticButton
+                                text={t("Close")}
+                                handleClick={() => setShowDetailsModal(false)}
+                                bgColor="bg-mainColor"
+                                Color="text-white"
+                                rounded="rounded-full"
+                            />
                         </div>
                     </div>
-                )}
-                {/* Details Modal */}
-                {showDetailsModal && selectedExpense && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                        <div className="bg-white rounded-lg w-full max-w-2xl">
-                            <div className="flex items-center justify-between p-4 border-b">
-                                <h3 className="text-lg font-semibold">{t("Expense Details")}</h3>
-                                <button
-                                    onClick={() => setShowDetailsModal(false)}
-                                    className="text-gray-500 hover:text-gray-700 text-xl font-bold"
-                                >
-                                    ×
-                                </button>
-                            </div>
-                            <div className="p-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <DetailItem label={t("ID")} value={selectedExpense.id} />
-                                    <DetailItem label={t("Expense")} value={selectedExpense.expense?.name} />
-                                    <DetailItem label={t("Category")} value={selectedExpense.category?.name} />
-                                    <DetailItem label={t("Amount")} value={selectedExpense.amount} />
-                                    <DetailItem label={t("Branch")} value={selectedExpense.branch?.name} />
-                                    <DetailItem label={t("Cashier")} value={selectedExpense.cashier?.name} />
-                                    <DetailItem label={t("Cashier Man")} value={selectedExpense.cahier_man?.user_name} />
-                                    <DetailItem label={t("Financial Account")} value={selectedExpense.financial_account?.name} />
-                                    <DetailItem label={t("Admin")} value={selectedExpense.admin?.name} />
-                                    <DetailItem label={t("Note")} value={selectedExpense.note || "-"} />
-                                </div>
-                                <div className="flex justify-end mt-6">
-                                    <StaticButton
-                                        text={t("Close")}
-                                        handleClick={() => setShowDetailsModal(false)}
-                                        bgColor="bg-mainColor"
-                                        Color="text-white"
-                                        rounded="rounded-full"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </section>
+                </div>
+            )}
         </>
     );
 };
 
-// Helper component for detail items
 const DetailItem = ({ label, value }) => (
     <div className="flex flex-col">
         <span className="text-sm font-medium text-gray-500">{label}</span>
-        <span className="text-lg text-gray-900">{value}</span>
+        <span className="text-lg font-semibold text-gray-900">{value || "-"}</span>
     </div>
 );
 
-export default PayExpenses;
+export default ExpensesPayment;
