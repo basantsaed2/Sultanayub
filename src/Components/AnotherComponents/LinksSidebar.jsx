@@ -381,6 +381,17 @@ const adminRoutes = [
     redirectTo: "/dashboard/expenses/expenses_category",
   },
   {
+    name: "Inventory",
+    path: "/dashboard/inventory",
+    permission: "inventory",
+    icon: TbReportSearch,
+    subRoutes: [
+      { name: "Products", path: "/dashboard/inventory/inventory_products", permission: "inventory", },
+      { name: "Materials", path: "/dashboard/inventory/inventory_materials", permission: "inventory", },
+    ],
+    redirectTo: "/dashboard/inventory/inventory_products",
+  },
+  {
     name: "Reports",
     path: "/dashboard/reports",
     permission: "Reports",

@@ -189,6 +189,8 @@ import EditStore from "./Pages/Dashboard/Admin/Store/EditStore";
 import StoreMan from "./Pages/Dashboard/Admin/StoreMan/StoreMan";
 import AddStoreMan from "./Pages/Dashboard/Admin/StoreMan/AddStoreMan";
 import EditStoreMan from "./Pages/Dashboard/Admin/StoreMan/EditStoreMan";
+import InventoryMaterial from "./Pages/Dashboard/Admin/Inventory/InventoryMaterial";
+import InventoryProduct from "./Pages/Dashboard/Admin/Inventory/InventoryProduct";
 // import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
 
 const ProductSetupLayout = () => {
@@ -1550,6 +1552,42 @@ export const router = createBrowserRouter([
               },
             ]
           },
+
+          {
+            path: 'inventory',
+            element: <Outlet />,
+            children: [
+              {
+                path: '',
+                children: [
+                  {
+                    path: 'inventory_products',
+                    children: [
+                      {
+                        index: true,
+                        element: <InventoryProduct />,
+                      },
+                    ]
+                  },
+                ]
+              },
+              {
+                path: 'inventory_materials',
+                children: [
+                  {
+                    path: '',
+                    children: [
+                      {
+                        index: true,
+                        element: <InventoryMaterial />,
+                      },
+                    ]
+                  },
+                ]
+              },
+            ]
+          },
+
 
           {
             path: 'expenses',
