@@ -183,6 +183,7 @@ import OrdersDeliveryParent from "./Pages/Dashboard/Admin/OrdersDelivery/OrdersD
 import DeletedCustomer from "./Pages/Dashboard/Admin/Users/DeletedCustomer/DeletedCustomer";
 import DueGroupModule from "./Pages/Dashboard/Admin/GroupModules/DueGroupModule";
 import LanguageSystem from "./Pages/Dashboard/Admin/Setting/LanguageSystem/LanguageSystem";
+import FreeDiscount from "./Pages/Dashboard/Admin/FreeDiscount/FreeDiscount";
 // import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
 
 const ProductSetupLayout = () => {
@@ -1547,6 +1548,11 @@ export const router = createBrowserRouter([
                 element: <ExpensesPayment />,
               }
             ]
+          },
+
+          {
+            path: 'free_discount',
+            element: <FreeDiscount />,
           },
 
           {

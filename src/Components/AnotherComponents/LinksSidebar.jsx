@@ -326,6 +326,12 @@ const adminRoutes = [
     icon: BiSolidEnvelope,
   },
   {
+    name: "FreeDiscount",
+    path: "/dashboard/free_discount",
+    permission: "FreeDiscount",
+    icon: MdDiscount,
+  },
+  {
     name: "Purchase",
     path: "/dashboard/purchase",
     permission: "purchase",
