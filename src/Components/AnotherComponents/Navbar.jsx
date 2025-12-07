@@ -56,19 +56,19 @@ const Navbar = () => {
     url: `${apiUrl}/admin/profile`,
   });
 
-  const handleLanguage = () => {
-    const newLang = i18n.language === "ar" ? "en" : "ar";
-    i18n.changeLanguage(newLang);
-    localStorage.setItem("language", newLang);
-    dispatch(setLanguage(newLang));
-  };
-
   useEffect(() => {
-    const savedLanguage = localStorage.getItem("language");
-    if (savedLanguage) {
-      i18n.changeLanguage(savedLanguage);
-    }
+    const savedLanguage = localStorage.getItem("language") || "en";
+    i18n.changeLanguage(savedLanguage);
+    dispatch(setLanguage(savedLanguage));
   }, [i18n]);
+
+  // Replace handleLanguage with this:
+  const handleLanguageChange = (e) => {
+    const lang = e.target.value;
+    i18n.changeLanguage(lang);
+    localStorage.setItem("language", lang);
+    dispatch(setLanguage(lang));
+  };
 
   // Fetch user profile data when dialog opens
   useEffect(() => {
@@ -298,8 +298,8 @@ const Navbar = () => {
                 <GrLanguage />
               </i>
               <select
-                onChange={handleLanguage}
-                defaultValue={i18n.language}
+                value={i18n.language}
+                onChange={handleLanguageChange}
                 className="flex items-center py-1 bg-transparent border border-white rounded text-mainColor"
               >
                 <option value="en">EN</option>

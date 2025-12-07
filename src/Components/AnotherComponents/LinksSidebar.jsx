@@ -284,6 +284,12 @@ const adminRoutes = [
     icon: BiSolidCoupon,
   },
   {
+    name: "Popup",
+    path: "/dashboard/popup",
+    permission: "Popup",
+    icon: BiSolidCoupon,
+  },
+  {
     name: "Languages",
     path: "/dashboard/languages",
     permission: "Settings",

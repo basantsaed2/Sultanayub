@@ -192,6 +192,7 @@ import EditStoreMan from "./Pages/Dashboard/Admin/StoreMan/EditStoreMan";
 import InventoryMaterial from "./Pages/Dashboard/Admin/Inventory/InventoryMaterial";
 import InventoryProduct from "./Pages/Dashboard/Admin/Inventory/InventoryProduct";
 import FreeDiscount from "./Pages/Dashboard/Admin/FreeDiscount/FreeDiscount";
+import Popup from "./Pages/Dashboard/Admin/Popup/Popup";
 // import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
 
 const ProductSetupLayout = () => {
@@ -1699,6 +1700,10 @@ export const router = createBrowserRouter([
               },
             ]
           },
+          {
+            path: 'popup',
+            element: <Popup />
+          }
         ]
       },
     ],

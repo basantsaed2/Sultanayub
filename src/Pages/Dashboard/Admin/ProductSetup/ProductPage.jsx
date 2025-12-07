@@ -606,7 +606,7 @@ const ProductPage = () => {
                       <div key={category.id} className="border-b">
                         <div className="flex items-center justify-between px-4 py-3">
                           <button
-                            className="w-full text-lg font-TextFontSemiBold text-left text-mainColor bg-gray-50 hover:bg-gray-100"
+                            className={`w-full text-lg font-TextFontSemiBold ${selectedLanguage === "ar" ? "text-right" : "text-left"} text-mainColor bg-gray-50 hover:bg-gray-100`}
                             onClick={() => toggleCategory(category.id)}
                           >
                             {category.name}

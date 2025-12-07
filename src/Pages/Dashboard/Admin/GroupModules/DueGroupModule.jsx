@@ -144,11 +144,11 @@ const DueGroupModule = () => {
                 <button
                     onClick={() => { setActiveTab("all"); refetch(); }}
                     className={`rounded-2xl p-8 shadow-xl transition-all hover:scale-105 border-4 ${activeTab === "all"
-                            ? "border-mainColor bg-gradient-to-br from-blue-50 to-blue-100"
-                            : "border-gray-200 bg-white hover:bg-gray-50"
+                        ? "border-mainColor bg-gradient-to-br from-blue-50 to-blue-100"
+                        : "border-gray-200 bg-white hover:bg-gray-50"
                         }`}
                 >
-                    <p className="text-gray-600 text-lg font-medium">{t("Total Due")}</p>
+                    <p className="text-gray-600 text-lg font-medium">{t("Total Orders")}</p>
                     <p className="text-4xl font-bold text-mainColor mt-3">
                         {totalDue.toLocaleString()} EGP
                     </p>
@@ -158,8 +158,8 @@ const DueGroupModule = () => {
                 <button
                     onClick={() => { setActiveTab("paid"); refetch(); }}
                     className={`rounded-2xl p-8 shadow-xl transition-all hover:scale-105 border-4 ${activeTab === "paid"
-                            ? "border-green-600 bg-gradient-to-br from-green-50 to-green-100"
-                            : "border-gray-200 bg-white hover:bg-gray-50"
+                        ? "border-green-600 bg-gradient-to-br from-green-50 to-green-100"
+                        : "border-gray-200 bg-white hover:bg-gray-50"
                         }`}
                 >
                     <p className="text-gray-600 text-lg font-medium">{t("Total Paid")}</p>
@@ -172,8 +172,8 @@ const DueGroupModule = () => {
                 <button
                     onClick={() => { setActiveTab("due"); refetch(); }}
                     className={`rounded-2xl p-8 shadow-xl transition-all hover:scale-105 border-4 ${activeTab === "due"
-                            ? "border-red-600 bg-gradient-to-br from-red-50 to-red-100"
-                            : "border-gray-200 bg-white hover:bg-gray-50"
+                        ? "border-red-600 bg-gradient-to-br from-red-50 to-red-100"
+                        : "border-gray-200 bg-white hover:bg-gray-50"
                         }`}
                 >
                     <p className="text-gray-600 text-lg font-medium">{t("Remaining Due")}</p>
@@ -330,8 +330,8 @@ const DueGroupModule = () => {
                                             key={pageNum}
                                             onClick={() => goToPage(pageNum)}
                                             className={`w-10 h-10 rounded-lg transition ${currentPage === pageNum
-                                                    ? "bg-mainColor text-white font-bold"
-                                                    : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
+                                                ? "bg-mainColor text-white font-bold"
+                                                : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
                                                 }`}
                                         >
                                             {pageNum}

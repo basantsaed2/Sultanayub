@@ -132,7 +132,7 @@ const DetailsOrderPage = () => {
       setPreparationTime(dataDetailsOrder?.preparing_time);
 
       // FIX: Use the fresh current branch ID from dataDetailsOrder
-      const currentBranchId = dataDetailsOrder.order.branch_id;
+      const currentBranchId = dataDetailsOrder.order?.branch.id;
       const filteredBranches = dataDetailsOrder.branches.filter(
         branch => branch.id !== currentBranchId
       );
@@ -476,7 +476,7 @@ const DetailsOrderPage = () => {
                             </p>
                             <p className="mt-1 text-sm text-gray-700">
                               <span className="font-TextFontSemiBold">{t("OrderTime")}:</span>{" "}
-                              {detailsData?.date || ""}
+                              {detailsData?.order_time || ""}
                             </p>
                             <p className="mt-1 text-sm text-gray-700">
                               <span className="font-TextFontSemiBold">{t("OrderDate")}:</span>{" "}
@@ -484,7 +484,7 @@ const DetailsOrderPage = () => {
                             </p>
                             <p className="mt-1 text-sm text-gray-700">
                               <span className="font-TextFontSemiBold">{t("Schedule")}:</span>{" "}
-                              {detailsData?.schedule?.name || "-"}
+                              {detailsData?.schedule || "-"}
                             </p>
                             <p className="mt-1 text-sm text-gray-700">
                               <span className="font-TextFontSemiBold">{t("Source")}:</span>{" "}
@@ -686,30 +686,24 @@ const DetailsOrderPage = () => {
 
                                     {/* Products Column: Name, Price, Quantity */}
                                     <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                      {order.product.map((prod, prodIndex) => (
-                                        <div
-                                          key={`prod-${prodIndex}`}
-                                          className="mb-3"
-                                        >
-                                          {/* Image */}
-                                          {prod.product.image_link && (
-                                            <img
-                                              src={prod.product.image_link}
-                                              alt={prod.product.name}
-                                              className="w-14 h-14 object-cover rounded border border-gray-300"
-                                            />
-                                          )}
-                                          <div className="font-semibold text-gray-800">
-                                            {prod.product.name}
-                                          </div>
-                                          <div className="text-sm text-gray-600">
-                                            {t("Price")}: {prod.product.price}
-                                          </div>
-                                          <div className="text-sm text-gray-600">
-                                            {t("Qty")}: {prod.count}
-                                          </div>
+                                      <div className="mb-3">
+                                        {order.product.image_link && (
+                                          <img
+                                            src={order.product.image_link}
+                                            alt={order.product.name}
+                                            className="w-14 h-14 object-cover rounded border border-gray-300"
+                                          />
+                                        )}
+                                        <div className="font-semibold text-gray-800">
+                                          {order.product.name}
                                         </div>
-                                      ))}
+                                        <div className="text-sm text-gray-600">
+                                          {t("Price")}: {order.product.price}
+                                        </div>
+                                        <div className="text-sm text-gray-600">
+                                          {t("Qty")}: {order.product.count}
+                                        </div>
+                                      </div>
                                     </td>
 
                                     {/* Variations Column: Name and Type */}
@@ -759,29 +753,27 @@ const DetailsOrderPage = () => {
 
                                     {/* Addons Column: Name, Price, Count */}
                                     <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                      {order.addons &&
-                                        order.addons.length > 0 ? (
-                                        order.addons.map(
-                                          (addon, addonIndex) => (
-                                            <div
-                                              key={`addon-${addonIndex}`}
-                                              className="mb-3"
-                                            >
+                                      {order.addons && order.addons.length > 0 ? (
+                                        order.addons.map((addon, addonIndex) => {
+                                          // Safe access – if addon or addon.addon is missing, show nothing or fallback
+                                          const addonName = addon?.name || "—";
+                                          const addonPrice = addon?.price || 0;
+                                          const count = addon?.count || 1;
+
+                                          return (
+                                            <div key={`addon-${addonIndex}`} className="mb-3">
                                               <div className="font-semibold text-gray-800">
-                                                {addon.addon.name}
+                                                {addonName}
+                                                {count > 1 && <span className="text-xs text-gray-500"> ×{count}</span>}
                                               </div>
                                               <div className="text-sm text-gray-500">
-                                                {t("Price")}:{" "}
-                                                {addon.addon.price}
-                                              </div>
-                                              <div className="text-sm text-gray-500">
-                                                {t("Count")}: {addon.count || 0}
+                                                {t("Price")}: {addonPrice} {count > 1 && `× ${count} = ${addonPrice * count}`}
                                               </div>
                                             </div>
-                                          )
-                                        )
+                                          );
+                                        })
                                       ) : (
-                                        <span className="text-gray-500">-</span>
+                                        <span className="text-gray-400">—</span>
                                       )}
                                     </td>
 
@@ -809,14 +801,14 @@ const DetailsOrderPage = () => {
                                     {/* Extras Column: Name and Price */}
                                     <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
                                       {order.extras && order.extras.length > 0 ? (
-                                        order.extras.map((extra, extraIndex) => (
-                                          <div key={`extra-${extraIndex}`} className="mb-3">
-                                            <div className="font-semibold text-gray-800">{extra.name}</div>
+                                        order.extras.map((extra, i) => (
+                                          <div key={i} className="mb-2">
+                                            <div className="font-medium">{extra?.name || "—"}</div>
                                             <div className="text-xs text-gray-500">
                                               {t("Price")}:{" "}
                                               {extra.price ? (
                                                 <span>
-                                                  {extra.price} {t("currency")} {/* Adjust currency as needed */}
+                                                  {extra.price}
                                                 </span>
                                               ) : (
                                                 <span>-</span>
@@ -825,32 +817,20 @@ const DetailsOrderPage = () => {
                                           </div>
                                         ))
                                       ) : (
-                                        <span className="text-gray-500">-</span>
+                                        <span className="text-gray-400">—</span>
                                       )}
                                     </td>
 
                                     {/* Notes Column: Styled Card for Product Notes */}
+                                    {/* Notes Column */}
                                     <td className="px-2 py-1 whitespace-normal">
-                                      {order.product.map((prod, prodIndex) => (
-                                        <div
-                                          key={`note-${prodIndex}`}
-                                          className="mb-3"
-                                        >
-                                          {prod.notes ? (
-                                            <div className="relative p-2 text-sm text-gray-700 border-l-4 border-red-400 rounded-md shadow-sm bg-red-50">
-                                              <div className="flex items-start">
-                                                <p className="line-clamp-3">
-                                                  {prod.notes}
-                                                </p>
-                                              </div>
-                                            </div>
-                                          ) : (
-                                            <span className="text-gray-500">
-                                              {t("No notes")}
-                                            </span>
-                                          )}
+                                      {order.product.notes ? (
+                                        <div className="relative p-2 text-sm text-gray-700 border-l-4 border-red-400 rounded-md shadow-sm bg-red-50">
+                                          <p className="line-clamp-3">{order.product.notes}</p>
                                         </div>
-                                      ))}
+                                      ) : (
+                                        <span className="text-gray-500">{t("No notes")}</span>
+                                      )}
                                     </td>
                                   </tr>
                                 )
@@ -861,70 +841,57 @@ const DetailsOrderPage = () => {
                       </div>
 
                       {/* Order Summary */}
+                      {/* Order Summary - FIXED */}
                       <div className="flex flex-col p-2 my-2 gap-y-1">
-                        <p className="flex items-center justify-between w-full">
-                          {(detailsData?.order_details || []).forEach(
-                            (orderDetail) => {
-                              // Sum extras prices
-                              orderDetail.extras.forEach((extraItem) => {
-                                totalItemPrice += extraItem.price;
-                              });
+                        {/* Calculate totals safely */}
+                        {(() => {
+                          let totalItemPrice = 0;
+                          let totalAddonPrice = 0;
 
-                              // Sum product prices (price * count)
-                              orderDetail.product.forEach((productItem) => {
-                                totalItemPrice +=
-                                  productItem.product.price * productItem.count;
-                              });
-
-                              // Sum variations' options prices
-                              // orderDetail.variations.forEach((variation) => {
-                              //   variation.options.forEach((optionItem) => {
-                              //     totalItemPrice += optionItem.price;
-                              //   });
-                              // });
+                          (detailsData?.order_details || []).forEach((orderDetail) => {
+                            // Product is a single object → NOT an array
+                            const product = orderDetail.product;
+                            if (product) {
+                              totalItemPrice += (product.price || product.price_after_tax || 0) * (product.count || 1);
                             }
-                          )}
-                          {/* Display total items price */}
-                          {t("ItemsPrice")}:<span>{totalItemPrice}</span>
-                        </p>
 
-                        <p className="flex items-center justify-between w-full">
-                          {t("Tax/VAT")}:
-                          <span>{detailsData?.total_tax || 0}</span>
-                        </p>
-                        <p className="flex items-center justify-between w-full">
-                          {(detailsData?.order_details || []).forEach(
-                            (orderDetail) => {
-                              orderDetail.addons.forEach((addonItem) => {
-                                // Add the price of each addon to the total
-                                totalAddonPrice +=
-                                  addonItem.addon.price * addonItem.count;
-                              });
-                            }
-                          )}
+                            // Addons
+                            (orderDetail.addons || []).forEach((addonItem) => {
+                              totalAddonPrice += (addonItem?.price || 0) * (addonItem.count || 1);
+                            });
 
-                          <span>{t("AddonsPrice")}:</span>
-                          <span>{totalAddonPrice}</span>
-                        </p>
-                        <p className="flex items-center justify-between w-full">
-                          {t("Subtotal")}:
-                          <span>{totalItemPrice + totalAddonPrice}</span>
-                        </p>
-                        <p className="flex items-center justify-between w-full">
-                          {t("ExtraDiscount")}:{" "}
-                          <span>{detailsData?.total_discount || 0}</span>
-                        </p>
-                        <p className="flex items-center justify-between w-full">
-                          {t("CouponDiscount")}:
-                          <span> {detailsData?.coupon_discount || 0}</span>
-                        </p>
-                        <p className="flex items-center justify-between w-full">
-                          {t("DeliveryFee")}:
-                          <span> {detailsData?.address?.zone?.price || 0}</span>
-                        </p>
-                        <p className="flex items-center justify-between w-full text-lg font-TextFontSemiBold">
-                          {t("Total")}:<span>{detailsData?.amount}</span>
-                        </p>
+                            // Extras
+                            (orderDetail.extras || []).forEach((extraItem) => {
+                              totalItemPrice += extraItem.price || 0;
+                            });
+                          });
+
+                          return (
+                            <>
+                              <p className="flex items-center justify-between w-full">
+                                {t("ItemsPrice")}: <span>{totalItemPrice.toFixed(2)}</span>
+                              </p>
+                              <p className="flex items-center justify-between w-full">
+                                {t("AddonsPrice")}: <span>{totalAddonPrice.toFixed(2)}</span>
+                              </p>
+                              <p className="flex items-center justify-between w-full">
+                                {t("Tax/VAT")}: <span>{detailsData?.total_tax || 0}</span>
+                              </p>
+                              <p className="flex items-center justify-between w-full">
+                                {t("Subtotal")}: <span>{(totalItemPrice + totalAddonPrice).toFixed(2)}</span>
+                              </p>
+                              <p className="flex items-center justify-between w-full">
+                                {t("CouponDiscount")}: <span>{detailsData?.coupon_discount || 0}</span>
+                              </p>
+                              <p className="flex items-center justify-between w-full">
+                                {t("DeliveryFee")}: <span>{detailsData?.address?.zone?.price || 0}</span>
+                              </p>
+                              <p className="flex items-center justify-between w-full text-lg font-TextFontSemiBold text-mainColor">
+                                {t("Total")}: <span>{detailsData?.amount || 0}</span>
+                              </p>
+                            </>
+                          );
+                        })()}
                       </div>
                     </div>
                   )}
