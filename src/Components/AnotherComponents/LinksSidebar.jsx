@@ -326,6 +326,17 @@ const adminRoutes = [
     icon: BiSolidEnvelope,
   },
   {
+    name: "Store",
+    path: "/dashboard/store",
+    permission: "Store",
+    icon: FaShoppingBasket,
+    subRoutes: [
+      { name: "List", path: "/dashboard/store/store_list", permission: "Store", },
+      { name: "Store Man", path: "/dashboard/store/store_man", permission: "StoreMan", },
+    ],
+    redirectTo: "/dashboard/store/store_list",
+  },
+  {
     name: "FreeDiscount",
     path: "/dashboard/free_discount",
     permission: "FreeDiscount",
@@ -374,6 +385,17 @@ const adminRoutes = [
       { name: "Payment", path: "/dashboard/expenses/expenses_payment", permission: "expenses", },
     ],
     redirectTo: "/dashboard/expenses/expenses_category",
+  },
+  {
+    name: "Inventory",
+    path: "/dashboard/inventory",
+    permission: "inventory",
+    icon: TbReportSearch,
+    subRoutes: [
+      { name: "Products", path: "/dashboard/inventory/inventory_products", permission: "inventory", },
+      { name: "Materials", path: "/dashboard/inventory/inventory_materials", permission: "inventory", },
+    ],
+    redirectTo: "/dashboard/inventory/inventory_products",
   },
   {
     name: "Reports",

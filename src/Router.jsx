@@ -183,6 +183,14 @@ import OrdersDeliveryParent from "./Pages/Dashboard/Admin/OrdersDelivery/OrdersD
 import DeletedCustomer from "./Pages/Dashboard/Admin/Users/DeletedCustomer/DeletedCustomer";
 import DueGroupModule from "./Pages/Dashboard/Admin/GroupModules/DueGroupModule";
 import LanguageSystem from "./Pages/Dashboard/Admin/Setting/LanguageSystem/LanguageSystem";
+import Store from "./Pages/Dashboard/Admin/Store/Store";
+import AddStore from "./Pages/Dashboard/Admin/Store/AddStore";
+import EditStore from "./Pages/Dashboard/Admin/Store/EditStore";
+import StoreMan from "./Pages/Dashboard/Admin/StoreMan/StoreMan";
+import AddStoreMan from "./Pages/Dashboard/Admin/StoreMan/AddStoreMan";
+import EditStoreMan from "./Pages/Dashboard/Admin/StoreMan/EditStoreMan";
+import InventoryMaterial from "./Pages/Dashboard/Admin/Inventory/InventoryMaterial";
+import InventoryProduct from "./Pages/Dashboard/Admin/Inventory/InventoryProduct";
 import FreeDiscount from "./Pages/Dashboard/Admin/FreeDiscount/FreeDiscount";
 // import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
 
@@ -889,7 +897,7 @@ export const router = createBrowserRouter([
               },
               {
                 path: 'language_system',
-                element: <LanguageSystem/>
+                element: <LanguageSystem />
               }
             ]
           },
@@ -1494,6 +1502,93 @@ export const router = createBrowserRouter([
               },
             ]
           },
+
+          {
+            path: 'store',
+            element: <Outlet />,
+            children: [
+              {
+                path: '',
+                children: [
+                  {
+                    path: 'store_list',
+                    children: [
+                      {
+                        index: true,
+                        element: <Store />,
+                      },
+                      {
+                        path: 'add',
+                        element: <AddStore />,
+                      },
+                      {
+                        path: 'edit/:storeId',
+                        element: <EditStore />
+                      }
+                    ]
+                  },
+                ]
+              },
+              {
+                path: 'store_man',
+                children: [
+                  {
+                    path: '',
+                    children: [
+                      {
+                        index: true,
+                        element: <StoreMan />,
+                      },
+                      {
+                        path: 'add',
+                        element: <AddStoreMan />,
+                      },
+                      {
+                        path: 'edit/:storeManId',
+                        element: <EditStoreMan />
+                      }
+                    ]
+                  },
+                ]
+              },
+            ]
+          },
+
+          {
+            path: 'inventory',
+            element: <Outlet />,
+            children: [
+              {
+                path: '',
+                children: [
+                  {
+                    path: 'inventory_products',
+                    children: [
+                      {
+                        index: true,
+                        element: <InventoryProduct />,
+                      },
+                    ]
+                  },
+                ]
+              },
+              {
+                path: 'inventory_materials',
+                children: [
+                  {
+                    path: '',
+                    children: [
+                      {
+                        index: true,
+                        element: <InventoryMaterial />,
+                      },
+                    ]
+                  },
+                ]
+              },
+            ]
+          },
+
 
           {
             path: 'expenses',
