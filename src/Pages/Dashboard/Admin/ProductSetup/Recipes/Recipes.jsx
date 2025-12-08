@@ -50,7 +50,7 @@ const Recipes = () => {
     useEffect(() => {
         if (dataRecipes && dataRecipes.recipe) {
             setRecipes(dataRecipes.recipe);
-            
+
             const navProductName = location.state?.productName;
             if (navProductName) {
                 setProductName(navProductName);
@@ -70,25 +70,6 @@ const Recipes = () => {
         navigate(-1);
     };
 
-    // Handle status change
-    const handleStatusChange = async (recipeId, recipeName, currentStatus) => {
-        const newStatus = currentStatus ? 0 : 1;
-        const success = await changeState(
-            `${apiUrl}/admin/recipe/status/${recipeId}`,
-            `Recipe status updated successfully`,
-            { status: newStatus }
-        );
-        
-        if (success) {
-            // Update local state
-            setRecipes(prev => prev.map(recipe => 
-                recipe.id === recipeId 
-                    ? { ...recipe, status: newStatus }
-                    : recipe
-            ));
-        }
-    };
-
     // Handle delete
     const handleDelete = async (recipeId, recipeName) => {
         if (window.confirm(`Are you sure you want to delete recipe ${recipeName}?`)) {
@@ -97,7 +78,7 @@ const Recipes = () => {
                 `Recipe deleted successfully`,
                 {}
             );
-            
+
             if (success) {
                 setRecipes(prev => prev.filter(recipe => recipe.id !== recipeId));
             }
@@ -110,7 +91,6 @@ const Recipes = () => {
         t("Store Category"),
         t("Unit"),
         t("Weight"),
-        t("Status"),
         t("Actions"),
     ];
 
@@ -147,7 +127,7 @@ const Recipes = () => {
                             <tr className="w-full border-b-2">
                                 {headers.map((name, index) => (
                                     <th
-                                        className="min-w-[120px] px-4 py-2 text-mainColor text-center font-TextFontSemiBold text-sm lg:text-base whitespace-nowrap"
+                                        className="min-w-[120px] sm:w-[8%] lg:w-[5%] text-mainColor text-center font-TextFontLight sm:text-sm lg:text-base xl:text-lg pb-3"
                                         key={index}
                                     >
                                         {name}
@@ -184,21 +164,8 @@ const Recipes = () => {
                                             {recipe.weight || "0"}
                                         </td>
                                         <td className="px-4 py-2 text-center">
-                                            <Switch
-                                                checked={recipe.status === 1}
-                                                handleClick={() => {
-                                                    handleStatusChange(
-                                                        recipe.id,
-                                                        recipe.store_product?.name,
-                                                        recipe.status
-                                                    );
-                                                }}
-                                                disabled={loadingChange}
-                                            />
-                                        </td>
-                                        <td className="px-4 py-2 text-center">
                                             <div className="flex items-center justify-center gap-2">
-                                                <Link 
+                                                <Link
                                                     to={`edit/${recipe.id}`}
                                                     className="p-1 text-blue-600 hover:text-blue-800"
                                                 >
@@ -236,9 +203,8 @@ const Recipes = () => {
                                 <button
                                     key={page}
                                     onClick={() => handlePageChange(page)}
-                                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${
-                                        currentPage === page ? "bg-mainColor text-white" : "text-mainColor"
-                                    }`}
+                                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page ? "bg-mainColor text-white" : "text-mainColor"
+                                        }`}
                                 >
                                     {page}
                                 </button>

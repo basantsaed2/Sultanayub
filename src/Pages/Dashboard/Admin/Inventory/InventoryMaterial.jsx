@@ -366,6 +366,7 @@ const InventoryMaterial = () => {
             handleBackToCurrent();
         }
     };
+
     // NEW: Handle back from adjustment
     const handleBackFromAdjustment = () => {
         setShowAdjustment(false);

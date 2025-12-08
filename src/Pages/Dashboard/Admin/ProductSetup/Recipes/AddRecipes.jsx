@@ -30,7 +30,7 @@ const AddRecipes = () => {
         url: `${apiUrl}/admin/recipe/lists`,
     });
 
-    const { postData, loadingPost } = usePost({
+    const { postData, loadingPost, response } = usePost({
         url: `${apiUrl}/admin/recipe/add`,
     });
 
@@ -79,6 +79,12 @@ const AddRecipes = () => {
     const handleBack = () => {
         navigate(-1);
     };
+
+    useEffect(() => {
+        if (response && response.status === 200 && !loadingPost) {
+            handleBack();
+        }
+    }, [response]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -149,11 +155,11 @@ const AddRecipes = () => {
                             <TitlePage text={t("Add Recipe")} />
                         </div>
                     </div>
-                    
+
                     <form onSubmit={handleSubmit}>
                         <div className="sm:py-3 lg:py-6">
                             <div className="flex flex-wrap items-start justify-start w-full gap-4 sm:flex-col lg:flex-row">
-                                
+
                                 {/* Unit Selection */}
                                 <div className="sm:w-full lg:w-[48%] flex flex-col items-start justify-center gap-y-1">
                                     <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -212,7 +218,7 @@ const AddRecipes = () => {
                                         value={storeProductOptions.find(option => option.value === formData.store_product_id)}
                                         onChange={(selected) => handleInputChange('store_product_id', selected?.value || "")}
                                         placeholder={t("Select Store Product")}
-                                        className="w-full"
+                                        className="w-full p-4"
                                         classNamePrefix="select"
                                         isClearable
                                     />

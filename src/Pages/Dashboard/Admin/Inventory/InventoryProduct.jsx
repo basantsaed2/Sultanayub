@@ -357,9 +357,16 @@ const InventoryProduct = () => {
             return auth.toastError(t("Please enter a reason"));
         }
 
-        // Prepare payload - only send selected shortages
+        // Find the current inventory to get store_id
+        const currentInventory = currentInventories.find(inv => inv.id === editingInventoryId);
+
+        if (!currentInventory) {
+            return auth.toastError(t("Inventory not found"));
+        }
+
+        // Prepare payload - use store_id from current inventory
         const payload = {
-            store_id: editingInventoryId,
+            store_id: currentInventory.store_id, // This should be the store ID from the current table
             reason: adjustmentReason
         };
 
