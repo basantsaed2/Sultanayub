@@ -107,9 +107,9 @@ const EditPurchaseList = () => {
 
     // Fill form with existing data
     useEffect(() => {
-        if (!purchaseData?.purchase) return;
+        if (!purchaseData) return;
 
-        const p = purchaseData.purchase;
+        const p = purchaseData;
 
         const isProduct = !!p.product_id;
         setType(isProduct ? "product" : "material");
@@ -313,7 +313,7 @@ const EditPurchaseList = () => {
                     <form onSubmit={handleSubmit} className="p-4">
 
                         {/* Type Selection */}
-                        <div className="flex justify-center gap-16 mb-10 p-8 bg-gray-50 rounded-xl shadow-sm">
+                        <div className="flex justify-center gap-16 mb-10 p-2">
                             <label className="flex items-center gap-4 cursor-pointer text-lg font-medium">
                                 <input
                                     type="radio"
@@ -429,7 +429,6 @@ const EditPurchaseList = () => {
                                     placeholder={formData.receipt ? formData.receipt.name : t("Click to change receipt")}
                                     value={formData.receipt ? formData.receipt.name : ""}
                                     readonly={true}
-                                    upload={true}
                                     onClick={() => fileInputRef.current?.click()}
                                     handleFileChange={handleFileChange}
                                     uploadFileRef={fileInputRef}
@@ -481,16 +480,20 @@ const EditPurchaseList = () => {
 
                         {/* Buttons */}
                         <div className="flex justify-end gap-4 mt-10">
-                            <StaticButton
-                                text={t("Reset")}
-                                handleClick={handleReset}
-                                bgColor="bg-transparent"
-                                Color="text-mainColor"
-                                border="border-2"
-                                borderColor="border-mainColor"
-                                rounded="rounded-full"
-                            />
-                            <SubmitButton text={t("Update")} rounded="rounded-full" />
+                            <div>
+                                <StaticButton
+                                    text={t("Reset")}
+                                    handleClick={handleReset}
+                                    bgColor="bg-transparent"
+                                    Color="text-mainColor"
+                                    border="border-2"
+                                    borderColor="border-mainColor"
+                                    rounded="rounded-full"
+                                />
+                            </div>
+                            <div>
+                                <SubmitButton text={t("Update")} rounded="rounded-full" />
+                            </div>
                         </div>
                     </form>
                 </section>

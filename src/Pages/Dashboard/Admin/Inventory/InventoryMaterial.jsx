@@ -265,8 +265,8 @@ const InventoryMaterial = () => {
         const payload = {};
 
         inventoryProducts.forEach((product, index) => {
-            payload[`products[${index}][id]`] = product.product_id;
-            payload[`products[${index}][quantity]`] = editedQuantities[index];
+            payload[`materials[${index}][id]`] = product.product_id;
+            payload[`materials[${index}][quantity]`] = editedQuantities[index];
         });
 
         // Set URL for modifying products

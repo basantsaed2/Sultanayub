@@ -302,7 +302,7 @@ const AddPurchaseList = () => {
                     <form onSubmit={handleSubmit} className="p-4">
 
                         {/* Type Selection */}
-                        <div className="flex justify-center gap-16 mb-4 p-4">
+                        <div className="flex justify-center gap-16 mb-4 p-2">
                             <label className="flex items-center gap-4 cursor-pointer text-lg font-medium">
                                 <input
                                     type="radio"
