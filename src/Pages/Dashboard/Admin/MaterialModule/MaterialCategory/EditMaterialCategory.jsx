@@ -19,10 +19,10 @@ const EditMaterialCategory = () => {
     const { materialCategoryId } = useParams();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
-    const { 
-        refetch: refetchMaterialCategory, 
-        loading: loadingMaterialCategory, 
-        data: dataMaterialCategory 
+    const {
+        refetch: refetchMaterialCategory,
+        loading: loadingMaterialCategory,
+        data: dataMaterialCategory
     } = useGet({
         url: `${apiUrl}/admin/material_categories/item/${materialCategoryId}`,
     });
@@ -55,7 +55,7 @@ const EditMaterialCategory = () => {
 
             setName(category.name || "");
             setStatus(category.status || 1);
-            
+
             // Find the selected category from available options
             if (category.category_id && materialCategories.length > 0) {
                 const foundCategory = materialCategories.find(
@@ -117,7 +117,7 @@ const EditMaterialCategory = () => {
 
             setName(category.name || "");
             setStatus(category.status || 1);
-            
+
             // Reset selected category
             if (category.category_id && materialCategories.length > 0) {
                 const foundCategory = materialCategories.find(
@@ -142,8 +142,9 @@ const EditMaterialCategory = () => {
         const formData = new FormData();
         formData.append("name", name);
         formData.append("status", status);
-        formData.append("category_id", selectedCategory ? selectedCategory.value : "");
-
+        if (selectedCategory) {
+            formData.append("category_id", selectedCategory.value);
+        }
         postData(formData, t("Material Category Updated Success"));
     };
 

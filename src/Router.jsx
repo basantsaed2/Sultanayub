@@ -193,6 +193,8 @@ import InventoryMaterial from "./Pages/Dashboard/Admin/Inventory/InventoryMateri
 import InventoryProduct from "./Pages/Dashboard/Admin/Inventory/InventoryProduct";
 import FreeDiscount from "./Pages/Dashboard/Admin/FreeDiscount/FreeDiscount";
 import Popup from "./Pages/Dashboard/Admin/Popup/Popup";
+import VoidList from "./Pages/Dashboard/Admin/VoidList/VoidList";
+import PurchaseCount from "./Pages/Dashboard/Admin/Purchase/PurachasCount/PurachasCount";
 // import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
 
 const ProductSetupLayout = () => {
@@ -1430,6 +1432,10 @@ export const router = createBrowserRouter([
               {
                 path: "purchase_transfer",
                 element: <PurchaseTransfer />
+              },
+              {
+                path: "purchase_count",
+                element: <PurchaseCount />
               }
             ]
           },
@@ -1703,7 +1709,12 @@ export const router = createBrowserRouter([
           {
             path: 'popup',
             element: <Popup />
+          },
+          {
+            path: 'void_orders',
+            element: <VoidList />
           }
+
         ]
       },
     ],

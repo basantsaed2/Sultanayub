@@ -3,6 +3,7 @@ import Select from "react-select";
 import { TitlePage, StaticLoader } from "../../../../Components/Components";
 import { useGet } from "../../../../Hooks/useGet";
 import { usePost } from "../../../../Hooks/usePostJson";
+import { useChangeState } from "../../../../Hooks/useChangeState";
 import { useAuth } from "../../../../Context/Auth";
 import { t } from "i18next";
 import {
@@ -110,7 +111,7 @@ const InventoryProduct = () => {
         loading: loadingInabilityList,
         refetch: refetchInabilityList
     } = useGet({
-        url: editingInventoryId ? `${apiUrl}/admin/inventory/product/inability_list/${editingInventoryId}` : null,
+        url: editingInventoryId && finalizingInventory ? `${apiUrl}/admin/inventory/product/inability_list/${editingInventoryId}` : null,
     });
 
     // NEW: API for updating shortages
@@ -120,6 +121,9 @@ const InventoryProduct = () => {
     } = usePost({
         url: `${apiUrl}/admin/inventory/product/wested`,
     });
+
+    //Change inventory state
+    const { changeState: changeInventoryState, loading: loadingChangeInventoryState } = useChangeState();
 
     // Tab State
     const [activeTab, setActiveTab] = useState("current"); // "current", "history"
@@ -189,7 +193,8 @@ const InventoryProduct = () => {
         if (categoryIds.length === 0) return [];
 
         return (listsData?.products || [])
-            .filter((p) => categoryIds.includes(p.category_id))
+            .filter((p) => categoryIds.includes(p.category_id) ||
+                categoryIds.map(String).includes(String(p.category_id)))
             .map((p) => ({ value: p.id, label: p.name }));
     }, [listsData?.products, selectedCategories]);
 
@@ -297,10 +302,6 @@ const InventoryProduct = () => {
     const handleAdjustment = () => {
         setShowReport(false);
         setShowAdjustment(true);
-        // Fetch shortage list
-        refetchInabilityList({
-            url: `${apiUrl}/admin/inventory/product/inability_list/${editingInventoryId}`
-        });
     };
 
     // NEW: Load shortage list when data is fetched
@@ -828,6 +829,19 @@ const InventoryProduct = () => {
         const csv = Papa.unparse(csvData);
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
         saveAs(blob, `inventory_report_${editingInventoryId}_${new Date().toISOString().split("T")[0]}.csv`);
+    };
+
+    //Change inventory state
+    const handleChangeStatus = async (id, name, favourite) => {
+        const response = await changeInventoryState(
+            `${apiUrl}/admin/inventory/product/update_inventory_status/${id}`,
+            `${name} Changed Status.`,
+        );
+
+        if (response) {
+            refetchCurrent();
+            refetchHistory();
+        }
     };
 
     return (
@@ -1577,10 +1591,13 @@ const InventoryProduct = () => {
                                     <thead className="bg-gray-100">
                                         <tr>
                                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-                                                {t("ID")}
+                                                {t("#")}
                                             </th>
                                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
                                                 {t("Store")}
+                                            </th>
+                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                {t("Date")}
                                             </th>
                                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
                                                 {t("Products")}
@@ -1588,31 +1605,31 @@ const InventoryProduct = () => {
                                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
                                                 {t("Total Quantity")}
                                             </th>
-                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                            {/* <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
                                                 {t("Cost")}
-                                            </th>
-                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-                                                {t("Date")}
-                                            </th>
-                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-                                                {t("Status")}
-                                            </th>
+                                            </th> */}
                                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
                                                 {t("Shortage")}
                                             </th>
                                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
                                                 {t("Action")}
                                             </th>
+                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                {t("Change Status")}
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-200">
-                                        {currentInventories.map((inventory) => (
+                                        {currentInventories.map((inventory, index) => (
                                             <tr key={inventory.id} className="hover:bg-gray-50">
                                                 <td className="px-6 py-5 font-medium text-gray-900">
-                                                    #{inventory.id}
+                                                    {index + 1}
                                                 </td>
                                                 <td className="px-6 py-5 text-gray-600">
                                                     {inventory.store || "—"}
+                                                </td>
+                                                <td className="px-6 py-5 text-gray-600">
+                                                    {formatDate(inventory.date)}
                                                 </td>
                                                 <td className="px-6 py-5 text-gray-600">
                                                     {inventory.product_num || 0}
@@ -1620,20 +1637,9 @@ const InventoryProduct = () => {
                                                 <td className="px-6 py-5 text-gray-600">
                                                     {inventory.total_quantity || 0}
                                                 </td>
-                                                <td className="px-6 py-5 text-gray-600">
-                                                    ${inventory.cost || 0}
-                                                </td>
-                                                <td className="px-6 py-5 text-gray-600">
-                                                    {formatDate(inventory.date)}
-                                                </td>
-                                                <td className="px-6 py-5">
-                                                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${inventory.status === 'current'
-                                                        ? 'bg-blue-100 text-blue-800'
-                                                        : 'bg-gray-100 text-gray-800'
-                                                        }`}>
-                                                        {inventory.status === 'current' ? t('Current') : t(inventory.status)}
-                                                    </span>
-                                                </td>
+                                                {/* <td className="px-6 py-5 text-gray-600">
+                                                    {inventory.cost || 0}
+                                                </td> */}
                                                 <td className="px-6 py-5">
                                                     {inventory.has_shortage ? (
                                                         <div className="flex items-center gap-2 text-red-600">
@@ -1682,6 +1688,15 @@ const InventoryProduct = () => {
                                                             {t("Finalize")}
                                                         </button>
                                                     )}
+                                                </td>
+                                                <td className="px-6 py-5">
+                                                    <button
+                                                        onClick={() => handleChangeStatus(inventory.id, inventory.name)}
+                                                        className="px-2 py-2 bg-green-600 text-white text-sm rounded-lg font-medium hover:bg-green-700 transition flex items-center gap-2"
+                                                    >
+                                                        <FiCheckCircle size={18} />
+                                                        {t("Done")}
+                                                    </button>
                                                 </td>
                                             </tr>
                                         ))}

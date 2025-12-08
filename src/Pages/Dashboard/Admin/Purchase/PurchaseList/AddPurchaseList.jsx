@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+// src/pages/Admin/Purchase/AddPurchaseList.jsx
+import React, { useEffect, useState, useRef } from "react";
 import {
     StaticButton,
     StaticLoader,
@@ -13,472 +14,406 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import { useGet } from "../../../../../Hooks/useGet";
-import Select from 'react-select';
+import Select from "react-select";
 
-const AddPurchase = () => {
+const AddPurchaseList = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const { t } = useTranslation();
+    const auth = useAuth();
+    const navigate = useNavigate();
 
+    // File input ref for UploadInput
+    const fileInputRef = useRef(null);
+
+    // Fetch data
     const {
         refetch: refetchPurchaseData,
         loading: loadingPurchaseData,
         data: purchaseData,
-    } = useGet({
-        url: `${apiUrl}/admin/purchase/lists`,
-    });
+    } = useGet({ url: `${apiUrl}/admin/purchase/lists` });
 
     const { postData, loadingPost, response } = usePost({
         url: `${apiUrl}/admin/purchase/add`,
     });
 
-    const { t } = useTranslation();
-    const auth = useAuth();
-    const navigate = useNavigate();
+    // Type: product or material
+    const [type, setType] = useState("product");
 
+    // Select states
+    const [selectedStore, setSelectedStore] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [selectedUnit, setSelectedUnit] = useState(null);
+
+    // Options
+    const [stores, setStores] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [materialCategories, setMaterialCategories] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [materials, setMaterials] = useState([]);
+    const [units, setUnits] = useState([]);
+    const [financials, setFinancials] = useState([]);
+    const [filteredItems, setFilteredItems] = useState([]);
+
+    // Form state
     const [formData, setFormData] = useState({
-        category_id: "",
-        product_id: "",
         store_id: "",
-        total_coast: "",
-        receipt: null,
+        category_id: "",
+        category_material_id: "",
+        product_id: "",
+        material_id: "",
+        unit_id: "",
         quintity: "",
-        date: new Date().toISOString().split('T')[0],
-        financial: [{ id: "", amount: "" }]
+        total_coast: "",
+        date: new Date().toISOString().split("T")[0],
+        receipt: null,
+        financial: [{ id: "", amount: "" }],
     });
 
-    const [categories, setCategories] = useState([]);
-    const [products, setProducts] = useState([]);
-    const [filteredProducts, setFilteredProducts] = useState([]);
-    const [stores, setStores] = useState([]);
-    const [financials, setFinancials] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState(null);
-    const [selectedProduct, setSelectedProduct] = useState(null);
-    const [selectedStore, setSelectedStore] = useState(null);
     const [totalPaymentAmount, setTotalPaymentAmount] = useState(0);
     const [remainingAmount, setRemainingAmount] = useState(0);
 
+    // Fetch data
     useEffect(() => {
         refetchPurchaseData();
-    }, [refetchPurchaseData]);
+    }, []);
 
-    // Update data when purchaseData changes
+    // Populate dropdowns
     useEffect(() => {
-        if (purchaseData) {
-            // Set categories
-            if (purchaseData.categories) {
-                const categoryOptions = purchaseData.categories.map(category => ({
-                    value: category.id,
-                    label: category.name,
-                }));
-                setCategories(categoryOptions);
-            }
+        if (!purchaseData) return;
 
-            // Set products
-            if (purchaseData.products) {
-                setProducts(purchaseData.products);
-            }
+        setStores(purchaseData.stores?.map(s => ({ value: s.id, label: s.name })) || []);
+        setUnits(purchaseData.units?.map(u => ({ value: u.id, label: u.name })) || []);
+        setFinancials(purchaseData.financials?.map(f => ({ value: f.id, label: f.name })) || []);
+        setCategories(purchaseData.categories?.map(c => ({ value: c.id, label: c.name })) || []);
+        setMaterialCategories(purchaseData.material_categories?.map(c => ({ value: c.id, label: c.name })) || []);
 
-            // Set stores
-            if (purchaseData.stores) {
-                const storeOptions = purchaseData.stores.map(store => ({
-                    value: store.id,
-                    label: store.name,
-                }));
-                setStores(storeOptions);
-            }
+        setProducts(
+            purchaseData.products?.map(p => ({
+                value: p.id,
+                label: p.name,
+                category_id: p.category_id,
+            })) || []
+        );
 
-            // Set financials
-            if (purchaseData.financials) {
-                const financialOptions = purchaseData.financials.map(financial => ({
-                    value: financial.id,
-                    label: financial.name,
-                }));
-                setFinancials(financialOptions);
-            }
-        }
+        setMaterials(
+            purchaseData.materials?.map(m => ({
+                value: m.id,
+                label: m.name,
+                category_id: m.category_id,
+            })) || []
+        );
     }, [purchaseData]);
 
-    // Filter products when category changes
+    // Filter items by category
     useEffect(() => {
-        if (selectedCategory && products.length > 0) {
-            const filtered = products.filter(product =>
-                product.category_id === selectedCategory.value
-            );
-            const productOptions = filtered.map(product => ({
-                value: product.id,
-                label: product.name,
-            }));
-            setFilteredProducts(productOptions);
+        const list = type === "product" ? products : materials;
+        const catId = selectedCategory?.value;
 
-            // Reset product selection when category changes
-            setSelectedProduct(null);
-            setFormData(prev => ({ ...prev, product_id: "" }));
+        if (catId && list.length > 0) {
+            const filtered = list.filter(item => item.category_id === catId);
+            setFilteredItems(filtered);
         } else {
-            setFilteredProducts([]);
+            setFilteredItems([]);
         }
-    }, [selectedCategory, products]);
+        setSelectedItem(null);
+    }, [type, selectedCategory, products, materials]);
 
-    // Calculate total payment amount and remaining amount
+    // Reset category & item on type change
     useEffect(() => {
-        const totalPaid = formData.financial.reduce((sum, financial) => {
-            const amount = parseFloat(financial.amount) || 0;
-            return sum + amount;
-        }, 0);
+        setSelectedCategory(null);
+        setSelectedItem(null);
+        setFilteredItems([]);
+    }, [type]);
 
+    // Calculate payment totals
+    useEffect(() => {
+        const totalPaid = formData.financial.reduce((sum, f) => sum + (parseFloat(f.amount) || 0), 0);
         setTotalPaymentAmount(totalPaid);
-
         const totalCost = parseFloat(formData.total_coast) || 0;
-        const remaining = totalCost - totalPaid;
-        setRemainingAmount(remaining);
+        setRemainingAmount(totalCost - totalPaid);
     }, [formData.financial, formData.total_coast]);
 
-    // Navigate back after successful submission
+    // Success redirect
     useEffect(() => {
-        if (!loadingPost && response) {
-            handleBack();
+        if (!loadingPost && response?.status === 200) {
+            auth.toastSuccess(t("Purchase Added Successfully"));
+            navigate(-1);
         }
     }, [response, loadingPost]);
 
-    // Handle category selection change
-    const handleCategoryChange = (selectedOption) => {
-        setSelectedCategory(selectedOption);
+    // Handlers
+    const handleStoreChange = (opt) => {
+        setSelectedStore(opt);
+        setFormData(prev => ({ ...prev, store_id: opt ? opt.value : "" }));
+    };
+
+    const handleCategoryChange = (opt) => {
+        setSelectedCategory(opt);
+        const value = opt ? opt.value : "";
         setFormData(prev => ({
             ...prev,
-            category_id: selectedOption ? selectedOption.value : ""
+            category_id: type === "product" ? value : "",
+            category_material_id: type === "material" ? value : "",
         }));
     };
 
-    // Handle product selection change
-    const handleProductChange = (selectedOption) => {
-        setSelectedProduct(selectedOption);
+    const handleItemChange = (opt) => {
+        setSelectedItem(opt);
+        const value = opt ? opt.value : "";
         setFormData(prev => ({
             ...prev,
-            product_id: selectedOption ? selectedOption.value : ""
+            product_id: type === "product" ? value : "",
+            material_id: type === "material" ? value : "",
         }));
     };
 
-    // Handle store selection change
-    const handleStoreChange = (selectedOption) => {
-        setSelectedStore(selectedOption);
-        setFormData(prev => ({
-            ...prev,
-            store_id: selectedOption ? selectedOption.value : ""
-        }));
+    const handleUnitChange = (opt) => {
+        setSelectedUnit(opt);
+        setFormData(prev => ({ ...prev, unit_id: opt ? opt.value : "" }));
     };
 
-    // Handle financial method change with validation
     const handleFinancialChange = (index, field, value) => {
-        const totalCost = parseFloat(formData.total_coast) || 0;
-
-        if (field === "amount") {
-            const amountValue = parseFloat(value) || 0;
-
-            // Calculate current total without this field
-            const currentTotalWithoutThis = formData.financial.reduce((sum, financial, i) => {
-                if (i !== index) {
-                    return sum + (parseFloat(financial.amount) || 0);
-                }
-                return sum;
-            }, 0);
-
-            // Check if the new amount would exceed total cost
-            if (currentTotalWithoutThis + amountValue > totalCost) {
-                auth.toastError(t("Total payment amount cannot exceed total cost"));
-                return;
-            }
-        }
-
-        const updatedFinancials = [...formData.financial];
-        updatedFinancials[index] = {
-            ...updatedFinancials[index],
-            [field]: value
-        };
-        setFormData(prev => ({ ...prev, financial: updatedFinancials }));
+        const updated = [...formData.financial];
+        updated[index][field] = value;
+        setFormData(prev => ({ ...prev, financial: updated }));
     };
 
-    // Auto-fill remaining amount in the first empty payment method
-    const autoFillRemainingAmount = () => {
-        if (remainingAmount <= 0) return;
-
-        const updatedFinancials = [...formData.financial];
-        let filled = false;
-
-        // Find first empty amount field and fill it with remaining amount
-        for (let i = 0; i < updatedFinancials.length; i++) {
-            if (!updatedFinancials[i].amount || updatedFinancials[i].amount === "") {
-                updatedFinancials[i] = {
-                    ...updatedFinancials[i],
-                    amount: remainingAmount.toFixed(2)
-                };
-                filled = true;
-                break;
-            }
-        }
-
-        // If no empty field found, add a new one
-        if (!filled) {
-            updatedFinancials.push({ id: "", amount: remainingAmount.toFixed(2) });
-        }
-
-        setFormData(prev => ({ ...prev, financial: updatedFinancials }));
-    };
-
-    // Add more financial methods
     const addFinancialMethod = () => {
         setFormData(prev => ({
             ...prev,
-            financial: [...prev.financial, { id: "", amount: "" }]
+            financial: [...prev.financial, { id: "", amount: "" }],
         }));
     };
 
-    // Remove financial method
     const removeFinancialMethod = (index) => {
         if (formData.financial.length > 1) {
-            const updatedFinancials = formData.financial.filter((_, i) => i !== index);
-            setFormData(prev => ({ ...prev, financial: updatedFinancials }));
+            setFormData(prev => ({
+                ...prev,
+                financial: prev.financial.filter((_, i) => i !== index),
+            }));
         }
     };
 
-    // Handle file input change
     const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        setFormData(prev => ({ ...prev, receipt: file }));
+        const file = e.target.files?.[0];
+        if (file) {
+            setFormData(prev => ({ ...prev, receipt: file }));
+        }
+        // Allow re-uploading same file
+        if (e.target) e.target.value = "";
     };
 
-    // Handle input change for simple fields
     const handleInputChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    // Reset form
-    const handleReset = () => {
-        setFormData({
-            category_id: "",
-            product_id: "",
-            store_id: "",
-            total_coast: "",
-            receipt: null,
-            quintity: "",
-            date: new Date().toISOString().split('T')[0],
-            financial: [{ id: "", amount: "" }]
-        });
-        setSelectedCategory(null);
-        setSelectedProduct(null);
-        setSelectedStore(null);
-        setTotalPaymentAmount(0);
-        setRemainingAmount(0);
-    };
-
-    // Handle form submission
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Validation
-        if (!formData.category_id) {
-            auth.toastError(t("Please select a category"));
-            return;
-        }
-        if (!formData.product_id) {
-            auth.toastError(t("Please select a product"));
-            return;
-        }
-        if (!formData.store_id) {
-            auth.toastError(t("Please select a store"));
-            return;
-        }
-        if (!formData.total_coast || formData.total_coast <= 0) {
-            auth.toastError(t("Please enter a valid total cost"));
-            return;
-        }
-        if (!formData.quintity || formData.quintity <= 0) {
-            auth.toastError(t("Please enter a valid quantity"));
-            return;
-        }
-        if (!formData.date) {
-            auth.toastError(t("Please select a date"));
-            return;
+        if (!selectedStore) return auth.toastError(t("Please select store"));
+        if (!selectedCategory) return auth.toastError(t("Please select category"));
+        if (!selectedItem) return auth.toastError(t("Please select item"));
+        if (!selectedUnit) return auth.toastError(t("Please select unit"));
+        if (!formData.quintity || formData.quintity <= 0) return auth.toastError(t("Invalid quantity"));
+        if (!formData.total_coast || formData.total_coast <= 0) return auth.toastError(t("Invalid total cost"));
+
+        const totalPaid = formData.financial.reduce((s, f) => s + (parseFloat(f.amount) || 0), 0);
+        if (Math.abs(totalPaid - parseFloat(formData.total_coast)) > 0.01) {
+            return auth.toastError(t("Total payment must equal total cost"));
         }
 
-        // Validate financial methods
-        const validFinancials = formData.financial.filter(financial =>
-            financial.id && financial.amount && financial.amount > 0
-        );
+        const fd = new FormData();
+        fd.append("store_id", selectedStore.value);
+        fd.append("quintity", formData.quintity);
+        fd.append("total_coast", formData.total_coast);
+        fd.append("date", formData.date);
+        fd.append("unit_id", selectedUnit.value);
+        fd.append("type", type);
 
-        if (validFinancials.length === 0) {
-            auth.toastError(t("Please add at least one payment method with amount"));
-            return;
+        if (type === "product") {
+            fd.append("category_id", selectedCategory.value);
+            fd.append("product_id", selectedItem.value);
+        } else {
+            fd.append("category_material_id", selectedCategory.value);
+            fd.append("material_id", selectedItem.value);
         }
 
-        // Check if total payment amount equals total cost
-        const totalCost = parseFloat(formData.total_coast);
-        const totalPaid = validFinancials.reduce((sum, financial) => {
-            return sum + parseFloat(financial.amount);
-        }, 0);
+        if (formData.receipt) fd.append("receipt", formData.receipt);
 
-        if (Math.abs(totalPaid - totalCost) > 0.01) { // Allow small floating point differences
-            auth.toastError(t("Total payment amount must equal total cost"));
-            return;
-        }
-
-        const submitData = new FormData();
-        submitData.append("category_id", formData.category_id);
-        submitData.append("product_id", formData.product_id);
-        submitData.append("store_id", formData.store_id);
-        submitData.append("total_coast", formData.total_coast);
-        submitData.append("quintity", formData.quintity);
-        submitData.append("date", formData.date);
-
-        if (formData.receipt) {
-            submitData.append("receipt", formData.receipt);
-        }
-
-        // Add financial methods
-        validFinancials.forEach((financial, index) => {
-            submitData.append(`financial[${index}][id]`, financial.id);
-            submitData.append(`financial[${index}][amount]`, financial.amount);
+        formData.financial.forEach((f, i) => {
+            if (f.id && f.amount) {
+                fd.append(`financial[${i}][id]`, f.id);
+                fd.append(`financial[${i}][amount]`, f.amount);
+            }
         });
 
-        postData(submitData, t("Purchase Added Successfully"));
+        postData(fd);
     };
 
-    // Handle back navigation
-    const handleBack = () => {
-        navigate(-1);
+    const handleReset = () => {
+        setType("product");
+        setSelectedStore(null);
+        setSelectedCategory(null);
+        setSelectedItem(null);
+        setSelectedUnit(null);
+        setFormData({
+            store_id: "",
+            category_id: "",
+            category_material_id: "",
+            product_id: "",
+            material_id: "",
+            unit_id: "",
+            quintity: "",
+            total_coast: "",
+            date: new Date().toISOString().split("T")[0],
+            receipt: null,
+            financial: [{ id: "", amount: "" }],
+        });
+        if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
-    // Custom styles for react-select
     const selectStyles = {
         control: (base, state) => ({
             ...base,
-            border: '1px solid #D1D5DB',
-            borderRadius: '0.5rem',
-            padding: '0.25rem',
-            boxShadow: state.isFocused ? '0 0 0 2px rgba(59, 130, 246, 0.1)' : 'none',
-            borderColor: state.isFocused ? '#3B82F6' : '#D1D5DB',
-            '&:hover': {
-                borderColor: state.isFocused ? '#3B82F6' : '#9CA3AF'
-            }
+            border: "1px solid #D1D5DB",
+            borderRadius: "0.5rem",
+            padding: "0.5rem",
+            boxShadow: state.isFocused ? "0 0 0 2px rgba(59, 130, 246, 0.1)" : "none",
+            borderColor: state.isFocused ? "#3B82F6" : "#D1D5DB",
         }),
-        option: (base, state) => ({
-            ...base,
-            backgroundColor: state.isSelected ? '#3B82F6' : state.isFocused ? '#EFF6FF' : 'white',
-            color: state.isSelected ? 'white' : '#374151',
-            '&:hover': {
-                backgroundColor: '#EFF6FF'
-            }
-        })
     };
 
     return (
         <>
-            {loadingPost || loadingPurchaseData ? (
+            {loadingPurchaseData || loadingPost ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
                 </div>
             ) : (
                 <section className="pb-32">
-                    <div className="flex items-center justify-between p-2">
-                        <div className="flex items-center gap-x-2">
-                            <button
-                                onClick={handleBack}
-                                className="text-mainColor hover:text-red-700 transition-colors"
-                                title={t("Back")}
-                            >
-                                <IoArrowBack size={24} />
-                            </button>
-                            <TitlePage text={t("Add Purchase")} />
-                        </div>
+                    <div className="flex items-center gap-4 p-4">
+                        <button onClick={() => navigate(-1)} className="text-mainColor hover:text-red-700">
+                            <IoArrowBack size={28} />
+                        </button>
+                        <TitlePage text={t("Add Purchase")} />
                     </div>
-                    <form className="p-2" onSubmit={handleSubmit}>
-                        <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                            {/* Category */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Category")}:
-                                </span>
-                                <Select
-                                    value={selectedCategory}
-                                    onChange={handleCategoryChange}
-                                    options={categories}
-                                    placeholder={t("Select Category")}
-                                    isClearable
-                                    isSearchable
-                                    styles={selectStyles}
-                                    className="w-full"
-                                    noOptionsMessage={() => t("No categories available")}
-                                />
-                            </div>
 
-                            {/* Product */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Product")}:
-                                </span>
-                                <Select
-                                    value={selectedProduct}
-                                    onChange={handleProductChange}
-                                    options={filteredProducts}
-                                    placeholder={selectedCategory ? t("Select Product") : t("Select category first")}
-                                    isClearable
-                                    isSearchable
-                                    styles={selectStyles}
-                                    className="w-full"
-                                    isDisabled={!selectedCategory}
-                                    noOptionsMessage={() => t("No products available for this category")}
+                    <form onSubmit={handleSubmit} className="p-4">
+
+                        {/* Type Selection */}
+                        <div className="flex justify-center gap-16 mb-4 p-4">
+                            <label className="flex items-center gap-4 cursor-pointer text-lg font-medium">
+                                <input
+                                    type="radio"
+                                    name="type"
+                                    value="product"
+                                    checked={type === "product"}
+                                    onChange={(e) => setType(e.target.value)}
+                                    className="w-6 h-6 text-red-600"
                                 />
-                            </div>
+                                <span>{t("Product")}</span>
+                            </label>
+                            <label className="flex items-center gap-4 cursor-pointer text-lg font-medium">
+                                <input
+                                    type="radio"
+                                    name="type"
+                                    value="material"
+                                    checked={type === "material"}
+                                    onChange={(e) => setType(e.target.value)}
+                                    className="w-6 h-6 text-red-600"
+                                />
+                                <span>{t("Material")}</span>
+                            </label>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
                             {/* Store */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Store")}:
-                                </span>
+                            <div>
+                                <label className="block text-xl mb-2 text-thirdColor">{t("Store")} *</label>
                                 <Select
                                     value={selectedStore}
                                     onChange={handleStoreChange}
                                     options={stores}
                                     placeholder={t("Select Store")}
-                                    isClearable
-                                    isSearchable
+                                    isClearable isSearchable
                                     styles={selectStyles}
-                                    className="w-full"
-                                    noOptionsMessage={() => t("No stores available")}
+                                />
+                            </div>
+
+                            {/* Category */}
+                            <div>
+                                <label className="block text-xl mb-2 text-thirdColor">
+                                    {type === "product" ? t("Product Category") : t("Material Category")} *
+                                </label>
+                                <Select
+                                    value={selectedCategory}
+                                    onChange={handleCategoryChange}
+                                    options={type === "product" ? categories : materialCategories}
+                                    placeholder={t("Select Category")}
+                                    isClearable isSearchable
+                                    styles={selectStyles}
+                                />
+                            </div>
+
+                            {/* Item */}
+                            <div>
+                                <label className="block text-xl mb-2 text-thirdColor">
+                                    {type === "product" ? t("Product") : t("Material")} *
+                                </label>
+                                <Select
+                                    value={selectedItem}
+                                    onChange={handleItemChange}
+                                    options={filteredItems}
+                                    placeholder={selectedCategory ? t("Select...") : t("Select category first")}
+                                    isDisabled={!selectedCategory}
+                                    isClearable isSearchable
+                                    styles={selectStyles}
+                                />
+                            </div>
+
+                            {/* Unit */}
+                            <div>
+                                <label className="block text-xl mb-2 text-thirdColor">{t("Unit")} *</label>
+                                <Select
+                                    value={selectedUnit}
+                                    onChange={handleUnitChange}
+                                    options={units}
+                                    placeholder={t("Select Unit")}
+                                    isClearable isSearchable
+                                    styles={selectStyles}
                                 />
                             </div>
 
                             {/* Quantity */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Quantity")}:
-                                </span>
+                            <div>
+                                <label className="block text-xl mb-2 text-thirdColor">{t("Quantity")} *</label>
                                 <TextInput
                                     type="number"
+                                    step="0.01"
+                                    min="0.01"
                                     value={formData.quintity}
                                     onChange={(e) => handleInputChange("quintity", e.target.value)}
                                     placeholder={t("Enter Quantity")}
-                                    min="1"
                                 />
                             </div>
 
                             {/* Total Cost */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Total Cost")}:
-                                </span>
+                            <div>
+                                <label className="block text-xl mb-2 text-thirdColor">{t("Total Cost")} *</label>
                                 <TextInput
                                     type="number"
                                     step="0.01"
                                     value={formData.total_coast}
                                     onChange={(e) => handleInputChange("total_coast", e.target.value)}
                                     placeholder={t("Enter Total Cost")}
-                                    min="0"
                                 />
                             </div>
 
                             {/* Date */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Date")}:
-                                </span>
+                            <div>
+                                <label className="block text-xl mb-2 text-thirdColor">{t("Date")} *</label>
                                 <TextInput
                                     type="date"
                                     value={formData.date}
@@ -486,28 +421,28 @@ const AddPurchase = () => {
                                 />
                             </div>
 
-                            {/* Receipt */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Receipt")}:
-                                </span>
+                            {/* Receipt - NOW WORKING */}
+                            <div>
+                                <label className="block text-xl mb-2 text-thirdColor">{t("Receipt")}</label>
                                 <UploadInput
-                                    placeholder={t("Receipt")}
-                                    onChange={handleFileChange}
+                                    placeholder={formData.receipt ? formData.receipt.name : t("Click to upload receipt")}
+                                    value={formData.receipt ? formData.receipt.name : ""}
+                                    readonly={true}
+                                    onClick={() => fileInputRef.current?.click()}
+                                    handleFileChange={handleFileChange}
+                                    uploadFileRef={fileInputRef}
                                 />
                             </div>
                         </div>
 
                         {/* Financial Methods */}
-                        <div className="mt-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Payment Methods")}:
-                                </span>
+                        <div className="mt-10">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-xl font-medium text-thirdColor">{t("Payment Methods")}</h3>
                                 <button
                                     type="button"
                                     onClick={addFinancialMethod}
-                                    className="px-4 py-2 text-sm text-white bg-green-600 rounded-lg hover:bg-green-700"
+                                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                                 >
                                     {t("Add Payment Method")}
                                 </button>
@@ -568,7 +503,7 @@ const AddPurchase = () => {
                         </div>
 
                         {/* Buttons */}
-                        <div className="flex items-center justify-end w-full gap-x-4 mt-6">
+                        <div className="flex justify-end gap-4 mt-10">
                             <div>
                                 <StaticButton
                                     text={t("Reset")}
@@ -596,4 +531,4 @@ const AddPurchase = () => {
     );
 };
 
-export default AddPurchase;
+export default AddPurchaseList;

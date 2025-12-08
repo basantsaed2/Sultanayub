@@ -111,6 +111,12 @@ const adminRoutes = [
     icon: IoBagAddOutline,
   },
   {
+    name: "Void Orders",
+    path: "/dashboard/void_orders",
+    permission: "VoidOrders",
+    icon: IoBagAddOutline,
+  },
+  {
     name: "Category Setup",
     path: "/dashboard/category",
     permission: "Category",
@@ -360,6 +366,7 @@ const adminRoutes = [
       { name: "Products", path: "/dashboard/purchase/purchase_product", permission: "purchase", },
       { name: "Consumption", path: "/dashboard/purchase/purchase_consumption", permission: "purchase", },
       { name: "Wasted", path: "/dashboard/purchase/purchase_wasted", permission: "purchase", },
+      { name: "Count", path: "/dashboard/purchase/purchase_count", permission: "purchase", },
     ],
     redirectTo: "/dashboard/purchase/purchase_list",
   },

@@ -87,7 +87,9 @@ const AddMaterialCategory = () => {
         const formData = new FormData();
         formData.append("name", name);
         formData.append("status", status);
-        formData.append("category_id", selectedCategory ? selectedCategory.value : "");
+        if (selectedCategory) {
+            formData.append("category_id", selectedCategory.value);
+        }
 
         postData(formData, t("Material Category Added Success"));
     };
