@@ -169,7 +169,7 @@ const EditPurchaseCategory = () => {
         formData.append("name", name);
         formData.append("status", status);
         if (selectedCategory) {
-            formData.append("category_id", selectedCategory ? selectedCategory.value : "");
+            formData.append("category_id", selectedCategory.value);
         }
 
         postData(formData, t("Purchase Category Updated Success"));
