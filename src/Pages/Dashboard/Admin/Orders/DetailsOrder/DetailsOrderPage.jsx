@@ -40,7 +40,7 @@ const DetailsOrderPage = () => {
     refetch: refetchDetailsOrder,
     loading: loadingDetailsOrder,
     data: dataDetailsOrder,
-  } = useGet({ url: detailsOrderUrl });
+  } = useGet({ url: `${apiUrl}/admin/order/order/${orderNumPath}?locale=${selectedLanguage}` });
 
   // ✅ Delivery endpoint
   const deliveryUrl =
@@ -447,20 +447,25 @@ const DetailsOrderPage = () => {
                                 </span>
                               </h1>
 
-                              <div className="flex items-center justify-center gap-2 sm:w-full lg:w-6/12">
-                                <Link
-                                  to={`/dashboard/orders/details/${Number(orderNumPath) - 1}`}
-                                  className="w-6/12 px-1 py-1 text-sm text-center text-white transition-all duration-300 ease-in-out border-2 rounded-lg md:text-md bg-mainColor border-mainColor hover:bg-white hover:text-mainColor"
-                                >
-                                  {"<<"} {t("PrevOrder")}
-                                </Link>
-                                <Link
-                                  to={`/dashboard/orders/details/${Number(orderNumPath) + 1}`}
-                                  className="w-6/12 px-1 py-1 text-sm text-center text-white transition-all duration-300 ease-in-out border-2 rounded-lg md:text-md bg-mainColor border-mainColor hover:bg-white hover:text-mainColor"
-                                >
-                                  {t("NextOrder")} {">>"}
-                                </Link>
-                              </div>
+                              {
+                                role !== "branch" ? (
+                                  <div className="flex items-center justify-center gap-2 sm:w-full lg:w-6/12">
+                                    <Link
+                                      to={`/dashboard/orders/details/${Number(orderNumPath) - 1}`}
+                                      className="w-6/12 px-1 py-1 text-sm text-center text-white transition-all duration-300 ease-in-out border-2 rounded-lg md:text-md bg-mainColor border-mainColor hover:bg-white hover:text-mainColor"
+                                    >
+                                      {"<<"} {t("PrevOrder")}
+                                    </Link>
+                                    <Link
+                                      to={`/dashboard/orders/details/${Number(orderNumPath) + 1}`}
+                                      className="w-6/12 px-1 py-1 text-sm text-center text-white transition-all duration-300 ease-in-out border-2 rounded-lg md:text-md bg-mainColor border-mainColor hover:bg-white hover:text-mainColor"
+                                    >
+                                      {t("NextOrder")} {">>"}
+                                    </Link>
+                                  </div>
+                                ) : null
+                              }
+
                             </div>
 
                             {/* Original metadata lines */}
@@ -985,7 +990,7 @@ const DetailsOrderPage = () => {
                 </div>
 
                 {/* Transfer Branch Button & Modal */}
-                {role !== "branch" && detailsData.order_status !== "delivered" && detailsData.order_status !== "canceled" && (
+                {detailsData.order_status !== "delivered" && detailsData.order_status !== "canceled" && (
                   <>
                     <button
                       onClick={() => setOpenTransferModal(true)}
