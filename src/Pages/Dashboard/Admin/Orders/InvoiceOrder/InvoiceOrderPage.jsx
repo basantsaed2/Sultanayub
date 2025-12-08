@@ -254,7 +254,7 @@ const InvoiceOrderPage = () => {
       ? `${apiUrl}/branch/online_order/invoice/${orderId}?locale=${locale}`
       : `${apiUrl}/admin/order/invoice/${orderId}?locale=${locale}`;
 
-  const { refetch, loading, data } = useGet({ url: apiEndpoint });
+  const { refetch, loading, data } = useGet({ url: `${apiUrl}/admin/order/invoice/${orderId}?locale=${locale}` });
   const [invoiceHtml, setInvoiceHtml] = useState("");
 
   useEffect(() => { refetch(); }, [refetch]);
