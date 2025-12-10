@@ -4,8 +4,8 @@ import WhiteLogo from '../../Assets/Images/WhiteLogo'
 import { useAuth } from '../../Context/Auth'
 import { useTranslation } from 'react-i18next';
 const Sidebar = () => {
-                  const { t, i18n } = useTranslation();
-         const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
+       const { t, i18n } = useTranslation();
+       const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
 
        const auth = useAuth();
        const [stateSide, setStateSide] = useState(() => {
@@ -29,17 +29,23 @@ const Sidebar = () => {
        }, [stateSide]);
 
        return (
-              <aside  className="bg-mainColor py-6 text-lg px-3 rounded-tr-[38px] rounded-br-[38px]  overflow-hidden h-screen duration-300">
-                     {/* <aside className=""> */}
-                     <div direction={direction}  className="flex items-center justify-between w-full pb-1 border-b-2 cursor-pointer border-b-gray-300"
-                            onClick={handleSidebar}>
-                            <span className={`${stateSide ? 'block' : 'hidden'} font-TextFontLight text-white text-2xl`}>{t("projectName")}</span>
+              <aside className="bg-mainColor py-6 text-lg px-3 rounded-tr-[38px] rounded-br-[38px] h-screen duration-300 flex flex-col">
+                     {/* Header */}
+                     <div
+                            dir={direction}
+                            className="flex items-center justify-between w-full pb-1 border-b-2 cursor-pointer border-b-gray-300"
+                            onClick={handleSidebar}
+                     >
+                            <span className={`${stateSide ? 'block' : 'hidden'} font-TextFontLight text-white text-2xl`}>
+                                   {t("projectName")}
+                            </span>
                             <WhiteLogo width={50} height={50} />
                      </div>
-                     <div className="w-full h-[40rem] pb-52 text-lg overflow-scroll scrollSidebar scroll-smooth mt-2">
+
+                     {/* Scrollable Links Area */}
+                     <div className="flex-1 overflow-y-auto scrollSidebar scroll-smooth mt-4 px-1">
                             <LinksSidebar />
                      </div>
-                     {/* </aside> */}
               </aside>
        )
 }

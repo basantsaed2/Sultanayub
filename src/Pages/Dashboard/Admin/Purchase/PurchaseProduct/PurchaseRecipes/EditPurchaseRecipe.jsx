@@ -6,16 +6,16 @@ import {
     Switch,
     TextInput,
     TitlePage
-} from "../../../../../Components/Components";
-import { useGet } from "../../../../../Hooks/useGet";
-import { usePost } from "../../../../../Hooks/usePostJson";
-import { useAuth } from "../../../../../Context/Auth";
+} from "../../../../../../Components/Components";
+import { useGet } from "../../../../../../Hooks/useGet";
+import { usePost } from "../../../../../../Hooks/usePostJson";
+import { useAuth } from "../../../../../../Context/Auth";
 import { useTranslation } from "react-i18next";
 import Select from 'react-select';
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate, useParams } from "react-router-dom";
 
-const EditRecipes = () => {
+const EditPurchaseRecipe = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const { t } = useTranslation();
     const navigate = useNavigate();
@@ -330,4 +330,4 @@ const EditRecipes = () => {
     );
 };
 
-export default EditRecipes;
+export default EditPurchaseRecipe;

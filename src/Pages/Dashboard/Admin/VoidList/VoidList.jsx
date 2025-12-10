@@ -74,7 +74,7 @@ const VoidList = () => {
                                     <th className="px-6 py-4 text-left">{t("Branch")}</th>
                                     <th className="px-6 py-4 text-left">{t("Amount")}</th>
                                     <th className="px-6 py-4 text-left">{t("Void Reason")}</th>
-                                    <th className="px-6 py-4 text-left">{t("Void By")}</th>
+                                    <th className="px-6 py-4 text-left">{t("Void")}</th>
                                     <th className="px-6 py-4 text-center">{t("Actions")}</th>
                                 </tr>
                             </thead>
@@ -194,8 +194,8 @@ const VoidList = () => {
                                             highlight={!!selectedOrder.void_reason}
                                         />
                                         <DetailRow
-                                            label={t("Void By")}
-                                            value={selectedOrder.void || t("System")}
+                                            label={t("Void")}
+                                            value={selectedOrder.void || t("-")}
                                             highlight
                                         />
                                     </div>

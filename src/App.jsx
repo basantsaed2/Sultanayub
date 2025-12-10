@@ -50,7 +50,7 @@ const App = () => {
   const notificationSoundUrl =
     role === "admin"
       ? `${apiUrl}/admin/settings/notification_sound`
-      : null ;// No sound for branch role
+      : null;// No sound for branch role
 
   const {
     refetch: refetchCountOrders,
@@ -191,7 +191,7 @@ const App = () => {
           onClose={handleClose}
         />
       )}
-      <div className="relative flex w-full h-screen overflow-hidden bg-secoundBgColor">
+      <div className="relative flex w-full min-h-screen overflow-hidden bg-secoundBgColor">
         {/* Sidebar */}
         <div className={`${hideSide ? 'w-60' : 'w-16'} ${direction === "ltr" ? 'left-0' : 'right-0'} fixed left-0 z-10 duration-300 overflow-hidden`}>
           <Sidebar />

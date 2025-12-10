@@ -4,18 +4,18 @@ import {
     StaticLoader,
     TitlePage,
     AddButton,
-} from "../../../../../Components/Components";
-import { useGet } from "../../../../../Hooks/useGet";
-import { useAuth } from "../../../../../Context/Auth";
+} from "../../../../../../Components/Components";
+import { useGet } from "../../../../../../Hooks/useGet";
+import { useAuth } from "../../../../../../Context/Auth";
 import { t } from "i18next";
 import { IoArrowBack } from "react-icons/io5";
-import { EditIcon, DeleteIcon } from "../../../../../Assets/Icons/AllIcons";
-import { useDelete } from "../../../../../Hooks/useDelete";
+import { EditIcon, DeleteIcon } from "../../../../../../Assets/Icons/AllIcons";
+import { useDelete } from "../../../../../../Hooks/useDelete";
 
-const Recipes = () => {
+const PurchaseRecipe = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const navigate = useNavigate();
-    const { productId } = useParams();
+    const { purchaseId } = useParams();
     const location = useLocation();
     const auth = useAuth();
 
@@ -23,7 +23,7 @@ const Recipes = () => {
         refetch: refetchRecipes,
         loading: loadingRecipes,
         data: dataRecipes,
-    } = useGet({ url: `${apiUrl}/admin/recipe/${productId}` });
+    } = useGet({ url: `${apiUrl}/admin/purchase_recipe/${purchaseId}` });
 
     // Add useChangeState for delete operation
     const { deleteData, loadingDelete, responseDelete } = useDelete();
@@ -53,11 +53,11 @@ const Recipes = () => {
     }, [dataRecipes, location.state]);
 
     useEffect(() => {
-        if (productId) {
+        if (purchaseId) {
             refetchRecipes();
             setCurrentPage(1);
         }
-    }, [productId]); // Removed refetchRecipes from deps (stable from hook)
+    }, [purchaseId]); // Removed refetchRecipes from deps (stable from hook)
 
     const handleOpenDelete = (recipe) => {
         setOpenDelete(recipe);
@@ -82,8 +82,9 @@ const Recipes = () => {
 
     const headers = [
         t("#"),
-        t("Store Product"),
-        t("Store Category"),
+        t("Product"),
+        t("Category"),
+        t("Material"),
         t("Unit"),
         t("Weight"),
         t("Actions"),
@@ -147,10 +148,13 @@ const Recipes = () => {
                                             {(currentPage - 1) * recipesPerPage + idx + 1}
                                         </td>
                                         <td className="px-6 py-4 text-center text-sm text-thirdColor">
-                                            {recipe.store_product?.name || "-"}
+                                            {recipe.product?.name || "-"}
                                         </td>
                                         <td className="px-6 py-4 text-center text-sm text-thirdColor">
-                                            {recipe.store_category?.name || "-"}
+                                            {recipe.material_category?.name || "-"}
+                                        </td>
+                                        <td className="px-6 py-4 text-center text-sm text-thirdColor">
+                                            {recipe.material?.name || "-"}
                                         </td>
                                         <td className="px-6 py-4 text-center text-sm text-thirdColor">
                                             {recipe.unit?.name || "-"}
@@ -261,4 +265,4 @@ const Recipes = () => {
     );
 };
 
-export default Recipes;
+export default PurchaseRecipe;

@@ -196,6 +196,9 @@ import Popup from "./Pages/Dashboard/Admin/Popup/Popup";
 import VoidList from "./Pages/Dashboard/Admin/VoidList/VoidList";
 import PurchaseCount from "./Pages/Dashboard/Admin/Purchase/PurachasCount/PurachasCount";
 // import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
+import PurchaseRecipe from "./Pages/Dashboard/Admin/Purchase/PurchaseProduct/PurchaseRecipes/PurchaseRecipe";
+import AddPurchaseRecipe from "./Pages/Dashboard/Admin/Purchase/PurchaseProduct/PurchaseRecipes/AddPurchaseRecipe";
+import EditPurchaseRecipe from "./Pages/Dashboard/Admin/Purchase/PurchaseProduct/PurchaseRecipes/EditPurchaseRecipe";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -1368,21 +1371,34 @@ export const router = createBrowserRouter([
                 children: [
                   {
                     path: '',
+                    element: <PurchaseProduct />,   // Must contain <Outlet /> inside this component
+                  },
+                  {
+                    path: 'add',
+                    element: <AddPurchaseProduct />,
+                  },
+                  {
+                    path: 'edit/:purchaseProductId',
+                    element: <EditPurchaseProduct />,
+                  },
+                  {
+                    path: 'recipes/:purchaseId',
+                    element: <Outlet />,   // parent route for recipes
                     children: [
                       {
-                        index: true,
-                        element: <PurchaseProduct />,
+                        path: '',
+                        element: <PurchaseRecipe />,
                       },
                       {
                         path: 'add',
-                        element: <AddPurchaseProduct />,
+                        element: <AddPurchaseRecipe />,
                       },
                       {
-                        path: 'edit/:purchaseProductId',
-                        element: <EditPurchaseProduct />
+                        path: 'edit/:recipeId',
+                        element: <EditPurchaseRecipe />,
                       }
                     ]
-                  },
+                  }
                 ]
               },
               {

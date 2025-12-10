@@ -13,8 +13,10 @@ import { useDelete } from "../../../../../Hooks/useDelete";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { t } from "i18next";
+import { useNavigate } from "react-router-dom";
 
 const PurchaseProduct = () => {
+    const navigate = useNavigate();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const {
         refetch: refetchPurchaseProduct,
@@ -91,10 +93,21 @@ const PurchaseProduct = () => {
         }
     };
 
+    // Navigate to Recipes page
+    const handleViewRecipes = (productId, productName) => {
+        navigate(`recipes/${productId}`, {
+            state: {
+                productId: productId,
+                productName: productName
+            }
+        });
+    };
+
     const headers = [
         t("SL"),
         t("Name"),
         t("Purchase Category"),
+        t("View Recipes"),
         t("Status"),
         t("Action"),
     ];
@@ -149,8 +162,17 @@ const PurchaseProduct = () => {
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                             {PurchaseProduct?.name || "-"}
                                         </td>
-                                          <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                             {PurchaseProduct.category || "-"}
+                                        </td>
+                                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleViewRecipes(PurchaseProduct.id, PurchaseProduct.name)}
+                                                className="text-mainColor hover:text-red-700 transition-colors underline text-sm sm:text-base"
+                                            >
+                                                {t("View Recipes")}
+                                            </button>
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                             <Switch
@@ -246,8 +268,8 @@ const PurchaseProduct = () => {
                                         key={page}
                                         onClick={() => handlePageChange(page)}
                                         className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
-                                                ? "bg-mainColor text-white"
-                                                : " text-mainColor"
+                                            ? "bg-mainColor text-white"
+                                            : " text-mainColor"
                                             }`}
                                     >
                                         {page}

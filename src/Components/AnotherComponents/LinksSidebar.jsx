@@ -813,7 +813,7 @@ const LinksSidebar = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-start w-full LinksSidebar gap-y-3">
+    <div className="flex flex-col mb-5 items-center justify-start w-full LinksSidebar gap-y-3">
       {renderAllRoutes()}
     </div>
   );

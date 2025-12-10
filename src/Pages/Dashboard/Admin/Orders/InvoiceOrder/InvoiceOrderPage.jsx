@@ -132,13 +132,17 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
           padding-top: 5px;
           border-top: 1px dashed #000; 
         }
+
+        .receipt-only .itemName {
+          text-align: ${isRtl ? 'right' : 'left'}; 
+        }
       </style>
 
       <div class="header">
-        ${logoUrl 
-          ? `<img src="${logoUrl}" alt="Restaurant Logo" />`
-          : ``
-        }
+        ${logoUrl
+      ? `<img src="${logoUrl}" alt="Restaurant Logo" />`
+      : ``
+    }
         <h1>${receiptData.restaurantName}</h1>
         ${receiptData.branchName ? `<p>${receiptData.branchName}</p>` : ''}
       </div>
@@ -149,23 +153,23 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
         <div class="info-row"><span class="info-label">${t("Time")}:</span><span dir="ltr">${receiptData.orderTime || ''}</span></div>
         <div class="info-row"><span class="info-label">${t("Client")}:</span><span>${receiptData.customerName}</span></div>
         ${phones ? `<div class="info-row"><span class="info-label">${t("Phone")}:</span><span dir="ltr">${phones}</span></div>` : ''}
-        ${(receiptData.orderType === t("Delivery") || receiptData.orderType === "Delivery") && receiptData.deliveryMan ? 
-          `<div class="info-row"><span class="info-label">${t("DeliveryMan")}:</span><span>${receiptData.deliveryMan}</span></div>` : ''}
+        ${(receiptData.orderType === t("Delivery") || receiptData.orderType === "Delivery") && receiptData.deliveryMan ?
+      `<div class="info-row"><span class="info-label">${t("DeliveryMan")}:</span><span>${receiptData.deliveryMan}</span></div>` : ''}
         <div class="info-row"><span class="info-label">${t("OrderType")}:</span><span>${receiptData.orderType}</span></div>
         <div class="info-row"><span class="info-label">${t("Payment")}:</span><span>${receiptData.payment}</span></div>
       </div>
 
       <div class="address-notes-section">
-        ${(receiptData.orderType === t("Delivery") || receiptData.orderType === "Delivery") && receiptData.customerAddress ? 
-          `<div style="margin-bottom:5px"><span class="section-title">${t("DeliveryAddress")}:</span><div>${receiptData.customerAddress}</div></div>` : ''}
-        ${receiptData.orderNotes ? 
-          `<div><span class="section-title">${t("Notes")}:</span><div>${receiptData.orderNotes}</div></div>` : ''}
+        ${(receiptData.orderType === t("Delivery") || receiptData.orderType === "Delivery") && receiptData.customerAddress ?
+      `<div style="margin-bottom:5px"><span class="section-title">${t("DeliveryAddress")}:</span><div>${receiptData.customerAddress}</div></div>` : ''}
+        ${receiptData.orderNotes ?
+      `<div><span class="section-title">${t("Notes")}:</span><div>${receiptData.orderNotes}</div></div>` : ''}
       </div>
 
       <table>
         <thead>
           <tr style="font-weight:bold;font-size:14px;">
-            <th style="width:40%;text-align:left">${t("Item")}</th>
+            <th style="width:40%;" class="itemName">${t("Item")}</th>
             <th style="width:15%">${t("Qty")}</th>
             <th style="width:20%">${t("Price")}</th>
             <th style="width:25%">${t("Total")}</th>
@@ -173,14 +177,14 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
         </thead>
         <tbody>
           ${receiptData.items.map(item => {
-            const hasAddons = item.addons && item.addons.length > 0;
-            const hasExtras = item.extras && item.extras.length > 0;
-            const showTotalOnMainRow = !hasAddons && !hasExtras;
+        const hasAddons = item.addons && item.addons.length > 0;
+        const hasExtras = item.extras && item.extras.length > 0;
+        const showTotalOnMainRow = !hasAddons && !hasExtras;
 
-            let rows = '';
+        let rows = '';
 
-            const isMainLast = !hasAddons && !hasExtras;
-            rows += `<tr ${isMainLast ? 'class="item-block-last"' : ''}>
+        const isMainLast = !hasAddons && !hasExtras;
+        rows += `<tr ${isMainLast ? 'class="item-block-last"' : ''}>
               <td class="item-name" style="font-size:14px;font-weight:600;">
                 ${item.name}
                 ${item.variationString ? `<div class="item-variations">${item.variationString}</div>` : ''}
@@ -191,32 +195,32 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
               <td style="font-size:14px;font-weight:600;">${showTotalOnMainRow ? Number(item.total).toFixed(2) : ''}</td>
             </tr>`;
 
-            if (hasAddons) {
-              item.addons.forEach((addon, i) => {
-                const isLast = i === item.addons.length - 1 && !hasExtras;
-                rows += `<tr ${isLast ? 'class="item-block-last"' : ''}>
+        if (hasAddons) {
+          item.addons.forEach((addon, i) => {
+            const isLast = i === item.addons.length - 1 && !hasExtras;
+            rows += `<tr ${isLast ? 'class="item-block-last"' : ''}>
                   <td class="item-name" style="font-size:11px; ${isRtl ? 'padding-right:15px' : 'padding-left:15px'};">+ ${addon.name}</td>
                   <td>${addon.count > 1 ? addon.count : ''}</td>
                   <td>${Number(addon.price).toFixed(2)}</td>
                   <td>${isLast ? Number(item.total).toFixed(2) : ''}</td>
                 </tr>`;
-              });
-            }
+          });
+        }
 
-            if (hasExtras) {
-              item.extras.forEach((extra, i) => {
-                const isLast = i === item.extras.length - 1;
-                rows += `<tr ${isLast ? 'class="item-block-last"' : ''}>
+        if (hasExtras) {
+          item.extras.forEach((extra, i) => {
+            const isLast = i === item.extras.length - 1;
+            rows += `<tr ${isLast ? 'class="item-block-last"' : ''}>
                   <td class="item-name" style="font-size:11px; ${isRtl ? 'padding-right:15px' : 'padding-left:15px'};">+ ${extra.name}</td>
                   <td></td>
                   <td>${Number(extra.price).toFixed(2)}</td>
                   <td>${isLast ? Number(item.total).toFixed(2) : ''}</td>
                 </tr>`;
-              });
-            }
+          });
+        }
 
-            return rows;
-          }).join('')}
+        return rows;
+      }).join('')}
         </tbody>
       </table>
 
@@ -279,7 +283,7 @@ const InvoiceOrderPage = () => {
         const extrasPrice = itemExtras.reduce((s, e) => s + parseFloat(e.price || 0), 0);
         const extrasPerUnit = addonsPrice + extrasPrice;
 
-        const variationPrice = item.variations?.reduce((acc, v) => 
+        const variationPrice = item.variations?.reduce((acc, v) =>
           acc + (v.options?.reduce((oacc, opt) => oacc + parseFloat(opt.price || 0), 0) || 0), 0) || 0;
 
         const finalPrice = basePrice + variationPrice;
@@ -316,8 +320,8 @@ const InvoiceOrderPage = () => {
       else if (type.includes("delivery")) orderTypeDisplay = t("Delivery");
 
       const receiptData = {
-        restaurantName:  t("projectName"),
-        logoLink:logo || "", 
+        restaurantName: t("projectName"),
+        logoLink: logo || "",
         branchName: order.branch?.name || "",
         invoiceNumber: order.order_number || order.id,
         date: order.order_date,
