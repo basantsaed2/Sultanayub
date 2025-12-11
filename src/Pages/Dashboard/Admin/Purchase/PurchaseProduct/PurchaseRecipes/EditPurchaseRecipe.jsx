@@ -20,6 +20,7 @@ const EditPurchaseRecipe = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { recipeId } = useParams();
+    const { purchaseId } = useParams();
     const location = useLocation();
 
     // 1. Get initial data from the state passed by the list page
@@ -37,11 +38,11 @@ const EditPurchaseRecipe = () => {
         loading: loadingLists,
         data: dataLists,
     } = useGet({
-        url: `${apiUrl}/admin/recipe/lists`,
+        url: `${apiUrl}/admin/purchase_recipe/${purchaseId}`,
     });
 
     const { postData, loadingPost, response } = usePost({
-        url: `${apiUrl}/admin/recipe/update/${recipeId}`,
+        url: `${apiUrl}/admin/purchase_recipe/update/${recipeId}`,
     });
 
     const auth = useAuth();
@@ -52,8 +53,8 @@ const EditPurchaseRecipe = () => {
         unit_id: "",
         weight: "",
         status: 1,
-        store_category_id: "",
-        store_product_id: ""
+        material_category_id: "",
+        material_product_id: ""
     });
 
     // State to hold the original data for reset
@@ -62,13 +63,14 @@ const EditPurchaseRecipe = () => {
     // 2. Initialize form state using the data passed through location state
     useEffect(() => {
         if (initialRecipeData) {
+            console.log(initialRecipeData);
             const initialData = {
                 product_id: initialRecipeData.product?.id || "",
                 unit_id: initialRecipeData.unit?.id || "",
                 weight: initialRecipeData.weight || "",
                 status: initialRecipeData.status || 1,
-                store_category_id: initialRecipeData.material_category?.id || "", // Adjusted field name based on PurchaseRecipe display logic
-                store_product_id: initialRecipeData.material?.id || "" // Adjusted field name based on PurchaseRecipe display logic
+                material_category_id: initialRecipeData.material_category?.id || "", // Adjusted field name based on PurchaseRecipe display logic
+                material_product_id: initialRecipeData.material?.id || "" // Adjusted field name based on PurchaseRecipe display logic
             };
             setFormData(initialData);
             setOriginalFormData(initialData); // Store original data for reset
@@ -123,12 +125,12 @@ const EditPurchaseRecipe = () => {
         }
 
         // Note: The fields displayed as Category and Material in the list page
-        // are used here as store_category_id and store_product_id for the update API.
-        if (!formData.store_category_id) {
+        // are used here as material_category_id and material_product_id for the update API.
+        if (!formData.material_category_id) {
             auth.toastError(t("Please select a store category"));
             return;
         }
-        if (!formData.store_product_id) {
+        if (!formData.material_product_id) {
             auth.toastError(t("Please select a store product"));
             return;
         }
@@ -138,8 +140,8 @@ const EditPurchaseRecipe = () => {
             unit_id: formData.unit_id,
             weight: formData.weight,
             status: formData.status,
-            store_category_id: formData.store_category_id,
-            store_product_id: formData.store_product_id
+            material_category_id: formData.material_category_id,
+            material_product_id: formData.material_product_id
         };
 
         postData(submitData, "Recipe Updated Successfully");
@@ -151,12 +153,12 @@ const EditPurchaseRecipe = () => {
         label: unit.name
     })) || [];
 
-    const storeCategoryOptions = dataLists?.store_categories?.map(category => ({
+    const storeCategoryOptions = dataLists?.material_categories?.map(category => ({
         value: category.id,
         label: category.name
     })) || [];
 
-    const storeProductOptions = dataLists?.store_products?.map(product => ({
+    const storeProductOptions = dataLists?.material_products?.map(product => ({
         value: product.id,
         label: product.name
     })) || [];
@@ -226,6 +228,39 @@ const EditPurchaseRecipe = () => {
             <form onSubmit={handleSubmit}>
                 <div className="sm:py-3 lg:py-6">
                     <div className="flex flex-wrap items-start justify-start w-full gap-4 sm:flex-col lg:flex-row">
+                        {/* Store Category Selection (Maps to material_category from list data) */}
+                        <div className="sm:w-full lg:w-[48%] flex flex-col items-start justify-center gap-y-1">
+                            <span className="text-xl font-TextFontRegular text-thirdColor">
+                                {t("Category")} *
+                            </span>
+                            <Select
+                                options={storeCategoryOptions}
+                                value={findSelectedOption(storeCategoryOptions, formData.material_category_id)}
+                                onChange={(selected) => handleInputChange('material_category_id', selected?.value || "")}
+                                placeholder={t("Select Category")}
+                                className="w-full"
+                                classNamePrefix="select"
+                                isClearable
+                                styles={selectStyles}
+                            />
+                        </div>
+
+                        {/* Store Product Selection (Maps to material from list data) */}
+                        <div className="sm:w-full lg:w-[48%] flex flex-col items-start justify-center gap-y-1">
+                            <span className="text-xl font-TextFontRegular text-thirdColor">
+                                {t("Material")} *
+                            </span>
+                            <Select
+                                options={storeProductOptions}
+                                value={findSelectedOption(storeProductOptions, formData.material_product_id)}
+                                onChange={(selected) => handleInputChange('material_product_id', selected?.value || "")}
+                                placeholder={t("Select Material")}
+                                className="w-full"
+                                classNamePrefix="select"
+                                isClearable
+                                styles={selectStyles}
+                            />
+                        </div>
 
                         {/* Unit Selection */}
                         <div className="sm:w-full lg:w-[48%] flex flex-col items-start justify-center gap-y-1">
@@ -257,40 +292,6 @@ const EditPurchaseRecipe = () => {
                                 onChange={(e) => handleInputChange('weight', e.target.value)}
                                 placeholder={t("Enter weight")}
                                 required
-                            />
-                        </div>
-
-                        {/* Store Category Selection (Maps to material_category from list data) */}
-                        <div className="sm:w-full lg:w-[48%] flex flex-col items-start justify-center gap-y-1">
-                            <span className="text-xl font-TextFontRegular text-thirdColor">
-                                {t("Store Category")} *
-                            </span>
-                            <Select
-                                options={storeCategoryOptions}
-                                value={findSelectedOption(storeCategoryOptions, formData.store_category_id)}
-                                onChange={(selected) => handleInputChange('store_category_id', selected?.value || "")}
-                                placeholder={t("Select Store Category")}
-                                className="w-full"
-                                classNamePrefix="select"
-                                isClearable
-                                styles={selectStyles}
-                            />
-                        </div>
-
-                        {/* Store Product Selection (Maps to material from list data) */}
-                        <div className="sm:w-full lg:w-[48%] flex flex-col items-start justify-center gap-y-1">
-                            <span className="text-xl font-TextFontRegular text-thirdColor">
-                                {t("Store Product")} *
-                            </span>
-                            <Select
-                                options={storeProductOptions}
-                                value={findSelectedOption(storeProductOptions, formData.store_product_id)}
-                                onChange={(selected) => handleInputChange('store_product_id', selected?.value || "")}
-                                placeholder={t("Select Store Product")}
-                                className="w-full"
-                                classNamePrefix="select"
-                                isClearable
-                                styles={selectStyles}
                             />
                         </div>
 

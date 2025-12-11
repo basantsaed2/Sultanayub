@@ -82,7 +82,7 @@ const PurchaseRecipe = () => {
 
     const headers = [
         t("#"),
-        t("Product"),
+        // t("Product"),
         t("Category"),
         t("Material"),
         t("Unit"),
@@ -147,9 +147,9 @@ const PurchaseRecipe = () => {
                                         <td className="px-6 py-4 text-center text-sm text-thirdColor">
                                             {(currentPage - 1) * recipesPerPage + idx + 1}
                                         </td>
-                                        <td className="px-6 py-4 text-center text-sm text-thirdColor">
+                                        {/* <td className="px-6 py-4 text-center text-sm text-thirdColor">
                                             {recipe.product?.name || "-"}
-                                        </td>
+                                        </td> */}
                                         <td className="px-6 py-4 text-center text-sm text-thirdColor">
                                             {recipe.material_category?.name || "-"}
                                         </td>
