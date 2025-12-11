@@ -39,6 +39,7 @@ const AddFinacialAccountPage = () => {
   const [imageFile, setImageFile] = useState(null);
   const [status, setStatus] = useState(0);
   const [visaStatus, setVisaStatus] = useState(0);
+  const [discount, setDiscount] = useState(0);
   const [selectedBranch, setSelectedBranch] = useState(null); // State for selected branch
   const [openMenu, setOpenMenu] = useState(false); // State for dropdown open/close
 
@@ -74,6 +75,10 @@ const AddFinacialAccountPage = () => {
     setVisaStatus((prev) => (prev === 0 ? 1 : 0));
   };
 
+  const handleDiscountStatus = () => {
+    setDiscount((prev) => (prev === 0 ? 1 : 0));
+  };
+
   useEffect(() => {
     if (!loadingPost && response) {
       navigate(-1)
@@ -88,6 +93,7 @@ const AddFinacialAccountPage = () => {
     setImageFile(null);
     setStatus(0);
     setVisaStatus(0);
+    setDiscount(0);
     setSelectedBranch(null);
     setOpenMenu(false);
   };
@@ -107,10 +113,10 @@ const AddFinacialAccountPage = () => {
       toastError(t("enterfinancialAccountBalance"));
       return;
     }
-    if (!imageFile) {
-      toastError(t("setfinancialAccountImage"));
-      return;
-    }
+    // if (!imageFile) {
+    //   toastError(t("setfinancialAccountImage"));
+    //   return;
+    // }
     if (!selectedBranch) {
       toastError(t("selectBranch")); // Add new translation key for branch validation
       return;
@@ -122,6 +128,7 @@ const AddFinacialAccountPage = () => {
     formData.append("balance", balance || 0);
     formData.append("logo", imageFile);
     formData.append("status", status);
+    formData.append("discount", discount);
     formData.append("description_status", visaStatus);
     selectedBranch.forEach((branch, index) => {
       formData.append(`branch_id[${index}]`, branch.id); // Append each ID as an array element in FormData
@@ -129,10 +136,10 @@ const AddFinacialAccountPage = () => {
     postData(formData, t("Financial Account Added Success")); // Updated to use t() for success message
   };
 
-     // Handle back navigation
-    const handleBack = () => {
-        navigate(-1);
-    };
+  // Handle back navigation
+  const handleBack = () => {
+    navigate(-1);
+  };
 
   return (
     <>
@@ -225,6 +232,17 @@ const AddFinacialAccountPage = () => {
                     <Switch
                       handleClick={handleVisaStatus}
                       checked={visaStatus}
+                    />
+                  </div>
+                </div>
+                <div className="w-full flex items-start justify-start gap-x-1 pt-8">
+                  <div className="flex items-center justify-start w-2/4 gap-x-1">
+                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                      {t("Discount Status")}:
+                    </span>
+                    <Switch
+                      handleClick={handleDiscountStatus}
+                      checked={discount}
                     />
                   </div>
                 </div>
