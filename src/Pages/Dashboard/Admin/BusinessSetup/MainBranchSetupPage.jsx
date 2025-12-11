@@ -360,7 +360,7 @@ const MainBranchSetupPage = () => {
             <span className="text-xl font-TextFontRegular text-thirdColor">
               {t("Latitude")}:
             </span>
-            <NumberInput
+            <TextInput
               value={latitude}
               onChange={(e) => setLatitude(e.target.value)}
               placeholder={t("Latitude")}
@@ -371,7 +371,7 @@ const MainBranchSetupPage = () => {
             <span className="text-xl font-TextFontRegular text-thirdColor">
               {t("Longitude")}:
             </span>
-            <NumberInput
+            <TextInput
               value={longitude}
               onChange={(e) => setLongitude(e.target.value)}
               placeholder={t("Longitude")}
@@ -383,7 +383,7 @@ const MainBranchSetupPage = () => {
             <span className="text-xl font-TextFontRegular text-thirdColor">
               {t("Coverage")}:
             </span>
-            <NumberInput
+            <TextInput
               value={coverage}
               onChange={(e) => setCoverage(e.target.value)}
               placeholder={t("Coverage")}
@@ -419,7 +419,7 @@ const MainBranchSetupPage = () => {
 export default MainBranchSetupPage;
 
 const CustomTimeInput = ({ value, onChange }) => {
-         const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const hours = Array.from({ length: 24 }, (_, i) =>
     i.toString().padStart(2, "0")
