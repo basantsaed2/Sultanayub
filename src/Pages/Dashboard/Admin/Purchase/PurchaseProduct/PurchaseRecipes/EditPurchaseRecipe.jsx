@@ -7,30 +7,31 @@ import {
     TextInput,
     TitlePage
 } from "../../../../../../Components/Components";
-import { useGet } from "../../../../../../Hooks/useGet";
+import { useGet } from "../../../../../../Hooks/useGet"; // We still need useGet for lists
 import { usePost } from "../../../../../../Hooks/usePostJson";
 import { useAuth } from "../../../../../../Context/Auth";
 import { useTranslation } from "react-i18next";
 import Select from 'react-select';
 import { IoArrowBack } from "react-icons/io5";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 const EditPurchaseRecipe = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { recipeId } = useParams();
+    const location = useLocation();
 
-    // Fetch recipe data
-    const {
-        refetch: refetchRecipe,
-        loading: loadingRecipe,
-        data: dataRecipe,
-    } = useGet({
-        url: `${apiUrl}/admin/recipe/item/${recipeId}`,
-    });
+    // 1. Get initial data from the state passed by the list page
+    const initialRecipeData = location.state?.recipeData;
+    const productName = location.state?.productName;
 
-    // Fetch store categories, products, and units
+    // NOTE: The loading state for the specific recipe is now handled by checking for initialRecipeData
+
+    // *** REMOVED: useGet({ url: `${apiUrl}/admin/recipe/item/${recipeId}` }) ***
+    // const { data: dataRecipe } = useGet(...) // This hook is removed
+
+    // Fetch store categories, products, and units (These lists are still needed)
     const {
         refetch: refetchLists,
         loading: loadingLists,
@@ -55,25 +56,28 @@ const EditPurchaseRecipe = () => {
         store_product_id: ""
     });
 
-    useEffect(() => {
-        refetchRecipe();
-        refetchLists();
-    }, [refetchRecipe, refetchLists, recipeId]);
+    // State to hold the original data for reset
+    const [originalFormData, setOriginalFormData] = useState({});
 
-    // Update form when recipe data is loaded
+    // 2. Initialize form state using the data passed through location state
     useEffect(() => {
-        if (dataRecipe) {
-            setFormData(prev => ({
-                ...prev,
-                product_id: dataRecipe.product?.id || "",
-                unit_id: dataRecipe.unit?.id || "",
-                weight: dataRecipe.weight || "",
-                status: dataRecipe.status || 1,
-                store_category_id: dataRecipe.store_category?.id || "",
-                store_product_id: dataRecipe.store_product?.id || ""
-            }));
+        if (initialRecipeData) {
+            const initialData = {
+                product_id: initialRecipeData.product?.id || "",
+                unit_id: initialRecipeData.unit?.id || "",
+                weight: initialRecipeData.weight || "",
+                status: initialRecipeData.status || 1,
+                store_category_id: initialRecipeData.material_category?.id || "", // Adjusted field name based on PurchaseRecipe display logic
+                store_product_id: initialRecipeData.material?.id || "" // Adjusted field name based on PurchaseRecipe display logic
+            };
+            setFormData(initialData);
+            setOriginalFormData(initialData); // Store original data for reset
         }
-    }, [dataRecipe]);
+
+        // Refetch lists required for dropdowns
+        refetchLists();
+    }, [initialRecipeData, refetchLists]);
+
 
     // Handle form input changes
     const handleInputChange = (field, value) => {
@@ -91,17 +95,8 @@ const EditPurchaseRecipe = () => {
     };
 
     const handleReset = () => {
-        if (dataRecipe && dataRecipe.recipe) {
-            const recipe = dataRecipe.recipe;
-            setFormData({
-                product_id: recipe.product_id || "",
-                unit_id: recipe.unit_id || "",
-                weight: recipe.weight || "",
-                status: recipe.status || 1,
-                store_category_id: recipe.store_category_id || "",
-                store_product_id: recipe.store_product_id || ""
-            });
-        }
+        // Reset to the data initially loaded from location state
+        setFormData(originalFormData);
     };
 
     const handleBack = () => {
@@ -126,6 +121,9 @@ const EditPurchaseRecipe = () => {
             auth.toastError(t("Please enter weight"));
             return;
         }
+
+        // Note: The fields displayed as Category and Material in the list page
+        // are used here as store_category_id and store_product_id for the update API.
         if (!formData.store_category_id) {
             auth.toastError(t("Please select a store category"));
             return;
@@ -163,7 +161,9 @@ const EditPurchaseRecipe = () => {
         label: product.name
     })) || [];
 
-    if (loadingRecipe || loadingLists) {
+    // Check if initial recipe data is missing OR if lists are loading
+    if (!initialRecipeData || loadingLists) {
+        // If recipe data is missing, we can't edit. Wait for lists if needed, or show a load/error.
         return (
             <div className="flex items-center justify-center w-full h-56">
                 <StaticLoader />
@@ -202,6 +202,10 @@ const EditPurchaseRecipe = () => {
         }),
     };
 
+    // Helper to find the currently selected value for Select components
+    const findSelectedOption = (options, value) =>
+        options.find(option => option.value === value);
+
     return (
         <section>
             <div className="flex items-center justify-between p-2">
@@ -213,7 +217,9 @@ const EditPurchaseRecipe = () => {
                     >
                         <IoArrowBack size={24} />
                     </button>
-                    <TitlePage text={t("Edit Recipe")} />
+                    <TitlePage
+                        text={`${t("Edit Recipe")}${productName ? `: ${productName}` : ""}`}
+                    />
                 </div>
             </div>
 
@@ -228,7 +234,7 @@ const EditPurchaseRecipe = () => {
                             </span>
                             <Select
                                 options={unitOptions}
-                                value={unitOptions.find(option => option.value === formData.unit_id)}
+                                value={findSelectedOption(unitOptions, formData.unit_id)}
                                 onChange={(selected) => handleInputChange('unit_id', selected?.value || "")}
                                 placeholder={t("Select Unit")}
                                 className="w-full"
@@ -254,14 +260,14 @@ const EditPurchaseRecipe = () => {
                             />
                         </div>
 
-                        {/* Store Category Selection */}
+                        {/* Store Category Selection (Maps to material_category from list data) */}
                         <div className="sm:w-full lg:w-[48%] flex flex-col items-start justify-center gap-y-1">
                             <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("Store Category")} *
                             </span>
                             <Select
                                 options={storeCategoryOptions}
-                                value={storeCategoryOptions.find(option => option.value === formData.store_category_id)}
+                                value={findSelectedOption(storeCategoryOptions, formData.store_category_id)}
                                 onChange={(selected) => handleInputChange('store_category_id', selected?.value || "")}
                                 placeholder={t("Select Store Category")}
                                 className="w-full"
@@ -271,14 +277,14 @@ const EditPurchaseRecipe = () => {
                             />
                         </div>
 
-                        {/* Store Product Selection */}
+                        {/* Store Product Selection (Maps to material from list data) */}
                         <div className="sm:w-full lg:w-[48%] flex flex-col items-start justify-center gap-y-1">
                             <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("Store Product")} *
                             </span>
                             <Select
                                 options={storeProductOptions}
-                                value={storeProductOptions.find(option => option.value === formData.store_product_id)}
+                                value={findSelectedOption(storeProductOptions, formData.store_product_id)}
                                 onChange={(selected) => handleInputChange('store_product_id', selected?.value || "")}
                                 placeholder={t("Select Store Product")}
                                 className="w-full"

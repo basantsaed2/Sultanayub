@@ -44,8 +44,8 @@ const EditPurchaseProduct = () => {
 
     // Set form fields when product data is available
     useEffect(() => {
-        if (dataPurchaseProduct && dataPurchaseProduct?.material[0]) {
-            const product = dataPurchaseProduct.material[0];
+        if (dataPurchaseProduct && dataPurchaseProduct?.product) {
+            const product = dataPurchaseProduct.product;
 
             setName(product.name || "");
             setDescription(product.description || "")

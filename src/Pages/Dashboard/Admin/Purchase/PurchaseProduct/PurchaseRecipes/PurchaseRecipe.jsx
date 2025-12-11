@@ -166,7 +166,7 @@ const PurchaseRecipe = () => {
                                             <div className="flex justify-center gap-4">
                                                 <Link
                                                     to={`edit/${recipe.id}`}
-                                                    state={{ productName }}
+                                                    state={{ recipeData: recipe, productName: productName }}
                                                     className="text-blue-600 hover:text-blue-800"
                                                     title={t("Edit")}
                                                 >
