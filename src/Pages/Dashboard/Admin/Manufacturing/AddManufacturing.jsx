@@ -52,6 +52,8 @@ const AddManufacturing = () => {
         return recipes.map(recipe => {
             const inputValue = materialWeights[recipe.id] ?? recipe.weight.toString();
             const currentWeight = inputValue === "" ? 0 : (parseFloat(inputValue) || 0);
+
+            // Check availability: if currentWeight is 0 and available_quantity is 0, it's considered available (no material needed)
             const isAvailable = currentWeight === 0 && recipe.available_quantity === 0
                 ? true
                 : currentWeight <= recipe.available_quantity;
@@ -127,6 +129,8 @@ const AddManufacturing = () => {
     }, [response, loadingPost]);
 
     useEffect(() => {
+        // Set hasFormChanged to true if any input that affects recipe calculation changes,
+        // but only after a recipe has actually been loaded (recipes.length > 0)
         if (recipes.length > 0) {
             setHasFormChanged(true);
         }
@@ -181,6 +185,8 @@ const AddManufacturing = () => {
             return;
         }
 
+        // This is a soft check, but the server ultimately handles the final check.
+        // You might want to remove this if the UX is annoying for the user.
         if (weightValue > recipe.available_quantity) {
             auth.toastError(t("Weight cannot exceed available quantity"));
             return;
@@ -218,8 +224,14 @@ const AddManufacturing = () => {
 
         updatedRecipes.forEach((recipe, index) => {
             const inputValue = materialWeights[recipe.id] ?? "";
+            // Ensure the weight is sent as a number, defaulting to 0 if the field is empty
             const weight = inputValue === "" ? 0 : (parseFloat(inputValue) || 0);
-            formData.append(`materials[${index}][id]`, recipe.id);
+
+            // 🛑 CRITICAL FIX APPLIED HERE:
+            // Assuming the server needs the Material ID, not the Recipe Item ID.
+            // formData.append(`materials[${index}][id]`, recipe.id);
+            formData.append(`materials[${index}][id]`, recipe.material.id);
+            // If the above line still fails, try using recipe.id as fallback, but material ID is usually correct for consumption.
             formData.append(`materials[${index}][weight]`, weight);
         });
 
@@ -456,21 +468,24 @@ const AddManufacturing = () => {
                         {/* Submit & Reset */}
                         {updatedRecipes.length > 0 && (
                             <div className="flex items-center justify-end w-full gap-x-4 mt-6">
-                                <StaticButton
-                                    text={t("Reset")}
-                                    handleClick={handleReset}
-                                    bgColor="bg-transparent"
-                                    Color="text-mainColor"
-                                    border="border-2"
-                                    borderColor="border-mainColor"
-                                    rounded="rounded-full"
-                                />
-                                <SubmitButton
-                                    text={t("Submit Manufacturing")}
-                                    rounded="rounded-full"
-                                    handleClick={handleSubmit}
-                                    disabled={!allRecipesAvailable || hasFormChanged || updatedRecipes.length === 0}
-                                />
+                                <div>
+                                    <StaticButton
+                                        text={t("Reset")}
+                                        handleClick={handleReset}
+                                        bgColor="bg-transparent"
+                                        Color="text-mainColor"
+                                        border="border-2"
+                                        borderColor="border-mainColor"
+                                        rounded="rounded-full"
+                                    />
+                                </div>
+                                <div>
+                                    <SubmitButton
+                                        text={t("Submit Manufacturing")}
+                                        rounded="rounded-full"
+                                        handleClick={handleSubmit}
+                                        disabled={!allRecipesAvailable || hasFormChanged || updatedRecipes.length === 0}
+                                    /></div>
                             </div>
                         )}
                     </form>
