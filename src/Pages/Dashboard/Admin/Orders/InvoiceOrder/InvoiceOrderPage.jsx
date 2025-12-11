@@ -49,7 +49,8 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
             color: #000;
             background: #fff;
             padding: 5px;
-            /* No Zoom - Text size is "as it is" */
+            /* **MODIFICATION: Increased base font size for clarity** */
+            font-size: 14px; 
         }
 
         /* Reset box sizing just for receipt */
@@ -58,43 +59,47 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
         }
         
         /* Headers */
-        .receipt-only .header { text-align: center; margin-bottom: 5px; border-bottom: 1px dashed #000; padding-bottom: 5px;}
-        .receipt-only .header h1 { font-size: 18px; font-weight: bold; margin: 0; }
-        .receipt-only .header p { font-size: 14px; margin: 2px 0 0 0; }
+        .receipt-only .header { text-align: center; margin-bottom: 7px; border-bottom: 1px dashed #000; padding-bottom: 7px;}
+        .receipt-only .header h1 { font-size: 22px; font-weight: bold; margin: 0; }
+        .receipt-only .header p { font-size: 16px; margin: 3px 0 0 0; }
         .receipt-only .header img { max-width: 150px; max-height: 80px; height: auto; width: auto; margin: 0 auto; display: block; }
         
         /* Info Box */
         .receipt-only .info-box { 
-          padding: 5px 0; 
-          margin-bottom: 5px; 
-          font-size: 12px;
+          padding: 7px 0; 
+          margin-bottom: 7px; 
+          /* **MODIFICATION: Increased font size in info-box** */
+          font-size: 14px;
           border-bottom: 1px dashed #000;
         }
-        .receipt-only .info-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+        .receipt-only .info-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
         .receipt-only .info-label { font-weight: bold; }
-        
+
         /* Address Section */
-        .receipt-only .address-notes-section { margin-bottom: 5px; font-size: 12px; border-bottom: 1px dashed #000; padding-bottom: 5px;}
-        .receipt-only .section-title { font-weight: bold; text-decoration: underline; margin-bottom: 2px; display: block; }
+        .receipt-only .address-notes-section { margin-bottom: 7px; /* **MODIFICATION: Increased font size** */ font-size: 14px; border-bottom: 1px dashed #000; padding-bottom: 7px;}
+        .receipt-only .section-title { font-weight: bold; text-decoration: underline; margin-bottom: 3px; display: block; }
         
         /* Tables - SCOPED to avoid affecting main page tables */
         .receipt-only table { 
           width: 100%; 
-          font-size: 12px; 
+          /* **MODIFICATION: Increased table body font size** */
+          font-size: 14px; 
           border-collapse: collapse; 
-          margin-bottom: 5px;
+          margin-bottom: 7px;
         }
         .receipt-only th { 
           border: none !important; 
-          border-bottom: 1px solid #000 !important; 
-          padding: 4px 0; 
+          border-bottom: 2px solid #000 !important; /* Thicker line for clarity */
+          padding: 6px 0; 
           text-align: center; 
           font-weight: bold; 
           background: transparent; /* Reset any global backgrounds */
+          /* **MODIFICATION: Increased table header font size** */
+          font-size: 16px; 
         }
         .receipt-only td { 
           border: none; 
-          padding: 4px 0; 
+          padding: 5px 0; 
           text-align: center; 
         }
         
@@ -102,34 +107,36 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
           text-align: ${isRtl ? 'right' : 'left'}; 
           direction: ${isRtl ? 'rtl' : 'ltr'}; 
         }
-        .receipt-only .item-variations { font-size: 11px; margin-top: 1px; color: #333; }
-        .receipt-only .item-note { font-size: 11px; margin-top: 1px; font-style: italic; }
+        .receipt-only .item-variations { font-size: 12px; margin-top: 2px; color: #333; }
+        .receipt-only .item-note { font-size: 12px; margin-top: 2px; font-style: italic; }
         .receipt-only .item-block-last td { border-bottom: 1px solid #ccc; }
 
         /* Totals */
         .receipt-only .totals-section { 
           text-align: ${isRtl ? 'left' : 'right'}; 
-          font-size: 12px; 
-          margin: 5px 0 0 0; 
+          /* **MODIFICATION: Increased totals font size** */
+          font-size: 14px; 
+          margin: 7px 0 0 0; 
         }
-        .receipt-only .total-row { margin-bottom: 2px; display: flex; justify-content: space-between; }
+        .receipt-only .total-row { margin-bottom: 3px; display: flex; justify-content: space-between; }
         
         .receipt-only .grand-total { 
-          font-size: 16px; 
+          font-size: 20px; /* **MODIFICATION: Larger grand total** */
           font-weight: bold; 
-          border-top: 2px solid #000; 
-          padding-top: 4px; 
-          margin-top: 4px; 
+          border-top: 3px solid #000; /* Thicker top border */
+          padding-top: 6px; 
+          margin-top: 6px; 
           margin-bottom: 0px; 
         }
         
         /* Footer */
         .receipt-only .footer { 
           text-align: center; 
-          font-size: 12px; 
+          /* **MODIFICATION: Increased footer font size** */
+          font-size: 14px; 
           font-weight: bold; 
-          margin-top: 5px; 
-          padding-top: 5px;
+          margin-top: 7px; 
+          padding-top: 7px;
           border-top: 1px dashed #000; 
         }
 
@@ -168,7 +175,7 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
 
       <table>
         <thead>
-          <tr style="font-weight:bold;font-size:14px;">
+          <tr style="font-weight:bold;font-size:16px;">
             <th style="width:40%;" class="itemName">${t("Item")}</th>
             <th style="width:15%">${t("Qty")}</th>
             <th style="width:20%">${t("Price")}</th>
@@ -185,21 +192,21 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
 
         const isMainLast = !hasAddons && !hasExtras;
         rows += `<tr ${isMainLast ? 'class="item-block-last"' : ''}>
-              <td class="item-name" style="font-size:14px;font-weight:600;">
+              <td class="item-name" style="font-size:16px;font-weight:600;">
                 ${item.name}
                 ${item.variationString ? `<div class="item-variations">${item.variationString}</div>` : ''}
                 ${item.notesString ? `<div class="item-note">${t("Note")}: ${item.notesString}</div>` : ''}
               </td>
               <td>${item.qty}</td>
               <td>${Number(item.price).toFixed(2)}</td>
-              <td style="font-size:14px;font-weight:600;">${showTotalOnMainRow ? Number(item.total).toFixed(2) : ''}</td>
+              <td style="font-size:16px;font-weight:600;">${showTotalOnMainRow ? Number(item.total).toFixed(2) : ''}</td>
             </tr>`;
 
         if (hasAddons) {
           item.addons.forEach((addon, i) => {
             const isLast = i === item.addons.length - 1 && !hasExtras;
             rows += `<tr ${isLast ? 'class="item-block-last"' : ''}>
-                  <td class="item-name" style="font-size:11px; ${isRtl ? 'padding-right:15px' : 'padding-left:15px'};">+ ${addon.name}</td>
+                  <td class="item-name" style="font-size:13px; ${isRtl ? 'padding-right:15px' : 'padding-left:15px'};">+ ${addon.name}</td>
                   <td>${addon.count > 1 ? addon.count : ''}</td>
                   <td>${Number(addon.price).toFixed(2)}</td>
                   <td>${isLast ? Number(item.total).toFixed(2) : ''}</td>
@@ -211,7 +218,7 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
           item.extras.forEach((extra, i) => {
             const isLast = i === item.extras.length - 1;
             rows += `<tr ${isLast ? 'class="item-block-last"' : ''}>
-                  <td class="item-name" style="font-size:11px; ${isRtl ? 'padding-right:15px' : 'padding-left:15px'};">+ ${extra.name}</td>
+                  <td class="item-name" style="font-size:13px; ${isRtl ? 'padding-right:15px' : 'padding-left:15px'};">+ ${extra.name}</td>
                   <td></td>
                   <td>${Number(extra.price).toFixed(2)}</td>
                   <td>${isLast ? Number(item.total).toFixed(2) : ''}</td>
@@ -234,8 +241,8 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
 
       <div class="footer">
         ${t("ThankYouForYourOrder")}
-        <div style="font-size:10px;margin-top:2px;">Powered by Food2Go</div>
-        <div style="font-size:10px;">food2go.online</div>
+        <div style="font-size:12px;margin-top:2px;">Powered by Food2Go</div>
+        <div style="font-size:12px;">food2go.online</div>
       </div>
     </div>
   `;

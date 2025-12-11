@@ -832,7 +832,7 @@ export const router = createBrowserRouter([
                 element: <SongLayout />,
               },
               {
-                path: 'cancelation_notification',
+                path: 'notification',
                 element: <CancelationNotificationLayout />,
               },
               {

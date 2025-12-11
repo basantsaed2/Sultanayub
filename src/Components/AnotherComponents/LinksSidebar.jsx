@@ -244,7 +244,7 @@ const adminRoutes = [
       { name: "Tables", path: "/dashboard/setting/hall_tables", permission: "Tables" },
       { name: "Order Percentage", path: "/dashboard/setting/order_percentage", permission: "OrderPercentage" },
       { name: "Discount Code", path: "/dashboard/setting/discount_code", permission: "DiscountCode" },
-      { name: "Cancelation Notification", path: "/dashboard/setting/cancelation_notification", permission: "CancelationNotification" },
+      { name: "Notifications", path: "/dashboard/setting/notification", permission: "notification" },
       { name: "Receipt Language", path: "/dashboard/setting/receipt_language", permission: "receipt_language" },
       { name: "Policy & Support", path: "/dashboard/setting/policy_support", permission: "PolicySupport" },
       { name: "App Setup", path: "/dashboard/setting/app_setup", permission: "AppSetup" },

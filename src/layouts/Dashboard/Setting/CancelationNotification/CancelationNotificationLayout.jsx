@@ -4,11 +4,11 @@ import { CancelationNotificationPage } from '../../../../Pages/Pages'
 import { useTranslation } from 'react-i18next';
 
 const CancelationNotificationLayout = () => {
-                         const { t, i18n } = useTranslation();
+       const { t, i18n } = useTranslation();
 
        return (
               <>
-                     <TitlePage text={t('Cancelation Notification')} />
+                     <TitlePage text={t('Notifications')} />
                      <CancelationNotificationPage />
               </>
        )
