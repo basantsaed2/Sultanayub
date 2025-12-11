@@ -462,7 +462,7 @@ const AddBannerSection = () => {
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("BranchLatitude")}:
                               </span>
-                              <NumberInput
+                              <TextInput
                                 value={branchLatitude}
                                 onChange={(e) =>
                                   setBranchLatitude(e.target.value)
@@ -475,7 +475,7 @@ const AddBannerSection = () => {
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("BranchLongitude")}:
                               </span>
-                              <NumberInput
+                              <TextInput
                                 value={branchLongitude}
                                 onChange={(e) =>
                                   setBranchLongitude(e.target.value)
