@@ -180,6 +180,7 @@ const AddMaterialList = () => {
                                     styles={customStyles}
                                     isLoading={loadingList}
                                     className="w-full"
+                                    required
                                     noOptionsMessage={() => t("No categories available")}
                                 />
                             </div>

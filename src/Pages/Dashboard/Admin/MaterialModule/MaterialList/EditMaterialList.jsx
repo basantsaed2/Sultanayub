@@ -44,8 +44,8 @@ const EditMaterialList = () => {
 
     // Set form fields when product data is available
     useEffect(() => {
-        if (dataMaterialProduct && dataMaterialProduct?.material[0]) {
-            const product = dataMaterialProduct.material[0];
+        if (dataMaterialProduct && dataMaterialProduct?.material) {
+            const product = dataMaterialProduct.material;
 
             setName(product.name || "");
             setDescription(product.description || "")
@@ -229,6 +229,7 @@ const EditMaterialList = () => {
                                     styles={customStyles}
                                     isLoading={loadingList}
                                     className="w-full"
+                                    required
                                     noOptionsMessage={() => t("No categories available")}
                                 />
                             </div>

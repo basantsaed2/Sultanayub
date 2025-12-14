@@ -49,8 +49,9 @@ const PurchaseList = () => {
     const headers = [
         t("SL"),
         t("Admin"),
-        t("Product"),
+        t("Type"),
         t("Category"),
+        t("Item"),
         t("Store"),
         t("Quantity"),
         t("Total Cost"),
@@ -110,44 +111,52 @@ const PurchaseList = () => {
                                     </td>
                                 </tr>
                             ) : (
-                                currentPurchases.map((purchase, index) => (
-                                    <tr className="w-full border-b-2" key={index}>
-                                        <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {(currentPage - 1) * purchasesPerPage + index + 1}
-                                        </td>
-                                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {purchase?.admin || "-"}
-                                        </td>
-                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {purchase?.product || "-"}
-                                        </td>
-                                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {purchase?.category || "-"}
-                                        </td>
-                                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {purchase?.store || "-"}
-                                        </td>
-                                        <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {purchase?.quintity || "0"}
-                                        </td>
-                                        <td className="min-w-[120px] sm:min-w-[100px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {purchase?.total_coast || "0"}EGP
-                                        </td>
-                                        <td className="min-w-[120px] sm:min-w-[100px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {formatDate(purchase?.date)}
-                                        </td>
-                                        <td className="min-w-[150px] sm:min-w-[120px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {getPaymentMethods(purchase?.financial)}
-                                        </td>
-                                        <td className="px-4 py-3 text-center">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <Link to={`edit/${purchase.id}`}>
-                                                    <EditIcon />
-                                                </Link>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
+                                currentPurchases.map((purchase, index) => {
+                                    const type = purchase.type === "product" ? "product" : "material";
+                                    const itemName = type === "product" ? purchase.product : purchase.material;
+                                    const categoryName = type === "product" ? purchase.category : purchase.material_category;
+                                    return (
+                                        <tr className="w-full border-b-2" key={index}>
+                                            <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                                {(currentPage - 1) * purchasesPerPage + index + 1}
+                                            </td>
+                                            <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                                {purchase?.admin || "-"}
+                                            </td>
+                                            <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                                {type}
+                                            </td>
+                                            <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                                {categoryName || "-"}
+                                            </td>
+                                            <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                                {itemName || "-"}
+                                            </td>
+                                            <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                                {purchase?.store || "-"}
+                                            </td>
+                                            <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                                {purchase?.quintity || "0"}
+                                            </td>
+                                            <td className="min-w-[120px] sm:min-w-[100px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                                {purchase?.total_coast || "0"}EGP
+                                            </td>
+                                            <td className="min-w-[120px] sm:min-w-[100px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                                {formatDate(purchase?.date)}
+                                            </td>
+                                            <td className="min-w-[150px] sm:min-w-[120px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                                {getPaymentMethods(purchase?.financial)}
+                                            </td>
+                                            <td className="px-4 py-3 text-center">
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <Link to={`edit/${purchase.id}`}>
+                                                        <EditIcon />
+                                                    </Link>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )
+                                })
                             )}
                         </tbody>
                     </table>

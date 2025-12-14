@@ -256,7 +256,7 @@ const EditPurchaseList = () => {
         fd.append("total_coast", formData.total_coast);
         fd.append("date", formData.date);
         fd.append("unit_id", selectedUnit.value);
-        fd.append("_method", "PUT");
+        fd.append("type", type);
 
         if (type === "product") {
             fd.append("category_id", selectedCategory.value);
