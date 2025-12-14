@@ -173,7 +173,6 @@ import EditPurchaseWasted from "./Pages/Dashboard/Admin/Purchase/PurchaseWasted/
 import PurchaseList from "./Pages/Dashboard/Admin/Purchase/PurchaseList/PurchaseList";
 import AddPurchaseList from "./Pages/Dashboard/Admin/Purchase/PurchaseList/AddPurchaseList";
 import EditPurchaseList from "./Pages/Dashboard/Admin/Purchase/PurchaseList/EditPurchaseList";
-import PurchaseTransfer from "./Pages/Dashboard/Admin/Purchase/PurchaseTransfer/PurchaseTransfer";
 import PreparationMan from "./Pages/Dashboard/Admin/Setting/Branches/PreparationMan/PreparationMan";
 import AddPreparationMan from "./Pages/Dashboard/Admin/Setting/Branches/PreparationMan/AddPreparationMan";
 import EditPreparationMan from "./Pages/Dashboard/Admin/Setting/Branches/PreparationMan/EditPreparationMan";
@@ -194,11 +193,13 @@ import InventoryProduct from "./Pages/Dashboard/Admin/Inventory/InventoryProduct
 import FreeDiscount from "./Pages/Dashboard/Admin/FreeDiscount/FreeDiscount";
 import Popup from "./Pages/Dashboard/Admin/Popup/Popup";
 import VoidList from "./Pages/Dashboard/Admin/VoidList/VoidList";
-import PurchaseCount from "./Pages/Dashboard/Admin/Purchase/PurachasCount/PurachasCount";
+import PurchaseCount from "./Pages/Dashboard/Admin/StockCount/StockCount";
 // import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
 import PurchaseRecipe from "./Pages/Dashboard/Admin/Purchase/PurchaseProduct/PurchaseRecipes/PurchaseRecipe";
 import AddPurchaseRecipe from "./Pages/Dashboard/Admin/Purchase/PurchaseProduct/PurchaseRecipes/AddPurchaseRecipe";
 import EditPurchaseRecipe from "./Pages/Dashboard/Admin/Purchase/PurchaseProduct/PurchaseRecipes/EditPurchaseRecipe";
+import StockCount from "./Pages/Dashboard/Admin/StockCount/StockCount";
+import StockTransfer from "./Pages/Dashboard/Admin/StockTransfer/StockTransfer";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -1445,17 +1446,12 @@ export const router = createBrowserRouter([
                   },
                 ]
               },
-              {
-                path: "purchase_transfer",
-                element: <PurchaseTransfer />
-              },
-              {
-                path: "purchase_count",
-                element: <PurchaseCount />
-              }
             ]
           },
-
+          {
+            path: "stock_transfer",
+            element: <StockTransfer />
+          },
           {
             path: 'material',
             element: <Outlet />,
@@ -1527,14 +1523,14 @@ export const router = createBrowserRouter([
           },
 
           {
-            path: 'store',
+            path: 'stock',
             element: <Outlet />,
             children: [
               {
                 path: '',
                 children: [
                   {
-                    path: 'store_list',
+                    path: 'stock_list',
                     children: [
                       {
                         index: true,
@@ -1553,7 +1549,7 @@ export const router = createBrowserRouter([
                 ]
               },
               {
-                path: 'store_man',
+                path: 'stock_man',
                 children: [
                   {
                     path: '',
@@ -1574,6 +1570,10 @@ export const router = createBrowserRouter([
                   },
                 ]
               },
+              {
+                path: "stock_count",
+                element: <StockCount />
+              }
             ]
           },
 
