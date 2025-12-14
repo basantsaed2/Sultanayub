@@ -343,9 +343,9 @@ const AddBannerSection = () => {
                       className="flex flex-wrap items-center justify-start w-full gap-4 sm:flex-col lg:flex-row"
                       key={tap.id}
                     >
-                      <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                      <div className="grid w-full grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
                         {/* Branch Name */}
-                        <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                        <div className="flex flex-col items-start justify-center w-full gap-y-1">
                           <span className="text-xl font-TextFontRegular text-thirdColor">
                             {t("Name")} {tap.name}:
                           </span>
@@ -379,7 +379,7 @@ const AddBannerSection = () => {
                         {currentTap === 0 && (
                           <>
                             {/* Branch Address */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                            <div className="flex flex-col items-start justify-center w-full gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("BranchAddress")}:
                               </span>
@@ -392,7 +392,7 @@ const AddBannerSection = () => {
                               />
                             </div>
                             {/* Branch Phone */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                            <div className="flex flex-col items-start justify-center w-full gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("BranchPhone")}:
                               </span>
@@ -403,7 +403,7 @@ const AddBannerSection = () => {
                               />
                             </div>
                             {/* Branch Email */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                            <div className="flex flex-col items-start justify-center w-full gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("BranchEmail")}:
                               </span>
@@ -415,7 +415,7 @@ const AddBannerSection = () => {
                               />
                             </div>
                             {/* Branch Password */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                            <div className="flex flex-col items-start justify-center w-full gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("BranchPassword")}:
                               </span>
@@ -429,7 +429,7 @@ const AddBannerSection = () => {
                               />
                             </div>
                             {/* Branch Coverage */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                            <div className="flex flex-col items-start justify-center w-full gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("BranchCoverage")}:
                               </span>
@@ -442,7 +442,7 @@ const AddBannerSection = () => {
                               />
                             </div>
                             {/* Cities */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                            <div className="flex flex-col items-start justify-center w-full gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("City")}:
                               </span>
@@ -458,7 +458,7 @@ const AddBannerSection = () => {
                               />
                             </div>
                             {/* Branch Latitude */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                            <div className="flex flex-col items-start justify-center w-full gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("BranchLatitude")}:
                               </span>
@@ -471,7 +471,7 @@ const AddBannerSection = () => {
                               />
                             </div>
                             {/* Branch Longitude */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                            <div className="flex flex-col items-start justify-center w-full gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("BranchLongitude")}:
                               </span>
@@ -484,7 +484,7 @@ const AddBannerSection = () => {
                               />
                             </div>
                             {/* Branch Preparion Time */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                            <div className="flex flex-col items-start justify-center w-full gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("FoodPreparationTime")}:
                               </span>
@@ -496,7 +496,7 @@ const AddBannerSection = () => {
                               />
                             </div>
                             {/* Branch Image */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                            <div className="flex flex-col items-start justify-center w-full gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("Image")}:
                               </span>
@@ -510,7 +510,7 @@ const AddBannerSection = () => {
                               />
                             </div>
                             {/* Banner Cover Image */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                            <div className="flex flex-col items-start justify-center w-full gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("CoverImage")}:
                               </span>
@@ -535,7 +535,7 @@ const AddBannerSection = () => {
                             {/* Branch Not Active Reason */}
                             {
                               activeBranch === 0 && (
-                                <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                   <span className="text-xl font-TextFontRegular text-thirdColor">
                                     {t("BranchNotActiveReason")}:
                                   </span>
@@ -594,6 +594,7 @@ const AddBannerSection = () => {
 };
 
 const CustomTimeInput = ({ value, onChange }) => {
+  const {t}=useTranslation()
   const hours = Array.from({ length: 24 }, (_, i) =>
     i.toString().padStart(2, "0")
   ); // Pad hours to 2 digits
@@ -613,7 +614,7 @@ const CustomTimeInput = ({ value, onChange }) => {
   return (
     <div className="flex gap-2">
       <span className="text-xl font-TextFontRegular text-thirdColor">
-        Hours:
+        {t("Hours")}:
       </span>
       <select
         value={value.split(":")[0]} // Get hours part from the value
@@ -627,7 +628,7 @@ const CustomTimeInput = ({ value, onChange }) => {
         ))}
       </select>
       <span className="text-xl font-TextFontRegular text-thirdColor">
-        Minutes:
+        {t("Minutes")}:
       </span>
       <select
         value={value.split(":")[1]} // Get minutes part from the value

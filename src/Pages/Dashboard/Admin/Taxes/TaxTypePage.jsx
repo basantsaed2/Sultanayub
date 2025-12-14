@@ -111,7 +111,7 @@ const TaxTypePage = () => {
                   {t("Your Tax Type")}:
                 </span>
                 <span className="w-full p-2 py-3 text-2xl bg-white shadow outline-none rounded-2xl font-TextFontRegular text-thirdColor valueInput">
-                  {taxType}
+                  {t(taxType)}
                 </span>
               </div>
               {/* Tax Types */}

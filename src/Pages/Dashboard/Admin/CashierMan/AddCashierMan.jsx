@@ -249,7 +249,7 @@ const AddCashierMan = () => {
             <div className="flex items-center gap-x-2">
               <button
                 onClick={handleBack}
-                className="text-mainColor hover:text-red-700 transition-colors"
+                className="transition-colors text-mainColor hover:text-red-700"
                 title={t("Back")}
               >
                 <IoArrowBack size={24} />
@@ -258,7 +258,7 @@ const AddCashierMan = () => {
             </div>
           </div>
           <form className="p-2" onSubmit={handleAdd}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+            <div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2 lg:grid-cols-3">
               {/* User Name */}
               <div className="flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -322,7 +322,7 @@ const AddCashierMan = () => {
                   options={roleOptions}
                   value={selectedRoles}
                   onChange={setSelectedRoles}
-                  placeholder={t("SelectRoles")}
+                  placeholder={t("Select Roles")}
                   styles={customStyles}
                   isMulti
                   className="w-full"
@@ -364,7 +364,7 @@ const AddCashierMan = () => {
               </div>
 
               {/* Status */}
-              <div className="flex items-start justify-start gap-x-3 pt-8">
+              <div className="flex items-start justify-start pt-8 gap-x-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("ActiveStatus")}:
                 </span>
@@ -372,7 +372,7 @@ const AddCashierMan = () => {
               </div>
 
               {/* Take Away */}
-              <div className="flex items-start justify-start gap-x-3 pt-8">
+              <div className="flex items-start justify-start pt-8 gap-x-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Take Away")}:
                 </span>
@@ -380,7 +380,7 @@ const AddCashierMan = () => {
               </div>
 
               {/* Dine In */}
-              <div className="flex items-start justify-start gap-x-3 pt-8">
+              <div className="flex items-start justify-start pt-8 gap-x-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Dine In")}:
                 </span>
@@ -388,7 +388,7 @@ const AddCashierMan = () => {
               </div>
 
               {/* Delivery */}
-              <div className="flex items-start justify-start gap-x-3 pt-8">
+              <div className="flex items-start justify-start pt-8 gap-x-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Delivery")}:
                 </span>
@@ -396,7 +396,7 @@ const AddCashierMan = () => {
               </div>
 
               {/* Real Order */}
-              <div className="flex items-start justify-start gap-x-3 pt-8">
+              <div className="flex items-start justify-start pt-8 gap-x-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Real Order")}:
                 </span>
@@ -404,7 +404,7 @@ const AddCashierMan = () => {
               </div>
 
               {/*Online Order */}
-              <div className="flex items-start justify-start gap-x-3 pt-8">
+              <div className="flex items-start justify-start pt-8 gap-x-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Online Order")}:
                 </span>
@@ -412,7 +412,7 @@ const AddCashierMan = () => {
               </div>
 
               {/* Discount Perimission */}
-              <div className="flex items-start justify-start gap-x-3 pt-8">
+              <div className="flex items-start justify-start pt-8 gap-x-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Discount Perimission")}:
                 </span>
@@ -420,7 +420,7 @@ const AddCashierMan = () => {
               </div>
 
               {/* Void Order */}
-              <div className="flex items-start justify-start gap-x-3 pt-8">
+              <div className="flex items-start justify-start pt-8 gap-x-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Void Order")}:
                 </span>

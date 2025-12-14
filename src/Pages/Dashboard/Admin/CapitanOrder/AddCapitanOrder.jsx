@@ -171,12 +171,12 @@ const AddCaptianOrder = () => {
                     {/* User Name */}
                     <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                         <span className="text-xl font-TextFontRegular text-thirdColor">
-                            {t("UserName")}:
+                            {t("User Name")}:
                         </span>
                         <TextInput
                             value={userName}
                             onChange={(e) => setUserName(e.target.value)}
-                            placeholder={t("UserName")}
+                            placeholder={t("User Name")}
                         />
                     </div>
                     {/* Phone */}

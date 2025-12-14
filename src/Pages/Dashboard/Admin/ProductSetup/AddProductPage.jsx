@@ -1305,10 +1305,10 @@ const AddProductPage = () => {
             {weightStatus !== 1 && (
               <>
                 {/* Group and Extras Section */}
-                <div className="w-full p-6 bg-gray-50 rounded-2xl shadow-lg">
+                <div className="w-full p-6 shadow-lg bg-gray-50 rounded-2xl">
                   {/* Group MultiSelect */}
                   <div className="mb-6 w-full sm:w-full lg:w-[30%] ">
-                    <label className="block text-lg font-semibold text-gray-700 mb-2">
+                    <label className="block mb-2 text-lg font-semibold text-gray-700">
                       {t("Group Extra Names")}:
                     </label>
                     <MultiSelect
@@ -1319,7 +1319,7 @@ const AddProductPage = () => {
                       optionValue="id"
                       display="chip"
                       placeholder={selectedGroupState}
-                      className="w-full bg-white border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-200"
+                      className="w-full transition-all duration-200 bg-white border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
                       panelClassName="bg-white border border-gray-200 rounded-lg shadow-lg"
                     />
                   </div>
@@ -1332,9 +1332,9 @@ const AddProductPage = () => {
                         return (
                           <div
                             key={groupId}
-                            className="p-4 bg-white rounded-xl shadow-sm animate-fadeIn"
+                            className="p-4 bg-white shadow-sm rounded-xl animate-fadeIn"
                           >
-                            <label className="block text-lg font-semibold text-gray-700 mb-2">
+                            <label className="block mb-2 text-lg font-semibold text-gray-700">
                               {t("Extra Names")} for {group?.name || 'Group'}:
                             </label>
                             <MultiSelect
@@ -1345,7 +1345,7 @@ const AddProductPage = () => {
                               optionValue="id"
                               display="chip"
                               placeholder={t("Select Extras")}
-                              className="w-full bg-white border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-200"
+                              className="w-full transition-all duration-200 bg-white border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
                               panelClassName="bg-white border border-gray-200 rounded-lg shadow-lg"
                             />
                           </div>
@@ -1537,7 +1537,7 @@ const AddProductPage = () => {
                                   />
                                 </div>
 
-                                {ele.type === "multiple" && (
+                               {ele.type === t("multiple") && ( 
                                   <>
                                     <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                                       <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -1776,7 +1776,7 @@ const AddProductPage = () => {
                                                   </div>
                                                   {/* Only show group and extras for variation options if weight_status is not 1 */}
                                                   {weightStatus !== 1 && (
-                                                    <div className="w-full flex flex-col gap-4 sm:gap-6">
+                                                    <div className="flex flex-col w-full gap-4 sm:gap-6">
                                                       {/* Group Selection */}
                                                       <div className="w-full sm:w-full lg:w-[30%] flex flex-col items-start gap-y-2">
                                                         <label className="text-lg font-semibold text-gray-800">
@@ -1793,7 +1793,7 @@ const AddProductPage = () => {
                                                           optionValue="value"
                                                           display="chip"
                                                           placeholder={t("Select Groups")}
-                                                          className="w-full bg-white border border-gray-300 rounded-xl shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all duration-300 text-gray-700"
+                                                          className="w-full text-gray-700 transition-all duration-300 bg-white border border-gray-300 shadow-sm rounded-xl focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200"
                                                           filter
                                                           filterPlaceholder={t("Search Groups")}
                                                           maxSelectedLabels={3}
@@ -1803,7 +1803,7 @@ const AddProductPage = () => {
 
                                                       {/* Extras Selection for Each Group */}
                                                       {selectedOptionGroups[`${indexVariation}-${indexOption}`]?.length > 0 && (
-                                                        <div className="w-full items-start gap-y-3 bg-gray-50 p-4 rounded-xl shadow-sm">
+                                                        <div className="items-start w-full p-4 shadow-sm gap-y-3 bg-gray-50 rounded-xl">
                                                           <label className="text-lg font-semibold text-gray-800">
                                                             {t("Select Extras")}:
                                                           </label>
@@ -1813,9 +1813,9 @@ const AddProductPage = () => {
                                                               return (
                                                                 <div
                                                                   key={groupId}
-                                                                  className="w-full p-3 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+                                                                  className="w-full p-3 transition-shadow duration-200 bg-white rounded-lg shadow-sm hover:shadow-md"
                                                                 >
-                                                                  <label className="block text-sm font-medium text-gray-600 mb-1">
+                                                                  <label className="block mb-1 text-sm font-medium text-gray-600">
                                                                     {t("Extras for")} {group?.name || t("Group")}:
                                                                   </label>
                                                                   <MultiSelect
@@ -1826,7 +1826,7 @@ const AddProductPage = () => {
                                                                     optionValue="id"
                                                                     display="chip"
                                                                     placeholder={t("Select Extras")}
-                                                                    className="w-full bg-white border border-gray-300 rounded-xl shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all duration-300 text-gray-700"
+                                                                    className="w-full text-gray-700 transition-all duration-300 bg-white border border-gray-300 shadow-sm rounded-xl focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200"
                                                                     filter
                                                                     filterPlaceholder={t("Search Extras")}
                                                                     maxSelectedLabels={5}

@@ -17,13 +17,13 @@ const OrdersDeliveryParent = () => {
   const [activeTab, setActiveTab] = useState(TABS.ALL);
 
   return (
-    <div className="p-2 md:p-6 pb-32">
-      <h1 className="text-xl md:text-xl font-bold text-thirdColor mb-6">
+    <div className="p-2 pb-32 md:p-6">
+      <h1 className="mb-6 text-xl font-bold md:text-xl text-thirdColor">
         {t('All Orders Delivery')}
       </h1>
 
       {/* Tabs - Always visible */}
-      <div className="flex border-b mb-6 overflow-x-auto">
+      <div className="flex mb-6 overflow-x-auto border-b">
         {[
           { key: TABS.ALL, label: t('All Orders') },
           { key: TABS.CURRENT, label: t('Current Orders') },
@@ -37,7 +37,7 @@ const OrdersDeliveryParent = () => {
               : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
           >
-            {tab.label}
+            {t(tab.label)}
           </button>
         ))}
       </div>

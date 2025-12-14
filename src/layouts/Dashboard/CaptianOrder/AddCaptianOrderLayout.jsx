@@ -25,7 +25,7 @@ const AddCaptianOrderLayout = () => {
           >
             <IoArrowBack size={24} />
           </button>
-          <TitlePage text={t('Add Captain Order')} />
+          <TitlePage text={t('')} />
         </div>
       </div>
       <AddCaptianOrder />

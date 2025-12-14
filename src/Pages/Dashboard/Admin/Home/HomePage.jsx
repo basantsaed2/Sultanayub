@@ -88,18 +88,18 @@ const HomePage = () => {
     if (!showSMSMessage || !dataOrders?.msg_package) return null;
 
     return (
-      <div className="w-full rounded-xl bg-white py-3 px-4 border border-gray-300 shadow-lg mb-6">
+      <div className="w-full px-4 py-3 mb-6 bg-white border border-gray-300 shadow-lg rounded-xl">
         <div className="flex items-center justify-between pb-1 mb-4 border-b-2">
           <h3 className="text-xl font-TextFontSemiBold text-mainColor">
-            {t("SMS Package")}
+            {t("SMSPackage")}
           </h3>
         </div>
 
-        <div className="w-full flex flex-col gap-y-4 pb-2">
+        <div className="flex flex-col w-full pb-2 gap-y-4">
           <div className="flex items-center justify-between w-full p-4 border-b-2 border-gray-300 shadow-md rounded-xl">
             <div className="flex flex-col items-start">
               <p className="text-gray-500 font-TextFontMedium">
-                {t("Available Messages")}
+                {t("AvailableMessages")}
               </p>
               <p className="text-lg font-TextFontSemiBold text-mainColor">
                 {dataOrders.msg_package?.msg_number}
@@ -108,7 +108,7 @@ const HomePage = () => {
 
             <div className="flex flex-col items-end">
               <p className="text-gray-500 font-TextFontMedium">
-                {t("Validity Period")}
+                {t("ValidityPeriod")}
               </p>
               <div className="text-right">
                 <p className="text-sm font-TextFontMedium text-mainColor">
