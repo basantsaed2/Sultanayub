@@ -528,7 +528,7 @@ const EditProductPage = () => {
         }
 
         // Append general variation data
-        formData.append(`variations[${indexVar}][type]`, variation.type);
+        formData.append(`variations[${indexVar}][type]`, variation.type === t("multiple") ? "multiple" : "single");
         formData.append(`variations[${indexVar}][min]`, variation.min);
         formData.append(`variations[${indexVar}][max]`, variation.max);
         formData.append(`variations[${indexVar}][required]`, variation.required ? 1 : 0);
@@ -1542,7 +1542,7 @@ const EditProductPage = () => {
                                     }
                                   />
                                 </div>
-                                {ele.type === "multiple" && (
+                                {ele.type === t("multiple") && (
                                   <>
                                     <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
                                       <span className="text-xl font-TextFontRegular text-thirdColor">
