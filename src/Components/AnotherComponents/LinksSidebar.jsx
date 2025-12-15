@@ -373,8 +373,6 @@ const adminRoutes = [
     icon: FaShoppingBasket,
     subRoutes: [
       { name: "List", path: "/dashboard/purchase/purchase_list", permission: "purchase", },
-      { name: "Category", path: "/dashboard/purchase/purchase_category", permission: "purchase", },
-      { name: "Products", path: "/dashboard/purchase/purchase_product", permission: "purchase", },
       { name: "Consumption", path: "/dashboard/purchase/purchase_consumption", permission: "purchase", },
       { name: "Wasted", path: "/dashboard/purchase/purchase_wasted", permission: "purchase", },
     ],
@@ -385,6 +383,17 @@ const adminRoutes = [
     path: "/dashboard/stock_transfer",
     permission: "stock_transfer",
     icon: FaShoppingBasket,
+  },
+  {
+    name: "Recipe",
+    path: "/dashboard/recipe_products",
+    permission: "recipe",
+    icon: FaShoppingBasket,
+    subRoutes: [
+      { name: "Category", path: "/dashboard/recipe_products/category", permission: "recipe", },
+      { name: "Products", path: "/dashboard/recipe_products/product", permission: "recipe", },
+    ],
+    redirectTo: "/dashboard/recipe_products/category",
   },
   {
     name: "Material",

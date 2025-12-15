@@ -75,7 +75,7 @@ const AddPurchaseProduct = () => {
         }
 
         if (!name) {
-            auth.toastError(t("Enter Purchase Product Name"));
+            auth.toastError(t("Enter Product Name"));
             return;
         }
 
@@ -85,7 +85,7 @@ const AddPurchaseProduct = () => {
         formData.append("description", description);
         formData.append("status", status);
 
-        postData(formData, t("Purchase Product Added Success"));
+        postData(formData, t("Recipe Product Added Success"));
     };
 
     // Handle back navigation
@@ -137,7 +137,7 @@ const AddPurchaseProduct = () => {
                             >
                                 <IoArrowBack size={24} />
                             </button>
-                            <TitlePage text={t("Add Purchase Product")} />
+                            <TitlePage text={t("Add Product")} />
                         </div>
                     </div>
                     <form className="p-2" onSubmit={handleSubmit}>
@@ -169,13 +169,13 @@ const AddPurchaseProduct = () => {
                             {/* Category Select */}
                             <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Purchase Category")}:
+                                    {t("Category")}:
                                 </span>
                                 <Select
                                     options={categoryOptions}
                                     value={selectedCategory}
                                     onChange={setSelectedCategory}
-                                    placeholder={t("Select Purchase Category")}
+                                    placeholder={t("Select Category")}
                                     isSearchable
                                     styles={customStyles}
                                     isLoading={loadingList}

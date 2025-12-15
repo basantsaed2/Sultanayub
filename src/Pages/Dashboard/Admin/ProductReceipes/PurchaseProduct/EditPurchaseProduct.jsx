@@ -124,7 +124,7 @@ const EditPurchaseProduct = () => {
         }
 
         if (!name) {
-            auth.toastError(t("Enter PurchaseProduct Name"));
+            auth.toastError(t("Enter Product Name"));
             return;
         }
 
@@ -134,7 +134,7 @@ const EditPurchaseProduct = () => {
         formData.append("description", description);
         formData.append("status", status);
 
-        postData(formData, t("Purchase Product Updated Success"));
+        postData(formData, t("Product Updated Success"));
     };
 
     // Handle back navigation
@@ -186,7 +186,7 @@ const EditPurchaseProduct = () => {
                             >
                                 <IoArrowBack size={24} />
                             </button>
-                            <TitlePage text={t("Edit Purchase Product")} />
+                            <TitlePage text={t("Edit Product")} />
                         </div>
                     </div>
                     <form className="p-2" onSubmit={handleUpdate}>
@@ -218,13 +218,13 @@ const EditPurchaseProduct = () => {
                             {/* Category Select */}
                             <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Purchase Category")}:
+                                    {t("Category")}:
                                 </span>
                                 <Select
                                     options={categoryOptions}
                                     value={selectedCategory}
                                     onChange={setSelectedCategory}
-                                    placeholder={t("Select Purchase Category")}
+                                    placeholder={t("Select Category")}
                                     isSearchable
                                     styles={customStyles}
                                     isLoading={loadingList}

@@ -109,7 +109,7 @@ const PurchaseCategory = () => {
                 <div className="flex flex-col w-full">
                     <div className='flex flex-col items-center justify-between md:flex-row'>
                         <div className='w-full md:w-1/2'>
-                            <TitlePage text={t('Purchase Category')} />
+                            <TitlePage text={t('Recipe Category')} />
                         </div>
                         <div className='flex justify-end w-full py-4 md:w-1/2'>
                             <Link to='add'>
@@ -137,7 +137,7 @@ const PurchaseCategory = () => {
                                         colSpan={headers.length}
                                         className="text-xl text-center text-mainColor font-TextFontMedium "
                                     >
-                                        {t("No Purchase Category Found")}
+                                        {t("No Recipe Category Found")}
                                     </td>
                                 </tr>
                             ) : (

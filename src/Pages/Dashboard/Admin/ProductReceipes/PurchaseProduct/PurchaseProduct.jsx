@@ -105,8 +105,8 @@ const PurchaseProduct = () => {
 
     const headers = [
         t("SL"),
-        t("Name"),
-        t("Purchase Category"),
+        t("Category"),
+        t("Product"),
         t("View Recipes"),
         t("Status"),
         t("Action"),
@@ -122,7 +122,7 @@ const PurchaseProduct = () => {
                 <div className="flex flex-col w-full">
                     <div className='flex flex-col items-center justify-between md:flex-row'>
                         <div className='w-full md:w-1/2'>
-                            <TitlePage text={t('Purchase Product')} />
+                            <TitlePage text={t('Recipe Product')} />
                         </div>
                         <div className='flex justify-end w-full py-4 md:w-1/2'>
                             <Link to='add'>
@@ -150,7 +150,7 @@ const PurchaseProduct = () => {
                                         colSpan={headers.length}
                                         className="text-xl text-center text-mainColor font-TextFontMedium "
                                     >
-                                        {t("No Purchase Products Found")}
+                                        {t("No Recipe Products Found")}
                                     </td>
                                 </tr>
                             ) : (
@@ -160,10 +160,10 @@ const PurchaseProduct = () => {
                                             {(currentPage - 1) * PurchaseProductsPerPage + index + 1}
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {PurchaseProduct?.name || "-"}
+                                            {PurchaseProduct.category || "-"}
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {PurchaseProduct.category || "-"}
+                                            {PurchaseProduct.name || "-"}
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                             <button
