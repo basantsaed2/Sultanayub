@@ -107,6 +107,7 @@ const PurchaseProduct = () => {
         t("SL"),
         t("Category"),
         t("Product"),
+        t("Min Stock Quantity"),
         t("View Recipes"),
         t("Status"),
         t("Action"),
@@ -164,6 +165,9 @@ const PurchaseProduct = () => {
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                             {PurchaseProduct.name || "-"}
+                                        </td>
+                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                            {PurchaseProduct.min_stock || "-"}
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                             <button

@@ -29,6 +29,7 @@ const AddPurchaseProduct = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
+    const [minStock, setMinStock] = useState("");
     const [status, setStatus] = useState(1);
 
     useEffect(() => {
@@ -63,6 +64,8 @@ const AddPurchaseProduct = () => {
         setName("");
         setSelectedCategory(null);
         setStatus(1);
+        setDescription("");
+        setMinStock("");
     };
 
     // Handle form submission
@@ -83,6 +86,7 @@ const AddPurchaseProduct = () => {
         formData.append("category_id", selectedCategory.value); // category_id from select
         formData.append("name", name);
         formData.append("description", description);
+        formData.append("min_stock", minStock);
         formData.append("status", status);
 
         postData(formData, t("Recipe Product Added Success"));
@@ -181,6 +185,18 @@ const AddPurchaseProduct = () => {
                                     isLoading={loadingList}
                                     className="w-full"
                                     noOptionsMessage={() => t("No categories available")}
+                                />
+                            </div>
+
+                            {/* Minimum Stock */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Min Stock Quantity")}:
+                                </span>
+                                <TextInput
+                                    value={minStock}
+                                    onChange={(e) => setMinStock(e.target.value)}
+                                    placeholder={t("Enter Min Stock Quantity")}
                                 />
                             </div>
 

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
-    StaticButton,
-    StaticLoader,
-    SubmitButton,
-    Switch,
-    TextInput,
-    TitlePage,
+  StaticButton,
+  StaticLoader,
+  SubmitButton,
+  Switch,
+  TextInput,
+  TitlePage,
 } from "../../../../../Components/Components";
 import { usePost } from "../../../../../Hooks/usePostJson";
 import { useAuth } from "../../../../../Context/Auth";
@@ -13,264 +13,294 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import { useGet } from "../../../../../Hooks/useGet";
-import Select from 'react-select';
+import Select from "react-select";
 
 const EditMaterialList = () => {
-    const { materialId } = useParams();
-    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const { materialId } = useParams();
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
-    const { refetch: refetchList, loading: loadingList, data: dataList } = useGet({
-        url: `${apiUrl}/admin/material_product`,
-    });
+  const {
+    refetch: refetchList,
+    loading: loadingList,
+    data: dataList,
+  } = useGet({
+    url: `${apiUrl}/admin/material_product`,
+  });
 
-    const { refetch: refetchMaterialProduct, loading: loadingMaterialProduct, data: dataMaterialProduct } = useGet({
-        url: `${apiUrl}/admin/material_product/product/${materialId}`,
-    });
+  const {
+    refetch: refetchMaterialProduct,
+    loading: loadingMaterialProduct,
+    data: dataMaterialProduct,
+  } = useGet({
+    url: `${apiUrl}/admin/material_product/product/${materialId}`,
+  });
 
-    const { postData, loadingPost, response } = usePost({
-        url: `${apiUrl}/admin/material_product/update/${materialId}`,
-    });
+  const { postData, loadingPost, response } = usePost({
+    url: `${apiUrl}/admin/material_product/update/${materialId}`,
+  });
 
-    const { t } = useTranslation();
-    const auth = useAuth();
-    const navigate = useNavigate();
+  const { t } = useTranslation();
+  const auth = useAuth();
+  const navigate = useNavigate();
 
-    const [categories, setCategories] = useState([]);
-    const [categoryOptions, setCategoryOptions] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState(null);
-    const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
-    const [status, setStatus] = useState(1);
+  const [categories, setCategories] = useState([]);
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [minStock, setMinStock] = useState("");
+  const [status, setStatus] = useState(1);
 
-    // Set form fields when product data is available
-    useEffect(() => {
-        if (dataMaterialProduct && dataMaterialProduct?.material) {
-            const product = dataMaterialProduct.material;
+  // Set form fields when product data is available
+  useEffect(() => {
+    if (dataMaterialProduct && dataMaterialProduct?.material) {
+      const product = dataMaterialProduct.material;
 
-            setName(product.name || "");
-            setDescription(product.description || "")
-            setStatus(product.status || 1);
+      setName(product.name || "");
+      setDescription(product.description || "");
+      setStatus(product.status || 1);
+      setMinStock(product.min_stock || "");
 
-            // Set selected category if category data exists
-            if (product.category_id && categories.length > 0) {
-                const category = categories.find(cat => cat.id === product.category_id);
-                if (category) {
-                    setSelectedCategory({
-                        value: category.id,
-                        label: category.name
-                    });
-                }
-            }
+      // Set selected category if category data exists
+      if (product.category_id && categories.length > 0) {
+        const category = categories.find(
+          (cat) => cat.id === product.category_id
+        );
+        if (category) {
+          setSelectedCategory({
+            value: category.id,
+            label: category.name,
+          });
         }
-    }, [dataMaterialProduct, categories]);
+      }
+    }
+  }, [dataMaterialProduct, categories]);
 
-    // Format categories for react-select when dataList is available
-    useEffect(() => {
-        if (dataList && dataList.categories) {
-            setCategories(dataList.categories);
-            const options = dataList.categories.map(category => ({
-                value: category.id,
-                label: category.name
-            }));
-            setCategoryOptions(options);
+  // Format categories for react-select when dataList is available
+  useEffect(() => {
+    if (dataList && dataList.categories) {
+      setCategories(dataList.categories);
+      const options = dataList.categories.map((category) => ({
+        value: category.id,
+        label: category.name,
+      }));
+      setCategoryOptions(options);
+    }
+  }, [dataList]);
+
+  useEffect(() => {
+    refetchList();
+    refetchMaterialProduct();
+  }, [refetchList, refetchMaterialProduct]);
+
+  // Navigate back after successful submission
+  useEffect(() => {
+    if (!loadingPost && response) {
+      handleBack();
+    }
+  }, [response, loadingPost]);
+
+  // Toggle status
+  const handleStatus = () => {
+    setStatus((prev) => (prev === 1 ? 0 : 1));
+  };
+
+  // Reset form to original values
+  const handleReset = () => {
+    if (dataMaterialProduct && dataMaterialProduct.product) {
+      const product = dataMaterialProduct.product;
+
+      setName(product.name || "");
+      setStatus(product.status || 1);
+
+      // Reset selected category
+      if (product.category_id && categories.length > 0) {
+        const category = categories.find(
+          (cat) => cat.id === product.category_id
+        );
+        if (category) {
+          setSelectedCategory({
+            value: category.id,
+            label: category.name,
+          });
         }
-    }, [dataList]);
+      }
+    }
+  };
 
-    useEffect(() => {
-        refetchList();
-        refetchMaterialProduct();
-    }, [refetchList, refetchMaterialProduct]);
+  // Handle form submission
+  const handleUpdate = (e) => {
+    e.preventDefault();
 
-    // Navigate back after successful submission
-    useEffect(() => {
-        if (!loadingPost && response) {
-            handleBack();
-        }
-    }, [response, loadingPost]);
+    if (!selectedCategory) {
+      auth.toastError(t("Please select a category"));
+      return;
+    }
 
-    // Toggle status
-    const handleStatus = () => {
-        setStatus((prev) => (prev === 1 ? 0 : 1));
-    };
+    if (!name) {
+      auth.toastError(t("Enter MaterialProduct Name"));
+      return;
+    }
 
-    // Reset form to original values
-    const handleReset = () => {
-        if (dataMaterialProduct && dataMaterialProduct.product) {
-            const product = dataMaterialProduct.product;
+    const formData = new FormData();
+    formData.append("category_id", selectedCategory.value);
+    formData.append("name", name);
+    formData.append("description", description);
+    formData.append("min_stock", minStock);
+    formData.append("status", status);
 
-            setName(product.name || "");
-            setStatus(product.status || 1);
+    postData(formData, t("Material Product Updated Success"));
+  };
 
-            // Reset selected category
-            if (product.category_id && categories.length > 0) {
-                const category = categories.find(cat => cat.id === product.category_id);
-                if (category) {
-                    setSelectedCategory({
-                        value: category.id,
-                        label: category.name
-                    });
-                }
-            }
-        }
-    };
+  // Handle back navigation
+  const handleBack = () => {
+    navigate(-1);
+  };
 
-    // Handle form submission
-    const handleUpdate = (e) => {
-        e.preventDefault();
+  // Custom styles for react-select
+  const customStyles = {
+    control: (base, state) => ({
+      ...base,
+      border: "2px solid #e5e7eb",
+      borderRadius: "8px",
+      padding: "8px 8px",
+      fontSize: "16px",
+      fontFamily: "inherit",
+      boxShadow: state.isFocused ? "0 0 0 2px #3b82f6" : "none",
+      borderColor: state.isFocused ? "#3b82f6" : "#e5e7eb",
+      "&:hover": {
+        borderColor: state.isFocused ? "#3b82f6" : "#d1d5db",
+      },
+    }),
+    option: (base, state) => ({
+      ...base,
+      fontSize: "16px",
+      fontFamily: "inherit",
+      backgroundColor: state.isSelected
+        ? "#3b82f6"
+        : state.isFocused
+        ? "#eff6ff"
+        : "white",
+      color: state.isSelected ? "white" : "#374151",
+      "&:hover": {
+        backgroundColor: state.isSelected ? "#3b82f6" : "#eff6ff",
+      },
+    }),
+  };
 
-        if (!selectedCategory) {
-            auth.toastError(t("Please select a category"));
-            return;
-        }
+  return (
+    <>
+      {loadingPost || loadingMaterialProduct ? (
+        <div className="flex items-center justify-center w-full h-56">
+          <StaticLoader />
+        </div>
+      ) : (
+        <section>
+          <div className="flex items-center justify-between p-2">
+            <div className="flex items-center gap-x-2">
+              <button
+                onClick={handleBack}
+                className="text-mainColor hover:text-red-700 transition-colors"
+                title={t("Back")}
+              >
+                <IoArrowBack size={24} />
+              </button>
+              <TitlePage text={t("Edit Material Product")} />
+            </div>
+          </div>
+          <form className="p-2" onSubmit={handleUpdate}>
+            <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+              {/* Name */}
+              <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Product Name")}:
+                </span>
+                <TextInput
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={t("Enter Product Name")}
+                />
+              </div>
 
-        if (!name) {
-            auth.toastError(t("Enter MaterialProduct Name"));
-            return;
-        }
+              {/* Description */}
+              <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Product Description")}:
+                </span>
+                <TextInput
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder={t("Enter Product Description")}
+                />
+              </div>
 
-        const formData = new FormData();
-        formData.append("category_id", selectedCategory.value);
-        formData.append("name", name);
-        formData.append("description", description);
-        formData.append("status", status);
+              {/* Category Select */}
+              <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Material Category")}:
+                </span>
+                <Select
+                  options={categoryOptions}
+                  value={selectedCategory}
+                  onChange={setSelectedCategory}
+                  placeholder={t("Select Material Category")}
+                  isSearchable
+                  styles={customStyles}
+                  isLoading={loadingList}
+                  className="w-full"
+                  required
+                  noOptionsMessage={() => t("No categories available")}
+                />
+              </div>
+              {/* Minimum Stock */}
+              <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Min Stock Quantity")}:
+                </span>
+                <TextInput
+                  value={minStock}
+                  onChange={(e) => setMinStock(e.target.value)}
+                  placeholder={t("Enter Min Stock Quantity")}
+                />
+              </div>
 
-        postData(formData, t("Material Product Updated Success"));
-    };
-
-    // Handle back navigation
-    const handleBack = () => {
-        navigate(-1);
-    };
-
-    // Custom styles for react-select
-    const customStyles = {
-        control: (base, state) => ({
-            ...base,
-            border: '2px solid #e5e7eb',
-            borderRadius: '8px',
-            padding: '8px 8px',
-            fontSize: '16px',
-            fontFamily: 'inherit',
-            boxShadow: state.isFocused ? '0 0 0 2px #3b82f6' : 'none',
-            borderColor: state.isFocused ? '#3b82f6' : '#e5e7eb',
-            '&:hover': {
-                borderColor: state.isFocused ? '#3b82f6' : '#d1d5db'
-            }
-        }),
-        option: (base, state) => ({
-            ...base,
-            fontSize: '16px',
-            fontFamily: 'inherit',
-            backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#eff6ff' : 'white',
-            color: state.isSelected ? 'white' : '#374151',
-            '&:hover': {
-                backgroundColor: state.isSelected ? '#3b82f6' : '#eff6ff'
-            }
-        })
-    };
-
-    return (
-        <>
-            {loadingPost || loadingMaterialProduct ? (
-                <div className="flex items-center justify-center w-full h-56">
-                    <StaticLoader />
+              {/* Status */}
+              <div className="w-full flex items-start justify-start gap-x-1 pt-8">
+                <div className="flex items-center justify-start gap-x-3">
+                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                    {t("Active")}:
+                  </span>
+                  <Switch handleClick={handleStatus} checked={status} />
                 </div>
-            ) : (
-                <section>
-                    <div className="flex items-center justify-between p-2">
-                        <div className="flex items-center gap-x-2">
-                            <button
-                                onClick={handleBack}
-                                className="text-mainColor hover:text-red-700 transition-colors"
-                                title={t("Back")}
-                            >
-                                <IoArrowBack size={24} />
-                            </button>
-                            <TitlePage text={t("Edit Material Product")} />
-                        </div>
-                    </div>
-                    <form className="p-2" onSubmit={handleUpdate}>
-                        <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                            {/* Name */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Product Name")}:
-                                </span>
-                                <TextInput
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    placeholder={t("Enter Product Name")}
-                                />
-                            </div>
+              </div>
+            </div>
 
-                            {/* Description */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Product Description")}:
-                                </span>
-                                <TextInput
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    placeholder={t("Enter Product Description")}
-                                />
-                            </div>
-
-                            {/* Category Select */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Material Category")}:
-                                </span>
-                                <Select
-                                    options={categoryOptions}
-                                    value={selectedCategory}
-                                    onChange={setSelectedCategory}
-                                    placeholder={t("Select Material Category")}
-                                    isSearchable
-                                    styles={customStyles}
-                                    isLoading={loadingList}
-                                    className="w-full"
-                                    required
-                                    noOptionsMessage={() => t("No categories available")}
-                                />
-                            </div>
-
-                            {/* Status */}
-                            <div className="w-full flex items-start justify-start gap-x-1 pt-8">
-                                <div className="flex items-center justify-start gap-x-3">
-                                    <span className="text-xl font-TextFontRegular text-thirdColor">
-                                        {t("Active")}:
-                                    </span>
-                                    <Switch handleClick={handleStatus} checked={status} />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Buttons */}
-                        <div className="flex items-center justify-end w-full gap-x-4 mt-6">
-                            <div>
-                                <StaticButton
-                                    text={t("Reset")}
-                                    handleClick={handleReset}
-                                    bgColor="bg-transparent"
-                                    Color="text-mainColor"
-                                    border="border-2"
-                                    borderColor="border-mainColor"
-                                    rounded="rounded-full"
-                                />
-                            </div>
-                            <div>
-                                <SubmitButton
-                                    text={t("Update")}
-                                    rounded="rounded-full"
-                                    handleClick={handleUpdate}
-                                />
-                            </div>
-                        </div>
-                    </form>
-                </section>
-            )}
-        </>
-    );
+            {/* Buttons */}
+            <div className="flex items-center justify-end w-full gap-x-4 mt-6">
+              <div>
+                <StaticButton
+                  text={t("Reset")}
+                  handleClick={handleReset}
+                  bgColor="bg-transparent"
+                  Color="text-mainColor"
+                  border="border-2"
+                  borderColor="border-mainColor"
+                  rounded="rounded-full"
+                />
+              </div>
+              <div>
+                <SubmitButton
+                  text={t("Update")}
+                  rounded="rounded-full"
+                  handleClick={handleUpdate}
+                />
+              </div>
+            </div>
+          </form>
+        </section>
+      )}
+    </>
+  );
 };
 
 export default EditMaterialList;
