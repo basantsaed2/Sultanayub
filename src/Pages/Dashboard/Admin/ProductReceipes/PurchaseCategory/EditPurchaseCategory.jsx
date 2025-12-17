@@ -161,7 +161,7 @@ const EditPurchaseCategory = () => {
         e.preventDefault();
 
         if (!name) {
-            auth.toastError(t("Enter Purchase Category Name"));
+            auth.toastError(t("Enter Category Name"));
             return;
         }
 
@@ -172,7 +172,7 @@ const EditPurchaseCategory = () => {
             formData.append("category_id", selectedCategory.value);
         }
 
-        postData(formData, t("Purchase Category Updated Success"));
+        postData(formData, t("Category Updated Success"));
     };
 
     // Handle back navigation
@@ -220,7 +220,7 @@ const EditPurchaseCategory = () => {
                             >
                                 <IoArrowBack size={24} />
                             </button>
-                            <TitlePage text={t("Edit Purchase Category")} />
+                            <TitlePage text={t("Edit Category")} />
                         </div>
                     </div>
                     <form className="p-2" onSubmit={handleUpdate}>
@@ -228,25 +228,25 @@ const EditPurchaseCategory = () => {
                             {/* Name */}
                             <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Purchase Category Name")}:
+                                    {t("Category Name")}:
                                 </span>
                                 <TextInput
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    placeholder={t("Enter Name")}
+                                    placeholder={t("Enter Category Name")}
                                 />
                             </div>
 
                             {/* Category */}
                             <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Category")}:
+                                    {t("Parent Category")}:
                                 </span>
                                 <Select
                                     value={selectedCategory}
                                     onChange={handleCategoryChange}
                                     options={purchaseCategories}
-                                    placeholder={t("Select Category")}
+                                    placeholder={t("Select Parent Category")}
                                     isClearable
                                     isSearchable
                                     styles={selectStyles}

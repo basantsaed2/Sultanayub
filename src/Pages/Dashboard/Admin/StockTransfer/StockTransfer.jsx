@@ -7,15 +7,15 @@ import {
     SubmitButton,
     TextInput,
     AddButton,
-} from "../../../../../Components/Components";
-import { useGet } from "../../../../../Hooks/useGet";
+} from "../../../../Components/Components";
+import { useGet } from "../../../../Hooks/useGet";
 import { t } from "i18next";
-import { useChangeState } from "../../../../../Hooks/useChangeState";
-import { usePost } from "../../../../../Hooks/usePostJson";
-import { useAuth } from "../../../../../Context/Auth";
+import { useChangeState } from "../../../../Hooks/useChangeState";
+import { usePost } from "../../../../Hooks/usePostJson";
+import { useAuth } from "../../../../Context/Auth";
 import Select from 'react-select';
 
-const PurchaseTransfer = () => {
+const StockTransfer = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const auth = useAuth();
 
@@ -275,7 +275,7 @@ const PurchaseTransfer = () => {
             ) : (
                 <div className="flex flex-col w-full">
                     <div className='flex flex-col items-center justify-between md:flex-row mb-6'>
-                        <TitlePage text={t('Purchase Transfer')} />
+                        <TitlePage text={t('Stock Transfer')} />
                         <AddButton Text={t("Transfer")} handleClick={() => setShowTransferDialog(true)} />
                     </div>
 
@@ -464,4 +464,4 @@ const PurchaseTransfer = () => {
     );
 };
 
-export default PurchaseTransfer;
+export default StockTransfer;

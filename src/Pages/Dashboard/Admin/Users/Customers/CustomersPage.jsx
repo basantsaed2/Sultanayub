@@ -8,7 +8,8 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { useGet } from "../../../../../Hooks/useGet";
 import { useTranslation } from "react-i18next";
-import SearchBar from "../../../../../Components/AnotherComponents/SearchBar"; // Import your SearchBar component
+import SearchBar from "../../../../../Components/AnotherComponents/SearchBar";
+import * as XLSX from 'xlsx'; // Import the XLSX library for export
 
 const CustomersPage = ({ refetch, setUpdate }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -29,15 +30,20 @@ const CustomersPage = ({ refetch, setUpdate }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const { t, i18n } = useTranslation();
 
+  // --- NEW STATE FOR SELECTIVE EXPORT ---
+  const [selectedCustomerIds, setSelectedCustomerIds] = useState(new Set());
+  const [isSelectionMode, setIsSelectionMode] = useState(false); // Controls checkbox visibility
+  // --------------------------------------
+
   const [currentPage, setCurrentPage] = useState(1);
   const customersPerPage = 20;
 
-  // Search functionality
+  // Search functionality (remains the same)
   useEffect(() => {
     if (searchTerm.trim() === "") {
       setFilteredCustomers(customers);
     } else {
-      const filtered = customers.filter(customer => 
+      const filtered = customers.filter(customer =>
         customer?.f_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         customer?.l_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         customer?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -46,7 +52,9 @@ const CustomersPage = ({ refetch, setUpdate }) => {
       );
       setFilteredCustomers(filtered);
     }
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(1);
+    // Clear selection when search changes to avoid selecting non-visible rows
+    setSelectedCustomerIds(new Set());
   }, [searchTerm, customers]);
 
   const totalPages = Math.ceil(filteredCustomers.length / customersPerPage);
@@ -68,7 +76,6 @@ const CustomersPage = ({ refetch, setUpdate }) => {
     });
   };
 
-  // Handle search input change
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -81,10 +88,88 @@ const CustomersPage = ({ refetch, setUpdate }) => {
     if (dataCustomer && dataCustomer.customers) {
       setCustomers(dataCustomer.customers);
       setFilteredCustomers(dataCustomer.customers);
+      // Ensure selection is cleared on initial load or full data refresh
+      setSelectedCustomerIds(new Set());
     }
   }, [dataCustomer]);
 
+  // --- EXPORT/SELECTION LOGIC ---
+
+  const toggleSelectionMode = () => {
+    // Toggle the mode and clear selection when turning off
+    setIsSelectionMode(prev => !prev);
+    setSelectedCustomerIds(new Set());
+  };
+
+  const isCustomerSelected = (customerId) => selectedCustomerIds.has(customerId);
+
+  const handleSelectOne = (customerId) => {
+    setSelectedCustomerIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(customerId)) {
+        newSet.delete(customerId);
+      } else {
+        newSet.add(customerId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSelectAll = () => {
+    // We only select/deselect customers visible on the current page/filter
+    const currentVisibleIds = filteredCustomers.map(c => c.id);
+    const allSelected = currentVisibleIds.every(id => selectedCustomerIds.has(id));
+
+    setSelectedCustomerIds(prev => {
+      const newSet = new Set(prev);
+      if (allSelected) {
+        // Deselect all
+        currentVisibleIds.forEach(id => newSet.delete(id));
+      } else {
+        // Select all
+        currentVisibleIds.forEach(id => newSet.add(id));
+      }
+      return newSet;
+    });
+  };
+
+  const handleExportSelectedToExcel = () => {
+    if (selectedCustomerIds.size === 0) {
+      alert(t("Please select at least one customer to export."));
+      return;
+    }
+
+    // Get the selected data from the full customer list
+    const selectedData = customers.filter(c => selectedCustomerIds.has(c.id));
+
+    // Map the data to the desired Excel/CSV format
+    const exportData = selectedData.map(c => ({
+      [t("Code")]: c.code || '',
+      [t("Name")]: `${c.f_name || ''} ${c.l_name || ''}`,
+      [t("Email")]: c.email || '',
+      [t("Phone")]: c.phone || '',
+      [t("Due Status")]: c.due_status === 1 ? t('Active') : t('Inactive'),
+      [t("Total Order")]: c.orders_count || 0,
+      [t("Total Order Amount")]: c.orders_sum_amount || 0,
+      [t("Status")]: c.status === 1 ? t('Active') : t('Inactive'),
+    }));
+
+    // Create a worksheet
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, t("Customers"));
+
+    // Generate and download Excel file
+    XLSX.writeFile(wb, "Selected_Customers.xlsx");
+
+    // Optionally exit selection mode after successful export
+    setIsSelectionMode(false);
+    setSelectedCustomerIds(new Set());
+  };
+  // --------------------------------------
+
   const handleChangeStaus = async (id, name, status) => {
+    // ... (Your existing status change logic)
     const response = await changeState(
       `${apiUrl}/admin/customer/status/${id}`,
       `${name} Changed Status.`,
@@ -109,6 +194,7 @@ const CustomersPage = ({ refetch, setUpdate }) => {
   };
 
   const handleDelete = async (id, name) => {
+    // ... (Your existing delete logic)
     const success = await deleteData(
       `${apiUrl}/admin/customer/delete/${id}`,
       `${name} Deleted Success.`
@@ -120,7 +206,23 @@ const CustomersPage = ({ refetch, setUpdate }) => {
     }
   };
 
-  const headers = [
+  // Dynamically build headers based on selection mode
+  let headers = [];
+  if (isSelectionMode) {
+    // Add the Select All checkbox header only if in selection mode
+    const isAllVisibleSelected = filteredCustomers.length > 0 && filteredCustomers.every(c => selectedCustomerIds.has(c.id));
+    headers.push(
+      <input
+        type="checkbox"
+        checked={isAllVisibleSelected}
+        onChange={handleSelectAll}
+        className="form-checkbox h-5 w-5 text-mainColor rounded cursor-pointer"
+        title={t("Select All")}
+      />
+    );
+  }
+
+  headers = headers.concat([
     t("SL"),
     t("Image"),
     t("Code"),
@@ -132,26 +234,65 @@ const CustomersPage = ({ refetch, setUpdate }) => {
     t("Total Order Amount"),
     t("Status"),
     t("Action"),
-  ];
+  ]);
 
   return (
     <div className="flex flex-col items-start justify-start w-full overflow-x-scroll pb-28 scrollSection">
-      {/* Search Bar */}
-      <div className="w-full mb-6 max-w-md">
-        <SearchBar
-          value={searchTerm}
-          handleChange={handleSearchChange}
-          placeholder={t("Search customers...")}
-          bgColor="bg-white"
-          textColor="mainColor"
-          pr="4"
-        />
-        {searchTerm && (
-          <p className="mt-2 text-sm text-gray-600">
-            {t("Found")} {filteredCustomers.length} {t("customers matching")} "{searchTerm}"
-          </p>
-        )}
+
+      {/* Action Bar: Search and Export Buttons */}
+      <div className="flex flex-wrap items-center justify-between w-full mb-6 gap-4">
+        {/* Search Bar */}
+        <div className="max-w-md w-full sm:w-auto">
+          <SearchBar
+            value={searchTerm}
+            handleChange={handleSearchChange}
+            placeholder={t("Search customers...")}
+            bgColor="bg-white"
+            textColor="mainColor"
+            pr="4"
+          />
+          {searchTerm && (
+            <p className="mt-2 text-sm text-gray-600">
+              {t("Found")} {filteredCustomers.length} {t("customers matching")} "{searchTerm}"
+            </p>
+          )}
+        </div>
+
+        {/* Export Buttons */}
+        <div className="flex space-x-3">
+          {isSelectionMode ? (
+            <>
+              <button
+                type="button"
+                onClick={handleExportSelectedToExcel}
+                disabled={selectedCustomerIds.size === 0}
+                className={`px-4 py-2 text-sm font-TextFontSemiBold text-white rounded-lg transition duration-150 ${selectedCustomerIds.size > 0
+                  ? 'bg-blue-600 hover:bg-blue-700'
+                  : 'bg-gray-400 cursor-not-allowed'
+                  }`}
+              >
+                {t("Export Selected")} ({selectedCustomerIds.size})
+              </button>
+              <button
+                type="button"
+                onClick={toggleSelectionMode}
+                className="px-4 py-2 text-sm font-TextFontSemiBold text-gray-700 rounded-lg bg-gray-200 hover:bg-gray-300 transition duration-150"
+              >
+                {t("Cancel Selection")}
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={toggleSelectionMode}
+              className="px-4 py-2 text-sm font-TextFontSemiBold text-white rounded-lg bg-red-600 hover:bg-red-700 transition duration-150"
+            >
+              {t("Export Customers")}
+            </button>
+          )}
+        </div>
       </div>
+
 
       <div className="flex items-start justify-start w-full">
         {loadingCustomer || loadingChange || loadingDelete ? (
@@ -163,12 +304,13 @@ const CustomersPage = ({ refetch, setUpdate }) => {
             <table className="block w-full overflow-x-scroll sm:min-w-0 scrollPage">
               <thead className="w-full">
                 <tr className="w-full border-b-2">
-                  {headers.map((name, index) => (
+                  {headers.map((content, index) => (
                     <th
-                      className="min-w-[100px] sm:w-[8%] lg:w-[5%] text-mainColor text-center font-TextFontLight sm:text-sm lg:text-base xl:text-lg pb-3"
+                      className="min-w-[50px] sm:w-[5%] lg:w-[5%] text-mainColor text-center font-TextFontLight sm:text-sm lg:text-base xl:text-lg pb-3"
                       key={index}
                     >
-                      {name}
+                      {/* Render content directly (Checkbox or string) */}
+                      {content}
                     </th>
                   ))}
                 </tr>
@@ -177,7 +319,7 @@ const CustomersPage = ({ refetch, setUpdate }) => {
                 {filteredCustomers.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={12}
+                      colSpan={headers.length}
                       className="text-xl text-center text-mainColor font-TextFontMedium "
                     >
                       {searchTerm ? t("No customers found matching your search") : t("NotfindCustomers")}
@@ -185,7 +327,21 @@ const CustomersPage = ({ refetch, setUpdate }) => {
                   </tr>
                 ) : (
                   currentCustomers.map((customer, index) => (
-                    <tr className="w-full border-b-2" key={index}>
+                    <tr className="w-full border-b-2" key={customer.id}>
+
+                      {/* --- CONDITIONAL CHECKBOX CELL --- */}
+                      {isSelectionMode && (
+                        <td className="min-w-[50px] sm:w-[5%] lg:w-[5%] py-2 text-center">
+                          <input
+                            type="checkbox"
+                            checked={isCustomerSelected(customer.id)}
+                            onChange={() => handleSelectOne(customer.id)}
+                            className="form-checkbox h-5 w-5 text-mainColor rounded cursor-pointer"
+                          />
+                        </td>
+                      )}
+                      {/* --------------------------------- */}
+
                       <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                         {(currentPage - 1) * customersPerPage + index + 1}
                       </td>
@@ -217,8 +373,8 @@ const CustomersPage = ({ refetch, setUpdate }) => {
                       </td>
                       <td className="min-w-[120px] sm:min-w-[80px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${customer?.due_status === 1
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
                           }`}>
                           {customer?.due_status === 1 ? t('Active') : t('Inactive')}
                         </span>
@@ -257,6 +413,7 @@ const CustomersPage = ({ refetch, setUpdate }) => {
                             <DeleteIcon />
                           </button>
                           {openDelete === customer.id && (
+                            // ... (Delete Dialog code remains the same)
                             <Dialog
                               open={true}
                               onClose={handleCloseDelete}
@@ -318,6 +475,7 @@ const CustomersPage = ({ refetch, setUpdate }) => {
               </tbody>
             </table>
 
+            {/* Pagination remains the same */}
             {filteredCustomers.length > 0 && (
               <div className="flex flex-wrap items-center justify-center my-6 gap-x-4">
                 {currentPage !== 1 && (

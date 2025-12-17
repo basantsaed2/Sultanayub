@@ -10,25 +10,40 @@ import {
 import { usePost } from "../../../../../Hooks/usePostJson";
 import { useAuth } from "../../../../../Context/Auth";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import { useGet } from "../../../../../Hooks/useGet";
 import Select from "react-select";
 
-const AddMaterialList = () => {
+const EditPurchaseProduct = () => {
+  const { purchaseProductId } = useParams();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
   const {
     refetch: refetchList,
     loading: loadingList,
     data: dataList,
-  } = useGet({ url: `${apiUrl}/admin/material_product` });
-  const { postData, loadingPost, response } = usePost({
-    url: `${apiUrl}/admin/material_product/add`,
+  } = useGet({
+    url: `${apiUrl}/admin/purchase_product`,
   });
+
+  const {
+    refetch: refetchPurchaseProduct,
+    loading: loadingPurchaseProduct,
+    data: dataPurchaseProduct,
+  } = useGet({
+    url: `${apiUrl}/admin/purchase_product/item/${purchaseProductId}`,
+  });
+
+  const { postData, loadingPost, response } = usePost({
+    url: `${apiUrl}/admin/purchase_product/update/${purchaseProductId}`,
+  });
+
   const { t } = useTranslation();
   const auth = useAuth();
   const navigate = useNavigate();
 
+  const [categories, setCategories] = useState([]);
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [name, setName] = useState("");
@@ -36,20 +51,47 @@ const AddMaterialList = () => {
   const [minStock, setMinStock] = useState("");
   const [status, setStatus] = useState(1);
 
+  // Set form fields when product data is available
   useEffect(() => {
-    refetchList();
-  }, [refetchList]);
+    if (dataPurchaseProduct && dataPurchaseProduct?.product) {
+      const product = dataPurchaseProduct.product;
 
+      setName(product.name || "");
+      setDescription(product.description || "");
+      setStatus(product.status || 1);
+      setMinStock(product.min_stock || "");
+
+      // Set selected category if category data exists
+      if (product.category_id && categories.length > 0) {
+        const category = categories.find(
+          (cat) => cat.id === product.category_id
+        );
+        if (category) {
+          setSelectedCategory({
+            value: category.id,
+            label: category.name,
+          });
+        }
+      }
+    }
+  }, [dataPurchaseProduct, categories]);
+
+  // Format categories for react-select when dataList is available
   useEffect(() => {
     if (dataList && dataList.categories) {
-      // Format categories for react-select
+      setCategories(dataList.categories);
       const options = dataList.categories.map((category) => ({
-        value: category.id, // category_id
+        value: category.id,
         label: category.name,
       }));
       setCategoryOptions(options);
     }
   }, [dataList]);
+
+  useEffect(() => {
+    refetchList();
+    refetchPurchaseProduct();
+  }, [refetchList, refetchPurchaseProduct]);
 
   // Navigate back after successful submission
   useEffect(() => {
@@ -63,17 +105,31 @@ const AddMaterialList = () => {
     setStatus((prev) => (prev === 1 ? 0 : 1));
   };
 
-  // Reset form
+  // Reset form to original values
   const handleReset = () => {
-    setName("");
-    setSelectedCategory(null);
-    setStatus(1);
-    setDescription("");
-    setMinStock("");
+    if (dataPurchaseProduct && dataPurchaseProduct.product) {
+      const product = dataPurchaseProduct.product;
+
+      setName(product.name || "");
+      setStatus(product.status || 1);
+
+      // Reset selected category
+      if (product.category_id && categories.length > 0) {
+        const category = categories.find(
+          (cat) => cat.id === product.category_id
+        );
+        if (category) {
+          setSelectedCategory({
+            value: category.id,
+            label: category.name,
+          });
+        }
+      }
+    }
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleUpdate = (e) => {
     e.preventDefault();
 
     if (!selectedCategory) {
@@ -82,18 +138,18 @@ const AddMaterialList = () => {
     }
 
     if (!name) {
-      auth.toastError(t("Enter Material Product Name"));
+      auth.toastError(t("Enter Product Name"));
       return;
     }
 
     const formData = new FormData();
-    formData.append("category_id", selectedCategory.value); // category_id from select
+    formData.append("category_id", selectedCategory.value);
     formData.append("name", name);
     formData.append("description", description);
     formData.append("min_stock", minStock);
     formData.append("status", status);
 
-    postData(formData, t("Material Product Added Success"));
+    postData(formData, t("Product Updated Success"));
   };
 
   // Handle back navigation
@@ -134,7 +190,7 @@ const AddMaterialList = () => {
 
   return (
     <>
-      {loadingPost ? (
+      {loadingPost || loadingPurchaseProduct ? (
         <div className="flex items-center justify-center w-full h-56">
           <StaticLoader />
         </div>
@@ -149,10 +205,10 @@ const AddMaterialList = () => {
               >
                 <IoArrowBack size={24} />
               </button>
-              <TitlePage text={t("Add Material Product")} />
+              <TitlePage text={t("Edit Product")} />
             </div>
           </div>
-          <form className="p-2" onSubmit={handleSubmit}>
+          <form className="p-2" onSubmit={handleUpdate}>
             <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
               {/* Name */}
               <div className="w-full flex flex-col items-start justify-center gap-y-1">
@@ -181,21 +237,21 @@ const AddMaterialList = () => {
               {/* Category Select */}
               <div className="w-full flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                  {t("Material Category")}:
+                  {t("Category")}:
                 </span>
                 <Select
                   options={categoryOptions}
                   value={selectedCategory}
                   onChange={setSelectedCategory}
-                  placeholder={t("Select Material Category")}
+                  placeholder={t("Select Category")}
                   isSearchable
                   styles={customStyles}
                   isLoading={loadingList}
                   className="w-full"
-                  required
                   noOptionsMessage={() => t("No categories available")}
                 />
               </div>
+
               {/* Minimum Stock */}
               <div className="w-full flex flex-col items-start justify-center gap-y-1">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -234,9 +290,9 @@ const AddMaterialList = () => {
               </div>
               <div>
                 <SubmitButton
-                  text={t("Submit")}
+                  text={t("Update")}
                   rounded="rounded-full"
-                  handleClick={handleSubmit}
+                  handleClick={handleUpdate}
                 />
               </div>
             </div>
@@ -247,4 +303,4 @@ const AddMaterialList = () => {
   );
 };
 
-export default AddMaterialList;
+export default EditPurchaseProduct;

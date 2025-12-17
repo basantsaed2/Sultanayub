@@ -13,63 +13,65 @@ import { useDelete } from "../../../../../Hooks/useDelete";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { t } from "i18next";
+import { useNavigate } from "react-router-dom";
 
-const PurchaseCategory = () => {
+const PurchaseProduct = () => {
+    const navigate = useNavigate();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const {
-        refetch: refetchPurchaseCategory,
-        loading: loadingPurchaseCategory,
-        data: dataPurchaseCategory,
+        refetch: refetchPurchaseProduct,
+        loading: loadingPurchaseProduct,
+        data: dataPurchaseProduct,
     } = useGet({
-        url: `${apiUrl}/admin/purchase_categories`,
+        url: `${apiUrl}/admin/purchase_product`,
     });
     const { deleteData, loadingDelete, responseDelete } = useDelete();
     const { changeState, loadingChange, responseChange } = useChangeState();
 
-    const [PurchaseCategorys, setPurchaseCategorys] = useState([]);
+    const [PurchaseProducts, setPurchaseProducts] = useState([]);
     const [openDelete, setOpenDelete] = useState(null);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const PurchaseCategorysPerPage = 20;
+    const PurchaseProductsPerPage = 20;
 
-    const totalPages = Math.ceil(PurchaseCategorys.length / PurchaseCategorysPerPage);
+    const totalPages = Math.ceil(PurchaseProducts.length / PurchaseProductsPerPage);
 
-    const currentPurchaseCategorys = PurchaseCategorys.slice(
-        (currentPage - 1) * PurchaseCategorysPerPage,
-        currentPage * PurchaseCategorysPerPage
+    const currentPurchaseProducts = PurchaseProducts.slice(
+        (currentPage - 1) * PurchaseProductsPerPage,
+        currentPage * PurchaseProductsPerPage
     );
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
 
-    // Update PurchaseCategorys when `data` changes
+    // Update PurchaseProducts when `data` changes
     useEffect(() => {
-        if (dataPurchaseCategory && dataPurchaseCategory.categories) {
-            setPurchaseCategorys(dataPurchaseCategory.categories);
+        if (dataPurchaseProduct && dataPurchaseProduct.products) {
+            setPurchaseProducts(dataPurchaseProduct.products);
         }
-    }, [dataPurchaseCategory]);
+    }, [dataPurchaseProduct]);
 
-    // Change PurchaseCategory status
+    // Change PurchaseProduct status
     const handleChangeStatus = async (id, name, status) => {
         const response = await changeState(
-            `${apiUrl}/admin/purchase_categories/status/${id}`,
+            `${apiUrl}/admin/purchase_product/status/${id}`,
             `${name} Changed Status.`,
             { status }
         );
 
         if (response) {
-            setPurchaseCategorys((prevPurchaseCategorys) =>
-                prevPurchaseCategorys.map((PurchaseCategory) =>
-                    PurchaseCategory.id === id ? { ...PurchaseCategory, status: status } : PurchaseCategory
+            setPurchaseProducts((prevPurchaseProducts) =>
+                prevPurchaseProducts.map((PurchaseProduct) =>
+                    PurchaseProduct.id === id ? { ...PurchaseProduct, status: status } : PurchaseProduct
                 )
             );
         }
     };
 
     useEffect(() => {
-        refetchPurchaseCategory();
-    }, [refetchPurchaseCategory]);
+        refetchPurchaseProduct();
+    }, [refetchPurchaseProduct]);
 
     const handleOpenDelete = (item) => {
         setOpenDelete(item);
@@ -79,29 +81,41 @@ const PurchaseCategory = () => {
         setOpenDelete(null);
     };
 
-    // Delete PurchaseCategory
+    // Delete PurchaseProduct
     const handleDelete = async (id, name) => {
         const success = await deleteData(
-            `${apiUrl}/admin/purchase_categories/delete/${id}`,
+            `${apiUrl}/admin/purchase_product/delete/${id}`,
             `${name} Deleted Success.`
         );
 
         if (success) {
-            setPurchaseCategorys(PurchaseCategorys.filter((PurchaseCategory) => PurchaseCategory.id !== id));
+            setPurchaseProducts(PurchaseProducts.filter((PurchaseProduct) => PurchaseProduct.id !== id));
         }
+    };
+
+    // Navigate to Recipes page
+    const handleViewRecipes = (productId, productName) => {
+        navigate(`recipes/${productId}`, {
+            state: {
+                productId: productId,
+                productName: productName
+            }
+        });
     };
 
     const headers = [
         t("SL"),
-        t("Name"),
-        t("Parent Category"),
+        t("Category"),
+        t("Product"),
+        t("Min Stock Quantity"),
+        t("View Recipes"),
         t("Status"),
         t("Action"),
     ];
 
     return (
         <div className="flex items-start justify-start w-full overflow-x-scroll p-2 pb-28 scrollSection">
-            {loadingPurchaseCategory || loadingChange || loadingDelete ? (
+            {loadingPurchaseProduct || loadingChange || loadingDelete ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
                 </div>
@@ -109,7 +123,7 @@ const PurchaseCategory = () => {
                 <div className="flex flex-col w-full">
                     <div className='flex flex-col items-center justify-between md:flex-row'>
                         <div className='w-full md:w-1/2'>
-                            <TitlePage text={t('Purchase Category')} />
+                            <TitlePage text={t('Recipe Product')} />
                         </div>
                         <div className='flex justify-end w-full py-4 md:w-1/2'>
                             <Link to='add'>
@@ -131,51 +145,63 @@ const PurchaseCategory = () => {
                             </tr>
                         </thead>
                         <tbody className="w-full">
-                            {PurchaseCategorys.length === 0 ? (
+                            {PurchaseProducts.length === 0 ? (
                                 <tr>
                                     <td
                                         colSpan={headers.length}
                                         className="text-xl text-center text-mainColor font-TextFontMedium "
                                     >
-                                        {t("No Purchase Category Found")}
+                                        {t("No Recipe Products Found")}
                                     </td>
                                 </tr>
                             ) : (
-                                currentPurchaseCategorys.map((PurchaseCategory, index) => (
+                                currentPurchaseProducts.map((PurchaseProduct, index) => (
                                     <tr className="w-full border-b-2" key={index}>
                                         <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {(currentPage - 1) * PurchaseCategorysPerPage + index + 1}
+                                            {(currentPage - 1) * PurchaseProductsPerPage + index + 1}
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {PurchaseCategory?.name || "-"}
+                                            {PurchaseProduct.category || "-"}
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                            {PurchaseCategory?.category || "-"}
+                                            {PurchaseProduct.name || "-"}
+                                        </td>
+                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                            {PurchaseProduct.min_stock || "-"}
+                                        </td>
+                                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleViewRecipes(PurchaseProduct.id, PurchaseProduct.name)}
+                                                className="text-mainColor hover:text-red-700 transition-colors underline text-sm sm:text-base"
+                                            >
+                                                {t("View Recipes")}
+                                            </button>
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                             <Switch
-                                                checked={PurchaseCategory.status === 1}
+                                                checked={PurchaseProduct.status === 1}
                                                 handleClick={() => {
                                                     handleChangeStatus(
-                                                        PurchaseCategory.id,
-                                                        PurchaseCategory.name,
-                                                        PurchaseCategory.status === 1 ? 0 : 1
+                                                        PurchaseProduct.id,
+                                                        PurchaseProduct.name,
+                                                        PurchaseProduct.status === 1 ? 0 : 1
                                                     );
                                                 }}
                                             />
                                         </td>
                                         <td className="px-4 py-3 text-center">
                                             <div className="flex items-center justify-center gap-2">
-                                                <Link to={`edit/${PurchaseCategory.id}`}>
+                                                <Link to={`edit/${PurchaseProduct.id}`}>
                                                     <EditIcon />
                                                 </Link>
                                                 <button
                                                     type="button"
-                                                    onClick={() => handleOpenDelete(PurchaseCategory.id)}
+                                                    onClick={() => handleOpenDelete(PurchaseProduct.id)}
                                                 >
                                                     <DeleteIcon />
                                                 </button>
-                                                {openDelete === PurchaseCategory.id && (
+                                                {openDelete === PurchaseProduct.id && (
                                                     <Dialog
                                                         open={true}
                                                         onClose={handleCloseDelete}
@@ -193,7 +219,7 @@ const PurchaseCategory = () => {
                                                                         />
                                                                         <div className="flex items-center">
                                                                             <div className="mt-2 text-center">
-                                                                                {t("You will delete")} {PurchaseCategory.name}
+                                                                                {t("You will delete")} {PurchaseProduct.name}
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -201,7 +227,7 @@ const PurchaseCategory = () => {
                                                                         <button
                                                                             className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto"
                                                                             onClick={() =>
-                                                                                handleDelete(PurchaseCategory.id, PurchaseCategory.name)
+                                                                                handleDelete(PurchaseProduct.id, PurchaseProduct.name)
                                                                             }
                                                                         >
                                                                             {t("Delete")}
@@ -229,7 +255,7 @@ const PurchaseCategory = () => {
                         </tbody>
                     </table>
 
-                    {PurchaseCategorys.length > 0 && (
+                    {PurchaseProducts.length > 0 && (
                         <div className="flex flex-wrap items-center justify-center my-6 gap-x-4">
                             {currentPage !== 1 && (
                                 <button
@@ -271,4 +297,4 @@ const PurchaseCategory = () => {
     );
 };
 
-export default PurchaseCategory;
+export default PurchaseProduct;

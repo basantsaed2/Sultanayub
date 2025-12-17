@@ -338,21 +338,33 @@ const adminRoutes = [
     icon: BiSolidEnvelope,
   },
   {
-    name: "Store",
-    path: "/dashboard/store",
-    permission: "Store",
-    icon: FaShoppingBasket,
-    subRoutes: [
-      { name: "List", path: "/dashboard/store/store_list", permission: "Store", },
-      { name: "Store Man", path: "/dashboard/store/store_man", permission: "StoreMan", },
-    ],
-    redirectTo: "/dashboard/store/store_list",
-  },
-  {
     name: "FreeDiscount",
     path: "/dashboard/free_discount",
     permission: "FreeDiscount",
     icon: MdDiscount,
+  },
+  {
+    name: "Stock",
+    path: "/dashboard/stock",
+    permission: "Stock",
+    icon: FaShoppingBasket,
+    subRoutes: [
+      { name: "List", path: "/dashboard/stock/stock_list", permission: "Stock", },
+      { name: "Stock Man", path: "/dashboard/stock/stock_man", permission: "StockMan", },
+      { name: "Stock Count", path: "/dashboard/stock/stock_count", permission: "StockCount", },
+    ],
+    redirectTo: "/dashboard/stock/stock_list",
+  },
+  {
+    name: "Inventory",
+    path: "/dashboard/inventory",
+    permission: "inventory",
+    icon: TbReportSearch,
+    subRoutes: [
+      { name: "Products", path: "/dashboard/inventory/inventory_products", permission: "inventory", },
+      { name: "Materials", path: "/dashboard/inventory/inventory_materials", permission: "inventory", },
+    ],
+    redirectTo: "/dashboard/inventory/inventory_products",
   },
   {
     name: "Purchase",
@@ -361,14 +373,27 @@ const adminRoutes = [
     icon: FaShoppingBasket,
     subRoutes: [
       { name: "List", path: "/dashboard/purchase/purchase_list", permission: "purchase", },
-      { name: "Transfer", path: "/dashboard/purchase/purchase_transfer", permission: "purchase", },
-      { name: "Category", path: "/dashboard/purchase/purchase_category", permission: "purchase", },
-      { name: "Products", path: "/dashboard/purchase/purchase_product", permission: "purchase", },
       { name: "Consumption", path: "/dashboard/purchase/purchase_consumption", permission: "purchase", },
       { name: "Wasted", path: "/dashboard/purchase/purchase_wasted", permission: "purchase", },
-      { name: "Count", path: "/dashboard/purchase/purchase_count", permission: "purchase", },
     ],
     redirectTo: "/dashboard/purchase/purchase_list",
+  },
+  {
+    name: "Stock Transfer",
+    path: "/dashboard/stock_transfer",
+    permission: "stock_transfer",
+    icon: FaShoppingBasket,
+  },
+  {
+    name: "Recipe",
+    path: "/dashboard/recipe_products",
+    permission: "recipe",
+    icon: FaShoppingBasket,
+    subRoutes: [
+      { name: "Category", path: "/dashboard/recipe_products/category", permission: "recipe", },
+      { name: "Products", path: "/dashboard/recipe_products/product", permission: "recipe", },
+    ],
+    redirectTo: "/dashboard/recipe_products/category",
   },
   {
     name: "Material",
@@ -398,17 +423,6 @@ const adminRoutes = [
       { name: "Payment", path: "/dashboard/expenses/expenses_payment", permission: "expenses", },
     ],
     redirectTo: "/dashboard/expenses/expenses_category",
-  },
-  {
-    name: "Inventory",
-    path: "/dashboard/inventory",
-    permission: "inventory",
-    icon: TbReportSearch,
-    subRoutes: [
-      { name: "Products", path: "/dashboard/inventory/inventory_products", permission: "inventory", },
-      { name: "Materials", path: "/dashboard/inventory/inventory_materials", permission: "inventory", },
-    ],
-    redirectTo: "/dashboard/inventory/inventory_products",
   },
   {
     name: "Reports",

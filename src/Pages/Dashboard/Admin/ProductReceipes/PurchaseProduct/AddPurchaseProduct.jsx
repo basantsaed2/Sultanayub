@@ -15,41 +15,37 @@ import { IoArrowBack } from "react-icons/io5";
 import { useGet } from "../../../../../Hooks/useGet";
 import Select from 'react-select';
 
-const AddPurchaseCategory = () => {
+const AddPurchaseProduct = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const {
-        refetch: refetchPurchaseCategory,
-        loading: loadingPurchaseCategory,
-        data: dataPurchaseCategory,
-    } = useGet({
-        url: `${apiUrl}/admin/purchase_categories`,
-    });
+    const { refetch: refetchList, loading: loadingList, data: dataList } = useGet({ url: `${apiUrl}/admin/purchase_product`, });
     const { postData, loadingPost, response } = usePost({
-        url: `${apiUrl}/admin/purchase_categories/add`,
+        url: `${apiUrl}/admin/purchase_product/add`,
     });
     const { t } = useTranslation();
     const auth = useAuth();
     const navigate = useNavigate();
 
-    const [name, setName] = useState("");
-    const [status, setStatus] = useState(1);
+    const [categoryOptions, setCategoryOptions] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
-    const [purchaseCategories, setPurchaseCategories] = useState([]);
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
+    const [minStock, setMinStock] = useState("");
+    const [status, setStatus] = useState(1);
 
     useEffect(() => {
-        refetchPurchaseCategory();
-    }, [refetchPurchaseCategory]);
+        refetchList();
+    }, [refetchList]);
 
-    // Update purchaseCategories when `data` changes
     useEffect(() => {
-        if (dataPurchaseCategory && dataPurchaseCategory.parent_categories) {
-            const subCategoryOptions = dataPurchaseCategory.parent_categories.map((category) => ({
-                value: category.id,
-                label: category.name,
+        if (dataList && dataList.categories) {
+            // Format categories for react-select
+            const options = dataList.categories.map(category => ({
+                value: category.id, // category_id
+                label: category.name
             }));
-            setPurchaseCategories(subCategoryOptions);
+            setCategoryOptions(options);
         }
-    }, [dataPurchaseCategory]);
+    }, [dataList]);
 
     // Navigate back after successful submission
     useEffect(() => {
@@ -63,35 +59,37 @@ const AddPurchaseCategory = () => {
         setStatus((prev) => (prev === 1 ? 0 : 1));
     };
 
-    // Handle category selection change
-    const handleCategoryChange = (selectedOption) => {
-        setSelectedCategory(selectedOption);
-    };
-
     // Reset form
     const handleReset = () => {
         setName("");
-        setStatus(1);
         setSelectedCategory(null);
+        setStatus(1);
+        setDescription("");
+        setMinStock("");
     };
 
     // Handle form submission
     const handleSubmit = (e) => {
         e.preventDefault();
 
+        if (!selectedCategory) {
+            auth.toastError(t("Please select a category"));
+            return;
+        }
+
         if (!name) {
-            auth.toastError(t("Enter Purchase Category Name"));
+            auth.toastError(t("Enter Product Name"));
             return;
         }
 
         const formData = new FormData();
+        formData.append("category_id", selectedCategory.value); // category_id from select
         formData.append("name", name);
+        formData.append("description", description);
+        formData.append("min_stock", minStock);
         formData.append("status", status);
-        if (selectedCategory) {
-            formData.append("category_id", selectedCategory.value);
-        }
 
-        postData(formData, t("Purchase Category Added Success"));
+        postData(formData, t("Recipe Product Added Success"));
     };
 
     // Handle back navigation
@@ -100,31 +98,35 @@ const AddPurchaseCategory = () => {
     };
 
     // Custom styles for react-select
-    const selectStyles = {
+    const customStyles = {
         control: (base, state) => ({
             ...base,
-            border: '1px solid #D1D5DB',
-            borderRadius: '0.5rem',
-            padding: '0.5rem',
-            boxShadow: state.isFocused ? '0 0 0 2px rgba(59, 130, 246, 0.1)' : 'none',
-            borderColor: state.isFocused ? '#3B82F6' : '#D1D5DB',
+            border: '2px solid #e5e7eb',
+            borderRadius: '8px',
+            padding: '8px 8px',
+            fontSize: '16px',
+            fontFamily: 'inherit',
+            boxShadow: state.isFocused ? '0 0 0 2px #3b82f6' : 'none',
+            borderColor: state.isFocused ? '#3b82f6' : '#e5e7eb',
             '&:hover': {
-                borderColor: state.isFocused ? '#3B82F6' : '#9CA3AF'
+                borderColor: state.isFocused ? '#3b82f6' : '#d1d5db'
             }
         }),
         option: (base, state) => ({
             ...base,
-            backgroundColor: state.isSelected ? '#3B82F6' : state.isFocused ? '#EFF6FF' : 'white',
+            fontSize: '16px',
+            fontFamily: 'inherit',
+            backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#eff6ff' : 'white',
             color: state.isSelected ? 'white' : '#374151',
             '&:hover': {
-                backgroundColor: '#EFF6FF'
+                backgroundColor: state.isSelected ? '#3b82f6' : '#eff6ff'
             }
         })
     };
 
     return (
         <>
-            {loadingPost || loadingPurchaseCategory ? (
+            {loadingPost ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
                 </div>
@@ -134,48 +136,72 @@ const AddPurchaseCategory = () => {
                         <div className="flex items-center gap-x-2">
                             <button
                                 onClick={handleBack}
-                                className="transition-colors text-mainColor hover:text-red-700"
+                                className="text-mainColor hover:text-red-700 transition-colors"
                                 title={t("Back")}
                             >
                                 <IoArrowBack size={24} />
                             </button>
-                            <TitlePage text={t("Add Purchase Category")} />
+                            <TitlePage text={t("Add Product")} />
                         </div>
                     </div>
                     <form className="p-2" onSubmit={handleSubmit}>
-                        <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                        <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                             {/* Name */}
-                            <div className="flex flex-col items-start justify-center w-full gap-y-1">
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Purchase Category Name")}:
+                                    {t("Product Name")}:
                                 </span>
                                 <TextInput
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    placeholder={t("Enter Name")}
+                                    placeholder={t("Enter Product Name")}
                                 />
                             </div>
 
-                            {/* Category */}
-                            <div className="flex flex-col items-start justify-center w-full gap-y-1">
+                            {/* Description */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Product Description")}:
+                                </span>
+                                <TextInput
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    placeholder={t("Enter Product Description")}
+                                />
+                            </div>
+
+                            {/* Category Select */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
                                     {t("Category")}:
                                 </span>
                                 <Select
+                                    options={categoryOptions}
                                     value={selectedCategory}
-                                    onChange={handleCategoryChange}
-                                    options={purchaseCategories}
+                                    onChange={setSelectedCategory}
                                     placeholder={t("Select Category")}
-                                    isClearable
                                     isSearchable
-                                    styles={selectStyles}
+                                    styles={customStyles}
+                                    isLoading={loadingList}
                                     className="w-full"
                                     noOptionsMessage={() => t("No categories available")}
                                 />
                             </div>
 
+                            {/* Minimum Stock */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Min Stock Quantity")}:
+                                </span>
+                                <TextInput
+                                    value={minStock}
+                                    onChange={(e) => setMinStock(e.target.value)}
+                                    placeholder={t("Enter Min Stock Quantity")}
+                                />
+                            </div>
+
                             {/* Status */}
-                            <div className="flex items-start justify-start w-full pt-8 gap-x-1">
+                            <div className="w-full flex items-start justify-start gap-x-1 pt-8">
                                 <div className="flex items-center justify-start gap-x-3">
                                     <span className="text-xl font-TextFontRegular text-thirdColor">
                                         {t("Active")}:
@@ -186,7 +212,7 @@ const AddPurchaseCategory = () => {
                         </div>
 
                         {/* Buttons */}
-                        <div className="flex items-center justify-end w-full mt-6 gap-x-4">
+                        <div className="flex items-center justify-end w-full gap-x-4 mt-6">
                             <div>
                                 <StaticButton
                                     text={t("Reset")}
@@ -213,4 +239,4 @@ const AddPurchaseCategory = () => {
     );
 };
 
-export default AddPurchaseCategory;
+export default AddPurchaseProduct;

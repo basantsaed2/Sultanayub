@@ -1,13 +1,13 @@
 // src/pages/Admin/Purchase/PurchaseCount.jsx
 import React, { useEffect, useState } from "react";
-import { TitlePage, StaticLoader } from "../../../../../Components/Components";
+import { TitlePage, StaticLoader } from "../../../../Components/Components";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import { useGet } from "../../../../../Hooks/useGet";
+import { useGet } from "../../../../Hooks/useGet";
 import { useTranslation } from "react-i18next";
 import Select from "react-select";
 
-const PurchaseCount = () => {
+const StockCount = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -185,7 +185,7 @@ const PurchaseCount = () => {
                                                 </td>
                                                 <td className="text-left px-6 py-4 text-lg">{item.min_stock || 0}</td>
                                                 <td className="text-left px-6 py-4 text-lg">
-                                                    ${parseFloat(item.cost || 0).toFixed(2)}
+                                                    {parseFloat(item.cost || 0).toFixed(2)}EGP
                                                 </td>
                                                 <td className="text-left px-6 py-4">
                                                     {isLowStock ? (
@@ -218,4 +218,4 @@ const PurchaseCount = () => {
     );
 };
 
-export default PurchaseCount;
+export default StockCount;
