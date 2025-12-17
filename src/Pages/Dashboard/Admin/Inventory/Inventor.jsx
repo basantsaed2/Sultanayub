@@ -546,7 +546,7 @@ const InventoryProduct = () => {
                                             className="w-5 h-5 rounded"
                                         />
                                     </th>
-                                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                    <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                         {t("Product")}
                                     </th>
                                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
