@@ -40,7 +40,7 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
   });
 
   const { postData: postUpdateTimeSlot, loadingPost: loadingUpdateTimeSlot } = usePost({
-    url: `${apiUrl}/admin/settings/business_setup/time_slot/update_times/${selectedTime}`
+    url: `${apiUrl}/admin/settings/business_setup/time_slot/update_times/${editingSlot?.id}`
   });
 
   const [optionName, setOptionName] = useState('daily');
@@ -100,9 +100,10 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
 
   const validateTimeSlot = (slot) => {
     if (!slot.from) return t('Opening time is required');
-    if (!slot.hours || isNaN(parseInt(slot.hours, 10))) return t('Valid number of hours is required');
-    if (!slot.minutes || isNaN(parseInt(slot.minutes, 10))) return t('Valid number of minutes is required');
-    if (!slot.branch_id || isNaN(slot.branch_id)) return t('Branch selection is required');
+    // Check if it's a string/number and not empty, allowing '0'
+    if (slot.hours === '' || isNaN(parseInt(slot.hours, 10))) return t('Valid number of hours is required');
+    if (slot.minutes === '' || isNaN(parseInt(slot.minutes, 10))) return t('Valid number of minutes is required');
+    if (!slot.branch_id) return t('Branch selection is required');
     return null;
   };
 
@@ -398,7 +399,7 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
                 disabled={isSubmittingCustom}
               />
               <div className="mt-4">
-                <SubmitButton
+                <StaticButton
                   text={isSubmittingCustom ? t('Saving Days...') : t('Save Custom Days')}
                   rounded="rounded-full"
                   handleClick={handleSubmitCustomDays}
