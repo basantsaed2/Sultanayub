@@ -18,7 +18,7 @@ const ToggleSetting = ({ labelKey, isChecked, onToggle, isLoading }) => {
 
        return (
               <div className="flex items-center justify-start gap-x-3 p-4 bg-white shadow-md rounded-lg min-w-[300px]">
-                     <span className="text-gray-700 font-medium flex-grow">{t(labelKey)}:</span>
+                     <span className="flex-grow font-medium text-gray-700">{t(labelKey)}:</span>
                      <Switch
                             checked={isChecked}
                             handleClick={onToggle}
@@ -137,28 +137,28 @@ const CancellationNotificationPage = () => {
        const isInitialLoading = loadingCancelationNotification || loadingNotification;
 
        return (
-              <div className="p-4 min-h-screen">
+              <div className="min-h-screen p-4">
                      {isInitialLoading || loadingCancellationChange || loadingGeneralChange ? (
-                            <div className="flex justify-center items-center h-96">
+                            <div className="flex items-center justify-center h-96">
                                    <StaticLoader />
                             </div>
                      ) : (
-                            <section className="flex flex-col items-start justify-start w-full gap-y-4 max-w-lg">
+                            <section className="flex flex-col items-start justify-start w-full max-w-lg gap-y-4">
                                    <ToggleSetting
-                                          labelKey="Repeated Cancellation Notification"
+                                          labelKey={t("Repeated Cancellation Notification")}
                                           isChecked={cancellationRepeated === 1}
                                           onToggle={handleToggleCancellation}
                                           isLoading={loadingCancellationChange}
                                    />
 
                                    <ToggleSetting
-                                          labelKey="General Repeated Notification"
+                                          labelKey={t("General Repeated Notification")}
                                           isChecked={generalRepeated === 1}
                                           onToggle={handleToggleGeneralNotification}
                                           isLoading={loadingGeneralChange}
                                    />
 
-                                   <blockquote className="mt-4 p-3 bg-blue-100 border-l-4 border-blue-500 text-blue-800 text-sm">
+                                   <blockquote className="p-3 mt-4 text-sm text-blue-800 bg-blue-100 border-l-4 border-blue-500">
                                           {t("Note: Each setting controls a different type of repeated notification. Changes are saved automatically.")}
                                    </blockquote>
                             </section>

@@ -213,90 +213,90 @@ const FreeDiscount = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-32">
-            <div className="container mx-auto px-2 py-4 md:px-4 md:py-6">
+        <div className="min-h-screen pb-32 bg-gray-50">
+            <div className="container px-2 py-4 mx-auto md:px-4 md:py-6">
                 {/* Header */}
                 <div className="mb-4 md:mb-6">
-                    <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900">
-                        {t('Free Discount')}
+                    <h1 className="text-xl font-bold text-gray-900 md:text-2xl lg:text-3xl">
+                        {t('FreeDiscount')}
                     </h1>
                 </div>
 
                 {/* Settings Form */}
-                <form onSubmit={handleSubmit} className="bg-white rounded-lg md:rounded-xl shadow p-3 md:p-4 lg:p-6">
+                <form onSubmit={handleSubmit} className="p-3 bg-white rounded-lg shadow md:rounded-xl md:p-4 lg:p-6">
                     {/* Max Discount Order */}
-                    <div className="mb-4 md:mb-6 p-3 md:p-4 border border-gray-200 rounded-lg">
+                    <div className="p-3 mb-4 border border-gray-200 rounded-lg md:mb-6 md:p-4">
                         <div className="flex items-center mb-3 md:mb-4">
-                            <FaShoppingCart className="w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3 text-red-600" />
-                            <h2 className="text-base md:text-lg font-semibold text-gray-900">
+                            <FaShoppingCart className="w-4 h-4 mr-2 text-red-600 md:w-5 md:h-5 md:mr-3" />
+                            <h2 className="text-base font-semibold text-gray-900 md:text-lg">
                                 {t('Max Discount Per Order')}
                             </h2>
                         </div>
                         <div className="flex items-center">
-                            <FaPercent className="w-4 h-4 md:w-5 md:h-5 mr-2 text-gray-400 flex-shrink-0" />
+                            <FaPercent className="flex-shrink-0 w-4 h-4 mr-2 text-gray-400 md:w-5 md:h-5" />
                             <input
                                 type="number"
                                 min="0"
                                 step="0.01"
                                 value={formData.max_discount_order}
                                 onChange={(e) => handleInputChange('max_discount_order', e.target.value)}
-                                className="w-full min-w-0 p-2 md:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                className="w-full min-w-0 p-2 border border-gray-300 rounded-lg md:p-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                                 placeholder={t('Enter Max Discount Amount')}
                             />
                         </div>
                     </div>
 
                     {/* Max Discount Shift */}
-                    <div className="mb-4 md:mb-6 p-3 md:p-4 border border-gray-200 rounded-lg">
+                    <div className="p-3 mb-4 border border-gray-200 rounded-lg md:mb-6 md:p-4">
                         <div className="flex items-center mb-3 md:mb-4">
-                            <FaClock className="w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3 text-red-600" />
-                            <h2 className="text-base md:text-lg font-semibold text-gray-900">
+                            <FaClock className="w-4 h-4 mr-2 text-red-600 md:w-5 md:h-5 md:mr-3" />
+                            <h2 className="text-base font-semibold text-gray-900 md:text-lg">
                                 {t('Max Discount Per Shift')}
                             </h2>
                         </div>
                         <div className="flex items-center">
-                            <FaPercent className="w-4 h-4 md:w-5 md:h-5 mr-2 text-gray-400 flex-shrink-0" />
+                            <FaPercent className="flex-shrink-0 w-4 h-4 mr-2 text-gray-400 md:w-5 md:h-5" />
                             <input
                                 type="number"
                                 min="0"
                                 step="0.01"
                                 value={formData.max_discount_shift}
                                 onChange={(e) => handleInputChange('max_discount_shift', e.target.value)}
-                                className="w-full min-w-0 p-2 md:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                className="w-full min-w-0 p-2 border border-gray-300 rounded-lg md:p-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                                 placeholder={t('Enter Max Discount Per Shift')}
                             />
                         </div>
                     </div>
 
                     {/* Email Notifications */}
-                    <div className="mb-4 md:mb-6 p-3 md:p-4 border border-gray-200 rounded-lg">
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3 md:mb-4 gap-2">
+                    <div className="p-3 mb-4 border border-gray-200 rounded-lg md:mb-6 md:p-4">
+                        <div className="flex flex-col gap-2 mb-3 md:flex-row md:items-center md:justify-between md:mb-4">
                             <div className="flex items-center">
-                                <FaEnvelope className="w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3 text-red-600 flex-shrink-0" />
-                                <h2 className="text-base md:text-lg font-semibold text-gray-900">
+                                <FaEnvelope className="flex-shrink-0 w-4 h-4 mr-2 text-red-600 md:w-5 md:h-5 md:mr-3" />
+                                <h2 className="text-base font-semibold text-gray-900 md:text-lg">
                                     {t('Notification Emails')}
                                 </h2>
                             </div>
                             <button
                                 type="button"
                                 onClick={addEmailField}
-                                className="flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 w-full sm:w-auto"
+                                className="flex items-center justify-center w-full px-3 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:w-auto"
                             >
-                                <FaPlus className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                                <FaPlus className="w-3 h-3 mr-1 md:w-4 md:h-4 md:mr-2" />
                                 {t('Add Email')}
                             </button>
                         </div>
 
                         {/* Required Email Fields */}
-                        <div className="space-y-3 md:space-y-4 mb-4 md:mb-6">
+                        <div className="mb-4 space-y-3 md:space-y-4 md:mb-6">
                             {formData.emails.map((emailObj, index) => (
                                 <div key={`email-${index}-${emailObj.id || 'new'}`} className="flex items-center">
-                                    <FaEnvelope className="w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3 text-gray-400 flex-shrink-0" />
+                                    <FaEnvelope className="flex-shrink-0 w-4 h-4 mr-2 text-gray-400 md:w-5 md:h-5 md:mr-3" />
                                     <input
                                         type="email"
                                         value={emailObj.email}
                                         onChange={(e) => handleEmailChange(index, e.target.value)}
-                                        className="w-full min-w-0 p-2 md:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                        className="w-full min-w-0 p-2 border border-gray-300 rounded-lg md:p-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                                         placeholder={`${t('Email')} ${index + 1}`}
                                     />
                                 </div>
@@ -306,26 +306,26 @@ const FreeDiscount = () => {
                         {/* Additional Email Fields */}
                         {additionalEmails.length > 0 && (
                             <div className="space-y-3 md:space-y-4">
-                                <h3 className="text-sm md:text-md font-medium text-gray-700">
+                                <h3 className="text-sm font-medium text-gray-700 md:text-md">
                                     {t('Additional Emails')}
                                 </h3>
                                 {additionalEmails.map((emailObj, index) => (
                                     <div key={`additional-email-${index}-${emailObj.id || 'new'}`} className="flex items-center gap-2">
-                                        <FaEnvelope className="w-4 h-4 md:w-5 md:h-5 text-gray-400 flex-shrink-0 hidden sm:block" />
-                                        <div className="flex-1 flex items-center">
-                                            <FaEnvelope className="w-4 h-4 md:w-5 md:h-5 text-gray-400 flex-shrink-0 mr-2 md:mr-3 sm:hidden" />
+                                        <FaEnvelope className="flex-shrink-0 hidden w-4 h-4 text-gray-400 md:w-5 md:h-5 sm:block" />
+                                        <div className="flex items-center flex-1">
+                                            <FaEnvelope className="flex-shrink-0 w-4 h-4 mr-2 text-gray-400 md:w-5 md:h-5 md:mr-3 sm:hidden" />
                                             <input
                                                 type="email"
                                                 value={emailObj.email}
                                                 onChange={(e) => handleAdditionalEmailChange(index, e.target.value)}
-                                                className="w-full min-w-0 p-2 md:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                                className="w-full min-w-0 p-2 border border-gray-300 rounded-lg md:p-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                                                 placeholder={`${t('Additional Email')} ${index + 1}`}
                                             />
                                         </div>
                                         <button
                                             type="button"
                                             onClick={() => removeEmailField(index)}
-                                            className="p-2 md:p-3 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg flex-shrink-0"
+                                            className="flex-shrink-0 p-2 text-red-600 rounded-lg md:p-3 hover:text-red-800 hover:bg-red-50"
                                             title={t('Remove Email')}
                                         >
                                             <FaTrashAlt className="w-4 h-4 md:w-5 md:h-5" />
@@ -337,11 +337,11 @@ const FreeDiscount = () => {
                     </div>
 
                     {/* Submit Button */}
-                    <div className="flex justify-end pt-4 md:pt-6 border-t border-gray-200">
+                    <div className="flex justify-end pt-4 border-t border-gray-200 md:pt-6">
                         <button
                             type="submit"
                             disabled={isSaving || savingPost}
-                            className="flex items-center justify-center px-4 py-2 md:px-6 md:py-3 text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors w-full sm:w-auto"
+                            className="flex items-center justify-center w-full px-4 py-2 text-white transition-colors bg-red-600 rounded-lg md:px-6 md:py-3 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto"
                         >
                             {isSaving || savingPost ? (
                                 <>
@@ -350,7 +350,7 @@ const FreeDiscount = () => {
                                 </>
                             ) : (
                                 <>
-                                    <FaSave className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                                    <FaSave className="w-4 h-4 mr-2 md:w-5 md:h-5" />
                                     {t('Save Settings')}
                                 </>
                             )}

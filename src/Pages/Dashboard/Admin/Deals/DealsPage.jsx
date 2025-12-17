@@ -159,7 +159,7 @@ const DealsPage = ({ data, setDeals, loading }) => {
                           className="text-xl border-b-2 cursor-pointer text-mainColor border-mainColor font-TextFontSemiBold"
                           onClick={() => handleOpenDescription(deal.id)}
                         >
-                          View
+                          {t("View")}
                         </span>
 
                         {openDescription === deal.id && (

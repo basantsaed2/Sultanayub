@@ -181,7 +181,7 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
   const handleSubmitTimeSlots = async (e) => {
     e.preventDefault();
     if (timeSlots.length === 0) {
-      auth.toastError(t("'Please add at least one Branch Time'"));
+      auth.toastError(t('Please add at least one Branch Time'));
       return;
     }
 
@@ -459,7 +459,7 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
                   />
                 </div>
                 <div>
-                  <label className="block mb-1 text-sm font-medium text-gray-700">{t("Minutes *")}</label>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">{t("Minutes")}</label>
                   <NumberInput
                     value={editingSlot.minutes}
                     onChange={(e) => setEditingSlot({

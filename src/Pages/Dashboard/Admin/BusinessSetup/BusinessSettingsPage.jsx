@@ -655,7 +655,7 @@ const BusinessSettingsPage = () => {
           onSubmit={handelAddCompany}
         >
           <div className="w-full">
-            <TitleSection text={"System Maintenance"} />
+            <TitleSection text={t("System Maintenance")} />
             <p className="text-xl font-TextFontMedium text-secoundColor">
               {t("By")}
             </p>
@@ -673,7 +673,7 @@ const BusinessSettingsPage = () => {
             </div>
           </div>
 
-          <TitleSection text={"Company Information"} />
+          <TitleSection text={t("Company Information")} />
           {/* Company Name */}
           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -688,18 +688,18 @@ const BusinessSettingsPage = () => {
           {/* Company Phone */}
           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-              Company Phone:
+              {t("Company Phone")}
             </span>
             <NumberInput
               value={companyPhone}
               onChange={(e) => setCompanyPhone(e.target.value)}
-              placeholder="Company Phone"
+              placeholder={t("Company Phone")}
             />
           </div>
           {/* Company Alternative Phone */}
           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-              {t("CompanyAlternativePhone")}:
+              {t("CompanyAlternativePhone")}
             </span>
             <NumberInput
               value={companyAlternativePhone}
@@ -710,12 +710,12 @@ const BusinessSettingsPage = () => {
           {/* Company WhatsApp Phone */}
           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
-              Company WhatsApp Phone:
+              {t("Company WhatsApp Phone")}
             </span>
             <NumberInput
               value={companyWhatsapp}
               onChange={(e) => setCompanyWhatsapp(e.target.value)}
-              placeholder="Company WhatsApp Phone"
+              placeholder={t("Company WhatsApp Phone")}
             />
           </div>
           {/* Company Email */}
@@ -815,15 +815,15 @@ const BusinessSettingsPage = () => {
               <img
                 src={qrCode}
                 alt="QR Code"
-                className="w-48 h-48 object-contain mx-auto"
+                className="object-contain w-48 h-48 mx-auto"
               />
-              <p className="text-sm text-gray-600 text-center">
+              <p className="text-sm text-center text-gray-600">
                 {t("Current QR Code")}
               </p>
             </div>
           )} */}
           <div className="sm:w-full lg:w-[30%] flex items-center gap-2 mt-8 justify-center gap-y-1">
-            <span className="text-xl font-TextFontRegular text-thirdColor">Order Active : </span>
+            <span className="text-xl font-TextFontRegular text-thirdColor">{t("Order Active")}  </span>
             <div>
               <Switch
                 checked={orderActive}
@@ -833,7 +833,7 @@ const BusinessSettingsPage = () => {
           </div>
 
           <div className="sm:w-full lg:w-[30%] flex items-center gap-2 mt-8 justify-center gap-y-1">
-            <span className="text-xl font-TextFontRegular text-thirdColor">Preparation Number : </span>
+            <span className="text-xl font-TextFontRegular text-thirdColor">{t('Preparation Number')} </span>
             <div>
               <Switch
                 checked={preparationNumber}
@@ -843,7 +843,7 @@ const BusinessSettingsPage = () => {
           </div>
 
           <div className="sm:w-full lg:w-[30%] flex items-center gap-2 mt-8 justify-center gap-y-1">
-            <span className="text-xl font-TextFontRegular text-thirdColor">Android  Active : </span>
+            <span className="text-xl font-TextFontRegular text-thirdColor">{t("Android  Active")}</span>
             <div>
               <Switch
                 checked={androidActive}
@@ -853,7 +853,7 @@ const BusinessSettingsPage = () => {
           </div>
 
           <div className="sm:w-full lg:w-[30%] flex items-center gap-2 mt-8 justify-center gap-y-1">
-            <span className="text-xl font-TextFontRegular text-thirdColor">IOS  Active : </span>
+            <span className="text-xl font-TextFontRegular text-thirdColor">{t("IOS  Active")} </span>
             <div>
               <Switch
                 checked={iosActive}
@@ -867,9 +867,9 @@ const BusinessSettingsPage = () => {
               <img
                 src={qrCode}
                 alt="QR Code"
-                className="w-48 h-48 object-contain mx-auto"
+                className="object-contain w-48 h-48 mx-auto"
               />
-              <p className="text-sm text-gray-600 text-center">
+              <p className="text-sm text-center text-gray-600">
                 {t("Current QR Code")}
               </p>
             </div>

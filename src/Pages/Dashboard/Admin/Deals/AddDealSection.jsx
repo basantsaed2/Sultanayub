@@ -483,7 +483,7 @@ const AddDealSection = ({ refetch, setRefetch }) => {
                       BgColor="mainColor"
                       Color="white"
                       iconColor="white"
-                      Text="Add Day"
+                      Text={t("Add Day")}
                       handleClick={handleAddDay}
                     />
                   </div>

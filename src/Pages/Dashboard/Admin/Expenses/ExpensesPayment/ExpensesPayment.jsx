@@ -190,7 +190,7 @@ const ExpensesPayment = () => {
     return (
         <>
             {/* Header */}
-            <div className="flex justify-between items-center p-4 bg-white shadow-sm">
+            <div className="flex items-center justify-between p-4 bg-white shadow-sm">
                 <div className="flex items-center gap-3">
                     <button onClick={() => navigate(-1)} className="text-mainColor hover:text-red-700">
                         <IoArrowBack size={28} />
@@ -208,7 +208,7 @@ const ExpensesPayment = () => {
             </div>
 
             {/* Table + Pagination */}
-            <div className="p-4 bg-white rounded-lg shadow mt-4 pb-20">
+            <div className="p-4 pb-20 mt-4 bg-white rounded-lg shadow">
                 {loadingExpenses || loadingList ? (
                     <div className="flex justify-center py-20">
                         <StaticLoader />
@@ -217,26 +217,26 @@ const ExpensesPayment = () => {
                     <>
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-mainColor text-white">
+                                <thead className="text-white bg-mainColor">
                                     <tr>
-                                        <th className="px-6 py-3 text-left">{t("ID")}</th>
-                                        <th className="px-6 py-3 text-left">{t("Expense")}</th>
-                                        <th className="px-6 py-3 text-left">{t("Category")}</th>
-                                        <th className="px-6 py-3 text-left">{t("Amount")}</th>
-                                        <th className="px-6 py-3 text-left">{t("Branch")}</th>
-                                        <th className="px-6 py-3 text-left">{t("Note")}</th>
+                                        <th className="px-6 py-3 text-center">{t("ID")}</th>
+                                        <th className="px-6 py-3 text-center">{t("Expense")}</th>
+                                        <th className="px-6 py-3 text-center">{t("Category")}</th>
+                                        <th className="px-6 py-3 text-center">{t("Amount")}</th>
+                                        <th className="px-6 py-3 text-center">{t("Branch")}</th>
+                                        <th className="px-6 py-3 text-center">{t("Note")}</th>
                                         <th className="px-6 py-3 text-center">{t("Actions")}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
                                     {currentExpenses.map(exp => (
-                                        <tr key={exp.id} className="hover:bg-gray-50 transition">
-                                            <td className="px-6 py-4">{exp.id}</td>
-                                            <td className="px-6 py-4 font-medium">{exp.expense}</td>
-                                            <td className="px-6 py-4">{exp.category?.name || "-"}</td>
-                                            <td className="px-6 py-4 text-green-600 font-bold">{exp.amount}</td>
-                                            <td className="px-6 py-4">{exp.branch?.name || "-"}</td>
-                                            <td className="px-6 py-4 text-gray-600">{exp.note || "-"}</td>
+                                        <tr key={exp.id} className="transition hover:bg-gray-50">
+                                            <td className="px-6 py-4 text-center">{exp.id}</td>
+                                            <td className="px-6 py-4 font-medium text-center">{exp.expense}</td>
+                                            <td className="px-6 py-4 text-center">{exp.category?.name || "-"}</td>
+                                            <td className="px-6 py-4 font-bold text-center text-green-600">{exp.amount}</td>
+                                            <td className="px-6 py-4 text-center">{exp.branch?.name || "-"}</td>
+                                            <td className="px-6 py-4 text-center text-gray-600">{exp.note || "-"}</td>
                                             <td className="px-6 py-4 text-center">
                                                 <div className="flex justify-center gap-4">
                                                     <button onClick={() => handleEdit(exp)} className="text-blue-600 hover:text-blue-800">
@@ -255,8 +255,8 @@ const ExpensesPayment = () => {
 
                         {/* PAGINATION */}
                         {totalPages > 1 && (
-                            <div className="flex flex-col sm:flex-row justify-between items-center mt-6 p-4 border-t">
-                                <div className="text-sm text-gray-600 mb-4 sm:mb-0">
+                            <div className="flex flex-col items-center justify-between p-4 mt-6 border-t sm:flex-row">
+                                <div className="mb-4 text-sm text-gray-600 sm:mb-0">
                                     {t("Showing")} {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, totalItems)} {t("of")} {totalItems} {t("entries")}
                                 </div>
 
@@ -299,47 +299,47 @@ const ExpensesPayment = () => {
 
             {/* ADD / PAY MODAL */}
             {showPayModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
                     <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="p-4 border-b flex justify-between items-center sticky top-0 bg-white z-10">
+                        <div className="sticky top-0 z-10 flex items-center justify-between p-4 bg-white border-b">
                             <h3 className="text-2xl font-bold text-mainColor">{t("Pay New Expense")}</h3>
                             <button onClick={() => setShowPayModal(false)} className="text-3xl text-gray-500 hover:text-gray-700">×</button>
                         </div>
-                        <form onSubmit={handleSubmitPayment} className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <form onSubmit={handleSubmitPayment} className="grid grid-cols-1 gap-5 p-6 md:grid-cols-2">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t("Expense")} *</label>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">{t("Expense")} *</label>
                                 <TextInput value={expenseName} onChange={e => setExpenseName(e.target.value)} placeholder={t("Enter expense name")} />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t("Category")} *</label>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">{t("Category")} *</label>
                                 <Select options={categoryOptions} value={categoryOptions.find(o => o.value === categoryId)} onChange={o => setCategoryId(o?.value || "")} styles={customStyles} isSearchable placeholder={t("Select Category")} />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t("Branch")} *</label>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">{t("Branch")} *</label>
                                 <Select options={branchOptions} value={branchOptions.find(o => o.value === branchId)} onChange={o => setBranchId(o?.value || "")} styles={customStyles} isSearchable placeholder={t("Select Branch")} />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t("Cashier")} *</label>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">{t("Cashier")} *</label>
                                 <Select options={cashierOptions} value={cashierOptions.find(o => o.value === cashierId)} onChange={o => setCashierId(o?.value || "")} styles={customStyles} isSearchable placeholder={t("Select Cashier")} />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t("Cashier Man")} *</label>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">{t("Cashier Man")} *</label>
                                 <Select options={cashierManOptions} value={cashierManOptions.find(o => o.value === cashierManId)} onChange={o => setCashierManId(o?.value || "")} styles={customStyles} isSearchable placeholder={t("Select Cashier Man")} />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t("Financial Account")} *</label>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">{t("Financial Account")} *</label>
                                 <Select options={financialOptions} value={financialOptions.find(o => o.value === financialAccountId)} onChange={o => setFinancialAccountId(o?.value || "")} styles={customStyles} isSearchable placeholder={t("Select Account")} />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t("Amount")} *</label>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">{t("Amount")} *</label>
                                 <TextInput type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" />
                             </div>
                             <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t("Note")}</label>
-                                <textarea value={note} onChange={e => setNote(e.target.value)} rows={3} className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-mainColor outline-none" placeholder={t("Optional note...")} />
+                                <label className="block mb-1 text-sm font-medium text-gray-700">{t("Note")}</label>
+                                <textarea value={note} onChange={e => setNote(e.target.value)} rows={3} className="w-full p-3 border-2 border-gray-300 rounded-lg outline-none focus:border-mainColor" placeholder={t("Optional note...")} />
                             </div>
 
-                            <div className="md:col-span-2 flex justify-end gap-4 pt-4 border-t">
+                            <div className="flex justify-end gap-4 pt-4 border-t md:col-span-2">
                                 <StaticButton text={t("Cancel")} handleClick={() => setShowPayModal(false)} bgColor="bg-gray-300" Color="text-gray-700" />
                                 <SubmitButton text={t("Pay Now")} loading={loadingAdd} />
                             </div>
@@ -350,33 +350,33 @@ const ExpensesPayment = () => {
 
             {/* EDIT MODAL */}
             {showEditModal && selectedExpense && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
                     <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="p-5 border-b flex justify-between items-center">
+                        <div className="flex items-center justify-between p-5 border-b">
                             <h3 className="text-2xl font-bold text-mainColor">{t("Edit Expense")}</h3>
                             <button onClick={() => setShowEditModal(false)} className="text-3xl">×</button>
                         </div>
                         <form onSubmit={handleUpdate} className="p-6 space-y-6">
-                            <div className="grid md:grid-cols-2 gap-5">
+                            <div className="grid gap-5 md:grid-cols-2">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("Expense Name")} *</label>
+                                    <label className="block mb-1 text-sm font-medium text-gray-700">{t("Expense Name")} *</label>
                                     <TextInput value={editExpenseName} onChange={e => setEditExpenseName(e.target.value)} placeholder={t("Enter expense name")} />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("Category")} *</label>
+                                    <label className="block mb-1 text-sm font-medium text-gray-700">{t("Category")} *</label>
                                     <Select options={categoryOptions} value={categoryOptions.find(o => o.value === editCategoryId)} onChange={o => setEditCategoryId(o?.value || "")} styles={customStyles} isSearchable />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("Financial Account")} *</label>
+                                    <label className="block mb-1 text-sm font-medium text-gray-700">{t("Financial Account")} *</label>
                                     <Select options={financialOptions} value={financialOptions.find(o => o.value === editFinancialAccountId)} onChange={o => setEditFinancialAccountId(o?.value || "")} styles={customStyles} isSearchable />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("Amount")} *</label>
+                                    <label className="block mb-1 text-sm font-medium text-gray-700">{t("Amount")} *</label>
                                     <TextInput type="number" value={editAmount} onChange={e => setEditAmount(e.target.value)} placeholder="0.00" />
                                 </div>
                                 <div className="md:col-span-2">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("Note")}</label>
-                                    <textarea value={editNote} onChange={e => setEditNote(e.target.value)} rows={3} className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-mainColor outline-none" placeholder={t("Optional note...")} />
+                                    <label className="block mb-1 text-sm font-medium text-gray-700">{t("Note")}</label>
+                                    <textarea value={editNote} onChange={e => setEditNote(e.target.value)} rows={3} className="w-full p-3 border-2 border-gray-300 rounded-lg outline-none focus:border-mainColor" placeholder={t("Optional note...")} />
                                 </div>
                             </div>
                             <div className="flex justify-end gap-4 pt-4 border-t">
@@ -390,13 +390,13 @@ const ExpensesPayment = () => {
 
             {/* DETAILS MODAL */}
             {showDetailsModal && selectedExpense && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full">
-                        <div className="p-5 border-b flex justify-between items-center">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+                    <div className="w-full max-w-2xl bg-white shadow-xl rounded-xl">
+                        <div className="flex items-center justify-between p-5 border-b">
                             <h3 className="text-2xl font-bold text-mainColor">{t("Expense Details")}</h3>
                             <button onClick={() => setShowDetailsModal(false)} className="text-3xl text-gray-500 hover:text-gray-700">×</button>
                         </div>
-                        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
                             <DetailItem label={t("ID")} value={selectedExpense.id} />
                             <DetailItem label={t("Expense")} value={selectedExpense.expense} />
                             <DetailItem label={t("Category")} value={selectedExpense.category?.name} />
@@ -409,7 +409,7 @@ const ExpensesPayment = () => {
                             <DetailItem label={t("Note")} value={selectedExpense.note || "-"} />
                             <DetailItem label={t("Created At")} value={new Date(selectedExpense.created_at).toLocaleString()} />
                         </div>
-                        <div className="p-5 border-t text-right">
+                        <div className="p-5 text-right border-t">
                             <StaticButton
                                 text={t("Close")}
                                 handleClick={() => setShowDetailsModal(false)}

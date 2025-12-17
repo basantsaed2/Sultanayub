@@ -169,13 +169,13 @@ const AddPurchaseConsumersion = () => {
                             <button onClick={handleBack} className="text-mainColor hover:text-red-700">
                                 <IoArrowBack size={24} />
                             </button>
-                            <TitlePage text={t("Add Purchase Consumption")} />
+                            <TitlePage text={t("Add Consumption")} />
                         </div>
                     </div>
 
                     <form onSubmit={handleSubmit} className="p-2">
                         {/* Type Selection */}
-                        <div className="flex justify-center gap-12 mb-8 p-6 rounded-lg">
+                        <div className="flex justify-center gap-12 p-6 mb-8 rounded-lg">
                             <label className="flex items-center gap-3 cursor-pointer">
                                 <input
                                     type="radio"
@@ -200,24 +200,24 @@ const AddPurchaseConsumersion = () => {
                             </label>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                             {/* Branch */}
                             <div>
-                                <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">{t("Branch")} *</span>
+                                <span className="block mb-2 text-xl font-TextFontRegular text-thirdColor">{t("Branch")} *</span>
                                 <Select value={selectedBranch} onChange={setSelectedBranch} options={branches}
                                     placeholder={t("Select Branch")} isClearable isSearchable styles={selectStyles} />
                             </div>
 
                             {/* Store */}
                             <div>
-                                <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">{t("Store")} *</span>
+                                <span className="block mb-2 text-xl font-TextFontRegular text-thirdColor">{t("Store")} *</span>
                                 <Select value={selectedStore} onChange={setSelectedStore} options={stores}
                                     placeholder={t("Select Store")} isClearable isSearchable styles={selectStyles} />
                             </div>
 
                             {/* Category */}
                             <div>
-                                <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">
+                                <span className="block mb-2 text-xl font-TextFontRegular text-thirdColor">
                                     {type === "product" ? t("Product Category") : t("Material Category")} *
                                 </span>
                                 <Select
@@ -231,7 +231,7 @@ const AddPurchaseConsumersion = () => {
 
                             {/* Item (Product/Material) */}
                             <div>
-                                <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">
+                                <span className="block mb-2 text-xl font-TextFontRegular text-thirdColor">
                                     {type === "product" ? t("Product") : t("Material")} *
                                 </span>
                                 <Select
@@ -247,19 +247,19 @@ const AddPurchaseConsumersion = () => {
 
                             {/* Quantity */}
                             <div>
-                                <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">{t("Quantity")} *</span>
+                                <span className="block mb-2 text-xl font-TextFontRegular text-thirdColor">{t("Quantity")} *</span>
                                 <TextInput type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)}
                                     placeholder={t("Enter Quantity")} min="0.01" step="0.01" />
                             </div>
 
                             {/* Date */}
                             <div>
-                                <span className="text-xl font-TextFontRegular text-thirdColor block mb-2">{t("Date")} *</span>
+                                <span className="block mb-2 text-xl font-TextFontRegular text-thirdColor">{t("Date")} *</span>
                                 <DateInput value={date} onChange={(e) => setDate(e.target.value)} />
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-end w-full gap-x-4 mt-6">
+                        <div className="flex items-center justify-end w-full mt-6 gap-x-4">
                             <div>
                                 <StaticButton
                                     text={t("Reset")}

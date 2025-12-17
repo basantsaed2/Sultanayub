@@ -5,7 +5,7 @@ import { useGet } from "../../../../Hooks/useGet";
 import { usePost } from "../../../../Hooks/usePostJson";
 import { useChangeState } from "../../../../Hooks/useChangeState";
 import { useAuth } from "../../../../Context/Auth";
-import { t } from "i18next";
+import { useTranslation } from "react-i18next";
 import {
     FiPackage,
     FiClock,
@@ -33,7 +33,8 @@ import Papa from "papaparse";
 const InventoryMaterial = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const auth = useAuth();
-
+ const { t, i18n } = useTranslation();
+             const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
     // API Hooks
     const { data: listsData, loading: loadingLists, refetch } = useGet({
         url: `${apiUrl}/admin/inventory/material/lists`,
@@ -704,14 +705,14 @@ const InventoryMaterial = () => {
     };
 
     return (
-        <div className="p-6 w-full pb-20">
+        <div className="w-full p-6 pb-20">
             <TitlePage text={t("Inventory Material")} />
 
             {/* NEW: Create Inventory Button */}
             <div className="flex justify-end mb-6">
                 <button
                     onClick={() => setShowCreateModal(true)}
-                    className="px-6 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition flex items-center gap-3"
+                    className="flex items-center gap-3 px-6 py-3 font-semibold text-white transition bg-green-600 rounded-xl hover:bg-green-700"
                 >
                     <FiPlus size={20} />
                     {t("Create Inventory")}
@@ -736,7 +737,7 @@ const InventoryMaterial = () => {
 
             {/* NEW: Create Inventory Modal */}
             {showCreateModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
                     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
                         {/* Modal Header - Fixed */}
                         <div className="flex items-center justify-between p-6 border-b shrink-0">
@@ -748,18 +749,18 @@ const InventoryMaterial = () => {
                                     setShowCreateModal(false);
                                     resetCreateModal();
                                 }}
-                                className="p-2 hover:bg-gray-100 rounded-full transition"
+                                className="p-2 transition rounded-full hover:bg-gray-100"
                             >
                                 <FiX size={24} />
                             </button>
                         </div>
 
                         {/* Modal Content - Scrollable */}
-                        <div className="flex-1 overflow-y-auto p-6">
+                        <div className="flex-1 p-6 overflow-y-auto">
                             <div className="space-y-6">
                                 {/* Store */}
                                 <div>
-                                    <label className="block text-lg font-medium text-gray-700 mb-3">
+                                    <label className="block mb-3 text-lg font-medium text-gray-700">
                                         {t("Store")} *
                                     </label>
                                     <Select
@@ -784,7 +785,7 @@ const InventoryMaterial = () => {
 
                                 {/* Type */}
                                 <div>
-                                    <label className="block text-lg font-medium text-gray-700 mb-3">
+                                    <label className="block mb-3 text-lg font-medium text-gray-700">
                                         {t("Type")} *
                                     </label>
                                     <Select
@@ -810,7 +811,7 @@ const InventoryMaterial = () => {
                                 {createType?.value === "partial" && (
                                     <>
                                         <div>
-                                            <label className="block text-lg font-medium text-gray-700 mb-3">
+                                            <label className="block mb-3 text-lg font-medium text-gray-700">
                                                 {t("Categories")} *
                                             </label>
                                             <Select
@@ -839,7 +840,7 @@ const InventoryMaterial = () => {
                                                 }}
                                             />
                                             {createCategories.length > 0 && (
-                                                <p className="text-sm text-gray-600 mt-2">
+                                                <p className="mt-2 text-sm text-gray-600">
                                                     {createCategories.length === (listsData?.categories?.length || 0)
                                                         ? t("All categories selected")
                                                         : `${createCategories.length} ${t("categories selected")}`}
@@ -849,7 +850,7 @@ const InventoryMaterial = () => {
 
                                         {/* Products - Optional + All Products */}
                                         <div>
-                                            <label className="block text-lg font-medium text-gray-700 mb-3">
+                                            <label className="block mb-3 text-lg font-medium text-gray-700">
                                                 {t("Products")} ({t("Optional")})
                                             </label>
                                             <Select
@@ -883,13 +884,13 @@ const InventoryMaterial = () => {
                                                 }}
                                             />
                                             {createProducts.length > 0 ? (
-                                                <p className="text-sm text-green-600 mt-2">
+                                                <p className="mt-2 text-sm text-green-600">
                                                     {createProducts.length === createAvailableProducts.length
                                                         ? t("All products selected")
                                                         : `${createProducts.length} ${t("products selected")}`}
                                                 </p>
                                             ) : createCategories.length > 0 ? (
-                                                <p className="text-sm text-gray-500 mt-2">
+                                                <p className="mt-2 text-sm text-gray-500">
                                                     {createAvailableProducts.length} {t("products available")}
                                                 </p>
                                             ) : null}
@@ -906,14 +907,14 @@ const InventoryMaterial = () => {
                                     setShowCreateModal(false);
                                     resetCreateModal();
                                 }}
-                                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition"
+                                className="px-6 py-3 font-medium text-gray-700 transition border border-gray-300 rounded-xl hover:bg-gray-50"
                             >
                                 {t("Cancel")}
                             </button>
                             <button
                                 onClick={handleCreateInventory}
                                 disabled={creatingInventory || !createStore || !createType || (createType?.value === "partial" && createCategories.length === 0)}
-                                className="px-8 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-3"
+                                className="flex items-center gap-3 px-8 py-3 font-semibold text-white transition bg-green-600 rounded-xl hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {creatingInventory && <StaticLoader size={20} />}
                                 {t("Create Inventory")}
@@ -935,7 +936,7 @@ const InventoryMaterial = () => {
                             <div className="mb-6">
                                 <button
                                     onClick={handleBackFromAdjustment}
-                                    className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition"
+                                    className="flex items-center gap-2 px-4 py-2 text-gray-600 transition hover:text-gray-800"
                                 >
                                     <FiArrowLeft size={20} />
                                     {t("Back to Report")}
@@ -943,7 +944,7 @@ const InventoryMaterial = () => {
                             </div>
 
                             {/* Adjustment Header */}
-                            <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+                            <div className="p-6 mb-6 bg-white shadow-md rounded-2xl">
                                 <div className="flex items-center justify-between">
                                     <h2 className="text-2xl font-bold text-gray-800">
                                         {t("Shortage Adjustment")} #{editingInventoryId}
@@ -952,7 +953,7 @@ const InventoryMaterial = () => {
                                         <button
                                             onClick={handleSubmitSelectedShortages}
                                             disabled={loadingUpdateShortages || selectedShortages.length === 0 || !adjustmentReason.trim()}
-                                            className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2"
+                                            className="flex items-center gap-2 px-6 py-2 font-medium text-white transition bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             <FiSave size={18} />
                                             {loadingUpdateShortages ? t("Saving...") : t("Submit Selected Shortages")}
@@ -962,24 +963,24 @@ const InventoryMaterial = () => {
 
                                 {/* Adjustment Reason Input */}
                                 <div className="mt-4">
-                                    <label className="block text-lg font-medium text-gray-700 mb-3">
+                                    <label className="block mb-3 text-lg font-medium text-gray-700">
                                         {t("Adjustment Reason")} *
                                     </label>
                                     <textarea
                                         value={adjustmentReason}
                                         onChange={(e) => setAdjustmentReason(e.target.value)}
                                         placeholder={t("Enter reason for shortage adjustment...")}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition resize-none"
+                                        className="w-full px-4 py-3 font-medium transition border border-gray-300 rounded-lg resize-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                         rows="3"
                                     />
-                                    <p className="text-sm text-gray-500 mt-2">
-                                        {t("Please select shortages below and enter a reason before submitting.")}
+                                    <p className="mt-2 text-sm text-gray-500">
+                                        {t("Please select shortages below and enter a reason before submitting")}
                                     </p>
                                 </div>
 
                                 {/* Selected Count */}
                                 {selectedShortages.length > 0 && (
-                                    <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                                    <div className="p-3 mt-4 rounded-lg bg-blue-50">
                                         <div className="flex items-center justify-between">
                                             <span className="font-medium text-blue-700">
                                                 {selectedShortages.length} {t("shortages selected")}
@@ -1002,16 +1003,16 @@ const InventoryMaterial = () => {
                                     <StaticLoader />
                                 </div>
                             ) : shortageList.length === 0 ? (
-                                <div className="text-center py-20 text-gray-500 text-xl bg-gray-50 rounded-2xl">
+                                <div className="py-20 text-xl text-center text-gray-500 bg-gray-50 rounded-2xl">
                                     {t("No shortages found in this inventory")}
                                 </div>
                             ) : (
-                                <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                                <div className="overflow-hidden bg-white shadow-lg rounded-2xl">
                                     <div className="overflow-x-auto">
                                         <table className="w-full">
                                             <thead className="bg-gray-100">
                                                 <tr>
-                                                    <th className="px-4 py-4 text-center w-12">
+                                                    <th className="w-12 px-4 py-4 text-center">
                                                         <input
                                                             type="checkbox"
                                                             checked={selectedShortages.length === shortageList.length}
@@ -1019,22 +1020,23 @@ const InventoryMaterial = () => {
                                                             className="w-5 h-5 rounded"
                                                         />
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                    
+                                                    <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                                         {t("Product")}
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                    <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                                         {t("Category")}
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                    <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                                         {t("Quantity")}
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                    <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                                         {t("Actual Qty")}
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                    <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                                         {t("Shortage")}
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                    <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                                         {t("Cost")}
                                                     </th>
                                                 </tr>
@@ -1083,7 +1085,7 @@ const InventoryMaterial = () => {
                                             {/* Footer with totals */}
                                             <tfoot className="bg-gray-50">
                                                 <tr>
-                                                    <td colSpan="3" className="px-6 py-4 text-right font-medium text-gray-700">
+                                                    <td colSpan="3" className="px-6 py-4 font-medium text-right text-gray-700">
                                                         {t("Totals")}:
                                                     </td>
                                                     <td className="px-6 py-4 font-bold text-gray-800">
@@ -1121,7 +1123,7 @@ const InventoryMaterial = () => {
                                         setShowReport(false);
                                         setReportData(null);
                                     }}
-                                    className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition"
+                                    className="flex items-center gap-2 px-4 py-2 text-gray-600 transition hover:text-gray-800"
                                 >
                                     <FiArrowLeft size={20} />
                                     {t("Back to Edit")}
@@ -1129,7 +1131,7 @@ const InventoryMaterial = () => {
                             </div>
 
                             {/* Report Header */}
-                            <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+                            <div className="p-6 mb-6 bg-white shadow-md rounded-2xl">
                                 <div className="flex items-center justify-between">
                                     <h2 className="text-2xl font-bold text-gray-800">
                                         {t("Inventory Report")} #{editingInventoryId}
@@ -1138,14 +1140,14 @@ const InventoryMaterial = () => {
                                         <div className="flex gap-3">
                                             <button
                                                 onClick={exportReportPDF}
-                                                className="p-3 bg-red-600 text-white rounded-full hover:bg-red-700 shadow-lg"
+                                                className="p-3 text-white bg-red-600 rounded-full shadow-lg hover:bg-red-700"
                                                 title="PDF"
                                             >
                                                 <FiFileText size={20} />
                                             </button>
                                             <button
                                                 onClick={exportReportCSV}
-                                                className="p-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-lg"
+                                                className="p-3 text-white bg-blue-600 rounded-full shadow-lg hover:bg-blue-700"
                                                 title="CSV"
                                             >
                                                 <FiDownload size={20} />
@@ -1156,33 +1158,33 @@ const InventoryMaterial = () => {
                             </div>
 
                             {/* Report Data */}
-                            <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+                            <div className="mb-6 overflow-hidden bg-white shadow-lg rounded-2xl">
                                 <div className="p-6">
                                     {modifyProductsResponse?.data?.report && modifyProductsResponse.data.report.length > 0 ? (
                                         <div>
                                             {/* Summary Stats */}
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                                                <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                                            <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-4">
+                                                <div className="p-4 border border-blue-100 rounded-lg bg-blue-50">
                                                     <div className="text-sm font-medium text-blue-600">{t("Total Products")}</div>
-                                                    <div className="text-2xl font-bold text-blue-800 mt-1">
+                                                    <div className="mt-1 text-2xl font-bold text-blue-800">
                                                         {modifyProductsResponse.data.report.length}
                                                     </div>
                                                 </div>
-                                                <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+                                                <div className="p-4 border border-green-100 rounded-lg bg-green-50">
                                                     <div className="text-sm font-medium text-green-600">{t("Total Quantity")}</div>
-                                                    <div className="text-2xl font-bold text-green-800 mt-1">
+                                                    <div className="mt-1 text-2xl font-bold text-green-800">
                                                         {modifyProductsResponse.data.report.reduce((sum, item) => sum + (item.quantity || 0), 0)}
                                                     </div>
                                                 </div>
-                                                <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+                                                <div className="p-4 border border-yellow-100 rounded-lg bg-yellow-50">
                                                     <div className="text-sm font-medium text-yellow-600">{t("Total Actual Qty")}</div>
-                                                    <div className="text-2xl font-bold text-yellow-800 mt-1">
+                                                    <div className="mt-1 text-2xl font-bold text-yellow-800">
                                                         {modifyProductsResponse.data.report.reduce((sum, item) => sum + (item.actual_quantity || 0), 0)}
                                                     </div>
                                                 </div>
-                                                <div className="bg-red-50 p-4 rounded-lg border border-red-100">
+                                                <div className="p-4 border border-red-100 rounded-lg bg-red-50">
                                                     <div className="text-sm font-medium text-red-600">{t("Total Shortage")}</div>
-                                                    <div className="text-2xl font-bold text-red-800 mt-1">
+                                                    <div className="mt-1 text-2xl font-bold text-red-800">
                                                         {modifyProductsResponse.data.report.reduce((sum, item) => sum + (item.inability || 0), 0)}
                                                     </div>
                                                 </div>
@@ -1190,7 +1192,7 @@ const InventoryMaterial = () => {
 
                                             {/* Store Name */}
                                             <div className="mb-6">
-                                                <div className="text-lg font-semibold text-gray-700 mb-2">{t("Store")}:</div>
+                                                <div className="mb-2 text-lg font-semibold text-gray-700">{t("Store")}:</div>
                                                 <div className="text-2xl font-bold text-mainColor">
                                                     {modifyProductsResponse.data.store_name || "—"}
                                                 </div>
@@ -1201,28 +1203,28 @@ const InventoryMaterial = () => {
                                                 <table className="w-full">
                                                     <thead className="bg-gray-100">
                                                         <tr>
-                                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                            <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                                                 {t("#")}
                                                             </th>
-                                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                          <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                                                 {t("Product")}
-                                                            </th>
-                                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                            </th>  
+                                                            <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                                                 {t("Category")}
                                                             </th>
-                                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                            <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                                                 {t("Quantity")}
                                                             </th>
-                                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                            <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                                                 {t("Actual Qty")}
                                                             </th>
-                                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                            <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                                                 {t("Shortage")}
                                                             </th>
-                                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                            <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                                                 {t("Cost")}
                                                             </th>
-                                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                            <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                                                 {t("Date")}
                                                             </th>
                                                         </tr>
@@ -1257,7 +1259,7 @@ const InventoryMaterial = () => {
                                                                 <td className="px-6 py-5 text-gray-600">
                                                                     {item.cost || 0} EGP
                                                                 </td>
-                                                                <td className="px-6 py-5 text-gray-600 text-sm">
+                                                                <td className="px-6 py-5 text-sm text-gray-600">
                                                                     {item.date ? formatDate(item.date) : "—"}
                                                                 </td>
                                                             </tr>
@@ -1266,7 +1268,7 @@ const InventoryMaterial = () => {
                                                     {/* Footer with totals */}
                                                     <tfoot className="bg-gray-50">
                                                         <tr>
-                                                            <td colSpan="3" className="px-6 py-4 text-right font-medium text-gray-700">
+                                                            <td colSpan="3" className="px-6 py-4 font-medium text-right text-gray-700">
                                                                 {t("Totals")}:
                                                             </td>
                                                             <td className="px-6 py-4 font-bold text-gray-800">
@@ -1294,7 +1296,7 @@ const InventoryMaterial = () => {
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="text-center py-10 text-gray-500">
+                                        <div className="py-10 text-center text-gray-500">
                                             {t("No report data available")}
                                         </div>
                                     )}
@@ -1305,14 +1307,14 @@ const InventoryMaterial = () => {
                             <div className="flex justify-center gap-6 mt-8">
                                 <button
                                     onClick={handleEditQuantity}
-                                    className="px-8 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition flex items-center gap-3"
+                                    className="flex items-center gap-3 px-8 py-3 font-semibold text-white transition bg-blue-600 rounded-xl hover:bg-blue-700"
                                 >
                                     <FiEdit size={20} />
                                     {t("Edit Quantity")}
                                 </button>
                                 <button
                                     onClick={handleAdjustment}
-                                    className="px-8 py-3 bg-mainColor text-white rounded-xl font-semibold hover:bg-mainColor/90 transition flex items-center gap-3"
+                                    className="flex items-center gap-3 px-8 py-3 font-semibold text-white transition bg-mainColor rounded-xl hover:bg-mainColor/90"
                                 >
                                     <FiCheckCircle size={20} />
                                     {t("Adjustment")}
@@ -1326,7 +1328,7 @@ const InventoryMaterial = () => {
                             <div className="mb-6">
                                 <button
                                     onClick={handleBackToCurrent}
-                                    className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition"
+                                    className="flex items-center gap-2 px-4 py-2 text-gray-600 transition hover:text-gray-800"
                                 >
                                     <FiArrowLeft size={20} />
                                     {t("Back to Current Inventories")}
@@ -1334,21 +1336,21 @@ const InventoryMaterial = () => {
                             </div>
 
                             {/* Edit Inventory Header */}
-                            <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+                            <div className="p-6 mb-6 bg-white shadow-md rounded-2xl">
                                 <div className="flex items-center justify-between">
                                     <h2 className="text-2xl font-bold text-gray-800">
                                         {t("Edit Inventory")} #{editingInventoryId}
                                     </h2>
                                     <div className="flex items-center gap-4">
                                         {hasQuantityChanges && (
-                                            <span className="text-sm font-medium text-yellow-600 bg-yellow-50 px-3 py-1 rounded-lg">
+                                            <span className="px-3 py-1 text-sm font-medium text-yellow-600 rounded-lg bg-yellow-50">
                                                 {t("Unsaved changes")}
                                             </span>
                                         )}
                                         <button
                                             onClick={handleSubmitEditedQuantities}
                                             disabled={loadingModifyProducts}
-                                            className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2"
+                                            className="flex items-center gap-2 px-6 py-2 font-medium text-white transition bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             <FiSave size={18} />
                                             {loadingModifyProducts ? t("Saving...") : t("Submit Changes")}
@@ -1363,31 +1365,31 @@ const InventoryMaterial = () => {
                                     <StaticLoader />
                                 </div>
                             ) : inventoryProducts.length === 0 ? (
-                                <div className="text-center py-20 text-gray-500 text-xl bg-gray-50 rounded-2xl">
+                                <div className="py-20 text-xl text-center text-gray-500 bg-gray-50 rounded-2xl">
                                     {t("No products found in this inventory")}
                                 </div>
                             ) : (
-                                <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                                <div className="overflow-hidden bg-white shadow-lg rounded-2xl">
                                     <div className="overflow-x-auto">
                                         <table className="w-full">
                                             <thead className="bg-gray-100">
                                                 <tr>
-                                                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                    <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                                         {t("Category")}
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                    <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                                         {t("Product")}
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                    <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                                         {t("Original Quantity")}
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                    <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                                         {t("Actual Quantity")}
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                    <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                                         {t("Inability")}
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                                    <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                                         {t("Cost")}
                                                     </th>
                                                 </tr>
@@ -1409,7 +1411,7 @@ const InventoryMaterial = () => {
                                                                 type="number"
                                                                 value={editedQuantities[index] || product.quantity || 0}
                                                                 onChange={(e) => handleInventoryQuantityChange(index, e.target.value)}
-                                                                className="w-32 px-3 py-2 border border-gray-300 rounded-lg text-center font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                                                                className="w-32 px-3 py-2 font-medium text-center transition border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                                             />
                                                         </td>
                                                         <td className={`px-6 py-5 font-bold text-center ${product.inability >= 0
@@ -1435,13 +1437,13 @@ const InventoryMaterial = () => {
                     )
                 ) : (
                     /* Current Inventories Table View */
-                    <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <div className="overflow-hidden bg-white shadow-lg rounded-2xl">
                         {loadingCurrent ? (
                             <div className="flex justify-center py-20">
                                 <StaticLoader />
                             </div>
                         ) : currentInventories.length === 0 ? (
-                            <div className="text-center py-20 text-gray-500 text-xl bg-gray-50 rounded-2xl">
+                            <div className="py-20 text-xl text-center text-gray-500 bg-gray-50 rounded-2xl">
                                 {t("No current inventories found")}
                             </div>
                         ) : (
@@ -1449,33 +1451,30 @@ const InventoryMaterial = () => {
                                 <table className="w-full">
                                     <thead className="bg-gray-100">
                                         <tr>
-                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-                                                {t("#")}
-                                            </th>
-                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-                                                {t("Store")}
-                                            </th>
-                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-                                                {t("Date")}
-                                            </th>
-                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-                                                {t("Products")}
-                                            </th>
-                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-                                                {t("Total Quantity")}
-                                            </th>
-                                            {/* <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-                                                {t("Cost")}
-                                            </th> */}
-                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-                                                {t("Shortage")}
-                                            </th>
-                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-                                                {t("Action")}
-                                            </th>
-                                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-                                                {t("Change Status")}
-                                            </th>
+                                      <th className={`px-6 py-4 text-sm font-medium ${direction ? "text-right" : "text-left"} text-gray-700`}>
+  {t("#")}
+</th>
+<th className={`px-6 py-4 text-sm font-medium ${direction ? "text-right" : "text-left"} text-gray-700`}>
+  {t("Store")}
+</th>
+<th className={`px-6 py-4 text-sm font-medium ${direction ? "text-right" : "text-left"} text-gray-700`}>
+  {t("Date")}
+</th>
+<th className={`px-6 py-4 text-sm font-medium ${direction ? "text-right" : "text-left"} text-gray-700`}>
+  {t("Products")}
+</th>
+<th className={`px-6 py-4 text-sm font-medium ${direction ? "text-right" : "text-left"} text-gray-700`}>
+  {t("Total Quantity")}
+</th>
+<th className={`px-6 py-4 text-sm font-medium ${direction ? "text-right" : "text-left"} text-gray-700`}>
+  {t("Shortage")}
+</th>
+<th className={`px-6 py-4 text-sm font-medium ${direction ? "text-right" : "text-left"} text-gray-700`}>
+  {t("Action")}
+</th>
+<th className={`px-6 py-4 text-sm font-medium ${direction ? "text-right" : "text-left"} text-gray-700`}>
+  {t("Change Status")}
+</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-200">
@@ -1519,7 +1518,7 @@ const InventoryMaterial = () => {
                                                         <div className="flex gap-2">
                                                             <button
                                                                 onClick={() => handleOpenInventory(inventory.id)}
-                                                                className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition flex items-center gap-1"
+                                                                className="flex items-center gap-1 px-3 py-1 text-sm font-medium text-white transition bg-blue-600 rounded-lg hover:bg-blue-700"
                                                             >
                                                                 <FiEdit size={14} />
                                                                 {t("Edit Qty")}
@@ -1529,7 +1528,7 @@ const InventoryMaterial = () => {
                                                             {inventory.has_shortage ? (
                                                                 <button
                                                                     onClick={() => handleDirectAdjustment(inventory.id)}
-                                                                    className="px-3 py-1 bg-mainColor text-white rounded-lg text-sm font-medium hover:bg-mainColor/90 transition flex items-center gap-1"
+                                                                    className="flex items-center gap-1 px-3 py-1 text-sm font-medium text-white transition rounded-lg bg-mainColor hover:bg-mainColor/90"
                                                                 >
                                                                     <FiCheckCircle size={14} />
                                                                     {t("Adjustment")}
@@ -1541,7 +1540,7 @@ const InventoryMaterial = () => {
                                                         // Show Finalize button for all inventories
                                                         <button
                                                             onClick={() => handleFinalizeInventory(inventory.id)}
-                                                            className="px-4 py-2 bg-mainColor text-white rounded-lg font-medium hover:bg-mainColor/90 transition flex items-center gap-2"
+                                                            className="flex items-center gap-2 px-4 py-2 font-medium text-white transition rounded-lg bg-mainColor hover:bg-mainColor/90"
                                                         >
                                                             <FiCheckCircle size={18} />
                                                             {t("Finalize")}
@@ -1551,7 +1550,7 @@ const InventoryMaterial = () => {
                                                 <td className="px-6 py-5">
                                                     <button
                                                         onClick={() => handleChangeStatus(inventory.id, inventory.name)}
-                                                        className="px-2 py-2 bg-green-600 text-white text-sm rounded-lg font-medium hover:bg-green-700 transition flex items-center gap-2"
+                                                        className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-white transition bg-green-600 rounded-lg hover:bg-green-700"
                                                     >
                                                         <FiCheckCircle size={18} />
                                                         {t("Done")}
@@ -1567,13 +1566,13 @@ const InventoryMaterial = () => {
                 )
             ) : (
                 /* History Inventories Tab */
-                <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div className="overflow-hidden bg-white shadow-lg rounded-2xl">
                     {loadingHistory ? (
                         <div className="flex justify-center py-20">
                             <StaticLoader />
                         </div>
                     ) : historyInventories.length === 0 ? (
-                        <div className="text-center py-20 text-gray-500 text-xl bg-gray-50 rounded-2xl">
+                        <div className="py-20 text-xl text-center text-gray-500 bg-gray-50 rounded-2xl">
                             {t("No history inventories found")}
                         </div>
                     ) : (
@@ -1581,25 +1580,25 @@ const InventoryMaterial = () => {
                             <table className="w-full">
                                 <thead className="bg-gray-100">
                                     <tr>
-                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                        <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                             {t("ID")}
                                         </th>
-                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                        <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                             {t("Store")}
                                         </th>
-                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                        <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                             {t("Products")}
                                         </th>
-                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                        <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                             {t("Total Quantity")}
                                         </th>
-                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                        <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                             {t("Cost")}
                                         </th>
-                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                        <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                             {t("Date")}
                                         </th>
-                                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                        <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                             {t("Status")}
                                         </th>
                                     </tr>

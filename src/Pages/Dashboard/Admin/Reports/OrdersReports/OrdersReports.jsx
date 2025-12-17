@@ -219,16 +219,16 @@ const OrdersReports = () => {
   };
 
   return (
-    <div className="p-4 md:p-6 w-full mb-20">
-      <h1 className="text-2xl font-bold mb-4 text-mainColor">Orders Report</h1>
+    <div className="w-full p-4 mb-20 md:p-6">
+      <h1 className="mb-4 text-2xl font-bold text-mainColor">{t("Orders Report")}</h1>
       
       {/* Filters Section */}
-      <div className="bg-gray-50 p-4 rounded-lg mb-6">
-        <h2 className="text-lg font-semibold mb-4 text-mainColor">Filters</h2>
+      <div className="p-4 mb-6 rounded-lg bg-gray-50">
+        <h2 className="mb-4 text-lg font-semibold text-mainColor">{t("Filters")}</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+        <div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2 lg:grid-cols-3">
           {/* Date Filters */}
-          <div className="col-span-1 md:col-span-2 lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 col-span-1 gap-4 md:col-span-2 lg:col-span-3 md:grid-cols-2">
             <DateInput
               placeholder="From Date"
               value={fromDate}
@@ -252,7 +252,7 @@ const OrdersReports = () => {
           </div>
 
           {/* Cashier Filter */}
-          <div className="w-full flex flex-col items-start justify-center gap-y-1">
+          <div className="flex flex-col items-start justify-center w-full gap-y-1">
             <span className="text-sm font-TextFontRegular text-thirdColor">
               {t("Cashier")}:
             </span>
@@ -276,7 +276,7 @@ const OrdersReports = () => {
           </div>
 
           {/* Branch Filter */}
-          <div className="w-full flex flex-col items-start justify-center gap-y-1">
+          <div className="flex flex-col items-start justify-center w-full gap-y-1">
             <span className="text-sm font-TextFontRegular text-thirdColor">
               {t("Branch")}:
             </span>
@@ -300,7 +300,7 @@ const OrdersReports = () => {
           </div>
 
           {/* Cashier Man Filter */}
-          <div className="w-full flex flex-col items-start justify-center gap-y-1">
+          <div className="flex flex-col items-start justify-center w-full gap-y-1">
             <span className="text-sm font-TextFontRegular text-thirdColor">
               {t("Cashier Man")}:
             </span>
@@ -324,7 +324,7 @@ const OrdersReports = () => {
           </div>
 
           {/* Financial Account Filter */}
-          <div className="w-full flex flex-col items-start justify-center gap-y-1">
+          <div className="flex flex-col items-start justify-center w-full gap-y-1">
             <span className="text-sm font-TextFontRegular text-thirdColor">
               {t("Financial Account")}:
             </span>
@@ -352,68 +352,71 @@ const OrdersReports = () => {
         <div className="flex flex-wrap gap-3">
           <button
             onClick={handleGenerateReport}
-            className="px-6 py-2 rounded-md font-medium bg-mainColor text-white hover:bg-opacity-90 transition-colors duration-200"
+            className="px-6 py-2 font-medium text-white transition-colors duration-200 rounded-md bg-mainColor hover:bg-opacity-90"
           >
-            Generate Report
+            {t("Generate Report")}
           </button>
           
           <button
             onClick={handleResetFilters}
-            className="px-6 py-2 bg-gray-500 text-white rounded-md font-medium hover:bg-gray-600 transition-colors duration-200"
+            className="px-6 py-2 font-medium text-white transition-colors duration-200 bg-gray-500 rounded-md hover:bg-gray-600"
           >
-            Reset Filters
+            {t("Reset Filters")}
           </button>
         </div>
       </div>
 
-      {loadingPost && <p className="text-center text-gray-500 mt-4">Loading orders data...</p>}
+      {loadingPost && <p className="mt-4 text-center text-gray-500">{t("Loading orders data..")}.</p>}
       
       {orders && Array.isArray(orders) && orders.length > 0 ? (
         <div className="flex flex-col w-full">
           <div className="block w-full overflow-x-scroll sm:min-w-0 scrollPage">
             <table className="min-w-full bg-white border border-gray-200">
               <thead>
-                <tr className="bg-mainColor text-white">
-                  <th className="py-3 px-4 border-b">#</th>
-                  <th className="py-3 px-4 border-b">Order Number</th>
-                  <th className="py-3 px-4 border-b">Customer</th>
-                  <th className="py-3 px-4 border-b">Branch</th>
-                  <th className="py-3 px-4 border-b">Amount</th>
-                  <th className="py-3 px-4 border-b">Order Type</th>
-                  <th className="py-3 px-4 border-b">Status</th>
-                  <th className="py-3 px-4 border-b">Date</th>
-                  <th className="py-3 px-4 border-b">View Details</th>
-                  <th className="py-3 px-4 border-b">View Order</th>
+                <tr className="text-white bg-mainColor">
+          
+  <th className="px-4 py-3 border-b">#</th>
+  <th className="px-4 py-3 border-b">{t("Order Number")}</th>
+  <th className="px-4 py-3 border-b">{t("Customer")}</th>
+  <th className="px-4 py-3 border-b">{t("Branch")}</th>
+  <th className="px-4 py-3 border-b">{t("Amount")}</th>
+  <th className="px-4 py-3 border-b">{t("Order Type")}</th>
+  <th className="px-4 py-3 border-b">{t("Status")}</th>
+  <th className="px-4 py-3 border-b">{t("Date")}</th>
+  <th className="px-4 py-3 border-b">{t("View Details")}</th>
+  <th className="px-4 py-3 border-b">{t("View Order")}</th>
+
+
                 </tr>
               </thead>
               <tbody>
                 {currentOrders.map((order, index) => (
-                  <tr key={order.id} className="hover:bg-gray-50 transition-colors duration-150">
-                    <td className="py-3 px-4 border-b text-center">{(currentPage - 1) * ordersPerPage + index + 1}</td>
-                    <td className="py-3 px-4 border-b font-medium">{order.order_number}</td>
-                    <td className="py-3 px-4 border-b">
+                  <tr key={order.id} className="transition-colors duration-150 hover:bg-gray-50">
+                    <td className="px-4 py-3 text-center border-b">{(currentPage - 1) * ordersPerPage + index + 1}</td>
+                    <td className="px-4 py-3 font-medium border-b">{order.order_number}</td>
+                    <td className="px-4 py-3 border-b">
                       {getUserName(order.user)}
                       {order.user?.phone && (
                         <div className="text-sm text-gray-500">{order.user.phone}</div>
                       )}
                     </td>
-                    <td className="py-3 px-4 border-b">{order.branch?.name || "N/A"}</td>
-                    <td className="py-3 px-4 border-b font-semibold text-green-600">{order.amount} EGP</td>
-                    <td className="py-3 px-4 border-b">{getOrderTypeBadge(order.order_type)}</td>
-                    <td className="py-3 px-4 border-b">{getStatusBadge(order.order_status)}</td>
-                    <td className="py-3 px-4 border-b text-sm">{formatDate(order.created_at)}</td>
-                    <td className="py-3 px-4 border-b text-center">
+                    <td className="px-4 py-3 border-b">{order.branch?.name || "N/A"}</td>
+                    <td className="px-4 py-3 font-semibold text-green-600 border-b">{order.amount} EGP</td>
+                    <td className="px-4 py-3 border-b">{getOrderTypeBadge(order.order_type)}</td>
+                    <td className="px-4 py-3 border-b">{getStatusBadge(order.order_status)}</td>
+                    <td className="px-4 py-3 text-sm border-b">{formatDate(order.created_at)}</td>
+                    <td className="px-4 py-3 text-center border-b">
                       <button
                         onClick={() => handleViewOrderDetails(order.id)}
-                        className="text-mainColor hover:text-blue-700 text-sm font-medium transition-colors duration-200"
+                        className="text-sm font-medium transition-colors duration-200 text-mainColor hover:text-blue-700"
                       >
                          View Details
                       </button>
                     </td>
-                    <td className="py-3 px-4 border-b text-center">
+                    <td className="px-4 py-3 text-center border-b">
                       <Link
                         to={`/dashboard/orders/details/${order.id}`}
-                        className="inline-flex items-center px-3 py-1 bg-mainColor text-white text-sm font-medium rounded-md hover:bg-opacity-90 transition-colors duration-200"
+                        className="inline-flex items-center px-3 py-1 text-sm font-medium text-white transition-colors duration-200 rounded-md bg-mainColor hover:bg-opacity-90"
                       >
                         View Order
                       </Link>
@@ -426,11 +429,11 @@ const OrdersReports = () => {
 
           {/* Professional Pagination */}
           {orders.length > 0 && totalPages > 1 && (
-            <div className="flex items-center justify-between mt-6 px-4 py-3 bg-white border border-gray-200 rounded-lg">
+            <div className="flex items-center justify-between px-4 py-3 mt-6 bg-white border border-gray-200 rounded-lg">
               {/* Page Info */}
               <div className="flex items-center text-sm text-gray-700">
                 <span>
-                  Showing{" "}
+                  {t("Showing")}{" "}
                   <span className="font-medium">{(currentPage - 1) * ordersPerPage + 1}</span>
                   {" to "}
                   <span className="font-medium">
@@ -438,7 +441,7 @@ const OrdersReports = () => {
                   </span>
                   {" of "}
                   <span className="font-medium">{orders.length}</span>
-                  {" results"}
+                  {"results"}
                 </span>
               </div>
 
@@ -457,7 +460,7 @@ const OrdersReports = () => {
                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
-                  Previous
+                  {t("Previous")}
                 </button>
 
                 {/* Page Numbers */}
@@ -488,7 +491,7 @@ const OrdersReports = () => {
                       : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
                   }`}
                 >
-                  Next
+                  {t("Next")}
                   <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
@@ -498,61 +501,61 @@ const OrdersReports = () => {
           )}
         </div>
       ) : response && orders.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="text-gray-500 text-lg mb-2">No orders found</div>
-          <p className="text-gray-400">Try adjusting your filters to see more results.</p>
+        <div className="py-12 text-center">
+          <div className="mb-2 text-lg text-gray-500">{t("No orders found")}</div>
+          <p className="text-gray-400">{t("Try adjusting your filters to see more results")}</p>
         </div>
       ) : null}
 
       {/* Modal for Order Details */}
       {isModalOpen && orderDetails && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg max-w-4xl w-full max-h-[80vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-mainColor">Order Details - #{orderDetails.order_number}</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-mainColor">{t("Order Details")} - #{orderDetails.order_number}</h2>
               <button
                 onClick={closeModal}
-                className="text-gray-500 hover:text-gray-700 font-bold text-xl transition-colors duration-200"
+                className="text-xl font-bold text-gray-500 transition-colors duration-200 hover:text-gray-700"
               >
                 ×
               </button>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {/* Order Information */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-mainColor border-b pb-2">Order Information</h3>
+                <h3 className="pb-2 text-lg font-semibold border-b text-mainColor">{t("Order Information")}</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="font-medium">Order Number:</span>
+                    <span className="font-medium">{t("Order Number")}</span>
                     <span>{orderDetails.order_number}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium">Order Date:</span>
+                    <span className="font-medium">{t('Order Date')}</span>
                     <span>{formatDate(orderDetails.created_at)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium">Order Type:</span>
+                    <span className="font-medium">{t("Order Type")}</span>
                     <span>{getOrderTypeBadge(orderDetails.order_type)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium">Status:</span>
+                    <span className="font-medium">{t("Status")}:</span>
                     <span>{getStatusBadge(orderDetails.order_status)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium">Operation Status:</span>
+                    <span className="font-medium">{t("Operation Status")}</span>
                     <span>{getStatusBadge(orderDetails.operation_status)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium">Source:</span>
+                    <span className="font-medium">{t("Source")}</span>
                     <span className="capitalize">{orderDetails.source}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium">Amount:</span>
-                    <span className="font-semibold">{orderDetails.amount} EGP</span>
+                    <span className="font-medium">{t("Amount")}</span>
+                    <span className="font-semibold">{orderDetails.amount} {t("EGP")}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium">Points:</span>
+                    <span className="font-medium">{t("Points")}</span>
                     <span>{orderDetails.points}</span>
                   </div>
                 </div>
@@ -560,34 +563,34 @@ const OrdersReports = () => {
 
               {/* Customer & Branch Information */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-mainColor border-b pb-2">Customer & Branch</h3>
+                <h3 className="pb-2 text-lg font-semibold border-b text-mainColor">{t("Customer & Branch")}</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="font-medium">Customer Name:</span>
+                    <span className="font-medium">{t("Customer Name:")}</span>
                     <span>{getUserName(orderDetails.user)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium">Phone:</span>
+                    <span className="font-medium">{t("Phone:")}</span>
                     <span>{orderDetails.user?.phone || "N/A"}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium">Branch:</span>
+                    <span className="font-medium">{t("Branch")}</span>
                     <span>{orderDetails.branch?.name || "N/A"}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium">Zone:</span>
+                    <span className="font-medium">{t("Zone")}</span>
                     <span>{orderDetails.address?.zone?.zone || "N/A"}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium">Payment Method:</span>
+                    <span className="font-medium">{t("Payment Method")}</span>
                     <span>{orderDetails.payment_method?.name || "N/A"}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium">Delivery:</span>
+                    <span className="font-medium">{t("Delivery")}</span>
                     <span>{orderDetails.delivery?.name || "N/A"}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium">Schedule:</span>
+                    <span className="font-medium">{t("Schedule")}</span>
                     <span>{orderDetails.schedule?.name || "N/A"}</span>
                   </div>
                 </div>
@@ -596,16 +599,16 @@ const OrdersReports = () => {
 
             {/* Additional Information */}
             {orderDetails.rejected_reason && (
-              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded">
-                <h4 className="font-semibold text-red-800">Rejection Reason</h4>
+              <div className="p-3 mt-4 border border-red-200 rounded bg-red-50">
+                <h4 className="font-semibold text-red-800">{t("Rejection Reason")}</h4>
                 <p className="text-red-700">{orderDetails.rejected_reason}</p>
               </div>
             )}
 
             {orderDetails.transaction_id && (
-              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
-                <h4 className="font-semibold text-blue-800">Transaction Information</h4>
-                <p className="text-blue-700">Transaction ID: {orderDetails.transaction_id}</p>
+              <div className="p-3 mt-4 border border-blue-200 rounded bg-blue-50">
+                <h4 className="font-semibold text-blue-800">{t("Transaction Information")}</h4>
+                <p className="text-blue-700">{t('Transaction ID')}: {orderDetails.transaction_id}</p>
               </div>
             )}
           </div>

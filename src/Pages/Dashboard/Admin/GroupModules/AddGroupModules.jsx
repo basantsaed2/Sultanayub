@@ -189,7 +189,7 @@ const AddGroupModules = () => {
             <div className="flex items-center gap-x-2">
               <button
                 onClick={handleBack}
-                className="text-mainColor hover:text-red-700 transition-colors"
+                className="transition-colors text-mainColor hover:text-red-700"
                 title={t("Back")}
               >
                 <IoArrowBack size={24} />
@@ -261,9 +261,14 @@ const AddGroupModules = () => {
                       placeholder={t("Enter percentage")}
                       className="pr-12"
                     />
-                    <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-thirdColor font-TextFontMedium">
-                      %
-                    </span>
+                   <span
+  className={`absolute top-1/2 transform -translate-y-1/2 text-thirdColor font-TextFontMedium ${
+    document.dir === "rtl" ? "left-8" : "right-3"
+  }`}
+>
+  %
+</span>
+
                   </div>
                 </div>
 

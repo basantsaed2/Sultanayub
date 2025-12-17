@@ -99,7 +99,7 @@ const ExpensesCategory = () => {
     ];
 
     return (
-        <div className="flex items-start justify-start w-full overflow-x-scroll p-2 pb-28 scrollSection">
+        <div className="flex items-start justify-start w-full p-2 overflow-x-scroll pb-28 scrollSection">
             {loadingExpensesCategory || loadingChange || loadingDelete ? (
                 <div className="flex items-center justify-center w-full h-56">
                     <StaticLoader />
@@ -233,7 +233,7 @@ const ExpensesCategory = () => {
                                     className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
                                     onClick={() => setCurrentPage(currentPage - 1)}
                                 >
-                                    Prev
+                                    {t("Prev")}
                                 </button>
                             )}
                             {Array.from({ length: totalPages }, (_, i) => i + 1).map(
@@ -256,7 +256,7 @@ const ExpensesCategory = () => {
                                     className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
                                     onClick={() => setCurrentPage(currentPage + 1)}
                                 >
-                                    Next
+                                    {t("Next")}
                                 </button>
                             )}
                         </div>

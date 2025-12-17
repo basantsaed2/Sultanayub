@@ -74,12 +74,12 @@ const AddGroupPage = ({ update, setUpdate }) => {
                 {/* Zone Name */}
                 <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("GroupName")}:
+                    {t("Group Name")}:
                   </span>
                   <TextInput
                     value={GroupName}
                     onChange={(e) => setGroupName(e.target.value)}
-                    placeholder={t("GroupName")}
+                    placeholder={t("Group Name")}
                   />
                 </div>
 

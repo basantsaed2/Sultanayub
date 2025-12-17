@@ -302,8 +302,8 @@ const AddPurchaseList = () => {
                     <form onSubmit={handleSubmit} className="p-4">
 
                         {/* Type Selection */}
-                        <div className="flex justify-center gap-16 mb-4 p-2">
-                            <label className="flex items-center gap-4 cursor-pointer text-lg font-medium">
+                        <div className="flex justify-center gap-16 p-2 mb-4">
+                            <label className="flex items-center gap-4 text-lg font-medium cursor-pointer">
                                 <input
                                     type="radio"
                                     name="type"
@@ -314,7 +314,7 @@ const AddPurchaseList = () => {
                                 />
                                 <span>{t("Product")}</span>
                             </label>
-                            <label className="flex items-center gap-4 cursor-pointer text-lg font-medium">
+                            <label className="flex items-center gap-4 text-lg font-medium cursor-pointer">
                                 <input
                                     type="radio"
                                     name="type"
@@ -327,11 +327,11 @@ const AddPurchaseList = () => {
                             </label>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
 
                             {/* Store */}
                             <div>
-                                <label className="block text-xl mb-2 text-thirdColor">{t("Store")} *</label>
+                                <label className="block mb-2 text-xl text-thirdColor">{t("Store")} *</label>
                                 <Select
                                     value={selectedStore}
                                     onChange={handleStoreChange}
@@ -344,7 +344,7 @@ const AddPurchaseList = () => {
 
                             {/* Category */}
                             <div>
-                                <label className="block text-xl mb-2 text-thirdColor">
+                                <label className="block mb-2 text-xl text-thirdColor">
                                     {type === "product" ? t("Product Category") : t("Material Category")} *
                                 </label>
                                 <Select
@@ -359,7 +359,7 @@ const AddPurchaseList = () => {
 
                             {/* Item */}
                             <div>
-                                <label className="block text-xl mb-2 text-thirdColor">
+                                <label className="block mb-2 text-xl text-thirdColor">
                                     {type === "product" ? t("Product") : t("Material")} *
                                 </label>
                                 <Select
@@ -375,7 +375,7 @@ const AddPurchaseList = () => {
 
                             {/* Unit */}
                             <div>
-                                <label className="block text-xl mb-2 text-thirdColor">{t("Unit")} *</label>
+                                <label className="block mb-2 text-xl text-thirdColor">{t("Unit")} *</label>
                                 <Select
                                     value={selectedUnit}
                                     onChange={handleUnitChange}
@@ -388,7 +388,7 @@ const AddPurchaseList = () => {
 
                             {/* Quantity */}
                             <div>
-                                <label className="block text-xl mb-2 text-thirdColor">{t("Quantity")} *</label>
+                                <label className="block mb-2 text-xl text-thirdColor">{t("Quantity")} *</label>
                                 <TextInput
                                     type="number"
                                     step="0.01"
@@ -401,7 +401,7 @@ const AddPurchaseList = () => {
 
                             {/* Total Cost */}
                             <div>
-                                <label className="block text-xl mb-2 text-thirdColor">{t("Total Cost")} *</label>
+                                <label className="block mb-2 text-xl text-thirdColor">{t("Total Cost")} *</label>
                                 <TextInput
                                     type="number"
                                     step="0.01"
@@ -413,7 +413,7 @@ const AddPurchaseList = () => {
 
                             {/* Date */}
                             <div>
-                                <label className="block text-xl mb-2 text-thirdColor">{t("Date")} *</label>
+                                <label className="block mb-2 text-xl text-thirdColor">{t("Date")} *</label>
                                 <TextInput
                                     type="date"
                                     value={formData.date}
@@ -423,7 +423,7 @@ const AddPurchaseList = () => {
 
                             {/* Receipt - NOW WORKING */}
                             <div>
-                                <label className="block text-xl mb-2 text-thirdColor">{t("Receipt")}</label>
+                                <label className="block mb-2 text-xl text-thirdColor">{t("Receipt")}</label>
                                 <UploadInput
                                     placeholder={formData.receipt ? formData.receipt.name : t("Click to upload receipt")}
                                     value={formData.receipt ? formData.receipt.name : ""}
@@ -437,22 +437,22 @@ const AddPurchaseList = () => {
 
                         {/* Financial Methods */}
                         <div className="mt-10">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-xl font-medium text-thirdColor">{t("Payment Methods")}</h3>
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-xl font-medium text-thirdColor">{t("Methods payment")}</h3>
                                 <button
                                     type="button"
                                     onClick={addFinancialMethod}
-                                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                                    className="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700"
                                 >
                                     {t("Add Payment Method")}
                                 </button>
                             </div>
 
                             {formData.financial.map((financial, index) => (
-                                <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-4 border rounded-lg">
+                                <div key={index} className="grid grid-cols-1 gap-4 p-4 mb-4 border rounded-lg md:grid-cols-3">
                                     <div className="flex flex-col gap-y-1">
                                         <span className="text-lg font-TextFontRegular text-thirdColor">
-                                            {t("Method")}:
+                                            {t("Methods")}:
                                         </span>
                                         <Select
                                             value={financials.find(f => f.value === financial.id)}

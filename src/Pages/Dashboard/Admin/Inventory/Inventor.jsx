@@ -302,12 +302,12 @@ const InventoryProduct = () => {
     };
 
     return (
-        <div className="p-6 w-full">
+        <div className="w-full p-6">
             <TitlePage text={t("Inventory Products")} />
 
             {/* Tabs */}
             <div className="flex gap-8 mb-10 border-b-2 border-gray-200">
-                <button className="flex items-center gap-3 pb-4 text-lg font-semibold text-mainColor border-b-4 border-mainColor">
+                <button className="flex items-center gap-3 pb-4 text-lg font-semibold border-b-4 text-mainColor border-mainColor">
                     <FiPackage size={22} /> {t("Count Stock")}
                 </button>
                 <button className="flex items-center gap-3 pb-4 text-lg font-semibold text-gray-500">
@@ -316,11 +316,11 @@ const InventoryProduct = () => {
             </div>
 
             {/* Filters Card */}
-            <div className="bg-white rounded-2xl shadow-md p-8 mb-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="p-8 mb-8 bg-white shadow-md rounded-2xl">
+                <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-4">
                     {/* Store */}
                     <div>
-                        <label className="block text-lg font-medium text-gray-700 mb-3">
+                        <label className="block mb-3 text-lg font-medium text-gray-700">
                             {t("Store")} *
                         </label>
                         <Select
@@ -335,7 +335,7 @@ const InventoryProduct = () => {
 
                     {/* Type */}
                     <div>
-                        <label className="block text-lg font-medium text-gray-700 mb-3">
+                        <label className="block mb-3 text-lg font-medium text-gray-700">
                             {t("Type")} *
                         </label>
                         <Select
@@ -351,7 +351,7 @@ const InventoryProduct = () => {
                     {filterType?.value === "partial" && (
                         <>
                             <div className="lg:col-span-2">
-                                <label className="block text-lg font-medium text-gray-700 mb-3">
+                                <label className="block mb-3 text-lg font-medium text-gray-700">
                                     {t("Categories")} *
                                 </label>
                                 <Select
@@ -372,7 +372,7 @@ const InventoryProduct = () => {
                                     }}
                                 />
                                 {selectedCategories.length > 0 && (
-                                    <p className="text-sm text-gray-600 mt-2">
+                                    <p className="mt-2 text-sm text-gray-600">
                                         {selectedCategories.length === (listsData?.categories?.length || 0)
                                             ? t("All categories selected")
                                             : `${selectedCategories.length} ${t("categories selected")}`}
@@ -382,7 +382,7 @@ const InventoryProduct = () => {
 
                             {/* Products - Optional + All Products */}
                             <div className="lg:col-span-2">
-                                <label className="block text-lg font-medium text-gray-700 mb-3">
+                                <label className="block mb-3 text-lg font-medium text-gray-700">
                                     {t("Products")} ({t("Optional")})
                                 </label>
                                 <Select
@@ -408,13 +408,13 @@ const InventoryProduct = () => {
                                     }}
                                 />
                                 {selectedProducts.length > 0 ? (
-                                    <p className="text-sm text-green-600 mt-2">
+                                    <p className="mt-2 text-sm text-green-600">
                                         {selectedProducts.length === availableProducts.length
                                             ? t("All products selected")
                                             : `${selectedProducts.length} ${t("products selected")}`}
                                     </p>
                                 ) : selectedCategories.length > 0 ? (
-                                    <p className="text-sm text-gray-500 mt-2">
+                                    <p className="mt-2 text-sm text-gray-500">
                                         {availableProducts.length} {t("products available")} – {t("leave empty to load all")}
                                     </p>
                                 ) : null}
@@ -428,7 +428,7 @@ const InventoryProduct = () => {
                     <button
                         onClick={handleFilterSubmit}
                         disabled={loadingStocks}
-                        className="px-8 py-3 bg-mainColor text-white rounded-xl font-semibold hover:bg-mainColor/90 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-3"
+                        className="flex items-center gap-3 px-8 py-3 font-semibold text-white transition bg-mainColor rounded-xl hover:bg-mainColor/90 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loadingStocks && <StaticLoader size={20} />}
                         {t("Apply Filter")}
@@ -451,7 +451,7 @@ const InventoryProduct = () => {
                                 }}
                                 className="w-6 h-6 text-blue-600 rounded focus:ring-blue-500"
                             />
-                            <span className="text-lg font-medium flex items-center gap-2">
+                            <span className="flex items-center gap-2 text-lg font-medium">
                                 <FiPackage /> {t("Edit Quantity")}
                             </span>
                         </label>
@@ -467,7 +467,7 @@ const InventoryProduct = () => {
                                 }}
                                 className="w-6 h-6 text-green-600 rounded focus:ring-green-500"
                             />
-                            <span className="text-lg font-medium flex items-center gap-2">
+                            <span className="flex items-center gap-2 text-lg font-medium">
                                 <FiPackage /> {t("Edit Actual Qty")}
                             </span>
                         </label>
@@ -477,7 +477,7 @@ const InventoryProduct = () => {
                                 {editQuantityMode && (
                                     <button
                                         onClick={saveQuantity}
-                                        className="px-5 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"
+                                        className="px-5 py-2 font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
                                     >
                                         {t("Save Quantity")}
                                     </button>
@@ -485,7 +485,7 @@ const InventoryProduct = () => {
                                 {editActualMode && (
                                     <button
                                         onClick={saveActualQuantity}
-                                        className="px-5 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700"
+                                        className="px-5 py-2 font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
                                     >
                                         {t("Save Actual Qty")}
                                     </button>
@@ -496,18 +496,18 @@ const InventoryProduct = () => {
 
                     <div className="flex items-center gap-4">
                         {selectedRows.length > 0 && (
-                            <span className="text-sm font-medium text-gray-600 bg-gray-100 px-4 py-2 rounded-lg">
+                            <span className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg">
                                 {selectedRows.length} {t("selected")}
                             </span>
                         )}
                         <div className="flex gap-3">
-                            <button onClick={exportPDF} className="p-3 bg-red-600 text-white rounded-full hover:bg-red-700 shadow-lg" title="PDF">
+                            <button onClick={exportPDF} className="p-3 text-white bg-red-600 rounded-full shadow-lg hover:bg-red-700" title="PDF">
                                 <FiFileText size={20} />
                             </button>
-                            <button onClick={exportExcel} className="p-3 bg-green-600 text-white rounded-full hover:bg-green-700 shadow-lg" title="Excel">
+                            <button onClick={exportExcel} className="p-3 text-white bg-green-600 rounded-full shadow-lg hover:bg-green-700" title="Excel">
                                 <FiFile size={20} />
                             </button>
-                            <button onClick={exportCSV} className="p-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-lg" title="CSV">
+                            <button onClick={exportCSV} className="p-3 text-white bg-blue-600 rounded-full shadow-lg hover:bg-blue-700" title="CSV">
                                 <FiDownload size={20} />
                             </button>
                         </div>
@@ -521,19 +521,19 @@ const InventoryProduct = () => {
                     <StaticLoader />
                 </div>
             ) : !selectedStore || !filterType ? (
-                <div className="text-center py-20 text-gray-500 text-xl bg-gray-50 rounded-2xl">
+                <div className="py-20 text-xl text-center text-gray-500 bg-gray-50 rounded-2xl">
                     {t("Please select a store and filter type")}
                 </div>
             ) : filterType?.value === "partial" && selectedCategories.length === 0 ? (
-                <div className="text-center py-20 text-gray-500 text-xl bg-gray-50 rounded-2xl">
+                <div className="py-20 text-xl text-center text-gray-500 bg-gray-50 rounded-2xl">
                     {t("Please select at least one category")}
                 </div>
             ) : stocks.length === 0 ? (
-                <div className="text-center py-20 text-gray-500 text-xl bg-gray-50 rounded-2xl">
+                <div className="py-20 text-xl text-center text-gray-500 bg-gray-50 rounded-2xl">
                     {t("No products found")}
                 </div>
             ) : (
-                <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div className="overflow-hidden bg-white shadow-lg rounded-2xl">
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead className="bg-gray-100">
@@ -546,22 +546,22 @@ const InventoryProduct = () => {
                                             className="w-5 h-5 rounded"
                                         />
                                     </th>
-                                    <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
+                                   <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                         {t("Product")}
                                     </th>
-                                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                    <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                         {t("Category")}
                                     </th>
-                                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                    <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                         {t("Unit")}
                                     </th>
-                                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                    <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                         {t("Quantity")}
                                     </th>
-                                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                    <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                         {t("Actual Qty")}
                                     </th>
-                                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
+                                    <th className="px-6 py-4 text-sm font-medium text-left text-gray-700">
                                         {t("Shortage")}
                                     </th>
                                 </tr>

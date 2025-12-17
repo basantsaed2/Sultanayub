@@ -1,5 +1,6 @@
+import { t } from "i18next";
 import { FaPlus } from "react-icons/fa";
-const ButtonAdd = ({ isWidth = false, Text = 'Add', BgColor = "white", Color = "thirdColor", Size = "xl", handleClick, iconColor = "mainColor" }) => {
+const ButtonAdd = ({ isWidth = false, Text = t('Add'), BgColor = "white", Color = "thirdColor", Size = "xl", handleClick, iconColor = "mainColor" }) => {
        return (
               <button
                      type='button'

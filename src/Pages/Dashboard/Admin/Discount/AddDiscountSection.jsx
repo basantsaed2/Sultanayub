@@ -19,17 +19,17 @@ const AddDiscountSection = ({ update, setUpdate }) => {
 
   const dropDownType = useRef();
   const auth = useAuth();
+  const { t, i18n } = useTranslation();
 
   const [discountName, setDiscountName] = useState("");
   const [discountAmount, setDiscountAmount] = useState("");
   const [discountType] = useState([
-    { id: "", name: "Select Discount Type" },
-    { id: "precentage", name: "precentage" },
-    { id: "value", name: "value" },
+    { id: "", name: t("Select Discount Type") },
+    { id: "precentage", name: t("precentage") },
+    { id: "value", name: t("value") },
   ]);
-  const { t, i18n } = useTranslation();
 
-  const [stateType, setStateType] = useState("Select Discount Type");
+  const [stateType, setStateType] = useState(t("Select Discount Type"));
   const [typeName, setTypeName] = useState("");
 
   const [isOpenDiscountType, setIsOpenDiscountType] = useState(false);
