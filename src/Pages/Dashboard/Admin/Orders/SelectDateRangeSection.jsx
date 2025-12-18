@@ -73,8 +73,8 @@ const SelectDateRangeSection = ({ typPage }) => {
   const orderTypes = [
     { id: "all", name: t("all") },
     { id: "pending", name: t("pending") },
-    { id: "confirmed", name: t("confirmed") },
-    { id: "processing", name: t("processing") },
+    { id: "processing", name: t("accept") },
+    { id: "confirmed", name: t("processing") },
     { id: "out_for_delivery", name: t("out_for_delivery") },
     { id: "delivered", name: t("delivered") },
     { id: "returned", name: t("returned") },
