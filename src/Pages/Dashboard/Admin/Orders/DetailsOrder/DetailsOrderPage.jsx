@@ -654,25 +654,25 @@ const DetailsOrderPage = () => {
                           <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gradient-to-r from-[#9E090F] to-[#D1191C] text-white">
                               <tr>
-                                <th className="px-2 py-2 max-w-[30px] text-xs font-medium tracking-wider text-left uppercase border-gray-300">
+                                <th className={`px-2 py-2 max-w-[30px] text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
                                   #
                                 </th>
-                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
+                                <th className={`px-3 py-2 text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
                                   {t("Products")}
                                 </th>
-                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
+                                <th className={`px-3 py-2 text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
                                   {t("variation")}
                                 </th>
-                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
+                                <th className={`px-3 py-2 text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
                                   {t("Addons")}
                                 </th>
-                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
+                                <th className={`px-3 py-2 text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
                                   {t("Excludes")}
                                 </th>
-                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase border-gray-300">
+                                <th className={`px-3 py-2 text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
                                   {t("Extra")}
                                 </th>
-                                <th className="px-3 py-2 text-xs font-medium tracking-wider text-left uppercase">
+                                <th className={`px-3 py-2 text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
                                   {t("Notes")}
                                 </th>
                               </tr>
@@ -718,8 +718,11 @@ const DetailsOrderPage = () => {
                                         <div className="text-sm font-bold text-mainColor">
                                           {t("Price")}: {totalPriceIncludingVariations.toFixed(2)}
                                           {variationsPrice > 0 && (
-                                            <span className="text-[12px] text-gray-600 font-normal block">
-                                              ({basePrice} base + {variationsPrice} variations)
+                                            <span className="text-[12px] text-gray-600 font-normal block italic">
+                                              {t("price_breakdown", {
+                                                base: priceAfterDiscount,
+                                                variations: variationsPrice
+                                              })}
                                             </span>
                                           )}
                                         </div>
@@ -809,7 +812,7 @@ const DetailsOrderPage = () => {
                                     </td>
 
                                     {/* Notes Column */}
-                                    <td className="px-2 py-1 whitespace-normal">
+                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
                                       {order.product?.notes ? (
                                         <div className="relative p-2 text-sm text-gray-700 border-l-4 border-red-400 rounded-md shadow-sm bg-red-50">
                                           <p className="line-clamp-3">{order.product.notes}</p>

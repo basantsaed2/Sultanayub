@@ -1853,12 +1853,15 @@ const resources = {
                "Stock Man": "Stock Man",
                "Stock Transfer": "Stock Transfer",
                "Recipe": "Recipe",
+
+               "price_breakdown": "({{base}} base price + {{variations}} variations price)"
           },
      },
 
      ar: {
           translation: {
                projectName: import.meta.env.VITE_PROJECT_AR_NAME || "Food2go",
+               "price_breakdown": "({{base}} السعر الأساسي + {{variations}} سعر الخيارات)",
                "Cashier Shift Report": "تقرير ورديات الكاشير",
                "Loading shifts..,.": "جاري تحميل الورديات...",
                "Shift #": "وردية رقم",
