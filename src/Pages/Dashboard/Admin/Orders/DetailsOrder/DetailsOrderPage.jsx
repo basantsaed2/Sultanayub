@@ -678,93 +678,90 @@ const DetailsOrderPage = () => {
                               </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                              {(detailsData?.order_details || []).map(
-                                (order, orderIndex) => (
-                                  <tr
-                                    key={`order-${orderIndex}`}
-                                    className="hover:bg-gray-50"
-                                  >
+                              {(detailsData?.order_details || []).map((order, orderIndex) => {
+                                // 1. CALCULATE TOTAL UNIT PRICE (Base + Variations + Extras)
+                                const basePrice = order.product?.price || 0;
+                                const priceAfterDiscount = order.product?.price_after_discount || basePrice;
+                                const priceAfterTax = order.product?.price_after_tax || basePrice;
+
+                                const variationsPrice = (order.variations || []).reduce((total, variation) => {
+                                  const optionsTotal = (variation.options || []).reduce((sum, opt) => sum + (opt.price || 0), 0);
+                                  return total + optionsTotal;
+                                }, 0);
+
+                                const extrasPrice = (order.extras || []).reduce((total, extra) => total + (extra.price || 0), 0);
+
+                                const totalPriceIncludingVariations = priceAfterDiscount + variationsPrice;
+
+                                return (
+                                  <tr key={`order-${orderIndex}`} className="hover:bg-gray-50">
                                     {/* Order Number Column */}
                                     <td className="px-2 py-1 font-semibold whitespace-normal border-r border-gray-300">
                                       {orderIndex + 1}
                                     </td>
 
-                                    {/* Products Column: Name, Price, Quantity */}
+                                    {/* Products Column: UPDATED TO SHOW TOTAL PRICE */}
                                     <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
                                       <div className="mb-3">
-                                        {order.product.image_link && (
+                                        {order.product?.image_link && (
                                           <img
                                             src={order.product.image_link}
                                             alt={order.product.name}
-                                            className="w-14 h-14 object-cover rounded border border-gray-300"
+                                            className="w-14 h-14 object-cover rounded border border-gray-300 mb-1"
                                           />
                                         )}
                                         <div className="font-semibold text-gray-800">
-                                          {order.product.name}
+                                          {order.product?.name}
                                         </div>
-                                        <div className="text-sm text-gray-600">
-                                          {t("Price")}: {order.product.price}
+
+                                        {/* Displaying the Combined Price */}
+                                        <div className="text-sm font-bold text-mainColor">
+                                          {t("Price")}: {totalPriceIncludingVariations.toFixed(2)}
+                                          {variationsPrice > 0 && (
+                                            <span className="text-[12px] text-gray-600 font-normal block">
+                                              ({basePrice} base + {variationsPrice} variations)
+                                            </span>
+                                          )}
                                         </div>
+
                                         <div className="text-sm text-gray-600">
-                                          {t("Qty")}: {order.product.count}
+                                          {t("Qty")}: {order.product?.count || 1}
                                         </div>
                                       </div>
                                     </td>
 
-                                    {/* Variations Column: Name and Type */}
+                                    {/* Variations Column */}
                                     <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                      {order.variations &&
-                                        order.variations.length > 0 ? (
-                                        order.variations.map(
-                                          (variation, varIndex) => (
-                                            <div
-                                              key={`variation-${varIndex}`}
-                                              className="mb-3"
-                                            >
-                                              <div className="font-semibold text-gray-800">
-                                                {variation.variation?.name}
-                                              </div>
-                                              <div className="text-xs text-gray-500">
-                                                {t("Type")}:{" "}
-                                                {variation.options &&
-                                                  variation.options.length > 0 ? (
-                                                  variation.options.map(
-                                                    (option, optIndex) => (
-                                                      <span
-                                                        key={`option-${optIndex}`}
-                                                        className="mr-1"
-                                                      >
-                                                        {option.name}
-                                                        {optIndex <
-                                                          variation.options
-                                                            .length -
-                                                          1
-                                                          ? ", "
-                                                          : ""}
-                                                      </span>
-                                                    )
-                                                  )
-                                                ) : (
-                                                  <span>-</span>
-                                                )}
-                                              </div>
+                                      {order.variations && order.variations.length > 0 ? (
+                                        order.variations.map((variation, varIndex) => (
+                                          <div key={`variation-${varIndex}`} className="mb-3">
+                                            <div className="font-semibold text-gray-800">{variation.name}</div>
+                                            <div className="text-xs text-gray-500">
+                                              {t("Type")}:{" "}
+                                              {variation.options?.map((option, optIndex) => (
+                                                <span key={`option-${optIndex}`} className="mr-1">
+                                                  {option.name}
+                                                  {option.price > 0 && (
+                                                    <span className="text-mainColor font-bold"> (+{option.price})</span>
+                                                  )}
+                                                  {optIndex < variation.options.length - 1 ? ", " : ""}
+                                                </span>
+                                              ))}
                                             </div>
-                                          )
-                                        )
+                                          </div>
+                                        ))
                                       ) : (
                                         <span className="text-gray-500">-</span>
                                       )}
                                     </td>
 
-                                    {/* Addons Column: Name, Price, Count */}
+                                    {/* Addons Column */}
                                     <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
                                       {order.addons && order.addons.length > 0 ? (
                                         order.addons.map((addon, addonIndex) => {
-                                          // Safe access – if addon or addon.addon is missing, show nothing or fallback
                                           const addonName = addon?.name || "—";
                                           const addonPrice = addon?.price || 0;
                                           const count = addon?.count || 1;
-
                                           return (
                                             <div key={`addon-${addonIndex}`} className="mb-3">
                                               <div className="font-semibold text-gray-800">
@@ -782,42 +779,27 @@ const DetailsOrderPage = () => {
                                       )}
                                     </td>
 
-                                    {/* Excludes Column: Name */}
+                                    {/* Excludes Column */}
                                     <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                      {order.excludes &&
-                                        order.excludes.length > 0 ? (
-                                        order.excludes.map(
-                                          (exclude, excludeIndex) => (
-                                            <div
-                                              key={`exclude-${excludeIndex}`}
-                                              className="mb-3"
-                                            >
-                                              <div className="font-semibold text-gray-800">
-                                                {exclude.name}
-                                              </div>
-                                            </div>
-                                          )
-                                        )
+                                      {order.excludes && order.excludes.length > 0 ? (
+                                        order.excludes.map((exclude, excludeIndex) => (
+                                          <div key={`exclude-${excludeIndex}`} className="mb-3">
+                                            <div className="font-semibold text-gray-800">{exclude.name}</div>
+                                          </div>
+                                        ))
                                       ) : (
                                         <span className="text-gray-500">-</span>
                                       )}
                                     </td>
 
-                                    {/* Extras Column: Name and Price */}
+                                    {/* Extras Column */}
                                     <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
                                       {order.extras && order.extras.length > 0 ? (
                                         order.extras.map((extra, i) => (
                                           <div key={i} className="mb-2">
                                             <div className="font-medium">{extra?.name || "—"}</div>
                                             <div className="text-xs text-gray-500">
-                                              {t("Price")}:{" "}
-                                              {extra.price ? (
-                                                <span>
-                                                  {extra.price}
-                                                </span>
-                                              ) : (
-                                                <span>-</span>
-                                              )}
+                                              {t("Price")}: {extra.price || "-"}
                                             </div>
                                           </div>
                                         ))
@@ -826,10 +808,9 @@ const DetailsOrderPage = () => {
                                       )}
                                     </td>
 
-                                    {/* Notes Column: Styled Card for Product Notes */}
                                     {/* Notes Column */}
                                     <td className="px-2 py-1 whitespace-normal">
-                                      {order.product.notes ? (
+                                      {order.product?.notes ? (
                                         <div className="relative p-2 text-sm text-gray-700 border-l-4 border-red-400 rounded-md shadow-sm bg-red-50">
                                           <p className="line-clamp-3">{order.product.notes}</p>
                                         </div>
@@ -838,15 +819,14 @@ const DetailsOrderPage = () => {
                                       )}
                                     </td>
                                   </tr>
-                                )
-                              )}
+                                );
+                              })}
                             </tbody>
                           </table>
                         </div>
                       </div>
 
                       {/* Order Summary */}
-                      {/* Order Summary - FIXED */}
                       <div className="flex flex-col p-2 my-2 gap-y-1">
                         {/* Calculate totals safely */}
                         {(() => {
@@ -859,6 +839,13 @@ const DetailsOrderPage = () => {
                             if (product) {
                               totalItemPrice += (product.price || product.price_after_tax || 0) * (product.count || 1);
                             }
+
+                            // Inside your total calculation loop
+                            (orderDetail.variations || []).forEach((v) => {
+                              (v.options || []).forEach((opt) => {
+                                totalItemPrice += (opt.price || 0) * (product.count || 1);
+                              });
+                            });
 
                             // Addons
                             (orderDetail.addons || []).forEach((addonItem) => {
@@ -880,10 +867,10 @@ const DetailsOrderPage = () => {
                                 {t("AddonsPrice")}: <span>{totalAddonPrice.toFixed(2)}</span>
                               </p>
                               <p className="flex items-center justify-between w-full">
-                                {t("Tax/VAT")}: <span>{detailsData?.total_tax || 0}</span>
+                                {t("Subtotal")}: <span>{(totalItemPrice + totalAddonPrice).toFixed(2)}</span>
                               </p>
                               <p className="flex items-center justify-between w-full">
-                                {t("Subtotal")}: <span>{(totalItemPrice + totalAddonPrice).toFixed(2)}</span>
+                                {t("Tax/VAT")}: <span>{detailsData?.total_tax || 0}</span>
                               </p>
                               <p className="flex items-center justify-between w-full">
                                 {t("CouponDiscount")}: <span>{detailsData?.coupon_discount || 0}</span>
