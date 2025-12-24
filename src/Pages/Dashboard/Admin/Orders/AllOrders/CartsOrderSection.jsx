@@ -58,7 +58,7 @@ const CartsOrderSection = ({ ordersNum }) => {
           count={ordersNum.ordersRefund || 0}
         />
         <Cart
-          route={'/dashboard/orders/failed_to_deliver'}
+          route={'/dashboard/orders/failed'}
           icon={<FailedToDeliverIcon />}
           title={t('FailedToDeliver')}
           count={ordersNum.ordersFailed || 0}
