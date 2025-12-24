@@ -153,9 +153,7 @@ const EditCustomersPage = () => {
     formData.append("due_status", customerDueStatus || 0);
     formData.append("max_due", customerMaxDue || "");
 
-    if (!customerImageFile) {
-      formData.append("image", customerImage);
-    } else {
+    if (customerImageFile) {
       formData.append("image", customerImageFile);
     }
 
@@ -240,6 +238,7 @@ const EditCustomersPage = () => {
               </span>
               <PasswordInput
                 backgound="white"
+                required={false}
                 value={customerPassword}
                 onChange={(e) => setCustomerPassword(e.target.value)}
                 placeholder={t("Password")}
