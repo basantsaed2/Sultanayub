@@ -163,7 +163,6 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
         ${(receiptData.orderType === t("Delivery") || receiptData.orderType === "Delivery") && receiptData.deliveryMan ?
       `<div class="info-row"><span class="info-label">${t("DeliveryMan")}:</span><span>${receiptData.deliveryMan}</span></div>` : ''}
         <div class="info-row"><span class="info-label">${t("OrderType")}:</span><span>${receiptData.orderType}</span></div>
-        <div class="info-row"><span class="info-label">${t("Payment")}:</span><span>${receiptData.payment}</span></div>
       </div>
 
       <div class="address-notes-section">
