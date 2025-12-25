@@ -166,8 +166,30 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
       </div>
 
       <div class="address-notes-section">
-        ${(receiptData.orderType === t("Delivery") || receiptData.orderType === "Delivery") && receiptData.customerAddress ?
-      `<div style="margin-bottom:5px"><span class="section-title">${t("DeliveryAddress")}:</span><div>${receiptData.customerAddress}</div></div>` : ''}
+        ${(receiptData.orderType === t("Delivery") || receiptData.orderType === "Delivery")
+      ? (receiptData.addressObject
+        ? `<div style="margin-bottom:5px">
+             <span class="section-title">${t("DeliveryAddress")}:</span>
+             ${receiptData.addressObject.address ? `<div style="font-size:13px; margin-top:2px; margin-bottom:4px;">${receiptData.addressObject.address}</div>` : ''}
+             <div style="display: flex; flex-wrap: wrap; row-gap: 4px; font-size:13px;">
+               ${Object.entries(receiptData.addressObject)
+          .filter(([key, val]) => !['id', 'map', 'city', 'type', 'address'].includes(key) && typeof val !== 'object' && val !== null && val !== "")
+          .map(([key, val], i, arr) => {
+            const isLast = i === arr.length - 1;
+            const style = isLast
+              ? ""
+              : (isRtl
+                ? "border-left: 1px solid #000; padding-left: 8px; margin-left: 8px;"
+                : "border-right: 1px solid #000; padding-right: 8px; margin-right: 8px;");
+            return `<span style="${style}"><strong>${t(key)}:</strong> ${val}</span>`;
+          })
+          .join('')}
+             </div>
+           </div>`
+        : (receiptData.customerAddress
+          ? `<div style="margin-bottom:5px"><span class="section-title">${t("DeliveryAddress")}:</span><div>${receiptData.customerAddress}</div></div>`
+          : ''))
+      : ''}
         ${receiptData.orderNotes ?
       `<div><span class="section-title">${t("Notes")}:</span><div>${receiptData.orderNotes}</div></div>` : ''}
       </div>
@@ -240,7 +262,7 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
 
       <div class="footer">
         ${t("ThankYouForYourOrder")}
-        <div style="font-size:12px;margin-top:2px;">Powered by Food2Go</div>
+        <div style="font-size:12px;margin-top:2px;">${t("Powered by")} Food2Go</div>
         <div style="font-size:12px;">food2go.online</div>
       </div>
     </div>
@@ -338,6 +360,7 @@ const InvoiceOrderPage = () => {
         customerPhone: order.user?.phone || "",
         customerPhone2: order.user?.phone_2 || "",
         customerAddress: order.address?.address || "",
+        addressObject: order.address || null,
         orderNotes: order.notes || "",
         deliveryMan: order.delivery ? `${order.delivery.f_name || ''} ${order.delivery.l_name || ''}`.trim() : "",
         items,

@@ -1854,7 +1854,12 @@ const resources = {
                "Stock Transfer": "Stock Transfer",
                "Recipe": "Recipe",
 
-               "price_breakdown": "({{base}} base price + {{variations}} variations price)"
+               "price_breakdown": "({{base}} base price + {{variations}} variations price)",
+               "street": "Street",
+               "building_num": "Building Num",
+               "floor_num": "Floor Num",
+               "apartment": "Apartment",
+               "additional_data": "landmark",
           },
      },
 
@@ -3557,7 +3562,14 @@ const resources = {
                "Stock": "المخزون",
                "Stock Man": "أمين المخزن",
                "Stock Transfer": "نقل المخزون",
-               "Recipe": "المقادير"
+               "Recipe": "المقادير",
+
+               "street": "الشارع",
+               "building_num": "رقم المبنى",
+               "floor_num": "رقم الطابق",
+               "apartment": "الشقة",
+               "additional_data": "العلامة المميزة",
+               "Powered by": "مدعوم بواسطة",
           },
 
      },

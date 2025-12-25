@@ -131,39 +131,57 @@ const DeletedCustomer = () => {
                         </table>
                     </div>
 
-                    {/* Fixed Pagination */}
+                    {/* Replace the fixed pagination with this */}
                     {users.length > usersPerPage && (
-                        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 shadow-lg z-50">
-                            <div className="flex justify-center items-center gap-3 py-4 px-6 flex-wrap">
-                                <button
-                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                    disabled={currentPage === 1}
-                                    className="px-6 py-3 bg-mainColor text-white rounded-lg font-medium disabled:opacity-50 hover:bg-mainColor-dark transition"
-                                >
-                                    {t("Prev")}
-                                </button>
+                        <div className="mt-8 flex flex-wrap justify-center items-center gap-2 sm:gap-3">
+                            <button
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="px-4 py-2 sm:px-6 sm:py-3 bg-mainColor text-white rounded-lg font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-mainColor-dark transition"
+                            >
+                                {t("Prev")}
+                            </button>
 
-                                {[...Array(totalPages)].map((_, i) => (
-                                    <button
-                                        key={i + 1}
-                                        onClick={() => setCurrentPage(i + 1)}
-                                        className={`px-5 py-3 rounded-lg font-semibold transition ${currentPage === i + 1
-                                            ? "bg-mainColor text-white"
-                                            : "border border-mainColor text-mainColor hover:bg-mainColor hover:text-white"
-                                            }`}
-                                    >
-                                        {i + 1}
-                                    </button>
-                                ))}
+                            {[...Array(totalPages)].map((_, i) => {
+                                const page = i + 1;
+                                // Show first 2, last 2, and current ±1
+                                if (
+                                    page === 1 ||
+                                    page === totalPages ||
+                                    (page >= currentPage - 1 && page <= currentPage + 1)
+                                ) {
+                                    return (
+                                        <button
+                                            key={page}
+                                            onClick={() => setCurrentPage(page)}
+                                            className={`px-3 py-2 sm:px-5 sm:py-3 rounded-lg font-medium min-w-[40px] transition ${currentPage === page
+                                                    ? "bg-mainColor text-white shadow-md"
+                                                    : "border border-gray-300 text-gray-700 hover:bg-gray-100"
+                                                }`}
+                                        >
+                                            {page}
+                                        </button>
+                                    );
+                                }
 
-                                <button
-                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                    disabled={currentPage === totalPages}
-                                    className="px-6 py-3 bg-mainColor text-white rounded-lg font-medium disabled:opacity-50 hover:bg-mainColor-dark transition"
-                                >
-                                    {t("Next")}
-                                </button>
-                            </div>
+                                // Show dots when skipping pages
+                                if (
+                                    (page === currentPage - 2 && currentPage > 3) ||
+                                    (page === currentPage + 2 && currentPage < totalPages - 2)
+                                ) {
+                                    return <span key={page} className="px-2 py-3 text-gray-500">...</span>;
+                                }
+
+                                return null;
+                            })}
+
+                            <button
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                                className="px-4 py-2 sm:px-6 sm:py-3 bg-mainColor text-white rounded-lg font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-mainColor-dark transition"
+                            >
+                                {t("Next")}
+                            </button>
                         </div>
                     )}
                 </div>
