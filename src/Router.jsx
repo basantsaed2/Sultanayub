@@ -188,7 +188,7 @@ import PreparationMan from "./Pages/Dashboard/Admin/Setting/Branches/Preparation
 import AddPreparationMan from "./Pages/Dashboard/Admin/Setting/Branches/PreparationMan/AddPreparationMan";
 import EditPreparationMan from "./Pages/Dashboard/Admin/Setting/Branches/PreparationMan/EditPreparationMan";
 import DeliveryManOrdersParent from "./Pages/Dashboard/Admin/DeliveryMan/DeliveryManOrder/DeliveryManOrdersParent";
-import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
+// import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
 import OrdersDeliveryParent from "./Pages/Dashboard/Admin/OrdersDelivery/OrdersDeliveryParent";
 import DeletedCustomer from "./Pages/Dashboard/Admin/Users/DeletedCustomer/DeletedCustomer";
 import DueGroupModule from "./Pages/Dashboard/Admin/GroupModules/DueGroupModule";
@@ -851,10 +851,10 @@ export const router = createBrowserRouter([
                 path: "policy_support",
                 element: <PolicySupportLayout />,
               },
-              {
-                path: "receipt_language",
-                element: <ReceiptLanguage />,
-              },
+              // {
+              //   path: "receipt_language",
+              //   element: <ReceiptLanguage />,
+              // },
               {
                 path: "app_setup",
                 element: <AppSetupLayout />,

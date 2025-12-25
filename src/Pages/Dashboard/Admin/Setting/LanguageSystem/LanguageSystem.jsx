@@ -28,6 +28,7 @@ const LanguageSystem = () => {
   const [kitchenLang, setKitchenLang] = useState("en");
   const [cashierLang, setCashierLang] = useState("en");
   const [preparationLang, setPreparationLang] = useState("en");
+  const [orderLang, setLangOrder] = useState("en");
 
   // Load data on mount
   useEffect(() => {
@@ -109,11 +110,10 @@ const LanguageSystem = () => {
             </div>
           </div>
           <span
-            className={`px-3 py-1 rounded-full text-xs font-bold ${
-              bristaLang === "ar"
+            className={`px-3 py-1 rounded-full text-xs font-bold ${bristaLang === "ar"
                 ? "bg-red-100 text-red-700"
                 : "bg-blue-100 text-blue-700"
-            }`}
+              }`}
           >
             {bristaLang.toUpperCase()}
           </span>
@@ -137,11 +137,10 @@ const LanguageSystem = () => {
             </div>
           </div>
           <span
-            className={`px-3 py-1 rounded-full text-xs font-bold ${
-              kitchenLang === "ar"
+            className={`px-3 py-1 rounded-full text-xs font-bold ${kitchenLang === "ar"
                 ? "bg-red-100 text-red-700"
                 : "bg-blue-100 text-blue-700"
-            }`}
+              }`}
           >
             {kitchenLang.toUpperCase()}
           </span>
@@ -165,11 +164,10 @@ const LanguageSystem = () => {
             </div>
           </div>
           <span
-            className={`px-3 py-1 rounded-full text-xs font-bold ${
-              cashierLang === "ar"
+            className={`px-3 py-1 rounded-full text-xs font-bold ${cashierLang === "ar"
                 ? "bg-red-100 text-red-700"
                 : "bg-blue-100 text-blue-700"
-            }`}
+              }`}
           >
             {cashierLang.toUpperCase()}
           </span>
@@ -195,11 +193,10 @@ const LanguageSystem = () => {
             </div>
           </div>
           <span
-            className={`px-3 py-1 rounded-full text-xs font-bold ${
-              preparationLang === "ar"
+            className={`px-3 py-1 rounded-full text-xs font-bold ${preparationLang === "ar"
                 ? "bg-red-100 text-red-700"
                 : "bg-blue-100 text-blue-700"
-            }`}
+              }`}
           >
             {preparationLang.toUpperCase()}
           </span>

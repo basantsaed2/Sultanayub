@@ -245,7 +245,7 @@ const adminRoutes = [
       { name: "Order Percentage", path: "/dashboard/setting/order_percentage", permission: "OrderPercentage" },
       { name: "Discount Code", path: "/dashboard/setting/discount_code", permission: "DiscountCode" },
       { name: "Notifications", path: "/dashboard/setting/notification", permission: "notification" },
-      { name: "Receipt Language", path: "/dashboard/setting/receipt_language", permission: "receipt_language" },
+      // { name: "Receipt Language", path: "/dashboard/setting/receipt_language", permission: "receipt_language" },
       { name: "Policy & Support", path: "/dashboard/setting/policy_support", permission: "PolicySupport" },
       { name: "App Setup", path: "/dashboard/setting/app_setup", permission: "AppSetup" },
       { name: "Void Reason", path: "/dashboard/setting/void_reason", permission: "VoidReason" },
