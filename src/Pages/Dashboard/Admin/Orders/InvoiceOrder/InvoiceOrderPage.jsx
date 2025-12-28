@@ -160,13 +160,13 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
         <div class="info-row"><span class="info-label">${t("Time")}:</span><span dir="ltr">${receiptData.orderTime || ''}</span></div>
         <div class="info-row"><span class="info-label">${t("Client")}:</span><span>${receiptData.customerName}</span></div>
         ${phones ? `<div class="info-row"><span class="info-label">${t("Phone")}:</span><span dir="ltr">${phones}</span></div>` : ''}
-        ${(receiptData.orderType === t("Delivery") || receiptData.orderType === "Delivery") && receiptData.deliveryMan ?
+        ${receiptData.isDelivery && receiptData.deliveryMan ?
       `<div class="info-row"><span class="info-label">${t("DeliveryMan")}:</span><span>${receiptData.deliveryMan}</span></div>` : ''}
         <div class="info-row"><span class="info-label">${t("OrderType")}:</span><span>${receiptData.orderType}</span></div>
       </div>
 
       <div class="address-notes-section">
-        ${(receiptData.orderType === t("Delivery") || receiptData.orderType === "Delivery") && receiptData.customerAddress ?
+        ${receiptData.isDelivery && receiptData.customerAddress ?
       `<div style="margin-bottom:5px"><span class="section-title">${t("DeliveryAddress")}:</span><div>${receiptData.customerAddress}</div></div>` : ''}
         ${receiptData.orderNotes ?
       `<div><span class="section-title">${t("Notes")}:</span><div>${receiptData.orderNotes}</div></div>` : ''}
@@ -235,6 +235,7 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
         <div class="total-row"><span>${t("Tax")} %:</span><span>${Number(receiptData.tax).toFixed(2)}</span></div>
         ${receiptData.delivery > 0 ? `<div class="total-row"><span>${t("DeliveryFee")}</span><span>${Number(receiptData.delivery).toFixed(2)}</span></div>` : ''}
         ${receiptData.discount > 0 ? `<div class="total-row"><span>${t("Discount")}</span><span>-${Number(receiptData.discount).toFixed(2)}</span></div>` : ''}
+        ${receiptData.service_fees > 0 ? `<div class="total-row"><span>${t("ServiceFee")}</span><span>${Number(receiptData.service_fees).toFixed(2)}</span></div>` : ''}
         <div class="total-row grand-total"><span>${t("GrandTotal")}</span><span>${Number(receiptData.total).toFixed(2)}</span></div>
       </div>
 
@@ -322,8 +323,26 @@ const InvoiceOrderPage = () => {
 
       let orderTypeDisplay = t("TakeAway");
       const type = (order.order_type || "").toLowerCase();
+      const isDelivery = type.includes("delivery");
       if (type.includes("dine")) orderTypeDisplay = t("DineIn");
-      else if (type.includes("delivery")) orderTypeDisplay = t("Delivery");
+      else if (isDelivery) orderTypeDisplay = t("Delivery");
+
+      let formattedAddress = "";
+      if (order.address) {
+        const excludedKeys = ["id", "map", "type", "city", "user_id", "created_at", "updated_at", "deleted_at", "latitude", "longitude", "zone", "additional_data", "contact_person_name", "contact_person_number"];
+
+        if (order.address.address) {
+          formattedAddress += `<div><span>${order.address.address}</span></div>`;
+        }
+
+        Object.entries(order.address).forEach(([key, value]) => {
+          if (key === "address") return;
+          if (excludedKeys.includes(key)) return;
+          if (value && typeof value !== 'object') {
+            formattedAddress += `<div><span style="font-weight:bold;">${t(key)}: </span><span>${value}</span></div>`;
+          }
+        });
+      }
 
       const receiptData = {
         restaurantName: t("projectName"),
@@ -333,11 +352,12 @@ const InvoiceOrderPage = () => {
         date: order.order_date,
         orderTime: order.order_time,
         orderType: orderTypeDisplay,
+        isDelivery,
         payment: t(order.payment),
         customerName: order.user?.name || `${order.user?.f_name || ""} ${order.user?.l_name || ""}`.trim(),
         customerPhone: order.user?.phone || "",
         customerPhone2: order.user?.phone_2 || "",
-        customerAddress: order.address?.address || "",
+        customerAddress: formattedAddress,
         orderNotes: order.notes || "",
         deliveryMan: order.delivery ? `${order.delivery.f_name || ''} ${order.delivery.l_name || ''}`.trim() : "",
         items,
@@ -346,6 +366,7 @@ const InvoiceOrderPage = () => {
         delivery,
         total,
         discount,
+        service_fees: order.service_fees,
       };
 
       setInvoiceHtml(formatCashierReceipt(receiptData, t, isRtl));

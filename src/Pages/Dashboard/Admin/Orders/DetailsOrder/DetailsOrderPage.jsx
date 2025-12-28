@@ -879,6 +879,9 @@ const DetailsOrderPage = () => {
                                 {t("CouponDiscount")}: <span>{detailsData?.coupon_discount || 0}</span>
                               </p>
                               <p className="flex items-center justify-between w-full">
+                                {t("servicefees")}: <span>{detailsData?.service_fees || 0}</span>
+                              </p>
+                              <p className="flex items-center justify-between w-full">
                                 {t("DeliveryFee")}: <span>{detailsData?.address?.zone?.price || 0}</span>
                               </p>
                               <p className="flex items-center justify-between w-full text-lg font-TextFontSemiBold text-mainColor">
