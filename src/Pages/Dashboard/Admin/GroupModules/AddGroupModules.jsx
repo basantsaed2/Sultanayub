@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   StaticButton,
   StaticLoader,
@@ -6,6 +6,7 @@ import {
   Switch,
   TextInput, NumberInput,
   TitlePage,
+  UploadInput,
 } from "../../../../Components/Components";
 import { useGet } from "../../../../Hooks/useGet";
 import { usePost } from "../../../../Hooks/usePostJson";
@@ -42,6 +43,10 @@ const AddGroupModules = () => {
   const [selectedModules, setSelectedModules] = useState([]);
   const [moduleOptions, setModuleOptions] = useState([]);
   const [due, setDue] = useState(0);
+  const [image, setImage] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+
+  const ImageRef = useRef();
 
   useEffect(() => {
     refetchModules();
@@ -77,6 +82,20 @@ const AddGroupModules = () => {
     setPercentageValue("");
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setImage(file.name);
+    }
+  };
+
+  const handleImageClick = (ref) => {
+    if (ref.current) {
+      ref.current.click();
+    }
+  };
+
   const handleReset = () => {
     setName("");
     setPercentageType("increase");
@@ -84,6 +103,8 @@ const AddGroupModules = () => {
     setStatus(1);
     setDue(0);
     setSelectedModules([]);
+    setImage(null);
+    setImageFile(null);
   };
 
   const handleBack = () => {
@@ -128,6 +149,10 @@ const AddGroupModules = () => {
 
     formData.append("status", status);
     formData.append("due", due);
+
+    if (imageFile) {
+      formData.append("icon", imageFile);
+    }
 
     postData(formData, "Group module added successfully")
       .finally(() => {
@@ -261,13 +286,12 @@ const AddGroupModules = () => {
                       placeholder={t("Enter percentage")}
                       className="pr-12"
                     />
-                   <span
-  className={`absolute top-1/2 transform -translate-y-1/2 text-thirdColor font-TextFontMedium ${
-    document.dir === "rtl" ? "left-8" : "right-3"
-  }`}
->
-  %
-</span>
+                    <span
+                      className={`absolute top-1/2 transform -translate-y-1/2 text-thirdColor font-TextFontMedium ${document.dir === "rtl" ? "left-8" : "right-3"
+                        }`}
+                    >
+                      %
+                    </span>
 
                   </div>
                 </div>
@@ -312,6 +336,20 @@ const AddGroupModules = () => {
                       checked={due === 1}
                     />
                   </div>
+                </div>
+
+                <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                    {t("Module Icon")}:
+                  </span>
+                  <UploadInput
+                    value={image}
+                    uploadFileRef={ImageRef}
+                    placeholder={t("Module Icon")}
+                    handleFileChange={handleImageChange}
+                    onChange={(e) => setImage(e.target.value)}
+                    onClick={() => handleImageClick(ImageRef)}
+                  />
                 </div>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   StaticButton,
   StaticLoader,
@@ -6,6 +6,7 @@ import {
   Switch,
   TextInput, NumberInput,
   TitlePage,
+  UploadInput,
 } from "../../../../Components/Components";
 import { useGet } from "../../../../Hooks/useGet";
 import { usePost } from "../../../../Hooks/usePostJson";
@@ -52,6 +53,9 @@ const EditGroupModules = () => {
   const [selectedModules, setSelectedModules] = useState([]);
   const [moduleOptions, setModuleOptions] = useState([]);
   const [due, setDue] = useState(0);
+  const [image, setImage] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const ImageRef = useRef(null);
 
   useEffect(() => {
     refetchGroupData();
@@ -97,6 +101,9 @@ const EditGroupModules = () => {
         setSelectedModules(selectedModuleOptions);
       }
 
+      setImage(groupData.icon || null);
+      setImageFile(groupData.icon || null);
+
       setInitialDataLoaded(true);
     }
   }, [dataGroupData, initialDataLoaded, moduleOptions]);
@@ -117,6 +124,20 @@ const EditGroupModules = () => {
 
   const handlePercentageTypeChange = (type) => {
     setPercentageType(type);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setImage(file.name);
+    }
+  };
+
+  const handleImageClick = (ref) => {
+    if (ref.current) {
+      ref.current.click();
+    }
   };
 
   const handleReset = () => {
@@ -144,6 +165,9 @@ const EditGroupModules = () => {
       } else {
         setSelectedModules([]);
       }
+
+      setImage(groupData.icon || null);
+      setImageFile(groupData.icon || null);
     }
   };
 
@@ -189,6 +213,10 @@ const EditGroupModules = () => {
 
     formData.append("status", status);
     formData.append("due", due);
+
+    if (imageFile) {
+      formData.append("icon", imageFile);
+    }
 
     postData(formData, "Group module updated successfully")
       .finally(() => {
@@ -369,6 +397,21 @@ const EditGroupModules = () => {
                     />
                   </div>
                 </div>
+
+                <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                    {t("Module Icon")}:
+                  </span>
+                  <UploadInput
+                    value={image}
+                    uploadFileRef={ImageRef}
+                    placeholder={t("Module Icon")}
+                    handleFileChange={handleImageChange}
+                    onChange={(e) => setImage(e.target.value)}
+                    onClick={() => handleImageClick(ImageRef)}
+                  />
+                </div>
+
               </div>
             </div>
 

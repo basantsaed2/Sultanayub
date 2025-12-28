@@ -42,6 +42,7 @@ const LanguageSystem = () => {
       setKitchenLang(settingsData.kitchen_lang || "en");
       setCashierLang(settingsData.cashier_lang || "en");
       setPreparationLang(settingsData.preparation_lang || "en");
+      setLangOrder(settingsData.order_lang || "en");
     }
   }, [settingsData]);
 
@@ -71,6 +72,9 @@ const LanguageSystem = () => {
           break;
         case "preparation_lang":
           setPreparationLang(newValue);
+          break;
+        case "order_lang":
+          setLangOrder(newValue);
           break;
       }
     }
@@ -111,8 +115,8 @@ const LanguageSystem = () => {
           </div>
           <span
             className={`px-3 py-1 rounded-full text-xs font-bold ${bristaLang === "ar"
-                ? "bg-red-100 text-red-700"
-                : "bg-blue-100 text-blue-700"
+              ? "bg-red-100 text-red-700"
+              : "bg-blue-100 text-blue-700"
               }`}
           >
             {bristaLang.toUpperCase()}
@@ -138,8 +142,8 @@ const LanguageSystem = () => {
           </div>
           <span
             className={`px-3 py-1 rounded-full text-xs font-bold ${kitchenLang === "ar"
-                ? "bg-red-100 text-red-700"
-                : "bg-blue-100 text-blue-700"
+              ? "bg-red-100 text-red-700"
+              : "bg-blue-100 text-blue-700"
               }`}
           >
             {kitchenLang.toUpperCase()}
@@ -165,8 +169,8 @@ const LanguageSystem = () => {
           </div>
           <span
             className={`px-3 py-1 rounded-full text-xs font-bold ${cashierLang === "ar"
-                ? "bg-red-100 text-red-700"
-                : "bg-blue-100 text-blue-700"
+              ? "bg-red-100 text-red-700"
+              : "bg-blue-100 text-blue-700"
               }`}
           >
             {cashierLang.toUpperCase()}
@@ -194,13 +198,40 @@ const LanguageSystem = () => {
           </div>
           <span
             className={`px-3 py-1 rounded-full text-xs font-bold ${preparationLang === "ar"
-                ? "bg-red-100 text-red-700"
-                : "bg-blue-100 text-blue-700"
+              ? "bg-red-100 text-red-700"
+              : "bg-blue-100 text-blue-700"
               }`}
           >
             {preparationLang.toUpperCase()}
           </span>
         </div>
+      </div>
+
+      {/* Order Screen */}
+      <div className="flex items-center justify-between p-4 transition rounded-lg bg-gray-50 hover:bg-gray-100">
+        <div className="flex items-center gap-4">
+          <Switch
+            checked={orderLang === "ar"}
+            handleClick={() => handleLangChange("order_lang", orderLang)}
+            disabled={loadingPost}
+          />
+          <div>
+            <p className="font-TextFontMedium text-thirdColor">
+              {t("Order Screen Language")}
+            </p>
+            <p className="text-sm text-gray-500">
+              {orderLang === "ar" ? t("Arabic") : t("English")}
+            </p>
+          </div>
+        </div>
+        <span
+          className={`px-3 py-1 rounded-full text-xs font-bold ${orderLang === "ar"
+            ? "bg-red-100 text-red-700"
+            : "bg-blue-100 text-blue-700"
+            }`}
+        >
+          {orderLang.toUpperCase()}
+        </span>
       </div>
 
       <div className="mt-8 text-sm text-center text-gray-500">

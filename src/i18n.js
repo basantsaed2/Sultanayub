@@ -1860,6 +1860,9 @@ const resources = {
                "floor_num": "Floor Num",
                "apartment": "Apartment",
                "additional_data": "landmark",
+               "Order Screen Language": "Order Screen Language",
+               "Arabic": "Arabic",
+               "English": "English",
           },
      },
 
@@ -3570,6 +3573,9 @@ const resources = {
                "apartment": "الشقة",
                "additional_data": "العلامة المميزة",
                "Powered by": "مدعوم بواسطة",
+               "Order Screen Language": "لغة شاشة الطلب",
+               "Arabic": "العربية",
+               "English": "الإنجليزية",
           },
 
      },

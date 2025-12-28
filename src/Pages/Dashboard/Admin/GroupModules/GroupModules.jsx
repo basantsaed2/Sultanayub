@@ -92,6 +92,7 @@ const GroupModules = () => {
     const headers = [
         t("#"),
         t("Name"),
+        t("Icon"),
         t("Increase %"),
         t("Decrease %"),
         t("Modules"),
@@ -153,6 +154,13 @@ const GroupModules = () => {
                                             </td>
                                             <td className="px-6 py-5 text-center font-bold text-lg text-gray-800">
                                                 {group.name || "-"}
+                                            </td>
+                                            <td className="px-6 py-5 text-center text-mainColor font-semibold">
+                                                <img
+                                                    src={group.icon_link}
+                                                    alt={group.name}
+                                                    className="w-10 h-10 object-cover rounded-full"
+                                                />
                                             </td>
                                             <td className="px-6 py-5 text-center text-mainColor font-semibold">
                                                 {group.increase_precentage != null ? `${group.increase_precentage}%` : "-"}
