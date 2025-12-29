@@ -118,6 +118,7 @@ const CashierMan = () => {
     t("SL"),
     t("Name"),
     t("Cashier"), // Changed from "Name" to "Cashier"
+    t("Manager"),
     t("Branch"),
     t("Image"),
     t("Shift Number"),
@@ -197,6 +198,9 @@ const CashierMan = () => {
                           </button>
                         )}
                       </div>
+                    </td>
+                    <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                      {cashier?.manger === 1 ? "Cashier & Manager" : "Cashier"}
                     </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {cashier?.branch?.name || "-"}
