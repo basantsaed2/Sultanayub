@@ -329,7 +329,7 @@ const InvoiceOrderPage = () => {
 
       let formattedAddress = "";
       if (order.address) {
-        const excludedKeys = ["id", "map", "type", "city", "user_id", "created_at", "updated_at", "deleted_at", "latitude", "longitude", "zone", "contact_person_name", "contact_person_number"];
+        const excludedKeys = ["id", "map", "type", "city", "user_id", "created_at", "updated_at", "deleted_at", "latitude", "longitude", "contact_person_name", "contact_person_number"];
 
         if (order.address.address) {
           formattedAddress += `<div><span>${order.address.address}</span></div>`;
