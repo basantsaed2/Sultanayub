@@ -51,6 +51,7 @@ const EditCashierMan = () => {
   const [existingImage, setExistingImage] = useState(null);
   const [reportPermission, setReportPermission] = useState([]);
   const [selectedReportPermission, setSelectedReportPermission] = useState(null);
+  const [manager, setManager] = useState(0);
 
   // Role options for react-select
   const roleOptions = [
@@ -115,6 +116,7 @@ const EditCashierMan = () => {
       setDiscount(cashier.discount_perimission || 0);
       setOrderOnline(cashier.online_order || 0);
       setVoidOrder(cashier.void_order || 0);
+      setManager(cashier.manger || 0);
       setExistingImage(cashier.image_link || null);
 
       // Set branch
@@ -156,6 +158,7 @@ const EditCashierMan = () => {
   const handleDiscount = () => setDiscount((prev) => (prev === 0 ? 1 : 0));
   const handleOrderOnline = () => setOrderOnline((prev) => (prev === 0 ? 1 : 0));
   const handleVoidOrder = () => setVoidOrder((prev) => (prev === 0 ? 1 : 0));
+  const handleManager = () => setManager((prev) => (prev === 0 ? 1 : 0));
 
   const handleReportPermission = (selectedOption) => {
     setSelectedReportPermission(selectedOption);
@@ -176,6 +179,7 @@ const EditCashierMan = () => {
       setDiscount(cashier.discount_perimission || 0);
       setOrderOnline(cashier.online_order || 0);
       setVoidOrder(cashier.void_order || 0);
+      setManager(cashier.manger || 0);
       setImage(null);
       setExistingImage(cashier.image_link || null);
 
@@ -236,6 +240,7 @@ const EditCashierMan = () => {
     formData.append("online_order", orderOnline);
     formData.append("discount_perimission", discount);
     formData.append("void_order", voidOrder);
+    formData.append("manger", manager);
 
     // Append report permission if selected
     if (selectedReportPermission) {
@@ -445,6 +450,14 @@ const EditCashierMan = () => {
                     {t("Selected")}: {image.name}
                   </p>
                 )}
+              </div>
+
+              {/* Manager Switch */}
+              <div className="flex items-start justify-start gap-x-3 pt-8">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Manager")}:
+                </span>
+                <Switch handleClick={handleManager} checked={manager} />
               </div>
 
               {/* Status */}

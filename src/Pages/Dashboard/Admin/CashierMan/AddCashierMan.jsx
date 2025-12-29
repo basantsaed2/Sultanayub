@@ -45,6 +45,7 @@ const AddCashierMan = () => {
   const [image, setImage] = useState(null);
   const [reportPermission, setReportPermission] = useState([]);
   const [selectedReportPermission, setSelectedReportPermission] = useState(null);
+  const [manager, setManager] = useState(0);
 
   // Role options for react-select
   const roleOptions = [
@@ -105,6 +106,7 @@ const AddCashierMan = () => {
   const handleDiscount = () => setDiscount((prev) => (prev === 0 ? 1 : 0));
   const handleOrderOnline = () => setOrderOnline((prev) => (prev === 0 ? 1 : 0));
   const handleVoidOrder = () => setVoidOrder((prev) => (prev === 0 ? 1 : 0));
+  const handleManager = () => setManager((prev) => (prev === 0 ? 1 : 0));
 
   // Reset form
   const handleReset = () => {
@@ -123,6 +125,7 @@ const AddCashierMan = () => {
     setSelectedRoles([]);
     setImage(null);
     setSelectedReportPermission(null);
+    setManager(0);
   };
 
   const handleReportPermission = (selectedOption) => {
@@ -163,6 +166,7 @@ const AddCashierMan = () => {
     formData.append("online_order", orderOnline);
     formData.append("discount_perimission", discount);
     formData.append("void_order", voidOrder);
+    formData.append("manger", manager);
 
     // Append roles if any selected
     selectedRoles.forEach((role, index) => {
@@ -361,6 +365,14 @@ const AddCashierMan = () => {
                     {t("Selected")}: {image.name}
                   </p>
                 )}
+              </div>
+
+              {/* Manager Switch */}
+              <div className="flex items-start justify-start pt-8 gap-x-3">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Manager")}:
+                </span>
+                <Switch handleClick={handleManager} checked={manager} />
               </div>
 
               {/* Status */}
