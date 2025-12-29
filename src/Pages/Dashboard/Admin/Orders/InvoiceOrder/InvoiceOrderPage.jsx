@@ -330,18 +330,43 @@ const InvoiceOrderPage = () => {
       let formattedAddress = "";
       if (order.address) {
         const excludedKeys = ["id", "map", "type", "city", "user_id", "created_at", "updated_at", "deleted_at", "latitude", "longitude", "contact_person_name", "contact_person_number"];
+        const blockKeys = ["zone", "street", "landmark", "land_mark"];
 
+        let blockRows = [];
+        let inlineRows = [];
+
+        // 1. Add main address block at the very top
         if (order.address.address) {
-          formattedAddress += `<div><span>${order.address.address}</span></div>`;
+          blockRows.push(`<div><span style="font-weight:bold;">${order.address.address}</span></div>`);
         }
 
-        Object.entries(order.address).forEach(([key, value]) => {
-          if (key === "address") return;
-          if (excludedKeys.includes(key)) return;
-          if (value && typeof value !== 'object') {
-            formattedAddress += `<div><span style="font-weight:bold;">${t(key)}: </span><span>${value}</span></div>`;
+        // 2. Process specific block keys in fixed order
+        blockKeys.forEach(key => {
+          let value = order.address[key];
+          if (!value) return;
+
+          let displayValue = value;
+          if (key === "zone" && typeof value === 'object' && value !== null) {
+            displayValue = value.zone;
+          }
+
+          if (displayValue && typeof displayValue !== 'object') {
+            blockRows.push(`<div><span style="font-weight:bold;">${t(key)}: </span><span>${displayValue}</span></div>`);
           }
         });
+
+        // 3. Process remaining keys for inline row
+        Object.entries(order.address).forEach(([key, value]) => {
+          if (key === "address" || excludedKeys.includes(key) || blockKeys.includes(key)) return;
+          if (value && typeof value !== 'object') {
+            inlineRows.push(`<span><span style="font-weight:bold;">${t(key)}:</span> ${value}</span>`);
+          }
+        });
+
+        formattedAddress = blockRows.join("");
+        if (inlineRows.length > 0) {
+          formattedAddress += `<div style="font-size:12px; margin-top: 2px;">${inlineRows.join(" | ")}</div>`;
+        }
       }
 
       const receiptData = {
