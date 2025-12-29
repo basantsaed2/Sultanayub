@@ -46,6 +46,7 @@ const BusinessSettingsPage = () => {
   const [orderActive, setOrderAcive] = useState(0);
   const [androidActive, setAndroidActive] = useState(0);
   const [iosActive, setIOSAcive] = useState(0);
+  const [mapActive, setMapActive] = useState(0);
 
   const [logo, setLogo] = useState("");
   const [logoFile, setLogoFile] = useState(null);
@@ -203,6 +204,7 @@ const BusinessSettingsPage = () => {
       setOrderAcive(dataCompany?.company_info?.order_online || 0)
       setAndroidActive(dataCompany?.company_info?.android_switch || 0)
       setIOSAcive(dataCompany?.company_info?.ios_switch || 0)
+      setMapActive(dataCompany?.company_info?.show_map || 0)
       setPreparationNumber(dataCompany?.company_info?.preparation_num_status || 0)
 
       setStateTimeZone(dataCompany?.company_info?.time_zone || '');
@@ -338,6 +340,7 @@ const BusinessSettingsPage = () => {
     formData.append("order_online", orderActive || 0);
     formData.append("android_switch", androidActive || 0);
     formData.append("ios_switch", iosActive || 0);
+    formData.append("show_map", mapActive || 0);
     formData.append("preparation_num_status", preparationNumber || 0);
 
     formData.append("logo", logoFile);
@@ -463,6 +466,10 @@ const BusinessSettingsPage = () => {
   const handleClickIOSActive = (e) => {
     const isChecked = e.target.checked;
     setIOSAcive(isChecked ? 1 : 0);
+  };
+  const handleClickMapActive = (e) => {
+    const isChecked = e.target.checked;
+    setMapActive(isChecked ? 1 : 0);
   };
   const handleClickPreparationNumber = (e) => {
     const isChecked = e.target.checked;
@@ -639,6 +646,7 @@ const BusinessSettingsPage = () => {
     setStartDate("");
     setEndDate("");
     setWebsiteLink("");
+    setMapActive(0);
   };
 
   return (
@@ -858,6 +866,16 @@ const BusinessSettingsPage = () => {
               <Switch
                 checked={iosActive}
                 handleClick={handleClickIOSActive}
+              />
+            </div>
+          </div>
+
+          <div className="sm:w-full lg:w-[30%] flex items-center gap-2 mt-8 justify-center gap-y-1">
+            <span className="text-xl font-TextFontRegular text-thirdColor">{t("Show Map Status")} </span>
+            <div>
+              <Switch
+                checked={mapActive}
+                handleClick={handleClickMapActive}
               />
             </div>
           </div>
