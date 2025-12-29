@@ -6,6 +6,7 @@ import {
   SubmitButton,
   TextInput,
   UploadInput,
+  Switch,
 } from "../../../../../Components/Components";
 import { useTranslation } from "react-i18next";
 
@@ -39,6 +40,7 @@ const AppSetupPage = () => {
     first_color: "",
     second_color: "",
     third_color: "",
+    continues_status: 0,
   });
 
   // Refs for file inputs
@@ -72,6 +74,7 @@ const AppSetupPage = () => {
         first_color: dataMainData.main_data?.first_color || "",
         second_color: dataMainData.main_data?.second_color || "",
         third_color: dataMainData.main_data?.third_color || "",
+        continues_status: dataMainData.main_data?.continues_status || 0,
       });
     }
   }, [dataMainData]);
@@ -80,6 +83,14 @@ const AppSetupPage = () => {
   const handleTextChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Handle switch changes
+  const handleSwitchChange = () => {
+    setFormData((prev) => ({
+      ...prev,
+      continues_status: prev.continues_status === 1 ? 0 : 1,
+    }));
   };
 
   // Handle file input changes
@@ -102,7 +113,8 @@ const AppSetupPage = () => {
 
     const submitData = new FormData();
     Object.keys(formData).forEach((key) => {
-      if (formData[key]) {
+      // Check if value is not null or undefined
+      if (formData[key] !== null && formData[key] !== undefined) {
         submitData.append(key, formData[key]);
       }
     });
@@ -140,7 +152,7 @@ const AppSetupPage = () => {
                   name="ar_name"
                 />
               </div>
-               {/* Facebook */}
+              {/* Facebook */}
               <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                 <label>{t("Facebook Link")}</label>
                 <TextInput
@@ -150,7 +162,7 @@ const AppSetupPage = () => {
                   name="facebook"
                 />
               </div>
-               {/* Instagram */}
+              {/* Instagram */}
               <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                 <label>{t("Instagram Link")}</label>
                 <TextInput
@@ -265,6 +277,16 @@ const AppSetupPage = () => {
                   onChange={handleTextChange}
                   placeholder={t("Enter Third Color (e.g., #FFFFFF)")}
                   name="third_color"
+                />
+              </div>
+              {/* Continues Status */}
+              <div className="sm:w-full lg:w-[30%] flex items-center justify-start gap-x-2">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Scroll Spy")}
+                </span>
+                <Switch
+                  handleClick={handleSwitchChange}
+                  checked={formData.continues_status === 1}
                 />
               </div>
             </div>
