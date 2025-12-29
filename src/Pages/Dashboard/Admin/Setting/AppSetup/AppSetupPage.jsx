@@ -292,7 +292,7 @@ const AppSetupPage = () => {
             </div>
 
             {/* Buttons */}
-            <div className="flex items-center justify-end w-full gap-x-4">
+            <div className="flex items-center justify-end gap-x-4">
               <div>
                 <SubmitButton
                   text={t("Change")}
