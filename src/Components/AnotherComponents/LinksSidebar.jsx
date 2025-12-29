@@ -248,6 +248,7 @@ const adminRoutes = [
       // { name: "Receipt Language", path: "/dashboard/setting/receipt_language", permission: "receipt_language" },
       { name: "Policy & Support", path: "/dashboard/setting/policy_support", permission: "PolicySupport" },
       { name: "App Setup", path: "/dashboard/setting/app_setup", permission: "AppSetup" },
+      { name: "Fake Order", path: "/dashboard/setting/fake_order", permission: "FakeOrder" },
       { name: "Void Reason", path: "/dashboard/setting/void_reason", permission: "VoidReason" },
       { name: "Language System", path: "/dashboard/setting/language_system", permission: "Settings" },
     ],
@@ -293,6 +294,12 @@ const adminRoutes = [
     name: "Popup",
     path: "/dashboard/popup",
     permission: "Popup",
+    icon: BiSolidCoupon,
+  },
+  {
+    name: "Receipt Design",
+    path: "/dashboard/receipt_design",
+    permission: "receipt_design",
     icon: BiSolidCoupon,
   },
   {

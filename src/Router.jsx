@@ -217,6 +217,8 @@ import EditPurchaseProduct from "./Pages/Dashboard/Admin/ProductReceipes/Purchas
 import PurchaseRecipe from "./Pages/Dashboard/Admin/ProductReceipes/PurchaseProduct/PurchaseRecipes/PurchaseRecipe";
 import AddPurchaseRecipe from "./Pages/Dashboard/Admin/ProductReceipes/PurchaseProduct/PurchaseRecipes/AddPurchaseRecipe";
 import EditPurchaseRecipe from "./Pages/Dashboard/Admin/ProductReceipes/PurchaseProduct/PurchaseRecipes/EditPurchaseRecipe";
+import FakeOrderPage from "./Pages/Dashboard/Admin/Setting/FakeOrder/FakeOrderPage";
+import ReceiptDesignPage from "./Pages/Dashboard/Admin/Setting/ReceiptDesign/ReceiptDesignPage";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -860,6 +862,10 @@ export const router = createBrowserRouter([
                 element: <AppSetupLayout />,
               },
               {
+                path: "fake_order",
+                element: <FakeOrderPage />,
+              },
+              {
                 path: "void_reason",
                 children: [
                   {
@@ -1055,6 +1061,10 @@ export const router = createBrowserRouter([
                 element: <EditDealLayout />,
               },
             ],
+          },
+          {
+            path: "receipt_design",
+            element: <ReceiptDesignPage />,
           },
           {
             path: "offers",
