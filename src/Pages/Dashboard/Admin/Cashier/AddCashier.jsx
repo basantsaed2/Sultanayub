@@ -17,7 +17,7 @@ import Select from "react-select";
 
 const AddCashier = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const { refetch: refetchTranslation, loading: loadingTranslation, data: dataTranslation } = useGet({ 
+    const { refetch: refetchTranslation, loading: loadingTranslation, data: dataTranslation } = useGet({
         url: `${apiUrl}/admin/translation`,
     });
     const { refetch: refetchBranch, loading: loadingBranch, data: dataBranch } = useGet({
@@ -35,6 +35,7 @@ const AddCashier = () => {
     const [cashierNames, setCashierNames] = useState([]);
     const [active, setActive] = useState(0);
     const [selectedBranch, setSelectedBranch] = useState(null);
+    const [printType, setPrintType] = useState({ value: "usb", label: "USB" });
 
     // Fetch branches and translations on component mount
     useEffect(() => {
@@ -96,6 +97,7 @@ const AddCashier = () => {
         setCashierNames(resetNames);
         setSelectedBranch(null);
         setActive(0);
+        setPrintType({ value: "usb", label: "USB" });
     };
 
     // Handle form submission
@@ -117,6 +119,7 @@ const AddCashier = () => {
         const formData = new FormData();
         formData.append("branch_id", selectedBranch.value);
         formData.append("status", active);
+        formData.append("print_type", printType.value);
 
         // Add cashier names for each translation
         cashierNames.forEach((nameItem, index) => {
@@ -185,7 +188,7 @@ const AddCashier = () => {
                         {/* All Fields in Grid Layout */}
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mb-6">
 
-                             {/* Cashier Names in Different Languages */}
+                            {/* Cashier Names in Different Languages */}
                             {cashierNames.map((nameItem, index) => (
                                 <div key={index} className="w-full flex flex-col items-start justify-center gap-y-1">
                                     <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -198,7 +201,7 @@ const AddCashier = () => {
                                     />
                                 </div>
                             ))}
-                            
+
                             {/* Branch Selection */}
                             <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -215,6 +218,24 @@ const AddCashier = () => {
                                 />
                             </div>
 
+                            {/* Print Type Selection */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Print Type")}
+                                </span>
+                                <Select
+                                    options={[
+                                        { value: "usb", label: t("USB") },
+                                        { value: "network", label: t("Network") },
+                                    ]}
+                                    value={printType}
+                                    onChange={setPrintType}
+                                    placeholder={t("Select Print Type")}
+                                    styles={customStyles}
+                                    className="w-full"
+                                />
+                            </div>
+
                             {/* Active Status */}
                             <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor mb-2">
@@ -224,7 +245,7 @@ const AddCashier = () => {
                                     <Switch handleClick={handleActive} checked={active} />
                                 </div>
                             </div>
-                            
+
                         </div>
 
                         {/* Buttons */}

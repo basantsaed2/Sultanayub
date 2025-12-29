@@ -24,7 +24,7 @@ const EditCashier = () => {
     const { refetch: refetchBranch, loading: loadingBranch, data: dataBranch } = useGet({
         url: `${apiUrl}/admin/cashier`,
     });
-    const { refetch: refetchTranslation, loading: loadingTranslation, data: dataTranslation } = useGet({ 
+    const { refetch: refetchTranslation, loading: loadingTranslation, data: dataTranslation } = useGet({
         url: `${apiUrl}/admin/translation`,
     });
     const { postData, loadingPost, response } = usePost({
@@ -40,6 +40,7 @@ const EditCashier = () => {
     const [active, setActive] = useState(0);
     const [selectedBranch, setSelectedBranch] = useState(null);
     const [initialDataLoaded, setInitialDataLoaded] = useState(false);
+    const [printType, setPrintType] = useState({ value: "usb", label: "USB" });
 
     // Fetch data on component mount
     useEffect(() => {
@@ -69,11 +70,20 @@ const EditCashier = () => {
     // Set form fields when all data is available
     useEffect(() => {
         if (dataCashierItem && dataCashierItem.cashier && branches.length > 0 && translations.length > 0 && !initialDataLoaded) {
-            const cashier = dataCashierItem;            
+            const cashier = dataCashierItem;
             // Find the matching branch
             const selected = branches.find((branch) => branch.value === cashier?.cashier.branch_id);
             setSelectedBranch(selected || null);
             setActive(cashier?.cashier.status);
+
+            if (cashier?.cashier.print_type) {
+                setPrintType({
+                    value: cashier.cashier.print_type,
+                    label: cashier.cashier.print_type === 'usb' ? t("USB") : t("Network")
+                });
+            } else {
+                setPrintType({ value: "usb", label: t("USB") });
+            }
 
             // Initialize cashier names with translations and existing data
             const initialNames = translations.map(trans => {
@@ -85,11 +95,11 @@ const EditCashier = () => {
                     name: existingName?.cashier_name || ""
                 };
             });
-            
+
             setCashierNames(initialNames);
             setInitialDataLoaded(true);
         }
-    }, [dataCashierItem, branches, translations, initialDataLoaded]);
+    }, [dataCashierItem, branches, translations, initialDataLoaded, t]);
 
     // Navigate back after successful submission
     useEffect(() => {
@@ -117,6 +127,15 @@ const EditCashier = () => {
             const selected = branches.find((branch) => branch.value === cashier.branch_id);
             setSelectedBranch(selected || null);
             setActive(cashier.status);
+
+            if (cashier.print_type) {
+                setPrintType({
+                    value: cashier.print_type,
+                    label: cashier.print_type === 'usb' ? t("USB") : t("Network")
+                });
+            } else {
+                setPrintType({ value: "usb", label: t("USB") });
+            }
 
             // Reset cashier names to original data
             const resetNames = translations.map(trans => {
@@ -150,6 +169,7 @@ const EditCashier = () => {
         const formData = new FormData();
         formData.append("branch_id", selectedBranch.value);
         formData.append("status", active);
+        formData.append("print_type", printType.value);
         formData.append("id", cashierId);
 
         // Add cashier names for each translation
@@ -232,7 +252,7 @@ const EditCashier = () => {
                                     />
                                 </div>
                             ))}
-                            
+
                             {/* Branch Selection */}
                             <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -249,6 +269,24 @@ const EditCashier = () => {
                                 />
                             </div>
 
+                            {/* Print Type Selection */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Print Type")}
+                                </span>
+                                <Select
+                                    options={[
+                                        { value: "usb", label: t("USB") },
+                                        { value: "network", label: t("Network") },
+                                    ]}
+                                    value={printType}
+                                    onChange={setPrintType}
+                                    placeholder={t("Select Print Type")}
+                                    styles={customStyles}
+                                    className="w-full"
+                                />
+                            </div>
+
                             {/* Active Status */}
                             <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor mb-2">
@@ -258,7 +296,7 @@ const EditCashier = () => {
                                     <Switch handleClick={handleActive} checked={active} />
                                 </div>
                             </div>
-                            
+
                         </div>
 
                         {/* Buttons */}

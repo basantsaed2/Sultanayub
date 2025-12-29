@@ -39,6 +39,7 @@ const AddKitchenType = () => {
     const [status, setStatus] = useState(0);
     const [preparing_time, setPreparingTime] = useState("");
     const [branches, setBranches] = useState([]);
+    const [print_type, setPrintType] = useState({ value: "usb", label: "USB" });
 
     useEffect(() => {
         refetch();
@@ -73,24 +74,25 @@ const AddKitchenType = () => {
         setPrintName("");
         setStatus(0);
         setPreparingTime("");
+        setPrintType({ value: "usb", label: "USB" });
     };
 
     const formatTimeToHHMMSS = (time) => {
         if (!time) return '00:00:00';
-        
+
         // Remove any whitespace
         time = time.toString().trim();
-        
+
         // If it's already in HH:MM:SS format, return as is
         if (/^\d{2}:\d{2}:\d{2}$/.test(time)) {
             return time;
         }
-        
+
         // If it's in HH:MM format, add seconds
         if (/^\d{2}:\d{2}$/.test(time)) {
             return `${time}:00`;
         }
-        
+
         // If it's just numbers, try to format them
         if (/^\d+$/.test(time)) {
             // Pad with leading zeros to make it at least 6 digits
@@ -98,7 +100,7 @@ const AddKitchenType = () => {
             // Format as HH:MM:SS
             return `${paddedTime.slice(0, 2)}:${paddedTime.slice(2, 4)}:${paddedTime.slice(4, 6)}`;
         }
-        
+
         // If none of the above, return default time
         return '00:00:00';
     };
@@ -130,6 +132,7 @@ const AddKitchenType = () => {
         formData.append("status", status);
         formData.append("type", type);
         formData.append("preparing_time", formattedTime);
+        formData.append("print_type", print_type.value);
 
         // Only append print_ip and print_name if print_status is 1
         if (print_status === 1) {
@@ -213,6 +216,46 @@ const AddKitchenType = () => {
                                     />
                                 </div>
 
+                                {/* Preparing Time Input */}
+                                <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                                        {t("Preparing Time")}:
+                                    </span>
+                                    <TextInput
+                                        value={preparing_time}
+                                        onChange={(e) => setPreparingTime(e.target.value)}
+                                        name="preparing_time"
+                                        placeholder={t("Enter Preparing Time (HH:MM:SS)")}
+                                        background="white"
+                                    />
+                                </div>
+
+                                {/* Print Type Select */}
+                                <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                                        {t("Print Type")}:
+                                    </span>
+                                    <Select
+                                        value={print_type}
+                                        onChange={setPrintType}
+                                        options={[
+                                            { value: "usb", label: t("USB") },
+                                            { value: "network", label: t("Network") }
+                                        ]}
+                                        placeholder={t("Select Print Type")}
+                                        className="w-full"
+                                        styles={{
+                                            control: (base) => ({
+                                                ...base,
+                                                borderColor: '#d1d5db',
+                                                borderRadius: '0.375rem',
+                                                padding: '2px 4px',
+                                                backgroundColor: 'white'
+                                            })
+                                        }}
+                                    />
+                                </div>
+
                                 {/* Print Status Switch */}
                                 <div className="w-full flex items-start justify-start gap-x-1 pt-8">
                                     <div className="flex items-center justify-start w-2/4 gap-x-1">
@@ -258,20 +301,6 @@ const AddKitchenType = () => {
                                             </div>
                                         </>
                                     )}
-
-                                {/* Preparing Time Input */}
-                                <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                    <span className="text-xl font-TextFontRegular text-thirdColor">
-                                        {t("Preparing Time")}:
-                                    </span>
-                                    <TextInput
-                                        value={preparing_time}
-                                        onChange={(e) => setPreparingTime(e.target.value)}
-                                        name="preparing_time"
-                                        placeholder={t("Enter Preparing Time (HH:MM:SS)")}
-                                        background="white"
-                                    />
-                                </div>
 
                                 {/* Status Switch */}
                                 <div className="w-full flex items-start justify-start gap-x-1 pt-8">

@@ -214,6 +214,7 @@ const KitchenType = () => {
         t("Name"),
         t("Branch"),
         t("Preparing Time"),
+        t("Print Type"),
         t("Print Status"),
         t("Print Name"),
         t("Print IP"),
@@ -265,6 +266,7 @@ const KitchenType = () => {
                                             <td className="text-center py-2">
                                                 {formatTimeDisplay(type.preparing_time)}
                                             </td>
+                                            <td className="text-center py-2">{type.print_type || "-"}</td>
                                             <td className="text-center py-2">
                                                 <span
                                                     className={`px-3 py-1 rounded-full text-xs ${type.print_status === 1
