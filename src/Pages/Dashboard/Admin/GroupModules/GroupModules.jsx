@@ -118,7 +118,7 @@ const GroupModules = () => {
                             {t("Group Modules Table")}
                         </h1>
                         <Link to="add">
-                            <button className="px-8 py-3 bg-mainColor text-white rounded-xl font-bold hover:bg-mainColor-dark transition shadow-lg">
+                            <button className="px-8 py-3 mt-5 bg-mainColor text-white rounded-xl font-bold hover:bg-mainColor-dark transition shadow-lg">
                                 + {t("Add Group Module")}
                             </button>
                         </Link>
