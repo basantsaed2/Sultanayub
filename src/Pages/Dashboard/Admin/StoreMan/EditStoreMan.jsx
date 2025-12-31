@@ -69,7 +69,7 @@ const EditStoreMan = () => {
     };
 
     return (
-        <div className="p-4 w-full pb-20">
+        <div className="w-full p-4 pb-20">
             <div className="flex items-center gap-4 mb-4">
                 <button onClick={() => navigate(-1)} className="text-mainColor hover:text-red-600">
                     <IoArrowBack size={28} />
@@ -80,23 +80,23 @@ const EditStoreMan = () => {
             {(loadingItem || loadingList) ? (
                 <StaticLoader />
             ) : (
-                <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-2xl p-8">
+                <form onSubmit={handleSubmit} className="p-8 bg-white shadow-lg rounded-2xl">
                     {/* Same fields as Add, with pre-filled values */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                         <div>
-                            <label className="block text-xl font-medium text-thirdColor mb-2">{t("Name")} *</label>
+                            <label className="block mb-2 text-xl font-medium text-thirdColor">{t("Name")} *</label>
                             <TextInput value={userName} onChange={e => setUserName(e.target.value)} placeholder={t("Enter name")} required />
                         </div>
                         <div>
-                            <label className="block text-xl font-medium text-thirdColor mb-2">{t("Phone")} *</label>
+                            <label className="block mb-2 text-xl font-medium text-thirdColor">{t("Phone")} *</label>
                             <TextInput value={phone} onChange={e => setPhone(e.target.value)} placeholder={t("Enter phone or email")} required />
                         </div>
                         <div>
-                            <label className="block text-xl font-medium text-thirdColor mb-2">{t("Password")} *</label>
-                            <TextInput type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder={t("Enter password")} required />
+                            <label className="block mb-2 text-xl font-medium text-thirdColor">{t("Password")} *</label>
+                            <TextInput type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder={t("Enterpassword")} required />
                         </div>
                         <div>
-                            <label className="block text-xl font-medium text-thirdColor mb-2">{t("Store")} *</label>
+                            <label className="block mb-2 text-xl font-medium text-thirdColor">{t("Store")} *</label>
                             <Select
                                 value={selectedStore}
                                 onChange={setSelectedStore}
@@ -108,14 +108,14 @@ const EditStoreMan = () => {
                             />
                         </div>
                         <div>
-                            <label className="block text-xl font-medium text-thirdColor mb-2">{t("Image")}</label>
+                            <label className="block mb-2 text-xl font-medium text-thirdColor">{t("Image")}</label>
                             <input
                                 type="file"
                                 accept="image/*"
                                 onChange={e => setImage(e.target.files[0])}
                                 className="w-full p-3 border rounded-lg"
                             />
-                            {image && <p className="text-sm text-green-600 mt-2">{image.name}</p>}
+                            {image && <p className="mt-2 text-sm text-green-600">{image.name}</p>}
                         </div>
                         <div className="flex items-center gap-6 pt-6">
                             <span className="text-xl font-medium text-thirdColor">{t("Status")}:</span>

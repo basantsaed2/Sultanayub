@@ -14,9 +14,9 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { useTranslation } from "react-i18next";
 const DiscountModule = () => {
- const { t, i18n } = useTranslation();
-  const lang = i18n.language; 
-   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const { t, i18n } = useTranslation();
+  const language = i18n.language;
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const {
     refetch: refetchDiscountModule,
     loading: loadingDiscountModule,
@@ -260,13 +260,18 @@ const DiscountModule = () => {
               className={`relative z-10`}
             >
               <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
-              <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+              <div
+                className="fixed inset-0 z-10 w-screen overflow-y-auto"
+                
+              >
                 <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
-                  <DialogPanel className={`relative overflow-hidden transition-all flex flex-col transform bg-white rounded-lg shadow-xl  sm:my-8 sm:w-full sm:max-w-2xl
-                    `}>
-                    <div className={`px-4 pt-5 pb-4 bg-white sm:p-6 `}>
-                      <div className={`sm:flex sm:items-start  `}>
-                        <div className="w-full mt-3 text-center sm:mt-0 sm:text-left">
+                  <DialogPanel
+                    className={`relative overflow-hidden transition-all flex flex-col transform bg-white rounded-lg shadow-xl  sm:my-8 sm:w-full sm:max-w-2xl
+                    `}
+                  >
+                    <div className={`px-4 pt-5 pb-4 bg-white sm:p-6 `} >
+                      <div className={`sm:flex sm:items-start  `} >
+                        <div className="w-full mt-3 text-center sm:mt-0 " dir={language === "ar" ? "rtl" : "ltr"}>
                           <h3 className="text-lg font-medium leading-6 text-gray-900">
                             {t("Discount Module Details")}
                           </h3>

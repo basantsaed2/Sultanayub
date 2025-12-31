@@ -163,9 +163,9 @@ const AddKitchenType = () => {
                     <TitlePage text={t(isBirsta ? "AddNewBirsta" : "AddNewKitchen")} />
                     <form onSubmit={handleAdd}>
                         <div className="py-3">
-                            <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                            <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                                 {/* Name Input */}
-                                <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                     <span className="text-xl font-TextFontRegular text-thirdColor">
                                         {t(isBirsta ? "Birsta Name" : "Kitchen Name")}:
                                     </span>
@@ -179,7 +179,7 @@ const AddKitchenType = () => {
                                 </div>
 
                                 {/* Password Input */}
-                                <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                     <span className="text-xl font-TextFontRegular text-thirdColor">
                                         {t("Password")}:
                                     </span>
@@ -187,13 +187,13 @@ const AddKitchenType = () => {
                                         backgound="white"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        placeholder={t("Enter Password")}
+                                        placeholder={t("EnterPassword")}
                                         name="password"
                                     />
                                 </div>
 
                                 {/* Branch Select */}
-                                <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                     <span className="text-xl font-TextFontRegular text-thirdColor">
                                         {t("Branch")}:
                                     </span>
@@ -217,7 +217,7 @@ const AddKitchenType = () => {
                                 </div>
 
                                 {/* Preparing Time Input */}
-                                <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                     <span className="text-xl font-TextFontRegular text-thirdColor">
                                         {t("Preparing Time")}:
                                     </span>
@@ -231,7 +231,7 @@ const AddKitchenType = () => {
                                 </div>
 
                                 {/* Print Type Select */}
-                                <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                     <span className="text-xl font-TextFontRegular text-thirdColor">
                                         {t("Print Type")}:
                                     </span>
@@ -257,7 +257,7 @@ const AddKitchenType = () => {
                                 </div>
 
                                 {/* Print Status Switch */}
-                                <div className="w-full flex items-start justify-start gap-x-1 pt-8">
+                                <div className="flex items-start justify-start w-full pt-8 gap-x-1">
                                     <div className="flex items-center justify-start w-2/4 gap-x-1">
                                         <span className="text-xl font-TextFontRegular text-thirdColor">
                                             {t("Print Status")}:
@@ -273,7 +273,7 @@ const AddKitchenType = () => {
                                     print_status === 1 && (
                                         <>
                                             {/* Print Name Input */}
-                                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                            <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                                 <span className="text-xl font-TextFontRegular text-thirdColor">
                                                     {t("Print Name")}:
                                                 </span>
@@ -287,7 +287,7 @@ const AddKitchenType = () => {
                                             </div>
 
                                             {/* Print IP Input */}
-                                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                            <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                                 <span className="text-xl font-TextFontRegular text-thirdColor">
                                                     {t("Print MAC Address")}:
                                                 </span>
@@ -303,7 +303,7 @@ const AddKitchenType = () => {
                                     )}
 
                                 {/* Status Switch */}
-                                <div className="w-full flex items-start justify-start gap-x-1 pt-8">
+                                <div className="flex items-start justify-start w-full pt-8 gap-x-1">
                                     <div className="flex items-center justify-start w-2/4 gap-x-1">
                                         <span className="text-xl font-TextFontRegular text-thirdColor">
                                             {t("Status")}:
@@ -318,7 +318,7 @@ const AddKitchenType = () => {
                         </div>
 
                         {/* Buttons */}
-                        <div className="flex items-center justify-end w-full gap-x-4 mt-6">
+                        <div className="flex items-center justify-end w-full mt-6 gap-x-4">
                             <div>
                                 <StaticButton
                                     text={t("Reset")}

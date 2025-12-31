@@ -258,7 +258,7 @@ const EditExpenses = () => {
                         <div className="flex items-center gap-x-2">
                             <button
                                 onClick={handleBack}
-                                className="text-mainColor hover:text-red-700 transition-colors"
+                                className="transition-colors text-mainColor hover:text-red-700"
                                 title={t("Back")}
                             >
                                 <IoArrowBack size={24} />
@@ -267,9 +267,9 @@ const EditExpenses = () => {
                         </div>
                     </div>
                     <form className="p-2" onSubmit={handleUpdate}>
-                        <div className="w-full gap-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                        <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                             {/* Category Select */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                            <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
                                     {t("Category")}:
                                 </span>
@@ -290,7 +290,7 @@ const EditExpenses = () => {
                             {taps.map((tap, index) => (
                                 <div
                                     key={tap.id}
-                                    className="w-full flex flex-col items-start justify-center gap-y-1"
+                                    className="flex flex-col items-start justify-center w-full gap-y-1"
                                 >
                                     <span className="text-xl font-TextFontRegular text-thirdColor">
                                         {t("Expenses Name")} ({tap.name}):
@@ -304,7 +304,7 @@ const EditExpenses = () => {
                             ))}
 
                             {/* Status */}
-                            <div className="w-full flex items-start justify-start gap-x-1 pt-8">
+                            <div className="flex items-start justify-start w-full pt-8 gap-x-1">
                                 <div className="flex items-center justify-start gap-x-3">
                                     <span className="text-xl font-TextFontRegular text-thirdColor">
                                         {t("Active")}:
@@ -315,7 +315,7 @@ const EditExpenses = () => {
                         </div>
 
                         {/* Buttons */}
-                        <div className="flex items-center justify-end w-full gap-x-4 mt-6">
+                        <div className="flex items-center justify-end w-full mt-6 gap-x-4">
                             <div>
                                 <StaticButton
                                     text={t("Reset")}

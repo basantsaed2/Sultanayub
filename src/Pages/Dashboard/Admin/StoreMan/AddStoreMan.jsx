@@ -133,7 +133,7 @@ const AddStoreMan = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder={t("Enter password")}
+                placeholder={t("Enterpassword")}
                 required
               />
             </div>
