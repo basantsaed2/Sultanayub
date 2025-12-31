@@ -235,7 +235,7 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
         <div class="total-row"><span>${t("Tax")} %:</span><span>${Number(receiptData.tax).toFixed(2)}</span></div>
         ${receiptData.delivery > 0 ? `<div class="total-row"><span>${t("DeliveryFee")}</span><span>${Number(receiptData.delivery).toFixed(2)}</span></div>` : ''}
         ${receiptData.discount > 0 ? `<div class="total-row"><span>${t("Discount")}</span><span>-${Number(receiptData.discount).toFixed(2)}</span></div>` : ''}
-        ${receiptData.service_fees > 0 ? `<div class="total-row"><span>${t("ServiceFee")}</span><span>${Number(receiptData.service_fees).toFixed(2)}</span></div>` : ''}
+        ${receiptData.service_fees > 0 ? `<div class="total-row"><span>${t("ServiceFee")} ${receiptData.service_fees_item?.type === "precentage" ? `(${receiptData.service_fees_item.amount}%)` : ""}</span><span>${Number(receiptData.service_fees).toFixed(2)}</span></div>` : ''}
         <div class="total-row grand-total"><span>${t("GrandTotal")}</span><span>${Number(receiptData.total).toFixed(2)}</span></div>
       </div>
 
@@ -392,6 +392,7 @@ const InvoiceOrderPage = () => {
         total,
         discount,
         service_fees: order.service_fees,
+        service_fees_item: order.service_fees_item,
       };
 
       setInvoiceHtml(formatCashierReceipt(receiptData, t, isRtl));
