@@ -1905,13 +1905,23 @@ const resources = {
                 "Enter Kitchen Name":'Enter Kitchen Name',
                 "AddProductsTo":'Add Products To',
                 "SelectCategories":'Select Categories',
+                "Receipt Design":"Receipt Design",
+                "Receipt Design Settings":"Receipt Design Settings",
+                "Services":"Services",
+                "Footer":"Footer",
+                "No location available for this captain order":"No location available for this captain order"
           },
      },
 
      ar: {
           translation: {
                projectName: import.meta.env.VITE_PROJECT_AR_NAME || "Food2go",
+               "No location available for this captain order":"لا يوجد موقع متاح لهذه الطلبية",
                "EnterPassword":"ادخل كلمة المرور",
+               "Services":"خدمات",
+               "Footer":"خاتمه الفاتورة",
+               "Receipt Design Settings":"اعدادات تصميم الفاتورة",
+               "Receipt Design":"تصميم الفاتورة",
                "SelectCategories":"اختر التصنيفات",
                "AddProductsTo":"اضافة منتجات إلى",
                "Kitchen Name":"اسم المطبخ",

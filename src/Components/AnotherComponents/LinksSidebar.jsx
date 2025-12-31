@@ -39,6 +39,18 @@ import { GiManualMeatGrinder } from "react-icons/gi";
 import { RiHome2Line } from "react-icons/ri";
 import { IoBagAddOutline } from "react-icons/io5";
 import { TbCategory } from "react-icons/tb";
+import { MdDeliveryDining } from "react-icons/md";
+import { MdNoFood } from "react-icons/md";
+import { GiCaptainHatProfile } from "react-icons/gi";
+import { GiUpgrade } from "react-icons/gi";
+import { MdDynamicFeed } from "react-icons/md";
+import { GiTeamIdea } from "react-icons/gi";
+import { PiSlideshowFill } from "react-icons/pi";
+import { IoReceiptSharp } from "react-icons/io5";
+import { TbBasketDiscount } from "react-icons/tb";
+import { BiSolidPurchaseTagAlt } from "react-icons/bi";
+import { RiExchange2Fill } from "react-icons/ri";
+import { FaReceipt } from "react-icons/fa6";
 
 // Admin routes configuration
 const adminRoutes = [
@@ -108,13 +120,13 @@ const adminRoutes = [
     name: "Delivery Orders",
     path: "/dashboard/all_orders_delivery",
     permission: "Order",
-    icon: IoBagAddOutline,
+    icon: MdDeliveryDining,
   },
   {
     name: "Void Orders",
     path: "/dashboard/void_orders",
     permission: "VoidOrders",
-    icon: IoBagAddOutline,
+    icon: MdNoFood,
   },
   {
     name: "Category Setup",
@@ -166,7 +178,7 @@ const adminRoutes = [
     name: "Delivery Man",
     path: "/dashboard/delivery_man",
     permission: "Delivery",
-    icon: MdOutlineDeliveryDining,
+    icon: GiCaptainHatProfile,
   },
   // {
   //   name: "Preparation Man",
@@ -264,19 +276,19 @@ const adminRoutes = [
     name: "Upselling",
     path: "/dashboard/upselling",
     permission: "Upselling",
-    icon: TbBorderAll,
+    icon: GiUpgrade,
   },
   {
     name: "Service Fees",
     path: "/dashboard/service_fees",
     permission: "service_fees",
-    icon: TbBorderAll,
+    icon: MdDynamicFeed,
   },
   {
     name: "Deals",
     path: "/dashboard/deals",
     permission: "Deal",
-    icon: TbBorderAll,
+    icon: GiTeamIdea,
   },
   {
     name: "Offers",
@@ -294,13 +306,13 @@ const adminRoutes = [
     name: "Popup",
     path: "/dashboard/popup",
     permission: "Popup",
-    icon: BiSolidCoupon,
+    icon: PiSlideshowFill,
   },
   {
     name: "Receipt Design",
     path: "/dashboard/receipt_design",
     permission: "receipt_design",
-    icon: BiSolidCoupon,
+    icon: IoReceiptSharp,
   },
   {
     name: "Languages",
@@ -330,7 +342,7 @@ const adminRoutes = [
     name: "Discount Module",
     path: "/dashboard/discount_module",
     permission: "Discount Module",
-    icon: BiSolidDiscount,
+    icon: TbBasketDiscount,
   },
   {
     name: "Group Modules",
@@ -377,7 +389,7 @@ const adminRoutes = [
     name: "Purchase",
     path: "/dashboard/purchase",
     permission: "purchase",
-    icon: FaShoppingBasket,
+    icon: BiSolidPurchaseTagAlt,
     subRoutes: [
       { name: "List", path: "/dashboard/purchase/purchase_list", permission: "purchase", },
       { name: "Consumption", path: "/dashboard/purchase/purchase_consumption", permission: "purchase", },
@@ -389,13 +401,13 @@ const adminRoutes = [
     name: "Stock Transfer",
     path: "/dashboard/stock_transfer",
     permission: "stock_transfer",
-    icon: FaShoppingBasket,
+    icon: RiExchange2Fill,
   },
   {
     name: "Recipe",
     path: "/dashboard/recipe_products",
     permission: "recipe",
-    icon: FaShoppingBasket,
+    icon: FaReceipt,
     subRoutes: [
       { name: "Category", path: "/dashboard/recipe_products/category", permission: "recipe", },
       { name: "Products", path: "/dashboard/recipe_products/product", permission: "recipe", },
@@ -834,7 +846,7 @@ const LinksSidebar = () => {
   };
 
   return (
-    <div className="flex flex-col mb-5 items-center justify-start w-full LinksSidebar gap-y-3">
+    <div className="flex flex-col items-center justify-start w-full mb-5 LinksSidebar gap-y-3">
       {renderAllRoutes()}
     </div>
   );
