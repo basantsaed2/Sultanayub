@@ -101,14 +101,13 @@ const KitchenType = () => {
             const catIds = selectedCategories.map((c) => c.id);
             const filtered = products.filter(
                 (product) =>
-                    catIds.includes(product.category_id) ||
-                    selectedProducts.some((p) => p.id === product.id)
+                    catIds.some((id) => id == product.category_id)
             );
             setFilteredProducts(filtered);
         } else {
             setFilteredProducts(products);
         }
-    }, [selectedCategories, selectedProducts, products]);
+    }, [selectedCategories, products]);
 
     // Close modal and refetch after save
     useEffect(() => {
@@ -150,33 +149,26 @@ const KitchenType = () => {
 
     // FIXED: Match by ID and use exact objects from master lists
     const handleOpenProductModal = (kitchenId) => {
-        const kitchen = branchType.find((k) => k.id === kitchenId);
+        const kitchen = branchType.find((k) => k.id == kitchenId);
         if (!kitchen) return;
 
         setOpenProductModal(kitchenId);
 
         // Match assigned categories with the ones from /lists endpoint
         const assignedCategories = (kitchen.category || [])
-            .map((cat) => categories.find((c) => c.id === cat.id))
+            .map((cat) => categories.find((c) => c.id == cat.id))
             .filter(Boolean);
 
         setSelectedCategories(assignedCategories);
 
-        // Match assigned products
+        // Match assigned products ONLY (don't auto-add all products from categories)
         const assignedProducts = (kitchen.products || [])
-            .map((prod) => products.find((p) => p.id === prod.id))
+            .map((prod) => products.find((p) => p.id == prod.id))
             .filter(Boolean);
 
-        // Auto-add all products from selected categories (not already assigned)
-        const catIds = assignedCategories.map((c) => c.id);
-        const extraProducts = products.filter(
-            (p) =>
-                catIds.includes(p.category_id) &&
-                !assignedProducts.some((ap) => ap.id === p.id)
-        );
+        setSelectedProducts(assignedProducts);
 
-        setSelectedProducts([...assignedProducts, ...extraProducts]);
-        setFilteredProducts(products);
+        // The filtered products will be set by the useEffect based on selectedCategories
     };
 
     const handleCloseProductModal = () => {
@@ -418,22 +410,36 @@ const KitchenType = () => {
                                     <MultiSelect
                                         value={selectedCategories}
                                         onChange={(e) => {
-                                            const newCats = e.value;
+                                            const newCats = e.value || [];
                                             const oldCatIds = selectedCategories.map((c) => c.id);
+                                            const newCatIds = newCats.map((c) => c.id);
+
+                                            // Determine which categories were added and which were removed
                                             const addedCats = newCats.filter(
                                                 (c) => !oldCatIds.includes(c.id)
                                             );
+                                            const removedCatIds = oldCatIds.filter(
+                                                (id) => !newCatIds.includes(id)
+                                            );
 
-                                            const newProducts = addedCats.flatMap((cat) =>
-                                                products.filter((p) => p.category_id === cat.id)
+                                            // Products to add from new categories
+                                            const productsToAdd = addedCats.flatMap((cat) =>
+                                                products.filter((p) => p.category_id == cat.id)
                                             );
 
                                             setSelectedProducts((prev) => {
-                                                const existingIds = prev.map((p) => p.id);
-                                                const uniqueNew = newProducts.filter(
-                                                    (p) => !existingIds.includes(p.id)
+                                                // 1. Remove products belonging to categories that were just unselected
+                                                let updatedProducts = prev.filter(
+                                                    (p) => !removedCatIds.some(id => id == p.category_id)
                                                 );
-                                                return [...prev, ...uniqueNew];
+
+                                                // 2. Add products from newly selected categories (avoid duplicates)
+                                                const existingIds = updatedProducts.map((p) => p.id);
+                                                const uniqueNew = productsToAdd.filter(
+                                                    (p) => !existingIds.some(id => id == p.id)
+                                                );
+
+                                                return [...updatedProducts, ...uniqueNew];
                                             });
 
                                             setSelectedCategories(newCats);
