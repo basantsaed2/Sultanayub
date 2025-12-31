@@ -36,6 +36,9 @@ const AddCashier = () => {
     const [active, setActive] = useState(0);
     const [selectedBranch, setSelectedBranch] = useState(null);
     const [printType, setPrintType] = useState({ value: "usb", label: "USB" });
+    const [printName, setPrintName] = useState("");
+    const [printPort, setPrintPort] = useState("");
+    const [printIp, setPrintIp] = useState("");
 
     // Fetch branches and translations on component mount
     useEffect(() => {
@@ -98,6 +101,9 @@ const AddCashier = () => {
         setSelectedBranch(null);
         setActive(0);
         setPrintType({ value: "usb", label: "USB" });
+        setPrintName("");
+        setPrintPort("");
+        setPrintIp("");
     };
 
     // Handle form submission
@@ -120,6 +126,9 @@ const AddCashier = () => {
         formData.append("branch_id", selectedBranch.value);
         formData.append("status", active);
         formData.append("print_type", printType.value);
+        formData.append("print_name", printName);
+        formData.append("print_port", printPort);
+        formData.append("print_ip", printIp);
 
         // Add cashier names for each translation
         cashierNames.forEach((nameItem, index) => {
@@ -233,6 +242,42 @@ const AddCashier = () => {
                                     placeholder={t("Select Print Type")}
                                     styles={customStyles}
                                     className="w-full"
+                                />
+                            </div>
+
+                            {/* Print Name */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Print Name")}
+                                </span>
+                                <TextInput
+                                    value={printName}
+                                    onChange={(e) => setPrintName(e.target.value)}
+                                    placeholder={t("Enter print name")}
+                                />
+                            </div>
+
+                            {/* Print Port */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Print Port")}
+                                </span>
+                                <TextInput
+                                    value={printPort}
+                                    onChange={(e) => setPrintPort(e.target.value)}
+                                    placeholder={t("Enter print port")}
+                                />
+                            </div>
+
+                            {/* Print IP */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Print IP")}
+                                </span>
+                                <TextInput
+                                    value={printIp}
+                                    onChange={(e) => setPrintIp(e.target.value)}
+                                    placeholder={t("Enter print IP")}
                                 />
                             </div>
 
