@@ -35,6 +35,7 @@ const AddKitchenType = () => {
     const [branch_id, setBranchId] = useState(branchId || "");
     const [print_status, setPrintStatus] = useState(0);
     const [print_ip, setPrintIp] = useState("");
+    const [print_port, setPrintPort] = useState("");
     const [print_name, setPrintName] = useState("");
     const [status, setStatus] = useState(0);
     const [preparing_time, setPreparingTime] = useState("");
@@ -71,6 +72,7 @@ const AddKitchenType = () => {
         setBranchId(branchId || "");
         setPrintStatus(0);
         setPrintIp("");
+        setPrintPort("");
         setPrintName("");
         setStatus(0);
         setPreparingTime("");
@@ -137,6 +139,7 @@ const AddKitchenType = () => {
         // Only append print_ip and print_name if print_status is 1
         if (print_status === 1) {
             formData.append("print_ip", print_ip);
+            formData.append("print_port", print_port);
             formData.append("print_name", print_name);
         }
 
@@ -189,30 +192,6 @@ const AddKitchenType = () => {
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder={t("EnterPassword")}
                                         name="password"
-                                    />
-                                </div>
-
-                                {/* Branch Select */}
-                                <div className="flex flex-col items-start justify-center w-full gap-y-1">
-                                    <span className="text-xl font-TextFontRegular text-thirdColor">
-                                        {t("Branch")}:
-                                    </span>
-                                    <Select
-                                        value={selectedBranch}
-                                        onChange={(selectedOption) => setBranchId(selectedOption?.value || "")}
-                                        options={branchOptions}
-                                        placeholder={t("Select Branch")}
-                                        isClearable
-                                        className="w-full"
-                                        styles={{
-                                            control: (base) => ({
-                                                ...base,
-                                                borderColor: '#d1d5db',
-                                                borderRadius: '0.375rem',
-                                                padding: '2px 4px',
-                                                backgroundColor: 'white'
-                                            })
-                                        }}
                                     />
                                 </div>
 
@@ -286,16 +265,30 @@ const AddKitchenType = () => {
                                                 />
                                             </div>
 
+                                            {/* Print Port Input */}
+                                            <div className="flex flex-col items-start justify-center w-full gap-y-1">
+                                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                                    {t("Print Port")}:
+                                                </span>
+                                                <TextInput
+                                                    value={print_port}
+                                                    onChange={(e) => setPrintPort(e.target.value)}
+                                                    name="print_port"
+                                                    placeholder={t("Enter Print Port")}
+                                                    background="white"
+                                                />
+                                            </div>
+
                                             {/* Print IP Input */}
                                             <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                                                    {t("Print MAC Address")}:
+                                                    {t("Print IP")}:
                                                 </span>
                                                 <TextInput
                                                     value={print_ip}
                                                     onChange={(e) => setPrintIp(e.target.value)}
                                                     name="print_ip"
-                                                    placeholder={t("Enter Print MAC Address")}
+                                                    placeholder={t("Enter Print IP")}
                                                     background="white"
                                                 />
                                             </div>
