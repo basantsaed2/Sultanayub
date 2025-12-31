@@ -41,6 +41,9 @@ const EditCashier = () => {
     const [selectedBranch, setSelectedBranch] = useState(null);
     const [initialDataLoaded, setInitialDataLoaded] = useState(false);
     const [printType, setPrintType] = useState({ value: "usb", label: "USB" });
+    const [printName, setPrintName] = useState("");
+    const [printPort, setPrintPort] = useState("");
+    const [printIp, setPrintIp] = useState("");
 
     // Fetch data on component mount
     useEffect(() => {
@@ -84,6 +87,10 @@ const EditCashier = () => {
             } else {
                 setPrintType({ value: "usb", label: t("USB") });
             }
+
+            setPrintName(cashier.cashier.print_name || "");
+            setPrintPort(cashier.cashier.print_port || "");
+            setPrintIp(cashier.cashier.print_ip || "");
 
             // Initialize cashier names with translations and existing data
             const initialNames = translations.map(trans => {
@@ -137,6 +144,10 @@ const EditCashier = () => {
                 setPrintType({ value: "usb", label: t("USB") });
             }
 
+            setPrintName(cashier.print_name || "");
+            setPrintPort(cashier.print_port || "");
+            setPrintIp(cashier.print_ip || "");
+
             // Reset cashier names to original data
             const resetNames = translations.map(trans => {
                 const existingName = cashier.cashier_names?.find(name => name.tranlation_id === trans.id);
@@ -170,6 +181,9 @@ const EditCashier = () => {
         formData.append("branch_id", selectedBranch.value);
         formData.append("status", active);
         formData.append("print_type", printType.value);
+        formData.append("print_name", printName);
+        formData.append("print_port", printPort);
+        formData.append("print_ip", printIp);
         formData.append("id", cashierId);
 
         // Add cashier names for each translation
@@ -284,6 +298,42 @@ const EditCashier = () => {
                                     placeholder={t("Select Print Type")}
                                     styles={customStyles}
                                     className="w-full"
+                                />
+                            </div>
+
+                            {/* Print Name */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Print Name")}
+                                </span>
+                                <TextInput
+                                    value={printName}
+                                    onChange={(e) => setPrintName(e.target.value)}
+                                    placeholder={t("Enter print name")}
+                                />
+                            </div>
+
+                            {/* Print Port */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Print Port")}
+                                </span>
+                                <TextInput
+                                    value={printPort}
+                                    onChange={(e) => setPrintPort(e.target.value)}
+                                    placeholder={t("Enter print port")}
+                                />
+                            </div>
+
+                            {/* Print IP */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Print IP")}
+                                </span>
+                                <TextInput
+                                    value={printIp}
+                                    onChange={(e) => setPrintIp(e.target.value)}
+                                    placeholder={t("Enter print IP")}
                                 />
                             </div>
 
