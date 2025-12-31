@@ -326,7 +326,7 @@ const App = () => {
     };
   }, []);
 
-  const playNotificationSound = (soundUrl) => {
+  const playNotificationSound = (soundUrl, uniqueId = null) => {
     const audio = new Audio(soundUrl);
     audio.volume = 1.0;
 
@@ -335,9 +335,11 @@ const App = () => {
     // If app is in background, show system notification
     if (document.hidden && Notification.permission === 'granted') {
       try {
+        const tag = uniqueId;
         new Notification(t("New Order Received"), {
           body: t("Check your dashboard for details"),
-          // silent: false // Let system decide sound or use our manual audio
+          tag: tag,
+          renotify: true
         });
       } catch (e) {
         console.error("Notification error:", e);
@@ -397,23 +399,24 @@ const App = () => {
       dispatch(setNewOrders({ count: orderCounts, id: orderId }));
 
       if (soundNotification && soundNotification.data) {
-        playNotificationSound(soundNotification.data);
+        const uniqueTag = orderId
+        playNotificationSound(soundNotification.data, uniqueTag);
       }
-      prevCountRef.current = orderCounts; // Update the ref
+      prevCountRef.current = orderCounts;
     }
   }, [orderCounts, soundNotification, dispatch]);
 
   // Handle visibility changes
   useEffect(() => {
     const handleVisibilityChange = () => {
-      // Only play on visibility change if we haven't already handled this count
       if (
         document.visibilityState === 'visible' &&
         newOrders?.count > 0 &&
         newOrders.count !== prevCountRef.current
       ) {
         if (soundNotification && soundNotification.data) {
-          playNotificationSound(soundNotification.data);
+          const uniqueTag = orderId
+          playNotificationSound(soundNotification.data, uniqueTag);
           prevCountRef.current = newOrders.count;
         }
       }

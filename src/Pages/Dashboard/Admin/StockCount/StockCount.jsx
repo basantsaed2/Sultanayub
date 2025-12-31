@@ -81,7 +81,7 @@ const StockCount = () => {
                 <TitlePage text={t("Stock Count")} />
             </div>
 
-            <div className="p-6">
+            <div className="p-2 md:p-6">
                 {/* Type & Store Selection */}
                 <div className="w-full bg-white rounded-xl shadow-lg p-8 mb-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
@@ -150,18 +150,51 @@ const StockCount = () => {
                         </div>
                     )}
 
+
+
                     {/* Stock Table */}
                     {selectedStore && !loadingStock && items.length > 0 && (
                         <div className="overflow-x-auto">
                             <table className="w-full border-collapse">
                                 <thead>
+                                    {/* Top Row: Totals positioned exactly above specific columns */}
+                                    <tr className="border-none">
+                                        {/* Empty cells for columns before Cost(T)A */}
+                                        <th className="border-none p-0" colSpan="7"></th>
+
+                                        {/* Total Cost (Avg) Box */}
+                                        <th className="px-6 pb-2 text-left border-none p-0">
+                                            <div className="bg-green-900 border border-green-200 rounded-lg py-2 px-3 inline-block min-w-full text-center">
+                                                <div className="text-xl font-bold text-white">
+                                                    {parseFloat(stockData?.total_cost || 0).toFixed(2)}
+                                                </div>
+                                            </div>
+                                        </th>
+
+                                        {/* Total Cost (Last) Box */}
+                                        <th className="px-6 pb-2 text-left border-none p-0">
+                                            <div className="bg-blue-900 border border-blue-200 rounded-lg py-2 px-3 inline-block min-w-full text-center">
+                                                <div className="text-xl font-bold text-white">
+                                                    {parseFloat(stockData?.total_last_cost || 0).toFixed(2)}
+                                                </div>
+                                            </div>
+                                        </th>
+
+                                        {/* Empty cell for Status */}
+                                        <th className="border-none p-0"></th>
+                                    </tr>
+
+                                    {/* Bottom Row: Standard Column Headers */}
                                     <tr className="bg-gray-50 border-b-2 border-gray-200">
                                         <th className="text-left px-6 py-4 text-lg font-medium text-thirdColor">#</th>
                                         <th className="text-left px-6 py-4 text-lg font-medium text-thirdColor">{t("Name")}</th>
                                         <th className="text-left px-6 py-4 text-lg font-medium text-thirdColor">{t("Category")}</th>
                                         <th className="text-left px-6 py-4 text-lg font-medium text-thirdColor">{t("Current Stock")}</th>
                                         <th className="text-left px-6 py-4 text-lg font-medium text-thirdColor">{t("Min Stock")}</th>
-                                        <th className="text-left px-6 py-4 text-lg font-medium text-thirdColor">{t("Cost")}</th>
+                                        <th className="text-left px-6 py-4 text-lg font-medium text-thirdColor">{t("Cost(U)A")}</th>
+                                        <th className="text-left px-6 py-4 text-lg font-medium text-thirdColor">{t("Cost(U)L")}</th>
+                                        <th className="text-left px-6 py-4 text-lg font-medium text-thirdColor">{t("Cost(T)A")}</th>
+                                        <th className="text-left px-6 py-4 text-lg font-medium text-thirdColor">{t("Cost(T)L")}</th>
                                         <th className="text-left px-6 py-4 text-lg font-medium text-thirdColor">{t("Status")}</th>
                                     </tr>
                                 </thead>
@@ -186,6 +219,15 @@ const StockCount = () => {
                                                 <td className="text-left px-6 py-4 text-lg">{item.min_stock || 0}</td>
                                                 <td className="text-left px-6 py-4 text-lg">
                                                     {parseFloat(item.cost || 0).toFixed(2)}EGP
+                                                </td>
+                                                <td className="text-left px-6 py-4 text-lg">
+                                                    {parseFloat(item.last_cost || 0).toFixed(2)}EGP
+                                                </td>
+                                                <td className="text-left px-6 py-4 text-lg">
+                                                    {parseFloat(item.total_cost || 0).toFixed(2)}EGP
+                                                </td>
+                                                <td className="text-left px-6 py-4 text-lg">
+                                                    {parseFloat(item.total_last_cost || 0).toFixed(2)}EGP
                                                 </td>
                                                 <td className="text-left px-6 py-4">
                                                     {isLowStock ? (
