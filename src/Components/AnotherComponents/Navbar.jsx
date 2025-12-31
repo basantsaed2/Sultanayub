@@ -260,7 +260,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="flex items-center justify-between px-4 py-1 shadow-md gap-x-4">
+      <nav className="flex items-center justify-between px-4 py-0 md:py-1 shadow-md gap-x-4">
         <div className="flex items-center justify-start sm:w-10/12 lg:w-6/12 xl:w-3/12 sm:gap-x-2">
           <div className="relative z-10 w-14">
             {(imagePreview || auth?.userState?.image) ? (
@@ -309,7 +309,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        <div className="flex gap-5">
+        <div className="flex gap-4 md:gap-12">
           <div className="flex items-center justify-center w-2/12 gap-x-3">
             {/* Cancellation Status Dropdown */}
             <div className="relative" ref={cancelationDropdownRef}>
@@ -417,7 +417,7 @@ const Navbar = () => {
               )}
             </div>
           </div>
-          <StaticButton Size="text-1xl" px="px-3" type="button" text={t("Logout")} handleClick={handleLogout} />
+          <StaticButton Size="text-1xl" px="px-2" type="button" text={t("Logout")} handleClick={handleLogout} />
         </div>
       </nav>
 
