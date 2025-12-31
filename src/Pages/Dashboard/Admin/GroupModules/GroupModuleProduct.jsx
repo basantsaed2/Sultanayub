@@ -253,7 +253,7 @@ const GroupModuleProducts = () => {
                     <td className="px-6 py-4 text-center">
                       <Switch
                         checked={!!product.status}
-                        onChange={() => handleChangeStatus(product.product_id, product.status)}
+                        handleClick={() => handleChangeStatus(product.product_id, product.status)}
                         disabled={loadingActions[`status_${product.product_id}`]}
                       />
                     </td>
