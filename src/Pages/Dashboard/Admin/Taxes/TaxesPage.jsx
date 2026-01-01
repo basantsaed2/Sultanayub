@@ -1,264 +1,286 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useGet } from "../../../../Hooks/useGet";
 import { useDelete } from "../../../../Hooks/useDelete";
 import { StaticLoader } from "../../../../Components/Components";
 import { Link } from "react-router-dom";
 import { DeleteIcon, EditIcon } from "../../../../Assets/Icons/AllIcons";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
-import Warning from "../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { useTranslation } from "react-i18next";
+import axios from "axios";
+import { useAuth } from "../../../../Context/Auth";
 
 const TaxesPage = ({ refetch, setUpdate }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
-  const {
-    refetch: refetchTaxes,
-    loading: loadingTaxes,
-    data: dataTaxes,
-  } = useGet({
+  const auth = useAuth();
+  const { t } = useTranslation();
+
+  // 1. Data Fetching
+  const { refetch: refetchTaxes, loading: loadingTaxes, data: dataTaxes } = useGet({
     url: `${apiUrl}/admin/settings/tax`,
   });
-  // const { changeState, loadingChange, responseChange } = useChangeState();
-  const { deleteData, loadingDelete, responseDelete } = useDelete();
 
+  const { data: allListsData } = useGet({
+    url: `${apiUrl}/admin/tax_product/lists`,
+  });
+
+  // 2. Local State
   const [taxes, setTaxes] = useState([]);
-  const [openDelete, setOpenDelete] = useState(null);
-  const { t, i18n } = useTranslation();
+  const [targetTaxId, setTargetTaxId] = useState(null);
+  const [selectedProductIds, setSelectedProductIds] = useState([]);
+  const [loadingAction, setLoadingAction] = useState(false);
+  const [loadingAssigned, setLoadingAssigned] = useState(false);
 
-  const [currentPage, setCurrentPage] = useState(1); // Track the current page
-  const taxesPerPage = 20; // Limit to 20 taxes per page
+  const [viewModal, setViewModal] = useState(false);
+  const [assignedProducts, setAssignedProducts] = useState([]);
+  const [addModal, setAddModal] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [filterCategory, setFilterCategory] = useState("all");
 
-  // Calculate total number of pages
+  const [currentPage, setCurrentPage] = useState(1);
+  const taxesPerPage = 10;
+
+  // 3. API Handlers
+
+  // FIX: Separate the opening logic from the fetching logic
+  const handleViewProducts = (taxId) => {
+    setTargetTaxId(taxId);
+    setAssignedProducts([]); // Clear old data immediately to prevent lag/confusion
+    setViewModal(true);       // Open modal instantly
+    fetchAssignedProducts(taxId);
+  };
+
+  const handleAddProducts = (taxId) => {
+    setTargetTaxId(taxId);
+    setAssignedProducts([]); // Clear old data
+    setSelectedProductIds([]); // Clear selection
+    setAddModal(true);        // Open modal instantly
+    fetchAssignedProducts(taxId);
+  };
+
+  const fetchAssignedProducts = useCallback(async (taxId) => {
+    if (!taxId) return;
+    setLoadingAssigned(true);
+    try {
+      const response = await axios.get(`${apiUrl}/admin/tax_product/view_products/${taxId}`, {
+        headers: { 'Authorization': `Bearer ${auth?.userState?.token}` }
+      });
+      const products = response.data.products || [];
+      setAssignedProducts(products);
+      setSelectedProductIds(products.map(p => p.id));
+    } catch (error) {
+      console.error("Error fetching assigned products", error);
+    } finally {
+      setLoadingAssigned(false);
+    }
+  }, [apiUrl, auth?.userState?.token]);
+
+  const { deleteData, loadingDelete } = useDelete();
+
+  const handleDelete = async () => {
+    const success = await deleteData(`${apiUrl}/admin/settings/tax/delete/${targetTaxId}`);
+    if (success) {
+      setDeleteModal(false);
+      refetchTaxes();
+    }
+  };
+
+  const handleSubmitSelection = async () => {
+    setLoadingAction(true);
+    const formData = new FormData();
+    formData.append("tax_id", targetTaxId);
+    selectedProductIds.forEach((id, index) => {
+      formData.append(`products[${index}]`, id);
+    });
+
+    try {
+      await axios.post(`${apiUrl}/admin/tax_product/selecte_products`, formData, {
+        headers: {
+          'Authorization': `Bearer ${auth?.userState?.token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      setAddModal(false);
+      refetchTaxes();
+    } catch (error) {
+      console.error("Submit failed", error);
+    } finally {
+      setLoadingAction(false);
+    }
+  };
+
+  const toggleSelection = (productId) => {
+    setSelectedProductIds(prev =>
+      prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]
+    );
+  };
+
+  // --- Logic for selection names & visibility ---
+  const masterProductList = [...(allListsData?.products || []), ...assignedProducts].reduce((acc, current) => {
+    if (!acc.find(item => item.id === current.id)) acc.push(current);
+    return acc;
+  }, []);
+
+  const availableProducts = (allListsData?.products || []).filter(p => {
+    const isInCategory = filterCategory === "all" || p.category_id === parseInt(filterCategory);
+    return isInCategory && !selectedProductIds.includes(p.id);
+  });
+
+  const selectedProductsDetails = masterProductList.filter(p => selectedProductIds.includes(p.id));
+
+  // --- Pagination Logic ---
+  const indexOfLastTax = currentPage * taxesPerPage;
+  const indexOfFirstTax = indexOfLastTax - taxesPerPage;
+  const currentTaxes = taxes.slice(indexOfFirstTax, indexOfLastTax);
   const totalPages = Math.ceil(taxes.length / taxesPerPage);
 
-  // Get the taxes for the current page
-  const currentTaxes = taxes.slice(
-    (currentPage - 1) * taxesPerPage,
-    currentPage * taxesPerPage
-  );
+  useEffect(() => { refetchTaxes(); }, [refetchTaxes, refetch]);
+  useEffect(() => { if (dataTaxes?.taxes) setTaxes(dataTaxes.taxes); }, [dataTaxes]);
 
-  // handle page change
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-
-  // Fetch taxes when the component mounts or when refetch is called
-  useEffect(() => {
-    refetchTaxes();
-  }, [refetchTaxes, refetch]); // Empty dependency array to only call refetch once on mount
-
-  const handleOpenDelete = (item) => {
-    setOpenDelete(item);
-  };
-  const handleCloseDelete = () => {
-    setOpenDelete(null);
-  };
-
-  // const handleChangeActive = async (id, name, status) => {
-  //        const response = await changeState(
-  //               `${apiUrl} / admin / translation / active / ${ id }`,
-  //               `${ name } Changed Active.`,
-  //               { active: status } // Pass status as an object if changeState expects an object
-  //        );
-
-  //        if (response) {
-  //               // Update categories only if changeState succeeded
-  //               setLanguages((prevLanguages) =>
-  //                      prevLanguages.map((language) =>
-  //                             language.id === id ? { ...language, status: status } : language
-  //                      )
-  //               );
-  //               setUpdate(!refetch)
-  //        }
-
-  //        // Log the updated Languages after the state update
-
-  //        // setLanguages((prevLanguages) => {
-  //        //   const updatedLanguages = prevLanguages.map((language) =>
-  //        //     language.id === id ? { ...language, status: status } : language
-  //        //   );
-  //        //   return updatedLanguages;
-  //        // });
-  // };
-
-  // Delete Language
-  const handleDelete = async (id, name) => {
-    const success = await deleteData(
-      `${apiUrl}/admin/settings/tax/delete/${id}`,
-      `${name} Deleted Success.`
-    );
-
-    if (success) {
-      // Update taxes only if changeState succeeded
-      setTaxes(taxes.filter((tax) => tax.id !== id));
-      setUpdate(!refetch);
-    }
-  };
-
-  // Update taxes when `data` changes
-  useEffect(() => {
-    if (dataTaxes && dataTaxes.taxes) {
-      setTaxes(dataTaxes.taxes);
-    }
-  }, [dataTaxes]); // Only run this effect when `data` changes
-
-  const headers = [t("sl"), t("name"), t("type"), t("amount"), t("action")];
+  const headers = [t("sl"), t("name"), t("amount"), t("products"), t("action")];
 
   return (
-    <div className="flex items-start justify-start w-full overflow-x-scroll pb-28 scrollSection">
-      {loadingTaxes || loadingDelete ? (
-        <div className="flex items-center justify-center w-full h-56">
-          <StaticLoader />
-        </div>
+    <div className="flex flex-col w-full p-2 md:p-4">
+      {loadingTaxes ? (
+        <div className="flex items-center justify-center h-56"><StaticLoader /></div>
       ) : (
-        <div className="flex flex-col w-full">
-          <table className="block w-full overflow-x-scroll sm:min-w-0 scrollPage">
-            <thead className="w-full">
-              <tr className="w-full border-b-2">
-                {headers.map((name, index) => (
-                  <th
-                    className="min-w-[120px] sm:w-[8%] lg:w-[5%] text-mainColor text-center font-TextFontLight sm:text-sm lg:text-base xl:text-lg pb-3"
-                    key={index}
-                  >
-                    {name}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="w-full">
-              {taxes.length === 0 ? (
+        <>
+          <div className="w-full overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+            <table className="w-full text-center border-collapse min-w-[700px]">
+              <thead className="bg-gray-50">
                 <tr>
-                  <td
-                    colSpan={12}
-                    className="text-xl text-center text-mainColor font-TextFontMedium "
-                  >
-                    {t("Notfindtaxes")}
-                  </td>
+                  {headers.map((name, index) => (
+                    <th key={index} className="p-3 text-mainColor font-bold border-b whitespace-nowrap">{name}</th>
+                  ))}
                 </tr>
-              ) : (
-                currentTaxes.map(
-                  (
-                    tax,
-                    index // Example with two rows
-                  ) => (
-                    <tr className="w-full border-b-2" key={index}>
-                      <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                        {(currentPage - 1) * taxesPerPage + index + 1}
-                      </td>
-                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                        {tax?.name || "-"}
-                      </td>
-                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                        {tax?.type || "-"}
-                      </td>
-                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                        {tax?.amount || "-"}
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          <Link to={`edit/${tax.id}`}>
-                            <EditIcon />
-                          </Link>
-                          <button
-                            type="button"
-                            onClick={() => handleOpenDelete(tax.id)}
-                          >
-                            <DeleteIcon />
-                          </button>
-                          {openDelete === tax.id && (
-                            <Dialog
-                              open={true}
-                              onClose={handleCloseDelete}
-                              className="relative z-10"
-                            >
-                              <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
-                              <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                                <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
-                                  <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg">
-                                    <div className="flex flex-col items-center justify-center px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
-                                      <Warning
-                                        width="28"
-                                        height="28"
-                                        aria-hidden="true"
-                                      />
-                                      <div className="flex items-center">
-                                        <div className="mt-2 text-center">
-                                          {t("Youwilldelete")} {tax.name}
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                                      <button
-                                        className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto"
-                                        onClick={() =>
-                                          handleDelete(tax.id, tax.name)
-                                        }
-                                      >
-                                                                                {t("Delete")}
+              </thead>
+              <tbody>
+                {currentTaxes.map((tax, index) => (
+                  <tr className="hover:bg-gray-50 border-b" key={tax.id}>
+                    <td className="p-3">{(currentPage - 1) * taxesPerPage + index + 1}</td>
+                    <td className="p-3 whitespace-nowrap">{tax.name}</td>
+                    {/* <td className="p-3">{tax.type}</td> */}
+                    <td className="p-3">{tax.type === "precentage" ? `${tax.amount}%` : tax.amount}</td>
+                    <td className="p-3">
+                      <button onClick={() => handleViewProducts(tax.id)} className="text-mainColor underline italic">
+                        {t("view products")}
+                      </button>
+                    </td>
+                    <td className="p-3">
+                      <div className="flex items-center justify-center gap-4">
+                        <button onClick={() => handleAddProducts(tax.id)} className="text-2xl text-green-600 font-bold">+</button>
+                        <Link to={`edit/${tax.id}`}><EditIcon /></Link>
+                        <button onClick={() => { setTargetTaxId(tax.id); setDeleteModal(true); }} className="text-red-500 hover:scale-110 transition-transform">
+                          <DeleteIcon />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-                                      </button>
+          {/* Pagination Controls */}
+          <div className="flex justify-center items-center mt-6 gap-2">
+            <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)} className="px-4 py-2 border rounded disabled:opacity-50 hover:bg-gray-50">
+              {t("Previous")}
+            </button>
+            <span className="font-medium text-sm">{t("Page")} {currentPage} {t("of")} {totalPages || 1}</span>
+            <button disabled={currentPage >= totalPages} onClick={() => setCurrentPage(prev => prev + 1)} className="px-4 py-2 border rounded disabled:opacity-50 hover:bg-gray-50">
+              {t("Next")}
+            </button>
+          </div>
 
-                                      <button
-                                        type="button"
-                                        data-autofocus
-                                        onClick={handleCloseDelete}
-                                        className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
-                                      >
-                                                                                {t("Cancel")}
-
-                                      </button>
-                                    </div>
-                                  </DialogPanel>
-                                </div>
-                              </div>
-                            </Dialog>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                )
-              )}
-            </tbody>
-          </table>
-          {taxes.length > 0 && (
-            <div className="flex flex-wrap items-center justify-center my-6 gap-x-4">
-              {currentPage !== 1 && (
-                <button
-                  type="button"
-                  className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
-                  onClick={() => setCurrentPage(currentPage - 1)}
-                >
-                  {t("Prev")}
-                </button>
-              )}
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <button
-                    key={page}
-                    onClick={() => handlePageChange(page)}
-                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${
-                      currentPage === page
-                        ? "bg-mainColor text-white"
-                        : " text-mainColor"
-                    }`}
-                  >
-                    {page}
+          {/* DELETE MODAL */}
+          <Dialog open={deleteModal} onClose={() => setDeleteModal(false)} className="relative z-50">
+            <DialogBackdrop className="fixed inset-0 bg-black/40" />
+            <div className="fixed inset-0 flex items-center justify-center p-4">
+              <DialogPanel className="bg-white p-6 rounded-lg max-w-sm w-full text-center">
+                <h3 className="text-lg font-bold mb-4">{t("Are you sure you want to delete this tax?")}</h3>
+                <div className="flex justify-center gap-4">
+                  <button onClick={() => setDeleteModal(false)} className="px-4 py-2 bg-gray-200 rounded-md">{t("Cancel")}</button>
+                  <button onClick={handleDelete} disabled={loadingDelete} className="px-4 py-2 bg-red-600 text-white rounded-md">
+                    {loadingDelete ? t("Deleting...") : t("Delete")}
                   </button>
-                )
-              )}
-              {totalPages !== currentPage && (
-                <button
-                  type="button"
-                  className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
-                  onClick={() => setCurrentPage(currentPage + 1)}
-                >
-                                    {t("Next")}
-
-                </button>
-              )}
+                </div>
+              </DialogPanel>
             </div>
-          )}
-        </div>
+          </Dialog>
+
+          {/* ADD/MANAGE MODAL */}
+          <Dialog open={addModal} onClose={() => setAddModal(false)} className="relative z-50">
+            <DialogBackdrop className="fixed inset-0 bg-black/40" />
+            <div className="fixed inset-0 flex items-center justify-center p-4">
+              <DialogPanel className="w-full max-w-4xl bg-white p-8 rounded-xl shadow-2xl">
+                {loadingAssigned ? (
+                  <div className="h-96 flex items-center justify-center"><StaticLoader /></div>
+                ) : (
+                  <>
+                    <div className="flex justify-between items-center mb-6">
+                      <h3 className="text-2xl font-bold text-mainColor">{t("Tax Product Assignment")}</h3>
+                      <select className="border p-2 rounded-lg" onChange={(e) => setFilterCategory(e.target.value)}>
+                        <option value="all">{t("Filter by Category")}</option>
+                        {allListsData?.categories?.map(cat => (
+                          <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-[450px]">
+                      <div className="border rounded-xl flex flex-col overflow-hidden bg-white">
+                        <div className="bg-gray-100 p-3 font-bold border-b">{t("Available Products")}</div>
+                        <div className="overflow-y-auto flex-1 p-2">
+                          {availableProducts.map(p => (
+                            <div key={p.id} className="flex justify-between items-center p-2 border-b">
+                              <span className="text-sm">{p.name}</span>
+                              <button onClick={() => toggleSelection(p.id)} className="bg-green-500 text-white w-7 h-7 rounded-full flex items-center justify-center">+</button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="border rounded-xl flex flex-col bg-gray-50 overflow-hidden">
+                        <div className="bg-mainColor text-white p-3 font-bold border-b">{t("Selected")} ({selectedProductIds.length})</div>
+                        <div className="overflow-y-auto flex-1 p-2">
+                          {selectedProductsDetails.map(p => (
+                            <div key={p.id} className="flex justify-between items-center p-2 border-b bg-white mb-1 shadow-sm rounded px-3">
+                              <span className="text-sm">{p.name}</span>
+                              <button onClick={() => toggleSelection(p.id)} className="text-red-500 font-bold text-lg">×</button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex justify-end mt-6 gap-3">
+                      <button onClick={() => setAddModal(false)} className="px-6 py-2 border rounded-lg">{t("Cancel")}</button>
+                      <button onClick={handleSubmitSelection} className="bg-mainColor text-white px-8 py-2 rounded-lg font-bold">
+                        {loadingAction ? t("Saving...") : t("Save Changes")}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </DialogPanel>
+            </div>
+          </Dialog>
+
+          {/* VIEW MODAL */}
+          <Dialog open={viewModal} onClose={() => setViewModal(false)} className="relative z-50">
+            <DialogBackdrop className="fixed inset-0 bg-black/40" />
+            <div className="fixed inset-0 flex items-center justify-center p-4">
+              <DialogPanel className="w-full max-w-md bg-white p-6 rounded-lg shadow-2xl">
+                <h3 className="text-xl font-bold text-mainColor mb-4 border-b pb-2">{t("Assigned Products")}</h3>
+                <div className="min-h-[200px] max-h-60 overflow-y-auto flex flex-col justify-center">
+                  {loadingAssigned ? (
+                    <StaticLoader />
+                  ) : assignedProducts.length > 0 ? (
+                    assignedProducts.map(p => <div key={p.id} className="p-2 border-b text-gray-700">{p.name}</div>)
+                  ) : (
+                    <p className="text-center text-gray-400 py-4">{t("No products assigned")}</p>
+                  )}
+                </div>
+                <button className="mt-6 w-full bg-mainColor text-white py-2 rounded-md font-bold" onClick={() => setViewModal(false)}>{t("Close")}</button>
+              </DialogPanel>
+            </div>
+          </Dialog>
+        </>
       )}
     </div>
   );
