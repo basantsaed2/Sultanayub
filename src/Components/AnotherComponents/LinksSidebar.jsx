@@ -28,7 +28,7 @@ import {
   BiSolidEnvelope,
 } from "react-icons/bi";
 import { HiReceiptTax } from "react-icons/hi";
-import { TbBorderAll, TbReportSearch } from "react-icons/tb";
+import { TbBorderAll, TbReportSearch, TbSocial } from "react-icons/tb";
 import { IoMdGitBranch } from "react-icons/io";
 import { useTranslation } from "react-i18next";
 import { PiBaseballCap } from "react-icons/pi";
@@ -362,6 +362,12 @@ const adminRoutes = [
     path: "/dashboard/free_discount",
     permission: "FreeDiscount",
     icon: MdDiscount,
+  },
+  {
+    name: "Social Media",
+    path: "/dashboard/social_media",
+    permission: "SocialMedia",
+    icon: TbSocial,
   },
   {
     name: "Bundles",

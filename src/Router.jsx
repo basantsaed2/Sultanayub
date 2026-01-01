@@ -222,6 +222,9 @@ import ReceiptDesignPage from "./Pages/Dashboard/Admin/Setting/ReceiptDesign/Rec
 import Bundles from "./Pages/Dashboard/Admin/Bundles/Bundles";
 import AddBundles from "./Pages/Dashboard/Admin/Bundles/AddBundles";
 import EditBundles from "./Pages/Dashboard/Admin/Bundles/EditBundles";
+import SocialMedia from "./Pages/Dashboard/Admin/SocialMedia/SocialMedia";
+import AddSocialMedia from "./Pages/Dashboard/Admin/SocialMedia/AddSocialMedia";
+import EditSocialMedia from "./Pages/Dashboard/Admin/SocialMedia/EditSocialMedia";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -1775,6 +1778,23 @@ export const router = createBrowserRouter([
                 element: <EditBundles />,
               },
             ]
+          },
+          {
+            path: "social_media",
+            children: [
+              {
+                path: "",
+                element: <SocialMedia />,
+              },
+              {
+                path: "add",
+                element: <AddSocialMedia />,
+              },
+              {
+                path: "edit/:socialId",
+                element: <EditSocialMedia />,
+              },
+            ],
           },
         ],
       },
