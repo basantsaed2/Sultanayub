@@ -10,7 +10,6 @@ export const useGet = ({ url }) => {
     const [loading, setLoading] = useState(true);
 
     const fetchData = useCallback(async () => {
-        if (!url) return; // <--- ADD THIS LINE
         setLoading(true);
         try {
             const response = await axios.get(url, {

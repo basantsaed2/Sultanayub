@@ -206,7 +206,7 @@ const TaxesPage = ({ refetch, setUpdate }) => {
                   <div className="h-96 flex items-center justify-center"><StaticLoader /></div>
                 ) : (
                   <>
-                    <div className="flex justify-between items-center mb-6">
+                    <div className="flex flex-col md:flex-row justify-between md:items-center mb-2 md:mb-6 gap-3">
                       <h3 className="text-2xl font-bold text-mainColor">{t("Tax Product Assignment")}</h3>
                       <select
                         className="border p-2 rounded-lg"

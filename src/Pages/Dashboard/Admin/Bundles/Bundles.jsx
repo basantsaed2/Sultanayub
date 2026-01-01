@@ -13,7 +13,7 @@ const Bundles = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
     // Main bundles list
-    const { data, loading, refetch } = useGet({ url: `${apiUrl}/admin/bundles` });
+    const { refetch, loading, data } = useGet({ url: `${apiUrl}/admin/bundles` });
 
     // For single bundle details
     const [selectedBundleId, setSelectedBundleId] = useState(null);
@@ -42,7 +42,7 @@ const Bundles = () => {
     const currentItems = bundles.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     useEffect(() => {
-        if (data?.bundles) {
+        if (data && data?.bundles) {
             setBundles(data.bundles);
         }
     }, [data]);
