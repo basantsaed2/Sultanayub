@@ -40,20 +40,19 @@ const TaxesPage = ({ refetch, setUpdate }) => {
   const taxesPerPage = 10;
 
   // 3. API Handlers
-
-  // FIX: Separate the opening logic from the fetching logic
   const handleViewProducts = (taxId) => {
     setTargetTaxId(taxId);
-    setAssignedProducts([]); // Clear old data immediately to prevent lag/confusion
-    setViewModal(true);       // Open modal instantly
+    setAssignedProducts([]);
+    setViewModal(true);
     fetchAssignedProducts(taxId);
   };
 
   const handleAddProducts = (taxId) => {
     setTargetTaxId(taxId);
-    setAssignedProducts([]); // Clear old data
-    setSelectedProductIds([]); // Clear selection
-    setAddModal(true);        // Open modal instantly
+    setAssignedProducts([]);
+    setSelectedProductIds([]);
+    setFilterCategory("all"); // Reset the filter every time modal opens
+    setAddModal(true);
     fetchAssignedProducts(taxId);
   };
 
@@ -114,7 +113,6 @@ const TaxesPage = ({ refetch, setUpdate }) => {
     );
   };
 
-  // --- Logic for selection names & visibility ---
   const masterProductList = [...(allListsData?.products || []), ...assignedProducts].reduce((acc, current) => {
     if (!acc.find(item => item.id === current.id)) acc.push(current);
     return acc;
@@ -127,7 +125,6 @@ const TaxesPage = ({ refetch, setUpdate }) => {
 
   const selectedProductsDetails = masterProductList.filter(p => selectedProductIds.includes(p.id));
 
-  // --- Pagination Logic ---
   const indexOfLastTax = currentPage * taxesPerPage;
   const indexOfFirstTax = indexOfLastTax - taxesPerPage;
   const currentTaxes = taxes.slice(indexOfFirstTax, indexOfLastTax);
@@ -158,7 +155,6 @@ const TaxesPage = ({ refetch, setUpdate }) => {
                   <tr className="hover:bg-gray-50 border-b" key={tax.id}>
                     <td className="p-3">{(currentPage - 1) * taxesPerPage + index + 1}</td>
                     <td className="p-3 whitespace-nowrap">{tax.name}</td>
-                    {/* <td className="p-3">{tax.type}</td> */}
                     <td className="p-3">{tax.type === "precentage" ? `${tax.amount}%` : tax.amount}</td>
                     <td className="p-3">
                       <button onClick={() => handleViewProducts(tax.id)} className="text-mainColor underline italic">
@@ -182,26 +178,20 @@ const TaxesPage = ({ refetch, setUpdate }) => {
 
           {/* Pagination Controls */}
           <div className="flex justify-center items-center mt-6 gap-2">
-            <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)} className="px-4 py-2 border rounded disabled:opacity-50 hover:bg-gray-50">
-              {t("Previous")}
-            </button>
+            <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)} className="px-4 py-2 border rounded disabled:opacity-50 hover:bg-gray-50">{t("Previous")}</button>
             <span className="font-medium text-sm">{t("Page")} {currentPage} {t("of")} {totalPages || 1}</span>
-            <button disabled={currentPage >= totalPages} onClick={() => setCurrentPage(prev => prev + 1)} className="px-4 py-2 border rounded disabled:opacity-50 hover:bg-gray-50">
-              {t("Next")}
-            </button>
+            <button disabled={currentPage >= totalPages} onClick={() => setCurrentPage(prev => prev + 1)} className="px-4 py-2 border rounded disabled:opacity-50 hover:bg-gray-50">{t("Next")}</button>
           </div>
 
           {/* DELETE MODAL */}
           <Dialog open={deleteModal} onClose={() => setDeleteModal(false)} className="relative z-50">
             <DialogBackdrop className="fixed inset-0 bg-black/40" />
             <div className="fixed inset-0 flex items-center justify-center p-4">
-              <DialogPanel className="bg-white p-6 rounded-lg max-w-sm w-full text-center">
+              <DialogPanel className="bg-white p-6 rounded-lg max-w-sm w-full text-center shadow-xl">
                 <h3 className="text-lg font-bold mb-4">{t("Are you sure you want to delete this tax?")}</h3>
                 <div className="flex justify-center gap-4">
                   <button onClick={() => setDeleteModal(false)} className="px-4 py-2 bg-gray-200 rounded-md">{t("Cancel")}</button>
-                  <button onClick={handleDelete} disabled={loadingDelete} className="px-4 py-2 bg-red-600 text-white rounded-md">
-                    {loadingDelete ? t("Deleting...") : t("Delete")}
-                  </button>
+                  <button onClick={handleDelete} disabled={loadingDelete} className="px-4 py-2 bg-red-600 text-white rounded-md">{loadingDelete ? t("Deleting...") : t("Delete")}</button>
                 </div>
               </DialogPanel>
             </div>
@@ -218,7 +208,11 @@ const TaxesPage = ({ refetch, setUpdate }) => {
                   <>
                     <div className="flex justify-between items-center mb-6">
                       <h3 className="text-2xl font-bold text-mainColor">{t("Tax Product Assignment")}</h3>
-                      <select className="border p-2 rounded-lg" onChange={(e) => setFilterCategory(e.target.value)}>
+                      <select
+                        className="border p-2 rounded-lg"
+                        value={filterCategory} // Force select to show "all" on reset
+                        onChange={(e) => setFilterCategory(e.target.value)}
+                      >
                         <option value="all">{t("Filter by Category")}</option>
                         {allListsData?.categories?.map(cat => (
                           <option key={cat.id} value={cat.id}>{cat.name}</option>
@@ -229,12 +223,12 @@ const TaxesPage = ({ refetch, setUpdate }) => {
                       <div className="border rounded-xl flex flex-col overflow-hidden bg-white">
                         <div className="bg-gray-100 p-3 font-bold border-b">{t("Available Products")}</div>
                         <div className="overflow-y-auto flex-1 p-2">
-                          {availableProducts.map(p => (
+                          {availableProducts.length > 0 ? availableProducts.map(p => (
                             <div key={p.id} className="flex justify-between items-center p-2 border-b">
                               <span className="text-sm">{p.name}</span>
                               <button onClick={() => toggleSelection(p.id)} className="bg-green-500 text-white w-7 h-7 rounded-full flex items-center justify-center">+</button>
                             </div>
-                          ))}
+                          )) : <p className="text-center text-gray-400 mt-10">{t("No products found")}</p>}
                         </div>
                       </div>
                       <div className="border rounded-xl flex flex-col bg-gray-50 overflow-hidden">
@@ -251,7 +245,7 @@ const TaxesPage = ({ refetch, setUpdate }) => {
                     </div>
                     <div className="flex justify-end mt-6 gap-3">
                       <button onClick={() => setAddModal(false)} className="px-6 py-2 border rounded-lg">{t("Cancel")}</button>
-                      <button onClick={handleSubmitSelection} className="bg-mainColor text-white px-8 py-2 rounded-lg font-bold">
+                      <button onClick={handleSubmitSelection} className="bg-mainColor text-white px-8 py-2 rounded-lg font-bold disabled:opacity-50" disabled={loadingAction}>
                         {loadingAction ? t("Saving...") : t("Save Changes")}
                       </button>
                     </div>
@@ -267,13 +261,13 @@ const TaxesPage = ({ refetch, setUpdate }) => {
             <div className="fixed inset-0 flex items-center justify-center p-4">
               <DialogPanel className="w-full max-w-md bg-white p-6 rounded-lg shadow-2xl">
                 <h3 className="text-xl font-bold text-mainColor mb-4 border-b pb-2">{t("Assigned Products")}</h3>
-                <div className="min-h-[200px] max-h-60 overflow-y-auto flex flex-col justify-center">
+                <div className="min-h-[200px] max-h-60 overflow-y-auto flex flex-col">
                   {loadingAssigned ? (
-                    <StaticLoader />
+                    <div className="flex-1 flex items-center justify-center"><StaticLoader /></div>
                   ) : assignedProducts.length > 0 ? (
                     assignedProducts.map(p => <div key={p.id} className="p-2 border-b text-gray-700">{p.name}</div>)
                   ) : (
-                    <p className="text-center text-gray-400 py-4">{t("No products assigned")}</p>
+                    <div className="flex-1 flex items-center justify-center"><p className="text-gray-400 py-4">{t("No products assigned")}</p></div>
                   )}
                 </div>
                 <button className="mt-6 w-full bg-mainColor text-white py-2 rounded-md font-bold" onClick={() => setViewModal(false)}>{t("Close")}</button>
