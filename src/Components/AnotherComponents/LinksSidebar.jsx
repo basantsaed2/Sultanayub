@@ -51,6 +51,7 @@ import { TbBasketDiscount } from "react-icons/tb";
 import { BiSolidPurchaseTagAlt } from "react-icons/bi";
 import { RiExchange2Fill } from "react-icons/ri";
 import { FaReceipt } from "react-icons/fa6";
+import { GrBundle } from "react-icons/gr";
 
 // Admin routes configuration
 const adminRoutes = [
@@ -361,6 +362,12 @@ const adminRoutes = [
     path: "/dashboard/free_discount",
     permission: "FreeDiscount",
     icon: MdDiscount,
+  },
+  {
+    name: "Bundles",
+    path: "/dashboard/bundles",
+    permission: "Bundles",
+    icon: GrBundle,
   },
   {
     name: "Stock",

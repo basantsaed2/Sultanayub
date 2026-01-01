@@ -219,6 +219,9 @@ import AddPurchaseRecipe from "./Pages/Dashboard/Admin/ProductReceipes/PurchaseP
 import EditPurchaseRecipe from "./Pages/Dashboard/Admin/ProductReceipes/PurchaseProduct/PurchaseRecipes/EditPurchaseRecipe";
 import FakeOrderPage from "./Pages/Dashboard/Admin/Setting/FakeOrder/FakeOrderPage";
 import ReceiptDesignPage from "./Pages/Dashboard/Admin/Setting/ReceiptDesign/ReceiptDesignPage";
+import Bundles from "./Pages/Dashboard/Admin/Bundles/Bundles";
+import AddBundles from "./Pages/Dashboard/Admin/Bundles/AddBundles";
+import EditBundles from "./Pages/Dashboard/Admin/Bundles/EditBundles";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -1754,6 +1757,24 @@ export const router = createBrowserRouter([
           {
             path: "void_orders",
             element: <VoidList />,
+          },
+          {
+            path: "bundles",
+            element: <Outlet />,
+            children: [
+              {
+                index: true,
+                element: <Bundles />,
+              },
+              {
+                path: "add",
+                element: <AddBundles />,
+              },
+              {
+                path: "edit/:bundleId",
+                element: <EditBundles />,
+              },
+            ]
           },
         ],
       },
