@@ -225,6 +225,8 @@ import EditBundles from "./Pages/Dashboard/Admin/Bundles/EditBundles";
 import SocialMedia from "./Pages/Dashboard/Admin/SocialMedia/SocialMedia";
 import AddSocialMedia from "./Pages/Dashboard/Admin/SocialMedia/AddSocialMedia";
 import EditSocialMedia from "./Pages/Dashboard/Admin/SocialMedia/EditSocialMedia";
+import ProductVariation from "./Pages/Dashboard/Admin/ProductSetup/ProductVariation";
+import VariationRecipe from "./Pages/Dashboard/Admin/ProductSetup/VariationRecipe/VariationRecipe";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -497,6 +499,34 @@ export const router = createBrowserRouter([
                       },
                     ],
                   },
+                  {
+                    path: "product_variation/:productId",
+                    element: <Outlet />,
+                    children: [
+                      {
+                        path: "",
+                        element: <Outlet />,
+                        children: [
+                          {
+                            path: "",
+                            element: <ProductVariation />,
+                          },
+                          {
+                            path: "variation_recipe/:optionId",
+                            element: <VariationRecipe />,
+                          }
+                      // {
+                      //   path: "add",
+                      //   element: <AddProductVariation />,
+                      // },
+                      // {
+                      //   path: "edit/:productVariationId",
+                      //   element: <EditProductVariation />,
+                      // },
+                        ]
+                      }
+                    ],
+                  }
                 ],
               },
               {

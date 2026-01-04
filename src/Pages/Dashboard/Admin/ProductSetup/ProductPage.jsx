@@ -346,6 +346,7 @@ const ProductPage = () => {
     t("Price"),
     t("Image"),
     t("Category"),
+    t("Variation"),
     t("Favorite POS"),
     t("Code"),
     t("priority"),
@@ -543,6 +544,9 @@ const ProductPage = () => {
                             <td onClick={() => handleOpenCategoryToggle(product.category_id)} className="px-4 py-2 text-sm text-center text-red-800 lg:text-base underline">
                               {product.category?.name || product.sub_category?.name || "-"}
                             </td>
+                            <td onClick={() => navigate(`product_variation/${product.id}`, { state: { product_name: product.name } })} className="px-4 py-2 text-sm text-center text-red-800 lg:text-base cursor-pointer underline">
+                              {product.variations?.length || "0"}
+                            </td>
                             <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                               <Switch
                                 checked={product.favourite === 1}
@@ -686,6 +690,9 @@ const ProductPage = () => {
                                           {product.category?.name ||
                                             product.sub_category?.name ||
                                             "-"}
+                                        </td>
+                                        <td onClick={() => navigate(`product_variation/${product.id}`, { state: { product_name: product.name } })} className="px-4 py-2 text-sm text-center text-red-800 lg:text-base cursor-pointer underline">
+                                          {product.variations?.length || "0"}
                                         </td>
                                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                                           <Switch
