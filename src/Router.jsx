@@ -230,6 +230,7 @@ import VariationRecipe from "./Pages/Dashboard/Admin/ProductSetup/VariationRecip
 import AddVariationRecipe from "./Pages/Dashboard/Admin/ProductSetup/VariationRecipe/AddVariationRecipe";
 import EditVariationRecipe from "./Pages/Dashboard/Admin/ProductSetup/VariationRecipe/EditVariationRecipe";
 import RealTimeSalesReports from "./Pages/Dashboard/Admin/Reports/SalesReport/RealTimeSalesReports";
+import PricingProduct from "./Pages/Dashboard/Admin/PricingProduct/PricingProduct";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -547,6 +548,10 @@ export const router = createBrowserRouter([
               {
                 path: "product/edit/:productId",
                 element: <EditProductLayout />,
+              },
+              {
+                path: "pricing_product", // /dashboard/setup_product/pricing_product
+                element: <PricingProduct />,
               },
             ],
           },

@@ -18,6 +18,7 @@ import {
   MdDiscount,
   MdOutlinePayments,
   MdOutlineSettingsInputComposite,
+  MdPriceChange,
 } from "react-icons/md";
 import { PiFlagBanner } from "react-icons/pi";
 import { IoLanguage } from "react-icons/io5";
@@ -145,6 +146,13 @@ const adminRoutes = [
       { name: "Add Product", path: "/dashboard/setup_product/product/add" },
     ],
     redirectTo: "/dashboard/setup_product/product",
+    redirectTo: "/dashboard/setup_product/product",
+  },
+  {
+    name: "Product Pricing",
+    path: "/dashboard/setup_product/pricing_product",
+    permission: "Product", // Reusing Product permission for now as it relates to product setup
+    icon: MdPriceChange,
   },
   {
     name: "Banners",
