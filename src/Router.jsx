@@ -228,6 +228,7 @@ import EditSocialMedia from "./Pages/Dashboard/Admin/SocialMedia/EditSocialMedia
 import ProductVariation from "./Pages/Dashboard/Admin/ProductSetup/ProductVariation";
 import VariationRecipe from "./Pages/Dashboard/Admin/ProductSetup/VariationRecipe/VariationRecipe";
 import AddVariationRecipe from "./Pages/Dashboard/Admin/ProductSetup/VariationRecipe/AddVariationRecipe";
+import EditVariationRecipe from "./Pages/Dashboard/Admin/ProductSetup/VariationRecipe/EditVariationRecipe";
 import RealTimeSalesReports from "./Pages/Dashboard/Admin/Reports/SalesReport/RealTimeSalesReports";
 
 const ProductSetupLayout = () => {
@@ -521,6 +522,10 @@ export const router = createBrowserRouter([
                                 path: "",
                                 element: <VariationRecipe />
                               },
+                              {
+                                path: "edit_recipe/:optionId", // Keeping as optionId to match existing pattern if needed, or strictly recipeId
+                                element: <EditVariationRecipe />
+                              },
 
                             ]
                           },
@@ -528,10 +533,7 @@ export const router = createBrowserRouter([
                             path: "add",
                             element: <AddVariationRecipe />
                           },
-                          // {
-                          //   path: "edit/:productVariationId",
-                          //   element: <EditProductVariation />,
-                          // },
+
                         ]
                       }
                     ]

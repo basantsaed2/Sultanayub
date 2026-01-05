@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { LoaderLogin } from "../../../../Components/Components";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
-import { IoArrowBack } from "react-icons/io5";
+import { IoArrowBack, IoAddCircle, IoPencil } from "react-icons/io5";
 
 const ProductVariation = () => {
     const { productId } = useParams();
@@ -121,12 +121,16 @@ const ProductVariation = () => {
                                         </button>
                                     </td>
                                     <td className="px-6 py-4 text-center text-sm text-gray-500">
-                                        <button
-                                            onClick={() => navigate(`add`, { state: { productName: productName } })}
-                                            className="text-blue-600 hover:text-blue-900 underline font-medium"
-                                        >
-                                            {t("Add/Edit Recipes")}
-                                        </button>
+                                        <div className="flex items-center justify-center gap-2">
+                                            <button
+                                                onClick={() => navigate(`add`, { state: { productName: productName } })}
+                                                className="flex items-center gap-1 text-green-600 hover:text-green-800 transition-colors"
+                                                title={t("Add Recipes")}
+                                            >
+                                                <IoAddCircle size={22} />
+                                                <span className="text-sm font-semibold">{t("Add")}</span>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))
