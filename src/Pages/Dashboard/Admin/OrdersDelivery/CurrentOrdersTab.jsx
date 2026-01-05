@@ -201,9 +201,14 @@ const CurrentOrdersTab = () => {
       {/* Selected Orders Pay Button */}
       {someSelected && (
         <div className="mb-6 p-4 bg-blue-50 border border-blue-300 rounded-xl flex flex-col sm:flex-row justify-between items-center gap-4">
-          <span className="font-semibold text-blue-800">
-            {selectedOrderIds.length} {t('orders selected')}
-          </span>
+          <div className="flex flex-col sm:flex-row gap-4 items-center">
+            <span className="font-semibold text-blue-800">
+              {selectedOrderIds.length} {t('orders selected')}
+            </span>
+            <span className="font-bold text-mainColor bg-white px-3 py-1 rounded-lg shadow-sm border border-blue-100">
+              {t("Total")}: {orders.filter(o => selectedOrderIds.includes(o.id)).reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0).toFixed(2)} EGP
+            </span>
+          </div>
           <button
             onClick={() => setShowPayModal(true)}
             className="px-8 py-3 bg-mainColor text-white rounded-xl font-bold hover:bg-mainColor/90 transition"

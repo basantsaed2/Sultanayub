@@ -227,6 +227,7 @@ import AddSocialMedia from "./Pages/Dashboard/Admin/SocialMedia/AddSocialMedia";
 import EditSocialMedia from "./Pages/Dashboard/Admin/SocialMedia/EditSocialMedia";
 import ProductVariation from "./Pages/Dashboard/Admin/ProductSetup/ProductVariation";
 import VariationRecipe from "./Pages/Dashboard/Admin/ProductSetup/VariationRecipe/VariationRecipe";
+import AddVariationRecipe from "./Pages/Dashboard/Admin/ProductSetup/VariationRecipe/AddVariationRecipe";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -513,20 +514,27 @@ export const router = createBrowserRouter([
                           },
                           {
                             path: "variation_recipe/:optionId",
-                            element: <VariationRecipe />,
-                          }
-                      // {
-                      //   path: "add",
-                      //   element: <AddProductVariation />,
-                      // },
-                      // {
-                      //   path: "edit/:productVariationId",
-                      //   element: <EditProductVariation />,
-                      // },
+                            element: <Outlet />,
+                            children: [
+                              {
+                                path: "",
+                                element: <VariationRecipe />
+                              },
+
+                            ]
+                          },
+                          {
+                            path: "add",
+                            element: <AddVariationRecipe />
+                          },
+                          // {
+                          //   path: "edit/:productVariationId",
+                          //   element: <EditProductVariation />,
+                          // },
                         ]
                       }
-                    ],
-                  }
+                    ]
+                  },
                 ],
               },
               {

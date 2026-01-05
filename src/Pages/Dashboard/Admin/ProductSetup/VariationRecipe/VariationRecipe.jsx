@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useParams, useLocation, useNavigate, Link } from "react-router-dom";
 import { useGet } from "../../../../../Hooks/useGet";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { LoaderLogin } from "../../../../../Components/Components";
+import { AddButton, LoaderLogin } from "../../../../../Components/Components";
 import { IoArrowBack } from "react-icons/io5";
 
 const VariationRecipe = () => {
@@ -45,13 +45,15 @@ const VariationRecipe = () => {
 
     return (
         <div className="w-full flex flex-col gap-y-3 p-4">
-            <div className="flex items-center gap-2 mb-4">
-                <button onClick={() => navigate(-1)} className="p-2 bg-white rounded-xl shadow-sm text-mainColor hover:bg-mainColor hover:text-white transition-all">
-                    <IoArrowBack size={24} />
-                </button>
-                <h1 className="text-xl font-bold text-gray-800">
-                    {t("Variation Recipe")} {productName && <span>- <span className="text-mainColor">{productName}</span></span>}
-                </h1>
+            <div className="flex items-center justify-between gap-2 mb-4">
+                <div className="flex items-center gap-2">
+                    <button onClick={() => navigate(-1)} className="p-2 bg-white rounded-xl shadow-sm text-mainColor hover:bg-mainColor hover:text-white transition-all">
+                        <IoArrowBack size={24} />
+                    </button>
+                    <h1 className="text-xl font-bold text-gray-800">
+                        {t("Variation Recipe")} {productName && <span>- <span className="text-mainColor">{productName}</span></span>}
+                    </h1>
+                </div>
             </div>
 
             <div className="w-full overflow-x-auto bg-white rounded-lg shadow-sm">

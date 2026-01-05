@@ -54,6 +54,7 @@ const ProductVariation = () => {
         t("#"),
         t("Variation Name"),
         t("Options"),
+        t("Recipes"),
     ];
 
     // Pagination Logic
@@ -119,6 +120,14 @@ const ProductVariation = () => {
                                             {t("View Options")}
                                         </button>
                                     </td>
+                                    <td className="px-6 py-4 text-center text-sm text-gray-500">
+                                        <button
+                                            onClick={() => navigate(`add`, { state: { productName: productName } })}
+                                            className="text-blue-600 hover:text-blue-900 underline font-medium"
+                                        >
+                                            {t("Add/Edit Recipes")}
+                                        </button>
+                                    </td>
                                 </tr>
                             ))
                         )}
@@ -141,8 +150,8 @@ const ProductVariation = () => {
                             key={page}
                             onClick={() => handlePageChange(page)}
                             className={`px-4 py-2 text-sm border rounded ${currentPage === page
-                                    ? "bg-mainColor text-white border-mainColor"
-                                    : "bg-white border-gray-300 hover:bg-gray-50"
+                                ? "bg-mainColor text-white border-mainColor"
+                                : "bg-white border-gray-300 hover:bg-gray-50"
                                 }`}
                         >
                             {page}
