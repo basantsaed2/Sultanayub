@@ -228,6 +228,7 @@ import EditSocialMedia from "./Pages/Dashboard/Admin/SocialMedia/EditSocialMedia
 import ProductVariation from "./Pages/Dashboard/Admin/ProductSetup/ProductVariation";
 import VariationRecipe from "./Pages/Dashboard/Admin/ProductSetup/VariationRecipe/VariationRecipe";
 import AddVariationRecipe from "./Pages/Dashboard/Admin/ProductSetup/VariationRecipe/AddVariationRecipe";
+import RealTimeSalesReports from "./Pages/Dashboard/Admin/Reports/SalesReport/RealTimeSalesReports";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -1757,6 +1758,10 @@ export const router = createBrowserRouter([
               {
                 path: "financial_reports",
                 element: <FinacialReports />,
+              },
+              {
+                path: "real_time_sales_reports",
+                element: <RealTimeSalesReports />,
               },
             ],
           },
