@@ -15,6 +15,7 @@ const PricingProduct = () => {
     const [editingRowId, setEditingRowId] = useState(null); // ID of row currently being edited
     const [editPrice, setEditPrice] = useState(""); // Temporary state for price being edited
     const [currentPage, setCurrentPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState("");
 
     // Constants
     const itemsPerPage = 10;
@@ -37,17 +38,24 @@ const PricingProduct = () => {
         }
     }, [data, activeTab]);
 
-    // Pagination Logic
-    const totalPages = Math.ceil(products.length / itemsPerPage);
-    const currentItems = products.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
-
+    // Handle Tab Change
     const handleTabChange = (tab) => {
         setActiveTab(tab);
         setCurrentPage(1);
+        setSearchQuery(""); // Reset search on tab change
     };
+
+    // Filter Logic
+    const filteredProducts = products.filter(product =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    // Pagination Logic
+    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+    const currentItems = filteredProducts.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
 
     const handleEditClick = (product) => {
         setEditingRowId(product.id);
@@ -83,21 +91,37 @@ const PricingProduct = () => {
         <div className="p-4 md:p-6 w-full min-h-screen bg-gray-50/50 flex flex-col gap-6">
             <TitlePage text={t("Product POS Pricing")} />
 
-            {/* Tabs */}
-            <div className="flex flex-wrap gap-4 bg-white p-2 rounded-2xl shadow-sm w-fit">
-                {tabs.map((tab) => (
-                    <button
-                        key={tab.id}
-                        onClick={() => handleTabChange(tab.id)}
-                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${activeTab === tab.id
-                            ? "bg-mainColor text-white shadow-md"
-                            : "bg-gray-50 text-gray-500 hover:bg-gray-100"
-                            }`}
-                    >
-                        {tab.icon}
-                        {tab.label}
-                    </button>
-                ))}
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                {/* Tabs */}
+                <div className="flex flex-wrap gap-4 bg-white p-2 rounded-2xl shadow-sm w-fit">
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => handleTabChange(tab.id)}
+                            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${activeTab === tab.id
+                                ? "bg-mainColor text-white shadow-md"
+                                : "bg-gray-50 text-gray-500 hover:bg-gray-100"
+                                }`}
+                        >
+                            {tab.icon}
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Search Input */}
+                <div className="w-full md:w-auto">
+                    <input
+                        type="text"
+                        placeholder={t("Search by product name...")}
+                        value={searchQuery}
+                        onChange={(e) => {
+                            setSearchQuery(e.target.value);
+                            setCurrentPage(1);
+                        }}
+                        className="w-full md:w-80 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-mainColor/20 focus:border-mainColor transition-all shadow-sm"
+                    />
+                </div>
             </div>
 
             {/* Content Content */}

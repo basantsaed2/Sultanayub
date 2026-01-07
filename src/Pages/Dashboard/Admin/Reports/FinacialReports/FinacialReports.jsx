@@ -4,6 +4,10 @@ import { DateInput } from "../../../../../Components/Components";
 import { useGet } from "../../../../../Hooks/useGet";
 import { useTranslation } from "react-i18next";
 import Select from 'react-select';
+import { FaFileExcel, FaFilePdf } from 'react-icons/fa';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 
 const FinacialReports = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -77,9 +81,150 @@ const FinacialReports = () => {
     setSelectedFinancialId(null);
   };
 
+  const getFilterText = () => {
+    let text = `${t("Date Range")}: ${fromDate || 'N/A'} - ${toDate || 'N/A'}`;
+    if (selectedBranchId) {
+      const branchName = branches.find(b => b.id === selectedBranchId)?.name;
+      if (branchName) text += ` | ${t("Branch")}: ${branchName}`;
+    }
+    return text;
+  };
+
+  const handlePrintPdf = () => {
+    if (!reportData) return;
+
+    const doc = new jsPDF();
+    const date = new Date().toLocaleDateString();
+
+    // Title
+    doc.setFontSize(20);
+    doc.text(t("Financial Report"), 14, 22);
+
+    doc.setFontSize(10);
+    doc.text(getFilterText(), 14, 30);
+
+    // 1. Summary
+    const summaryData = [
+      [t("Total Orders"), reportData.order_count || 0],
+      [t("Total Revenue"), `${(reportData.total_amount || 0).toFixed(2)} ${t('EGP')}`],
+      [t("Total Expenses"), `${(reportData.expenses_total || 0)} ${t('EGP')}`]
+    ];
+
+    autoTable(doc, {
+      startY: 40,
+      head: [[t("Summary Metric"), t("Value")]],
+      body: summaryData,
+      theme: 'grid',
+      headStyles: { fillColor: [41, 128, 185] } // Blue
+    });
+
+    // 2. Financial Accounts
+    const accountsBody = reportData.financial_accounts.map(acc => {
+      const net = (acc.total_amount_delivery || 0) + (acc.total_amount_take_away || 0) + (acc.total_amount_dine_in || 0);
+      return [
+        acc.financial_name,
+        acc.total_amount_delivery.toFixed(2),
+        acc.total_amount_take_away.toFixed(2),
+        acc.total_amount_dine_in.toFixed(2),
+        net.toFixed(2)
+      ];
+    });
+
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 10,
+      head: [[t("Account"), t("Delivery"), t("Take Away"), t("Dine In"), t("Net Total")]],
+      body: accountsBody,
+      headStyles: { fillColor: [22, 163, 74] } // Green
+    });
+
+    // 3. Expenses
+    if (reportData.expenses && reportData.expenses.length > 0) {
+      const expensesBody = reportData.expenses.map(exp => [
+        exp.financial_account,
+        exp.total
+      ]);
+
+      autoTable(doc, {
+        startY: doc.lastAutoTable.finalY + 10,
+        head: [[t("Expense Account"), t("Amount")]],
+        body: expensesBody,
+        headStyles: { fillColor: [220, 38, 38] } // Red
+      });
+    }
+
+    doc.save(`Financial_Report_${date.replace(/\//g, '-')}.pdf`);
+  };
+
+  const handleExportExcel = () => {
+    if (!reportData) return;
+    const date = new Date().toLocaleDateString();
+
+    const data = [
+      { A: t("Financial Report") },
+      { A: getFilterText() },
+      { A: "" },
+
+      // Summary
+      { A: t("Summary") },
+      { A: t("Total Orders"), B: reportData.order_count || 0 },
+      { A: t("Total Revenue"), B: reportData.total_amount || 0 },
+      { A: t("Total Expenses"), B: reportData.expenses_total || 0 },
+      { A: "" },
+
+      // Accounts
+      { A: t("Financial Accounts Details") },
+      { A: t("Account"), B: t("Delivery"), C: t("Take Away"), D: t("Dine In"), E: t("Net Total") },
+      ...reportData.financial_accounts.map(acc => {
+        const net = (acc.total_amount_delivery || 0) + (acc.total_amount_take_away || 0) + (acc.total_amount_dine_in || 0);
+        return {
+          A: acc.financial_name,
+          B: acc.total_amount_delivery || 0,
+          C: acc.total_amount_take_away || 0,
+          D: acc.total_amount_dine_in || 0,
+          E: net
+        };
+      }),
+      { A: "" },
+
+      // Expenses
+      { A: t("Expenses") },
+      { A: t("Account"), B: t("Amount") },
+      ...(reportData.expenses || []).map(exp => ({
+        A: exp.financial_account,
+        B: exp.total || 0
+      }))
+    ];
+
+    const worksheet = XLSX.utils.json_to_sheet(data, { skipHeader: true });
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Financial Report");
+    XLSX.writeFile(workbook, `Financial_Report_${date.replace(/\//g, '-')}.xlsx`);
+  };
+
   return (
     <div className="w-full p-6 pb-32 space-y-8">
-      <h1 className="text-3xl font-bold text-mainColor">{t("Financial Report")}</h1>
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <h1 className="text-3xl font-bold text-mainColor">{t("Financial Report")}</h1>
+
+        {reportData && (
+          <div className="flex gap-2">
+            <button
+              onClick={handleExportExcel}
+              className="flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all shadow-sm font-bold"
+            >
+              <FaFileExcel size={18} />
+              {t("Excel")}
+            </button>
+            <button
+              onClick={handlePrintPdf}
+              className="flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all shadow-sm font-bold"
+            >
+              <FaFilePdf size={18} />
+              {t("PDF")}
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Filters */}
       <div className="p-6 rounded-lg shadow-sm bg-gray-50">
@@ -112,9 +257,9 @@ const FinacialReports = () => {
           <button onClick={handleGenerateReport} className="px-6 py-3 font-medium text-white rounded-lg bg-mainColor hover:bg-opacity-90">
             {t("Generate Report")}
           </button>
-          <butReset  onClick={handleResetFilters} className="px-6 py-3 font-medium text-white bg-gray-500 rounded-lg hover:bg-gray-600">
+          <button onClick={handleResetFilters} className="px-6 py-3 font-medium text-white bg-gray-500 rounded-lg hover:bg-gray-600">
             {t("Reset Filters")}
-          </butReset>
+          </button>
         </div>
       </div>
 

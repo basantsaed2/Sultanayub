@@ -5,6 +5,10 @@ import { useGet } from "../../../../../Hooks/useGet";
 import { useTranslation } from "react-i18next";
 import Select from 'react-select';
 import { Link } from "react-router-dom";
+import { FaFileExcel, FaFilePdf, FaSearch } from 'react-icons/fa';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 
 const OrdersReports = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -27,7 +31,10 @@ const OrdersReports = () => {
   const [selectedBranchId, setSelectedBranchId] = useState(null);
   const [selectedCashierManId, setSelectedCashierManId] = useState(null);
   const [selectedFinancialId, setSelectedFinancialId] = useState(null);
-  
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+
   const [orderDetails, setOrderDetails] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { t } = useTranslation();
@@ -35,14 +42,46 @@ const OrdersReports = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const ordersPerPage = 20;
 
+  // Filter Logic
+  const filteredOrders = orders.filter(order => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+
+    const customerName = `${order.user?.f_name || ''} ${order.user?.l_name || ''}`.toLowerCase();
+    const phone = order.user?.phone || '';
+    const branchName = order.branch?.name?.toLowerCase() || '';
+    const orderNumber = order.order_number?.toString()?.toLowerCase() || '';
+    const orderType = order.order_type?.toLowerCase() || '';
+    const status = order.order_status?.toLowerCase() || '';
+    const date = order.created_at ? new Date(order.created_at).toLocaleDateString().toLowerCase() : '';
+    const amount = order.amount?.toString() || '';
+
+    return (
+      customerName.includes(query) ||
+      phone.includes(query) ||
+      branchName.includes(query) ||
+      orderNumber.includes(query) ||
+      orderType.includes(query) ||
+      status.includes(query) ||
+      date.includes(query) ||
+      amount.includes(query)
+    );
+  });
+
   // Calculate total number of pages
-  const totalPages = Math.ceil(orders.length / ordersPerPage);
+  const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
 
   // Get the orders for the current page
-  const currentOrders = orders.slice(
+  const currentOrders = filteredOrders.slice(
     (currentPage - 1) * ordersPerPage,
     currentPage * ordersPerPage
   );
+
+  // Reset page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
 
   // Handle page change
   const handlePageChange = (pageNumber) => {
@@ -105,7 +144,7 @@ const OrdersReports = () => {
       value: item.id,
       label: item[labelKey] || item.user_name || `ID: ${item.id}`
     }));
-    
+
     // Add "All" option at the beginning
     return [{ value: 'all', label: 'All' }, ...options];
   };
@@ -116,35 +155,35 @@ const OrdersReports = () => {
   const financialOptions = prepareOptions(financialAccounts);
 
   const handleGenerateReport = () => {
-      const formData = new FormData();
+    const formData = new FormData();
 
-      if (fromDate) {
+    if (fromDate) {
       formData.append("from", fromDate);
-      }
+    }
 
-      if (toDate) {
+    if (toDate) {
       formData.append("to", toDate);
-      }
-      
-      // Only append filter values if they are selected and not "All"
-      if (selectedCashierId && selectedCashierId !== 'all') {
-        formData.append("cashier_id", selectedCashierId);
-      }
-      
-      if (selectedBranchId && selectedBranchId !== 'all') {
-        formData.append("branch_id", selectedBranchId);
-      }
-      
-      if (selectedCashierManId && selectedCashierManId !== 'all') {
-        formData.append("cashier_man_id", selectedCashierManId);
-      }
-      
-      if (selectedFinancialId && selectedFinancialId !== 'all') {
-        formData.append("financial_id", selectedFinancialId);
-      }
+    }
 
-      postData(formData);
-      setIsModalOpen(false);
+    // Only append filter values if they are selected and not "All"
+    if (selectedCashierId && selectedCashierId !== 'all') {
+      formData.append("cashier_id", selectedCashierId);
+    }
+
+    if (selectedBranchId && selectedBranchId !== 'all') {
+      formData.append("branch_id", selectedBranchId);
+    }
+
+    if (selectedCashierManId && selectedCashierManId !== 'all') {
+      formData.append("cashier_man_id", selectedCashierManId);
+    }
+
+    if (selectedFinancialId && selectedFinancialId !== 'all') {
+      formData.append("financial_id", selectedFinancialId);
+    }
+
+    postData(formData);
+    setIsModalOpen(false);
   };
 
   const handleResetFilters = () => {
@@ -155,20 +194,8 @@ const OrdersReports = () => {
     setSelectedCashierManId(null);
     setSelectedFinancialId(null);
     setOrders([]);
+    setSearchQuery("");
     setCurrentPage(1);
-  };
-
-  const handleViewOrderDetails = (orderId) => {
-    const order = orders.find(order => order.id === orderId);
-    setOrderDetails(order);
-    setSelectedOrderId(orderId);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedOrderId(null);
-    setOrderDetails(null);
   };
 
   const formatDate = (dateString) => {
@@ -187,6 +214,99 @@ const OrdersReports = () => {
     return "N/A";
   };
 
+  // Export Logic
+  const getFilterText = () => {
+    let text = `${t("Date Range")}: ${fromDate || 'N/A'} - ${toDate || 'N/A'}`;
+    if (selectedBranchId && selectedBranchId !== 'all') {
+      const branchName = branches.find(b => b.id === selectedBranchId)?.name;
+      if (branchName) text += ` | ${t("Branch")}: ${branchName}`;
+    }
+    return text;
+  };
+
+  const handlePrintPdf = () => {
+    if (filteredOrders.length === 0) return;
+
+    const doc = new jsPDF();
+    const date = new Date().toLocaleDateString();
+
+    doc.setFontSize(20);
+    doc.text(t("Orders Report"), 14, 22);
+
+    doc.setFontSize(10);
+    doc.text(getFilterText(), 14, 30);
+    if (searchQuery) {
+      doc.text(`${t("Search Query")}: ${searchQuery}`, 14, 36);
+    }
+
+    const tableData = filteredOrders.map((order, index) => [
+      index + 1,
+      order.order_number,
+      getUserName(order.user),
+      order.branch?.name || "N/A",
+      `${order.amount} EGP`,
+      order.order_type,
+      order.order_status,
+      new Date(order.created_at).toLocaleDateString()
+    ]);
+
+    autoTable(doc, {
+      startY: searchQuery ? 40 : 36,
+      head: [[
+        "#",
+        t("Order Number"),
+        t("Customer"),
+        t("Branch"),
+        t("Amount"),
+        t("Type"),
+        t("Status"),
+        t("Date")
+      ]],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: [41, 128, 185] }
+    });
+
+    doc.save(`Orders_Report_${date.replace(/\//g, '-')}.pdf`);
+  };
+
+  const handleExportExcel = () => {
+    if (filteredOrders.length === 0) return;
+    const date = new Date().toLocaleDateString();
+
+    const data = filteredOrders.map((order, index) => ({
+      "#": index + 1,
+      [t("Order Number")]: order.order_number,
+      [t("Customer")]: getUserName(order.user),
+      [t("Customer Phone")]: order.user?.phone || "",
+      [t("Branch")]: order.branch?.name || "N/A",
+      [t("Amount")]: order.amount,
+      [t("Currency")]: "EGP",
+      [t("Order Type")]: order.order_type,
+      [t("Status")]: order.order_status,
+      [t("Date")]: new Date(order.created_at).toLocaleString()
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Orders Report");
+    XLSX.writeFile(workbook, `Orders_Report_${date.replace(/\//g, '-')}.xlsx`);
+  };
+
+
+  const handleViewOrderDetails = (orderId) => {
+    const order = orders.find(order => order.id === orderId);
+    setOrderDetails(order);
+    setSelectedOrderId(orderId);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedOrderId(null);
+    setOrderDetails(null);
+  };
+
   const getStatusBadge = (status) => {
     const statusConfig = {
       pending: { color: 'bg-yellow-100 text-yellow-800', label: 'Pending' },
@@ -194,7 +314,7 @@ const OrdersReports = () => {
       cancelled: { color: 'bg-red-100 text-red-800', label: 'Cancelled' },
       processing: { color: 'bg-blue-100 text-blue-800', label: 'Processing' }
     };
-    
+
     const config = statusConfig[status] || { color: 'bg-gray-100 text-gray-800', label: status };
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
@@ -209,7 +329,7 @@ const OrdersReports = () => {
       delivery: { color: 'bg-indigo-100 text-indigo-800', label: 'Delivery' },
       dine_in: { color: 'bg-pink-100 text-pink-800', label: 'Dine In' }
     };
-    
+
     const config = typeConfig[orderType] || { color: 'bg-gray-100 text-gray-800', label: orderType };
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
@@ -221,11 +341,11 @@ const OrdersReports = () => {
   return (
     <div className="w-full p-4 mb-20 md:p-6">
       <h1 className="mb-4 text-2xl font-bold text-mainColor">{t("Orders Report")}</h1>
-      
+
       {/* Filters Section */}
       <div className="p-4 mb-6 rounded-lg bg-gray-50">
         <h2 className="mb-4 text-lg font-semibold text-mainColor">{t("Filters")}</h2>
-        
+
         <div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2 lg:grid-cols-3">
           {/* Date Filters */}
           <div className="grid grid-cols-1 col-span-1 gap-4 md:col-span-2 lg:col-span-3 md:grid-cols-2">
@@ -349,44 +469,77 @@ const OrdersReports = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap gap-3">
-          <button
-            onClick={handleGenerateReport}
-            className="px-6 py-2 font-medium text-white transition-colors duration-200 rounded-md bg-mainColor hover:bg-opacity-90"
-          >
-            {t("Generate Report")}
-          </button>
-          
-          <button
-            onClick={handleResetFilters}
-            className="px-6 py-2 font-medium text-white transition-colors duration-200 bg-gray-500 rounded-md hover:bg-gray-600"
-          >
-            {t("Reset Filters")}
-          </button>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={handleGenerateReport}
+              className="px-6 py-2.5 font-medium text-white transition-colors duration-200 rounded-xl bg-mainColor hover:bg-opacity-90"
+            >
+              {t("Generate Report")}
+            </button>
+
+            <button
+              onClick={handleResetFilters}
+              className="px-6 py-2.5 font-medium text-white transition-colors duration-200 bg-gray-500 rounded-xl hover:bg-gray-600"
+            >
+              {t("Reset Filters")}
+            </button>
+          </div>
+
+          {filteredOrders.length > 0 && (
+            <div className="flex gap-2">
+              <button
+                onClick={handleExportExcel}
+                className="flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all shadow-sm font-bold"
+              >
+                <FaFileExcel size={18} />
+                {t("Excel")}
+              </button>
+              <button
+                onClick={handlePrintPdf}
+                className="flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all shadow-sm font-bold"
+              >
+                <FaFilePdf size={18} />
+                {t("PDF")}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
       {loadingPost && <p className="mt-4 text-center text-gray-500">{t("Loading orders data..")}.</p>}
-      
+
       {orders && Array.isArray(orders) && orders.length > 0 ? (
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col w-full space-y-4">
+
+          {/* Search Input */}
+          <div className="relative w-full md:w-1/2 lg:w-1/3">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <FaSearch className="text-gray-400" />
+            </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t("Search by customer, branch, order number...")}
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-mainColor focus:border-transparent outline-none transition-all"
+            />
+          </div>
+
           <div className="block w-full overflow-x-scroll sm:min-w-0 scrollPage">
             <table className="min-w-full bg-white border border-gray-200">
               <thead>
                 <tr className="text-white bg-mainColor">
-          
-  <th className="px-4 py-3 border-b">#</th>
-  <th className="px-4 py-3 border-b">{t("Order Number")}</th>
-  <th className="px-4 py-3 border-b">{t("Customer")}</th>
-  <th className="px-4 py-3 border-b">{t("Branch")}</th>
-  <th className="px-4 py-3 border-b">{t("Amount")}</th>
-  <th className="px-4 py-3 border-b">{t("Order Type")}</th>
-  <th className="px-4 py-3 border-b">{t("Status")}</th>
-  <th className="px-4 py-3 border-b">{t("Date")}</th>
-  <th className="px-4 py-3 border-b">{t("View Details")}</th>
-  <th className="px-4 py-3 border-b">{t("View Order")}</th>
-
-
+                  <th className="px-4 py-3 border-b">#</th>
+                  <th className="px-4 py-3 border-b">{t("Order Number")}</th>
+                  <th className="px-4 py-3 border-b">{t("Customer")}</th>
+                  <th className="px-4 py-3 border-b">{t("Branch")}</th>
+                  <th className="px-4 py-3 border-b">{t("Amount")}</th>
+                  <th className="px-4 py-3 border-b">{t("Order Type")}</th>
+                  <th className="px-4 py-3 border-b">{t("Status")}</th>
+                  <th className="px-4 py-3 border-b">{t("Date")}</th>
+                  <th className="px-4 py-3 border-b">{t("View Details")}</th>
+                  <th className="px-4 py-3 border-b">{t("View Order")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -410,7 +563,7 @@ const OrdersReports = () => {
                         onClick={() => handleViewOrderDetails(order.id)}
                         className="text-sm font-medium transition-colors duration-200 text-mainColor hover:text-blue-700"
                       >
-                         View Details
+                        View Details
                       </button>
                     </td>
                     <td className="px-4 py-3 text-center border-b">
@@ -427,8 +580,8 @@ const OrdersReports = () => {
             </table>
           </div>
 
-          {/* Professional Pagination */}
-          {orders.length > 0 && totalPages > 1 && (
+          {/* Professional Pagination - Using filteredOrders length */}
+          {filteredOrders.length > 0 && totalPages > 1 && (
             <div className="flex items-center justify-between px-4 py-3 mt-6 bg-white border border-gray-200 rounded-lg">
               {/* Page Info */}
               <div className="flex items-center text-sm text-gray-700">
@@ -437,11 +590,11 @@ const OrdersReports = () => {
                   <span className="font-medium">{(currentPage - 1) * ordersPerPage + 1}</span>
                   {" to "}
                   <span className="font-medium">
-                    {Math.min(currentPage * ordersPerPage, orders.length)}
+                    {Math.min(currentPage * ordersPerPage, filteredOrders.length)}
                   </span>
                   {" of "}
-                  <span className="font-medium">{orders.length}</span>
-                  {"results"}
+                  <span className="font-medium">{filteredOrders.length}</span>
+                  {" results"}
                 </span>
               </div>
 
@@ -451,11 +604,10 @@ const OrdersReports = () => {
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className={`flex items-center px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 ${
-                    currentPage === 1
-                      ? "text-gray-400 cursor-not-allowed bg-gray-100"
-                      : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
-                  }`}
+                  className={`flex items-center px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 ${currentPage === 1
+                    ? "text-gray-400 cursor-not-allowed bg-gray-100"
+                    : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                    }`}
                 >
                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -469,13 +621,12 @@ const OrdersReports = () => {
                     key={index}
                     onClick={() => typeof pageNumber === 'number' && handlePageChange(pageNumber)}
                     disabled={pageNumber === '...'}
-                    className={`flex items-center justify-center w-8 h-8 text-sm font-medium rounded-md transition-colors duration-200 ${
-                      pageNumber === currentPage
-                        ? "bg-mainColor text-white"
-                        : pageNumber === '...'
+                    className={`flex items-center justify-center w-8 h-8 text-sm font-medium rounded-md transition-colors duration-200 ${pageNumber === currentPage
+                      ? "bg-mainColor text-white"
+                      : pageNumber === '...'
                         ? "text-gray-500 cursor-default"
                         : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
-                    }`}
+                      }`}
                   >
                     {pageNumber}
                   </button>
@@ -485,11 +636,10 @@ const OrdersReports = () => {
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className={`flex items-center px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 ${
-                    currentPage === totalPages
-                      ? "text-gray-400 cursor-not-allowed bg-gray-100"
-                      : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
-                  }`}
+                  className={`flex items-center px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 ${currentPage === totalPages
+                    ? "text-gray-400 cursor-not-allowed bg-gray-100"
+                    : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                    }`}
                 >
                   {t("Next")}
                   <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -507,7 +657,7 @@ const OrdersReports = () => {
         </div>
       ) : null}
 
-      {/* Modal for Order Details */}
+      {/* Modal for Order Details - Unchanged */}
       {isModalOpen && orderDetails && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg max-w-4xl w-full max-h-[80vh] overflow-y-auto">
@@ -520,7 +670,7 @@ const OrdersReports = () => {
                 ×
               </button>
             </div>
-            
+
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {/* Order Information */}
               <div className="space-y-4">
