@@ -4,7 +4,7 @@ import Select from 'react-select';
 import { useGet } from '../../../../Hooks/useGet';
 import { usePost } from '../../../../Hooks/usePostJson';
 import OrdersTable from '../../../../Components/AnotherComponents/OrdersTable';
-import { StaticLoader } from '../../../../Components/Components';
+import { StaticLoader, DateInput } from '../../../../Components/Components';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../../Context/Auth';
 
@@ -12,6 +12,17 @@ const AllOrdersDeliveryTab = () => {
   const { t } = useTranslation();
   const auth = useAuth();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
+  const getCurrentDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const [fromDate, setFromDate] = useState(getCurrentDate());
+  const [toDate, setToDate] = useState(getCurrentDate());
 
   // ---------- APIs ----------
   const getUrl = `${apiUrl}/admin/delivery/single_page/orders`;
@@ -28,7 +39,15 @@ const AllOrdersDeliveryTab = () => {
   const [selectedOrderIds, setSelectedOrderIds] = useState([]);
   const [selectedDeliveryOption, setSelectedDeliveryOption] = useState(null); // react-select value
 
-  const allOrders = normalData?.orders || [];
+  const rawOrders = normalData?.orders || [];
+
+  // Filter by date range (inclusive)
+  const allOrders = rawOrders.filter(order => {
+    if (!order.date) return false;
+    // Assuming order.date is "YYYY-MM-DD" or similar interpretable string
+    const orderDate = new Date(order.date).toISOString().split('T')[0];
+    return orderDate >= fromDate && orderDate <= toDate;
+  });
   const deliveries = deliveryData?.deliveries || [];
 
   const allSelected = allOrders.length > 0 && selectedOrderIds.length === allOrders.length;
@@ -137,6 +156,22 @@ const AllOrdersDeliveryTab = () => {
   // ---------- Render ----------
   return (
     <div className="pb-16">
+
+      {/* Date Filters */}
+      <div className="bg-white p-4 md:p-6 rounded-xl shadow-md mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <DateInput
+            value={fromDate}
+            onChange={(e) => setFromDate(e.target.value)}
+            placeholder={t("From Date")}
+          />
+          <DateInput
+            value={toDate}
+            onChange={(e) => setToDate(e.target.value)}
+            placeholder={t("To Date")}
+          />
+        </div>
+      </div>
 
       {/* Assignment Bar - Only show when orders exist */}
       {allOrders.length > 0 && (
