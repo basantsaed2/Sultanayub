@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGet } from '../../../../../Hooks/useGet';
 import { DateInput, StaticLoader } from '../../../../../Components/Components';
+import { FaPrint } from 'react-icons/fa';
 
 const ProductsReports = () => {
     const { t } = useTranslation();
@@ -59,6 +60,182 @@ const ProductsReports = () => {
         setSelectedCategory(null);
     };
 
+    const handlePrint = () => {
+        if (reportData.length === 0) return;
+
+        const printWindow = window.open('', '_blank');
+        const date = new Date().toLocaleDateString();
+
+        let totalProducts = 0;
+        let totalPrice = 0;
+
+        reportData.forEach(item => {
+            totalProducts += parseInt(item.products_count) || 0;
+            totalPrice += parseFloat(item.products_price) || 0;
+        });
+
+        const receiptContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>${t('Products Report')}</title>
+                <style>
+                    @media print {
+                        body { margin: 0; }
+                    }
+                    body {
+                        font-family: 'Courier New', monospace;
+                        max-width: 80mm;
+                        margin: 0 auto;
+                        padding: 10px;
+                        font-size: 12px;
+                    }
+                    .header {
+                        text-align: center;
+                        border-bottom: 2px dashed #000;
+                        padding-bottom: 10px;
+                        margin-bottom: 10px;
+                    }
+                    .title {
+                        font-size: 18px;
+                        font-weight: bold;
+                        margin-bottom: 5px;
+                    }
+                    .date {
+                        font-size: 11px;
+                        margin-bottom: 5px;
+                    }
+                    .filters {
+                        font-size: 10px;
+                        color: #666;
+                    }
+                    .category {
+                        border-bottom: 2px dashed #000;
+                        padding: 10px 0;
+                        margin-bottom: 5px;
+                    }
+                    .category-header {
+                        font-weight: bold;
+                        font-size: 14px;
+                        margin-bottom: 8px;
+                        text-align: center;
+                        background: #f0f0f0;
+                        padding: 5px;
+                    }
+                    .product-item {
+                        display: flex;
+                        justify-content: space-between;
+                        padding: 3px 5px;
+                        font-size: 11px;
+                        border-bottom: 1px dotted #ddd;
+                    }
+                    .product-name {
+                        flex: 1;
+                    }
+                    .product-count {
+                        width: 40px;
+                        text-align: center;
+                    }
+                    .product-price {
+                        width: 70px;
+                        text-align: right;
+                    }
+                    .category-total {
+                        display: flex;
+                        justify-content: space-between;
+                        font-weight: bold;
+                        margin-top: 5px;
+                        padding: 5px;
+                        background: #f9f9f9;
+                    }
+                    .total {
+                        border-top: 2px solid #000;
+                        margin-top: 10px;
+                        padding-top: 10px;
+                        font-weight: bold;
+                        font-size: 14px;
+                    }
+                    .total-row {
+                        display: flex;
+                        justify-space-between;
+                        margin: 5px 0;
+                    }
+                    .footer {
+                        text-align: center;
+                        margin-top: 15px;
+                        padding-top: 10px;
+                        border-top: 2px dashed #000;
+                        font-size: 10px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <div class="title">${t('Products Report')}</div>
+                    <div class="date">${t('Date')}: ${date}</div>
+                    ${fromDate || toDate ? `
+                        <div class="filters">
+                            ${fromDate ? `${t('From')}: ${fromDate}` : ''}
+                            ${fromDate && toDate ? ' - ' : ''}
+                            ${toDate ? `${t('To')}: ${toDate}` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+                
+                ${reportData.map((item, index) => `
+                    <div class="category">
+                        <div class="category-header">${index + 1}. ${item.category}</div>
+                        ${item.products && item.products.length > 0 ? `
+                            ${item.products.map(product => `
+                                <div class="product-item">
+                                    <span class="product-name">${product.product_name || product.name}</span>
+                                    <span class="product-count">x${product.count || 0}</span>
+                                    <span class="product-price">${(parseFloat(product.price || 0) * parseInt(product.count || 0)).toFixed(2)}</span>
+                                </div>
+                            `).join('')}
+                            <div class="category-total">
+                                <span>${t('Category Total')}:</span>
+                                <span>${item.products_price} ${t('EGP')}</span>
+                            </div>
+                        ` : `
+                            <div style="text-align: center; padding: 10px; color: #999;">
+                                ${t('No products')}
+                            </div>
+                        `}
+                    </div>
+                `).join('')}
+                
+                <div class="total">
+                    <div class="total-row">
+                        <span>${t('Total Products')}:</span>
+                        <span>${totalProducts}</span>
+                    </div>
+                    <div class="total-row">
+                        <span>${t('Total Price')}:</span>
+                        <span>${totalPrice.toFixed(2)} ${t('EGP')}</span>
+                    </div>
+                </div>
+                
+                <div class="footer">
+                    ${t('Thank you')}
+                </div>
+                
+                <script>
+                    window.onload = function() {
+                        window.print();
+                        window.onafterprint = function() {
+                            window.close();
+                        };
+                    };
+                </script>
+            </body>
+            </html>
+        `;
+
+        printWindow.document.write(receiptContent);
+        printWindow.document.close();
+    };
+
     return (
         <div className="w-full p-2 md:p-6 mb-20">
             <h1 className="mb-4 text-2xl font-bold text-mainColor">{t('Products Report')}</h1>
@@ -101,6 +278,17 @@ const ProductsReports = () => {
                             {t("Apply")}
                         </button>
                     </div>
+                    {reportData.length > 0 && (
+                        <div className="w-full md:w-auto">
+                            <button
+                                onClick={handlePrint}
+                                className="w-full px-6 py-2.5 text-white bg-green-600 rounded-xl hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                            >
+                                <FaPrint size={16} />
+                                {t("Print")}
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
 
