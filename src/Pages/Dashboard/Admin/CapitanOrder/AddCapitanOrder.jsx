@@ -43,6 +43,7 @@ const AddCaptianOrder = () => {
     const [image, setImage] = useState("");
     const [imageFile, setImageFile] = useState(null);
     const [status, setStatus] = useState(0);
+    const [waiter, setWaiter] = useState(0);
 
     // Fetch branches and locations
     useEffect(() => {
@@ -64,7 +65,7 @@ const AddCaptianOrder = () => {
                 location => location.branch_id === selectedBranch.id
             );
             setFilteredLocations(filtered);
-            
+
             // Clear selected locations when branch changes
             setSelectedLocations([]);
         } else {
@@ -98,6 +99,10 @@ const AddCaptianOrder = () => {
         setStatus(status === 0 ? 1 : 0);
     };
 
+    const handleWaiterChange = () => {
+        setWaiter(waiter === 0 ? 1 : 0);
+    };
+
     // Reset form
     const handleReset = () => {
         setName("");
@@ -110,6 +115,7 @@ const AddCaptianOrder = () => {
         setSelectedLocations([]);
         setSelectedBranch(null);
         setFilteredLocations([]);
+        setWaiter(0);
     };
 
     // Reset form after successful submission
@@ -134,8 +140,11 @@ const AddCaptianOrder = () => {
         formData.append("user_name", userName);
         formData.append("phone", phone);
         formData.append("password", password);
-        formData.append("image", imageFile);
+        if (imageFile) {
+            formData.append("image", imageFile);
+        }
         formData.append("status", status);
+        formData.append("waiter", waiter);
         if (selectedBranch) {
             formData.append("branch_id", selectedBranch.id);
         }
@@ -242,14 +251,21 @@ const AddCaptianOrder = () => {
                             optionLabel="name"
                             display="chip"
                             placeholder={
-                                selectedBranch 
-                                    ? t("Select Locations") 
+                                selectedBranch
+                                    ? t("Select Locations")
                                     : t("Please select a branch first")
                             }
                             maxSelectedLabels={3}
                             className="w-full bg-white md:w-20rem"
                             disabled={!selectedBranch} // Disable if no branch selected
                         />
+                    </div>
+                    {/* Waiter */}
+                    <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                        <span className="text-xl font-TextFontRegular text-thirdColor">
+                            {t("Waiter")}:
+                        </span>
+                        <Switch handleClick={handleWaiterChange} checked={waiter} />
                     </div>
                     {/* Status */}
                     <div className="xl:w-[30%] flex items-center justify-start mt-4 gap-x-4">

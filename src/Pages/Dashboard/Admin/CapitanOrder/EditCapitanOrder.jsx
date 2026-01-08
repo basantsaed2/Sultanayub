@@ -41,6 +41,7 @@ const EditCaptianOrder = () => {
   const [image, setImage] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [status, setStatus] = useState(0);
+  const [waiter, setWaiter] = useState(0);
 
   // Fetch branches and locations
   useEffect(() => {
@@ -72,14 +73,14 @@ const EditCaptianOrder = () => {
   const handleBranchChange = (e) => {
     const branch = e.value;
     setSelectedBranch(branch);
-    
+
     // If branch changes, filter locations and clear selected locations if they don't belong to the new branch
     if (branch && allLocations.length > 0) {
       const filtered = allLocations.filter(
         location => location.branch_id === branch.id
       );
       setFilteredLocations(filtered);
-      
+
       // Filter selected locations to only keep those that belong to the new branch
       const validSelectedLocations = selectedLocations.filter(
         location => location.branch_id === branch.id
@@ -102,12 +103,13 @@ const EditCaptianOrder = () => {
       setImageFile(captain.image_link || null);
       setStatus(captain.status || 0);
       setSelectedBranch(captain.branch || null);
-      
+      setWaiter(captain.waiter || 0);
+
       // Set selected locations after branch is set
       if (captain.branch && captain.locations) {
         setSelectedLocations(captain.locations || []);
       }
-    } 
+    }
   }, [dataCaptianOrder]);
 
   // When branch and all locations are loaded, filter locations for the selected branch
@@ -140,6 +142,10 @@ const EditCaptianOrder = () => {
     setStatus(status === 0 ? 1 : 0);
   };
 
+  const handleWaiterChange = () => {
+    setWaiter(waiter === 0 ? 1 : 0);
+  };
+
   // Reset form
   const handleReset = () => {
     setName("");
@@ -149,6 +155,7 @@ const EditCaptianOrder = () => {
     setImage("");
     setImageFile(null);
     setStatus(0);
+    setWaiter(0);
     setSelectedLocations([]);
     setSelectedBranch(null);
     setFilteredLocations([]);
@@ -175,17 +182,17 @@ const EditCaptianOrder = () => {
     formData.append("name", name);
     formData.append("user_name", userName);
     formData.append("phone", phone);
-    
+
     // Only append password if it's provided (for updates)
     if (password) {
       formData.append("password", password);
     }
-    
+
     // Only append image if a new one is selected
     if (imageFile && typeof imageFile !== 'string') {
       formData.append("image", imageFile);
     }
-    
+    formData.append("waiter", waiter);
     formData.append("status", status);
     if (selectedBranch) {
       formData.append("branch_id", selectedBranch.id);
@@ -263,6 +270,7 @@ const EditCaptianOrder = () => {
             <PasswordInput
               backgound="white"
               value={password}
+              required={false}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t("Password")}
             />
@@ -296,14 +304,21 @@ const EditCaptianOrder = () => {
               optionLabel="name"
               display="chip"
               placeholder={
-                selectedBranch 
-                  ? t("Select Locations") 
+                selectedBranch
+                  ? t("Select Locations")
                   : t("Please select a branch first")
               }
               maxSelectedLabels={3}
               className="w-full bg-white md:w-20rem"
               disabled={!selectedBranch} // Disable if no branch selected
             />
+          </div>
+          {/* Waiter */}
+          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+            <span className="text-xl font-TextFontRegular text-thirdColor">
+              {t("Waiter")}:
+            </span>
+            <Switch handleClick={handleWaiterChange} checked={waiter} />
           </div>
           {/* Status */}
           <div className="xl:w-[30%] flex items-center justify-start mt-4 gap-x-4">

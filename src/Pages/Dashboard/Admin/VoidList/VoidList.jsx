@@ -13,6 +13,10 @@ import {
   FiX,
   FiAlertTriangle,
 } from "react-icons/fi";
+import { FaFileExcel, FaFilePdf } from 'react-icons/fa';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 
 const VoidList = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -53,13 +57,86 @@ const VoidList = () => {
       currency: "EGP",
     }).format(amount);
   };
-const thClass = (align = "left") =>
-  `px-6 py-4 text-sm font-bold ${
-    lang === "ar" ? "text-right" : `text-${align}`
-  } text-thirdColor`;
+
+  const handlePrintPdf = () => {
+    if (orders.length === 0) return;
+
+    const doc = new jsPDF();
+    const date = new Date().toLocaleDateString();
+
+    doc.setFontSize(20);
+    doc.text(t("Void Orders Report"), 14, 22);
+
+    const tableData = orders.map((order) => [
+      order.order_number,
+      new Date(order.created_at).toLocaleDateString(),
+      order.branch?.name || "—",
+      `${order.amount} EGP`,
+      order.void_reason || t("Not specified"),
+      order.void || t("-")
+    ]);
+
+    autoTable(doc, {
+      startY: 30,
+      head: [[
+        t("Order No"),
+        t("Date"),
+        t("Branch"),
+        t("Amount"),
+        t("Void Reason"),
+        t("Void")
+      ]],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: [220, 38, 38] } // Red color matching the void theme
+    });
+
+    doc.save(`Void_Orders_Report_${date.replace(/\//g, '-')}.pdf`);
+  };
+
+  const handleExportExcel = () => {
+    if (orders.length === 0) return;
+    const date = new Date().toLocaleDateString();
+
+    const data = orders.map((order) => ({
+      [t("Order No")]: order.order_number,
+      [t("Date")]: new Date(order.created_at).toLocaleString(),
+      [t("Branch")]: order.branch?.name || "—",
+      [t("Amount")]: order.amount,
+      [t("Void Reason")]: order.void_reason || t("Not specified"),
+      [t("Void")]: order.void || t("-")
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Void Orders");
+    XLSX.writeFile(workbook, `Void_Orders_Report_${date.replace(/\//g, '-')}.xlsx`);
+  };
+
   return (
     <div className="w-full p-6">
-      <TitlePage text={t("Void Orders")} />
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+        <TitlePage text={t("Void Orders")} />
+
+        {orders.length > 0 && (
+          <div className="flex gap-2">
+            <button
+              onClick={handleExportExcel}
+              className="flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all shadow-sm font-bold"
+            >
+              <FaFileExcel size={18} />
+              {t("Excel")}
+            </button>
+            <button
+              onClick={handlePrintPdf}
+              className="flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all shadow-sm font-bold"
+            >
+              <FaFilePdf size={18} />
+              {t("PDF")}
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Loading */}
       {loading && (
@@ -85,29 +162,23 @@ const thClass = (align = "left") =>
             <table className="w-full">
               <thead className="text-white bg-red-600">
                 <tr>
-                    <th
-                        className={`px-6 py-4 ${
-                        lang== "ar" ? "text-right" : "text-left"
-                        } `}
-                    >
-                        {t("Order No")}
-                    </th>
-                    <th  className={`px-6 py-4 ${
-                        lang== "ar" ? "text-right" : "text-left"
-                        } `}>{t("Date")}</th>
-                    <th  className={`px-6 py-4 ${
-                        lang== "ar" ? "text-right" : "text-left"
-                        } `}>{t("Branch")}</th>
-                    <th  className={`px-6 py-4 ${
-                        lang== "ar" ? "text-right" : "text-left"
-                        } `}>{t("Amount")}</th>
-                    <th  className={`px-6 py-4 ${
-                        lang== "ar" ? "text-right" : "text-left"
-                        } `}>{t("Void Reason")}</th>
-                    <th  className={`px-6 py-4 ${
-                        lang== "ar" ? "text-right" : "text-left"
-                        } `}>{t("Void")}</th>
-                    <th className="px-6 py-4 text-center">{t("Actions")}</th>
+                  <th
+                    className={`px-6 py-4 ${lang == "ar" ? "text-right" : "text-left"
+                      } `}
+                  >
+                    {t("Order No")}
+                  </th>
+                  <th className={`px-6 py-4 ${lang == "ar" ? "text-right" : "text-left"
+                    } `}>{t("Date")}</th>
+                  <th className={`px-6 py-4 ${lang == "ar" ? "text-right" : "text-left"
+                    } `}>{t("Branch")}</th>
+                  <th className={`px-6 py-4 ${lang == "ar" ? "text-right" : "text-left"
+                    } `}>{t("Amount")}</th>
+                  <th className={`px-6 py-4 ${lang == "ar" ? "text-right" : "text-left"
+                    } `}>{t("Void Reason")}</th>
+                  <th className={`px-6 py-4 ${lang == "ar" ? "text-right" : "text-left"
+                    } `}>{t("Void")}</th>
+                  <th className="px-6 py-4 text-center">{t("Actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -131,11 +202,10 @@ const thClass = (align = "left") =>
                     </td>
                     <td className="px-6 py-5">
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          order.void_reason
-                            ? "bg-red-100 text-red-800"
-                            : "bg-gray-100 text-gray-600"
-                        }`}
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${order.void_reason
+                          ? "bg-red-100 text-red-800"
+                          : "bg-gray-100 text-gray-600"
+                          }`}
                       >
                         {order.void_reason || t("Not specified")}
                       </span>
@@ -273,9 +343,8 @@ const thClass = (align = "left") =>
                     <DetailRow
                       label={t("Customer Name")}
                       value={
-                        `${selectedOrder.user?.f_name || ""} ${
-                          selectedOrder.user?.l_name || ""
-                        }`.trim() || "—"
+                        `${selectedOrder.user?.f_name || ""} ${selectedOrder.user?.l_name || ""
+                          }`.trim() || "—"
                       }
                     />
                     <DetailRow
@@ -368,17 +437,15 @@ const DetailRow = ({
   <div className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
     <span className="font-medium text-gray-600">{label}:</span>
     <span
-      className={`font-semibold ${
-        bold
-          ? "text-lg text-red-600"
-          : highlight
+      className={`font-semibold ${bold
+        ? "text-lg text-red-600"
+        : highlight
           ? "text-red-700"
           : "text-gray-900"
-      } ${
-        badge
+        } ${badge
           ? "px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm"
           : ""
-      }`}
+        }`}
     >
       {value || "—"}
     </span>

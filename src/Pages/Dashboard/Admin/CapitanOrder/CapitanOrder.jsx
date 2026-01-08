@@ -101,7 +101,7 @@ const CaptianOrder = ({ refetch, setUpdate }) => {
     }
   };
 
-  const headers = [t("sl"), t("Image"), t("name"), t("User Name"), t("Phone"), t("Branch"), t("View Area"), t("action")];
+  const headers = [t("sl"), t("Image"), t("name"), t("User Name"), t("Phone"), t("Branch"), t("Waiter"), t("View Area"), t("action")];
   return (
     <div className="flex items-start justify-start w-full overflow-x-scroll pb-28 scrollSection">
       {loadingCaptainOrder || loadingDelete ? (
@@ -164,6 +164,9 @@ const CaptianOrder = ({ refetch, setUpdate }) => {
                       </td>
                       <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                         {captain?.branch?.name || "-"}
+                      </td>
+                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                        {captain?.waiter ? t("Yes") : t("No")}
                       </td>
                       <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                         <span
