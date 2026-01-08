@@ -4,11 +4,13 @@ import AllOrdersDeliveryTab from './AllOrdersDeliveryTab';
 import CurrentOrdersTab from './CurrentOrdersTab';
 import FailedOrdersTab from './FailedOrdersTab';
 import { useTranslation } from 'react-i18next';
+import HistoryOrdersTab from './HistoryOrdersTab';
 
 const TABS = {
   ALL: 'all',
   CURRENT: 'current',
   FAILED: 'failed',
+  History: 'history'
 };
 
 const OrdersDeliveryParent = () => {
@@ -28,6 +30,7 @@ const OrdersDeliveryParent = () => {
           { key: TABS.ALL, label: t('All Orders') },
           { key: TABS.CURRENT, label: t('Current Orders') },
           { key: TABS.FAILED, label: t('Returned / Failed') },
+          { key: TABS.History, label: t('History') }
         ].map((tab) => (
           <button
             key={tab.key}
@@ -47,6 +50,7 @@ const OrdersDeliveryParent = () => {
         {activeTab === TABS.ALL && <AllOrdersDeliveryTab />}
         {activeTab === TABS.CURRENT && <CurrentOrdersTab />}
         {activeTab === TABS.FAILED && <FailedOrdersTab />}
+        {activeTab === TABS.History && <HistoryOrdersTab />}
       </div>
     </div>
   );
