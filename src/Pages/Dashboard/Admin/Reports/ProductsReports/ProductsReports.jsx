@@ -3,10 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { useGet } from '../../../../../Hooks/useGet';
 import { DateInput, StaticLoader } from '../../../../../Components/Components';
 import { FaPrint } from 'react-icons/fa';
+import { useSelector } from 'react-redux';
 
 const ProductsReports = () => {
     const { t } = useTranslation();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const selectedLanguage = useSelector((state) => state.language?.selected ?? "en");
 
     // Filter States
     const [fromDate, setFromDate] = useState('');
@@ -23,7 +25,7 @@ const ProductsReports = () => {
         if (sort) params.append('sort', sort);
         if (fromDate) params.append('from', fromDate);
         if (toDate) params.append('to', toDate);
-        return `${apiUrl}/admin/reports/product_report?${params.toString()}`;
+        return `${apiUrl}/admin/reports/product_report?${params.toString()}&locale=${selectedLanguage}`;
     };
 
     const { data, loading, refetch } = useGet({
@@ -131,14 +133,20 @@ const ProductsReports = () => {
                     }
                     .product-name {
                         flex: 1;
+                        font-weight: bold;
+                        font-size: 13px;
                     }
                     .product-count {
                         width: 40px;
                         text-align: center;
+                        font-weight: bold;
+                        font-size: 13px;
                     }
                     .product-price {
                         width: 70px;
                         text-align: right;
+                        font-weight: bold;
+                        font-size: 13px;
                     }
                     .category-total {
                         display: flex;
@@ -198,7 +206,7 @@ const ProductsReports = () => {
                                 <span>${item.products_price} ${t('EGP')}</span>
                             </div>
                         ` : `
-                            <div style="text-align: center; padding: 10px; color: #999;">
+                            <div style="text-align: center; padding: 10px; color: #999;font-weight: bold;font-size: 13px;">
                                 ${t('No products')}
                             </div>
                         `}

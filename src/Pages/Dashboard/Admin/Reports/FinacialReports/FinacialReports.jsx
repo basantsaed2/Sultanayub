@@ -4,7 +4,7 @@ import { DateInput } from "../../../../../Components/Components";
 import { useGet } from "../../../../../Hooks/useGet";
 import { useTranslation } from "react-i18next";
 import Select from 'react-select';
-import { FaFileExcel, FaFilePdf } from 'react-icons/fa';
+import { FaFileExcel, FaFilePdf, FaPrint } from 'react-icons/fa';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -88,6 +88,222 @@ const FinacialReports = () => {
       if (branchName) text += ` | ${t("Branch")}: ${branchName}`;
     }
     return text;
+  };
+
+  const handlePrint = () => {
+    if (!reportData) return;
+
+    const printWindow = window.open('', '_blank');
+    const date = new Date().toLocaleDateString();
+
+    const receiptContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>${t('Financial Report')}</title>
+            <style>
+                @media print {
+                    body { margin: 0; }
+                }
+                body {
+                    font-family: 'Courier New', monospace;
+                    max-width: 80mm;
+                    margin: 0 auto;
+                    padding: 10px;
+                    font-size: 12px;
+                }
+                .header {
+                    text-align: center;
+                    border-bottom: 2px dashed #000;
+                    padding-bottom: 10px;
+                    margin-bottom: 10px;
+                }
+                .title {
+                    font-size: 18px;
+                    font-weight: bold;
+                    margin-bottom: 5px;
+                }
+                .info-row {
+                    margin-bottom: 5px;
+                    font-size: 10px;
+                }
+                .section {
+                    border-bottom: 1px dashed #000;
+                    padding: 10px 0;
+                    margin-bottom: 5px;
+                }
+                .section-title {
+                    font-weight: bold;
+                    font-size: 14px;
+                    margin-bottom: 8px;
+                    text-align: center;
+                    background: #f0f0f0;
+                    padding: 5px;
+                }
+                .item-row {
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 3px 0;
+                    font-size: 11px;
+                }
+                .item-name {
+                    flex: 1;
+                    font-weight: bold;
+                }
+                .item-value {
+                    text-align: right;
+                    font-weight: bold;
+                }
+                .total-box {
+                    border: 2px solid #000;
+                    padding: 10px;
+                    margin-top: 10px;
+                    text-align: center;
+                }
+                .total-label {
+                    font-size: 14px;
+                    font-weight: bold;
+                }
+                .total-value-green {
+                    font-size: 16px;
+                    font-weight: bold;
+                    margin-top: 5px;
+                    color: black;
+                }
+                 .total-value-red {
+                    font-size: 16px;
+                    font-weight: bold;
+                    margin-top: 5px;
+                    color: black;
+                }
+                .footer {
+                    text-align: center;
+                    margin-top: 15px;
+                    padding-top: 10px;
+                    border-top: 2px dashed #000;
+                    font-size: 10px;
+                }
+                .account-block {
+                    margin-bottom: 8px;
+                    border-bottom: 1px dotted #ccc;
+                    padding-bottom: 5px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <div class="title">${t('Financial Report')}</div>
+                <div class="info-row">${getFilterText()}</div>
+                <div class="info-row">${t('Date')}: ${date}</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">${t('Summary')}</div>
+                <div class="item-row">
+                    <span class="item-name">${t('Total Orders')}</span>
+                    <span class="item-value">${reportData.order_count}</span>
+                </div>
+                <div class="item-row">
+                    <span class="item-name">${t('Total Revenue')}</span>
+                    <span class="item-value">${(reportData.total_amount || 0).toFixed(2)} ${t('EGP')}</span>
+                </div>
+                 <div class="item-row">
+                    <span class="item-name">${t('Total Expenses')}</span>
+                    <span class="item-value">${(reportData.expenses_total || 0)} ${t('EGP')}</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">${t('Financial Accounts Details')}</div>
+                ${reportData.financial_accounts.map(acc => {
+      const net = (acc.total_amount_delivery || 0) + (acc.total_amount_take_away || 0) + (acc.total_amount_dine_in || 0);
+      return `
+                    <div class="account-block">
+                        <div class="item-row">
+                            <span class="item-name" style="text-decoration: underline;">${acc.financial_name}</span>
+                        </div>
+                        <div class="item-row">
+                            <span class="item-name">${t('Delivery')}</span>
+                            <span class="item-value">${acc.total_amount_delivery.toFixed(2)}</span>
+                        </div>
+                         <div class="item-row">
+                            <span class="item-name">${t('Take Away')}</span>
+                            <span class="item-value">${acc.total_amount_take_away.toFixed(2)}</span>
+                        </div>
+                         <div class="item-row">
+                            <span class="item-name">${t('Dine In')}</span>
+                            <span class="item-value">${acc.total_amount_dine_in.toFixed(2)}</span>
+                        </div>
+                         <div class="item-row">
+                            <span class="item-name">${t('Net Total')}</span>
+                            <span class="item-value">${net.toFixed(2)} ${t('EGP')}</span>
+                        </div>
+                    </div>
+                    `;
+    }).join('')}
+            </div>
+
+            ${reportData.expenses && reportData.expenses.length > 0 ? `
+            <div class="section">
+                <div class="section-title">${t('Expenses')}</div>
+                ${reportData.expenses.map(exp => `
+                     <div class="item-row">
+                        <span class="item-name">${exp.financial_account}</span>
+                        <span class="item-value">${exp.total} ${t('EGP')}</span>
+                    </div>
+                `).join('')}
+            </div>
+            ` : ''}
+
+            ${reportData.online_order && reportData.online_order.paid && reportData.online_order.paid.length > 0 ? `
+            <div class="section">
+                <div class="section-title">${t('Paid Online Orders')}</div>
+                ${reportData.online_order.paid.map(item => `
+                     <div class="item-row">
+                        <span class="item-name">${item.payment_method}</span>
+                        <span class="item-value">${item.amount.toFixed(2)} ${t('EGP')}</span>
+                    </div>
+                `).join('')}
+            </div>
+            ` : ''}
+
+            ${reportData.online_order && reportData.online_order.un_paid && reportData.online_order.un_paid.length > 0 ? `
+            <div class="section">
+                <div class="section-title">${t('Unpaid / Cash on Delivery')}</div>
+                 ${reportData.online_order.un_paid.map(item => `
+                     <div class="item-row">
+                        <span class="item-name">${item.payment_method}</span>
+                        <span class="item-value">${item.amount.toFixed(2)} ${t('EGP')}</span>
+                    </div>
+                `).join('')}
+            </div>
+            ` : ''}
+
+            <div class="total-box">
+                <div class="total-label">${t('Net Profit')}</div>
+                <div class="${((reportData.total_amount || 0) - (reportData.expenses_total || 0)) >= 0 ? "total-value-green" : "total-value-red"}">
+                    ${((reportData.total_amount || 0) - (reportData.expenses_total || 0)).toFixed(2)} ${t('EGP')}
+                </div>
+            </div>
+            
+            <div class="footer">
+                ${t('Thank you')}
+            </div>
+            
+            <script>
+                window.onload = function() {
+                    window.print();
+                    window.onafterprint = function() {
+                        window.close();
+                    };
+                };
+            </script>
+        </body>
+        </html>
+    `;
+
+    printWindow.document.write(receiptContent);
+    printWindow.document.close();
   };
 
   const handlePrintPdf = () => {
@@ -221,6 +437,13 @@ const FinacialReports = () => {
             >
               <FaFilePdf size={18} />
               {t("PDF")}
+            </button>
+            <button
+              onClick={handlePrint}
+              className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-sm font-bold"
+            >
+              <FaPrint size={18} />
+              {t("Print")}
             </button>
           </div>
         )}

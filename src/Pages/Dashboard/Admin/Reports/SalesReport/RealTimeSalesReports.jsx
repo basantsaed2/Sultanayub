@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Select from 'react-select';
 import { useGet } from '../../../../../Hooks/useGet'; // Adjusted path based on file location
 import { StaticLoader } from '../../../../../Components/Components'; // Assuming StaticLoader is available
-import { FaFileExcel, FaFilePdf } from 'react-icons/fa';
+import { FaFileExcel, FaFilePdf, FaPrint } from 'react-icons/fa';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -36,6 +36,170 @@ const RealTimeSalesReports = () => {
     }));
 
     // Handlers
+    const handlePrint = () => {
+        if (!salesData) return;
+
+        const printWindow = window.open('', '_blank');
+        const branchName = branches.find(b => b.id === selectedBranchId)?.name || t("All Branches");
+        const date = new Date().toLocaleDateString();
+
+        const receiptContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>${t('Real Time Sales Report')}</title>
+                <style>
+                    @media print {
+                        body { margin: 0; }
+                    }
+                    body {
+                        font-family: 'Courier New', monospace;
+                        max-width: 80mm;
+                        margin: 0 auto;
+                        padding: 10px;
+                        font-size: 12px;
+                    }
+                    .header {
+                        text-align: center;
+                        border-bottom: 2px dashed #000;
+                        padding-bottom: 10px;
+                        margin-bottom: 10px;
+                    }
+                    .title {
+                        font-size: 18px;
+                        font-weight: bold;
+                        margin-bottom: 5px;
+                    }
+                    .info-row {
+                        margin-bottom: 5px;
+                    }
+                    .section {
+                        border-bottom: 1px dashed #000;
+                        padding: 10px 0;
+                        margin-bottom: 5px;
+                    }
+                    .section-title {
+                        font-weight: bold;
+                        font-size: 14px;
+                        margin-bottom: 8px;
+                        text-align: center;
+                        background: #f0f0f0;
+                        padding: 5px;
+                    }
+                    .item-row {
+                        display: flex;
+                        justify-content: space-between;
+                        padding: 3px 0;
+                        font-size: 12px;
+                    }
+                    .item-name {
+                        flex: 1;
+                        font-weight: bold;
+                    }
+                    .item-value {
+                        text-align: right;
+                        font-weight: bold;
+                        font-size: 13px;
+                    }
+                    .total-box {
+                        border: 2px solid #000;
+                        padding: 10px;
+                        margin-top: 10px;
+                        text-align: center;
+                    }
+                    .total-label {
+                        font-size: 14px;
+                        font-weight: bold;
+                    }
+                    .total-value {
+                        font-size: 16px;
+                        font-weight: bold;
+                        margin-top: 5px;
+                    }
+                    .footer {
+                        text-align: center;
+                        margin-top: 15px;
+                        padding-top: 10px;
+                        border-top: 2px dashed #000;
+                        font-size: 10px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <div class="title">${t('Real Time Sales Report')}</div>
+                    <div class="info-row">${t('Date')}: ${date}</div>
+                    <div class="info-row">${t('Branch')}: ${branchName}</div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">${t('Sales Summary')}</div>
+                    <div class="item-row">
+                        <span class="item-name">${t('Total Orders Count')}</span>
+                        <span class="item-value">${salesData.count_orders}</span>
+                    </div>
+                    <div class="item-row">
+                        <span class="item-name">${t('Average Order Value')}</span>
+                        <span class="item-value">${(salesData.avg_orders || 0).toLocaleString()} ${t('EGP')}</span>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">${t('Payment Methods')}</div>
+                    <div class="item-row">
+                        <span class="item-name">${t('Delivery')}</span>
+                        <span class="item-value">${salesData.delivery} ${t('EGP')}</span>
+                    </div>
+                    <div class="item-row">
+                        <span class="item-name">${t('Take Away')}</span>
+                        <span class="item-value">${salesData.take_away} ${t('EGP')}</span>
+                    </div>
+                    <div class="item-row">
+                        <span class="item-name">${t('Dine In')}</span>
+                        <span class="item-value">${salesData.dine_in} ${t('EGP')}</span>
+                    </div>
+                    <div class="item-row">
+                        <span class="item-name">${t('Online Mobile')}</span>
+                        <span class="item-value">${salesData.online_mobile} ${t('EGP')}</span>
+                    </div>
+                    <div class="item-row">
+                        <span class="item-name">${t('Online Web')}</span>
+                        <span class="item-value">${salesData.online_web} ${t('EGP')}</span>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="item-row">
+                        <span class="item-name">${t('Discount')}</span>
+                        <span class="item-value">-${salesData.discount} ${t('EGP')}</span>
+                    </div>
+                </div>
+
+                <div class="total-box">
+                    <div class="total-label">${t('Total Revenue')}</div>
+                    <div class="total-value">${(salesData.total_orders || 0).toLocaleString()} ${t('EGP')}</div>
+                </div>
+                
+                <div class="footer">
+                    ${t('Thank you')}
+                </div>
+                
+                <script>
+                    window.onload = function() {
+                        window.print();
+                        window.onafterprint = function() {
+                            window.close();
+                        };
+                    };
+                </script>
+            </body>
+            </html>
+        `;
+
+        printWindow.document.write(receiptContent);
+        printWindow.document.close();
+    };
+
     const handlePrintPdf = () => {
         if (!salesData) return;
 
@@ -154,6 +318,13 @@ const RealTimeSalesReports = () => {
                             >
                                 <FaFilePdf size={18} />
                                 {t("PDF")}
+                            </button>
+                            <button
+                                onClick={handlePrint}
+                                className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-sm font-bold"
+                            >
+                                <FaPrint size={18} />
+                                {t("Print")}
                             </button>
                         </div>
                     )}
