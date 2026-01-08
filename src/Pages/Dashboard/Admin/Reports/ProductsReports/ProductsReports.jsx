@@ -61,7 +61,7 @@ const ProductsReports = () => {
 
     return (
         <div className="w-full p-2 md:p-6 mb-20">
-            <h1 className="mb-4 text-2xl font-bold text-mainColor">{t('For Products Report')}</h1>
+            <h1 className="mb-4 text-2xl font-bold text-mainColor">{t('Products Report')}</h1>
 
             {/* Filters Section */}
             <div className="p-4 mb-6 rounded-lg bg-gray-50">
