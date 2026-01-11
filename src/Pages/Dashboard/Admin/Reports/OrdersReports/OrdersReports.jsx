@@ -536,6 +536,7 @@ const OrdersReports = () => {
                   <th className="px-4 py-3 border-b">{t("Branch")}</th>
                   <th className="px-4 py-3 border-b">{t("Amount")}</th>
                   <th className="px-4 py-3 border-b">{t("Order Type")}</th>
+                  <th className="px-4 py-3 border-b">{t("Delivery Fees")}</th>
                   <th className="px-4 py-3 border-b">{t("Status")}</th>
                   <th className="px-4 py-3 border-b">{t("Date")}</th>
                   <th className="px-4 py-3 border-b">{t("View Details")}</th>
@@ -556,6 +557,7 @@ const OrdersReports = () => {
                     <td className="px-4 py-3 border-b">{order.branch?.name || "N/A"}</td>
                     <td className="px-4 py-3 font-semibold text-green-600 border-b">{order.amount} EGP</td>
                     <td className="px-4 py-3 border-b">{getOrderTypeBadge(order.order_type)}</td>
+                    <td className="px-4 py-3 border-b">{order.order_type === "Delivery" ? `${order.address?.zone} EGP` : "_"}</td>
                     <td className="px-4 py-3 border-b">{getStatusBadge(order.order_status)}</td>
                     <td className="px-4 py-3 text-sm border-b">{formatDate(order.created_at)}</td>
                     <td className="px-4 py-3 text-center border-b">

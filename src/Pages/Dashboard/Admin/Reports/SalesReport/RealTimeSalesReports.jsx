@@ -12,6 +12,7 @@ const RealTimeSalesReports = () => {
     const { t } = useTranslation();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
+
     // 1. Fetch Branches List
     const { data: listData, loading: loadingList } = useGet({
         url: `${apiUrl}/admin/reports/lists_report`
@@ -21,27 +22,57 @@ const RealTimeSalesReports = () => {
 
     // State for selected branch
     const [selectedBranchId, setSelectedBranchId] = useState('');
-    const salesUrl = selectedBranchId
-        ? `${apiUrl}/admin/reports/instate_order_report?branch_id=${selectedBranchId}`
-        : null;
+    const salesUrl = selectedBranchId ? `${apiUrl}/admin/reports/instate_order_report?branch_id=${selectedBranchId}` : `${apiUrl}/admin/reports/instate_order_report`;
 
-    const { data: salesData, loading: loadingSales } = useGet({
+    const { refetch, data: salesData, loading: loadingSales } = useGet({
         url: salesUrl
     });
+
+    useEffect(() => {
+        refetch();
+    }, [selectedBranchId]);
 
     // Prepare Options for Select
     const branchOptions = branches.map(branch => ({
         value: branch.id,
         label: branch.name
     }));
-
     // Handlers
     const handlePrint = () => {
         if (!salesData) return;
 
         const printWindow = window.open('', '_blank');
-        const branchName = branches.find(b => b.id === selectedBranchId)?.name || t("All Branches");
+        const branchName = branchOptions.find(b => b.value === selectedBranchId)?.label || t("All Branches");
         const date = new Date().toLocaleDateString();
+
+        let branchBreakdownHtml = '';
+        if (salesData.data && Array.isArray(salesData.data) && salesData.data.length > 0) {
+            branchBreakdownHtml = `
+                <div class="section">
+                    <div class="section-title">${t('Branches Breakdown')}</div>
+                    ${salesData.data.map(b => `
+                        <div style="border-bottom: 2px dotted #000; padding: 5px 0; margin-bottom: 5px;">
+                            <div style="font-weight: bold; margin-bottom: 3px; font-size: 13px;">${b.Branch}</div>
+                            
+                            <div class="item-row"><span class="item-name">${t('Revenue')}</span><span class="item-value">${(b.total_orders || 0).toLocaleString()}</span></div>
+                            <div class="item-row"><span class="item-name">${t('Count')}</span><span class="item-value">${b.count_orders}</span></div>
+                            <div class="item-row"><span class="item-name">${t('Avg Value')}</span><span class="item-value">${(b.avg_orders || 0).toLocaleString()}</span></div>
+                            
+                            <div class="item-row"><span class="item-name">${t('Tax')}</span><span class="item-value">${(b.total_tax || 0).toLocaleString()}</span></div>
+                            <div class="item-row"><span class="item-name">${t('Void Value')}</span><span class="item-value">${(b.void_order_sum || 0).toLocaleString()}</span></div>
+                            <div class="item-row"><span class="item-name">${t('Void Count')}</span><span class="item-value">${b.void_order_count}</span></div>
+                            <div class="item-row"><span class="item-name">${t('Discount')}</span><span class="item-value">${(b.discount || 0).toLocaleString()}</span></div>
+
+                            <div class="item-row" style="margin-top:2px"><span class="item-name">${t('Delivery')}</span><span class="item-value">${b.delivery}</span></div>
+                            <div class="item-row"><span class="item-name">${t('Take Away')}</span><span class="item-value">${b.take_away}</span></div>
+                            <div class="item-row"><span class="item-name">${t('Dine In')}</span><span class="item-value">${b.dine_in}</span></div>
+                            <div class="item-row"><span class="item-name">${t('Web')}</span><span class="item-value">${b.online_web}</span></div>
+                            <div class="item-row"><span class="item-name">${t('App')}</span><span class="item-value">${b.online_mobile}</span></div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
 
         const receiptContent = `
             <!DOCTYPE html>
@@ -145,7 +176,7 @@ const RealTimeSalesReports = () => {
                 </div>
 
                 <div class="section">
-                    <div class="section-title">${t('Payment Methods')}</div>
+                    <div class="section-title">${t('Order Types')}</div>
                     <div class="item-row">
                         <span class="item-name">${t('Delivery')}</span>
                         <span class="item-value">${salesData.delivery} ${t('EGP')}</span>
@@ -170,10 +201,24 @@ const RealTimeSalesReports = () => {
 
                 <div class="section">
                     <div class="item-row">
+                        <span class="item-name">${t('Total Tax')}</span>
+                        <span class="item-value">${salesData.total_tax} ${t('EGP')}</span>
+                    </div>
+                    <div class="item-row">
+                        <span class="item-name">${t('Void Orders Value')}</span>
+                        <span class="item-value">${salesData.void_order_sum} ${t('EGP')}</span>
+                    </div>
+                    <div class="item-row">
+                        <span class="item-name">${t('Void Orders Count')}</span>
+                        <span class="item-value">${salesData.void_order_count}</span>
+                    </div>
+                    <div class="item-row">
                         <span class="item-name">${t('Discount')}</span>
                         <span class="item-value">-${salesData.discount} ${t('EGP')}</span>
                     </div>
                 </div>
+
+                ${branchBreakdownHtml}
 
                 <div class="total-box">
                     <div class="total-label">${t('Total Revenue')}</div>
@@ -204,7 +249,7 @@ const RealTimeSalesReports = () => {
         if (!salesData) return;
 
         const doc = new jsPDF();
-        const branchName = branches.find(b => b.id === selectedBranchId)?.name || t("All Branches");
+        const branchName = branchOptions.find(b => b.value === selectedBranchId)?.label || t("All Branches");
         const date = new Date().toLocaleDateString();
 
         // Title
@@ -237,15 +282,48 @@ const RealTimeSalesReports = () => {
             [t("Dine In"), salesData.dine_in || 0],
             [t("Online Mobile"), salesData.online_mobile || 0],
             [t("Online Web"), salesData.online_web || 0],
+            [t("Total Tax"), salesData.total_tax || 0],
+            [t("Void Orders Value"), salesData.void_order_sum || 0],
+            [t("Void Orders Count"), salesData.void_order_count || 0],
             [t("Discount"), salesData.discount || 0],
         ];
 
+        // Header for breakdown
+        doc.text(t("Order Types"), 14, doc.lastAutoTable.finalY + 10);
+
         autoTable(doc, {
-            startY: doc.lastAutoTable.finalY + 10,
+            startY: doc.lastAutoTable.finalY + 15,
             head: [[t("Category"), t("Value")]],
             body: breakdown,
             theme: 'striped',
         });
+
+        // Detailed Branch Table
+        if (salesData.data && Array.isArray(salesData.data) && salesData.data.length > 0) {
+            const branchRows = salesData.data.map(b => [
+                b.Branch,
+                (b.total_orders || 0).toLocaleString(),
+                b.count_orders,
+                (b.avg_orders || 0).toLocaleString(),
+                b.total_tax || 0,
+                b.void_order_sum || 0,
+                b.discount || 0,
+                b.delivery,
+                b.take_away,
+                b.dine_in,
+                b.online_web,
+                b.online_mobile
+            ]);
+
+            autoTable(doc, {
+                startY: doc.lastAutoTable.finalY + 10,
+                head: [[t("Branch"), t("Rev"), t("Cnt"), t("Avg"), t("Tax"), t("Void"), t("Disc"), t("Del"), t("TkAw"), t("Dine"), t("Web"), t("App")]],
+                body: branchRows,
+                theme: 'grid',
+                styles: { fontSize: 7, cellPadding: 1 },
+                headStyles: { fillColor: [44, 62, 80] }
+            });
+        }
 
         doc.save(`Sales_Report_${date.replace(/\//g, '-')}.pdf`);
     };
@@ -253,28 +331,80 @@ const RealTimeSalesReports = () => {
     const handleExportExcel = () => {
         if (!salesData) return;
 
-        const branchName = branches.find(b => b.id === selectedBranchId)?.name || t("All Branches");
+        const branchName = branchOptions.find(b => b.value === selectedBranchId)?.label || t("All Branches");
         const date = new Date().toLocaleDateString();
 
-        const dataToExport = [
-            { Metric: t("Report"), Value: t("Real Time Sales Report") },
-            { Metric: t("Branch"), Value: branchName },
-            { Metric: t("Date"), Value: date },
-            { Metric: "" }, // Spacer
-            { Metric: t("Total Orders Revenue"), Value: salesData.total_orders || 0 },
-            { Metric: t("Total Orders Count"), Value: salesData.count_orders || 0 },
-            { Metric: t("Average Order Value"), Value: salesData.avg_orders || 0 },
-            { Metric: "" }, // Spacer
-            { Metric: t("Delivery"), Value: salesData.delivery || 0 },
-            { Metric: t("Take Away"), Value: salesData.take_away || 0 },
-            { Metric: t("Dine In"), Value: salesData.dine_in || 0 },
-            { Metric: t("Online Mobile"), Value: salesData.online_mobile || 0 },
-            { Metric: t("Online Web"), Value: salesData.online_web || 0 },
-            { Metric: t("Discount"), Value: salesData.discount || 0 },
+        // 1. Prepare Summary Data (Array of Arrays for aoa_to_sheet)
+        const exportData = [
+            [t("Report"), t("Real Time Sales Report")],
+            [t("Branch"), branchName],
+            [t("Date"), date],
+            [], // Spacer
+            [t("Total Orders Revenue"), salesData.total_orders || 0],
+            [t("Total Orders Count"), salesData.count_orders || 0],
+            [t("Average Order Value"), salesData.avg_orders || 0],
+            [], // Spacer
+            [t("Order Types"), ""],
+            [t("Delivery"), salesData.delivery || 0],
+            [t("Take Away"), salesData.take_away || 0],
+            [t("Dine In"), salesData.dine_in || 0],
+            [t("Online Mobile"), salesData.online_mobile || 0],
+            [t("Online Web"), salesData.online_web || 0],
+            [], // Spacer
+            [t("Total Tax"), salesData.total_tax || 0],
+            [t("Void Orders Value"), salesData.void_order_sum || 0],
+            [t("Void Orders Count"), salesData.void_order_count || 0],
+            [t("Discount"), salesData.discount || 0],
         ];
 
-        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        // 2. Append Branch Breakdown Table if data exists
+        if (salesData.data && Array.isArray(salesData.data) && salesData.data.length > 0) {
+            exportData.push([]);
+            exportData.push([t("Branches Breakdown")]);
+            // Table Headers
+            exportData.push([
+                t("Branch"),
+                t("Revenue"),
+                t("Count"),
+                t("Avg Value"),
+                t("Tax"),
+                t("Void Value"),
+                t("Void Count"),
+                t("Discount"),
+                t("Delivery"),
+                t("Take Away"),
+                t("Dine In"),
+                t("Web"),
+                t("App")
+            ]);
+
+            // Table Rows
+            salesData.data.forEach(b => {
+                exportData.push([
+                    b.Branch,
+                    b.total_orders || 0,
+                    b.count_orders || 0,
+                    b.avg_orders || 0,
+                    b.total_tax || 0,
+                    b.void_order_sum || 0,
+                    b.void_order_count || 0,
+                    b.discount || 0,
+                    b.delivery || 0,
+                    b.take_away || 0,
+                    b.dine_in || 0,
+                    b.online_web || 0,
+                    b.online_mobile || 0
+                ]);
+            });
+        }
+
         const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.aoa_to_sheet(exportData);
+
+        // Auto-width adjustment (optional but nice)
+        const wscols = exportData[0].map((_, i) => ({ wch: 20 }));
+        worksheet['!cols'] = wscols;
+
         XLSX.utils.book_append_sheet(workbook, worksheet, "Sales Report");
         XLSX.writeFile(workbook, `Sales_Report_${date.replace(/\//g, '-')}.xlsx`);
     };
@@ -287,7 +417,7 @@ const RealTimeSalesReports = () => {
             <h3 className={`text-sm font-medium opacity-80 mb-2 ${textClass}`}>{t(title)}</h3>
             <p className={`text-2xl font-bold ${textClass}`}>
                 {typeof value === 'number' ? value.toLocaleString(undefined, { maximumFractionDigits: 2 }) : value}
-                {(typeof value === 'number' && title !== 'Total Orders Count') ? ` ${t('EGP')}` : ''}
+                {(typeof value === 'number' && title !== 'Total Orders Count' && title !== 'Void Orders Count') ? ` ${t('EGP')}` : ''}
             </p>
         </div>
     );
@@ -303,7 +433,7 @@ const RealTimeSalesReports = () => {
 
                 <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-end w-full md:w-auto">
                     {/* Action Buttons */}
-                    {selectedBranchId && (
+                    {salesData && (
                         <div className="flex gap-2">
                             <button
                                 onClick={handleExportExcel}
@@ -347,11 +477,7 @@ const RealTimeSalesReports = () => {
 
             {/* Content */}
             <div className="min-h-[300px]">
-                {!selectedBranchId ? (
-                    <div className="flex flex-col items-center justify-center h-64 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-                        <p className="text-xl text-gray-500 font-medium">{t("Please select a branch to view data")}</p>
-                    </div>
-                ) : loadingSales ? (
+                {loadingSales ? (
                     <div className="flex justify-center items-center h-64">
                         <StaticLoader />
                     </div>
@@ -365,6 +491,7 @@ const RealTimeSalesReports = () => {
                         </div>
 
                         <div className="border-t border-gray-200 lg:col-span-3 xl:col-span-4 my-2"></div>
+                        <h2 className="text-xl font-bold text-gray-800">{t("Order Types")}</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 
                             {/* Breakdown */}
@@ -373,13 +500,59 @@ const RealTimeSalesReports = () => {
                             <Card title="Dine In" value={salesData.dine_in} />
                             <Card title="Online Mobile" value={salesData.online_mobile} />
                             <Card title="Online Web" value={salesData.online_web} />
-                            <Card title="Discount" value={salesData.discount} colorClass="bg-red-50 border-red-100" textClass="text-red-700" />
-
+                            <Card title="Total Tax" value={salesData.total_tax} colorClass="bg-orange-50 border-orange-100" textClass="text-orange-700" />
+                            <Card title="Void Orders Value" value={salesData.void_order_sum} colorClass="bg-red-50 border-red-100" textClass="text-red-700" />
+                            <Card title="Void Orders Count" value={salesData.void_order_count} colorClass="bg-red-50 border-red-100" textClass="text-red-700" />
+                            <Card title="Discount" value={salesData.discount} colorClass="bg-gray-50 border-gray-100" textClass="text-gray-700" />
                         </div>
+
+                        {/* Branch Breakdown Table (Only visible when viewing all branches) */}
+                        {salesData.data && Array.isArray(salesData.data) && salesData.data.length > 0 && (
+                            <div className="border rounded-2xl overflow-hidden shadow-sm mt-8">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-sm text-left text-gray-500">
+                                        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                                            <tr>
+                                                <th className="px-6 py-3">{t("Branch")}</th>
+                                                <th className="px-6 py-3">{t("Revenue")}</th>
+                                                <th className="px-6 py-3">{t("Count")}</th>
+                                                <th className="px-6 py-3">{t("Avg Value")}</th>
+                                                <th className="px-6 py-3">{t("Tax")}</th>
+                                                <th className="px-6 py-3">{t("Void")}</th>
+                                                <th className="px-6 py-3">{t("Disc")}</th>
+                                                <th className="px-6 py-3">{t("Delivery")}</th>
+                                                <th className="px-6 py-3">{t("Take Away")}</th>
+                                                <th className="px-6 py-3">{t("Dine In")}</th>
+                                                <th className="px-6 py-3">{t("Web")}</th>
+                                                <th className="px-6 py-3">{t("App")}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {salesData.data.map((branch, index) => (
+                                                <tr key={index} className="bg-white border-b hover:bg-gray-50">
+                                                    <td className="px-6 py-4 font-medium text-gray-900">{branch.Branch}</td>
+                                                    <td className="px-6 py-4 font-bold text-mainColor">{(branch.total_orders || 0).toLocaleString()} {t('EGP')}</td>
+                                                    <td className="px-6 py-4">{branch.count_orders}</td>
+                                                    <td className="px-6 py-4">{(branch.avg_orders || 0).toLocaleString()} {t('EGP')}</td>
+                                                    <td className="px-6 py-4">{(branch.total_tax || 0).toLocaleString()} {t('EGP')}</td>
+                                                    <td className="px-6 py-4">{(branch.void_order_sum || 0).toLocaleString()} ({branch.void_order_count})</td>
+                                                    <td className="px-6 py-4">{(branch.discount || 0).toLocaleString()} {t('EGP')}</td>
+                                                    <td className="px-6 py-4">{branch.delivery}</td>
+                                                    <td className="px-6 py-4">{branch.take_away}</td>
+                                                    <td className="px-6 py-4">{branch.dine_in}</td>
+                                                    <td className="px-6 py-4">{branch.online_web}</td>
+                                                    <td className="px-6 py-4">{branch.online_mobile}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div className="flex flex-col items-center justify-center h-64 bg-gray-50 rounded-2xl">
-                        <p className="text-gray-500">{t("No data available for this branch")}</p>
+                        <p className="text-gray-500">{t("No data available")}</p>
                     </div>
                 )}
             </div>

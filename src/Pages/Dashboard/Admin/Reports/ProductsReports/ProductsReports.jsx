@@ -1,46 +1,133 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGet } from '../../../../../Hooks/useGet';
-import { DateInput, StaticLoader } from '../../../../../Components/Components';
-import { FaPrint } from 'react-icons/fa';
+import { DateInput, StaticLoader, TextInput } from '../../../../../Components/Components';
+import { FaPrint, FaSearch } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
+import Select from 'react-select';
 
 const ProductsReports = () => {
     const { t } = useTranslation();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-  const selectedLanguage = useSelector((state) => state.language?.selected ?? "en");
+    const selectedLanguage = useSelector((state) => state.language?.selected ?? "en");
+
+    // Fetch Filter Lists
+    const { data: listData } = useGet({
+        url: `${apiUrl}/admin/reports/product_report_lists`
+    });
 
     // Filter States
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
     const [sort, setSort] = useState('desc');
+    const [selectedBranch, setSelectedBranch] = useState(null);
+    const [selectedCashier, setSelectedCashier] = useState(null);
+    const [selectedCashierMan, setSelectedCashierMan] = useState(null);
+    const [filterCategory, setFilterCategory] = useState(null);
+    const [selectedProducts, setSelectedProducts] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
 
-    // Selected Category for Modal
-    const [selectedCategory, setSelectedCategory] = useState(null);
+    // Modal States
+    const [viewModalCategory, setViewModalCategory] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // Construct URL with query params
-    const getUrl = () => {
+    // Derived Options
+    const branchOptions = useMemo(() => listData?.branches?.map(b => ({ value: b.id, label: b.name })) || [], [listData]);
+    const cashierOptions = useMemo(() => listData?.cashiers?.map(c => ({ value: c.id, label: c.name })) || [], [listData]);
+    const cashierManOptions = useMemo(() => listData?.cashier_men?.map(c => ({ value: c.id, label: c.user_name })) || [], [listData]);
+    const categoryOptions = useMemo(() => listData?.categories?.map(c => ({ value: c.id, label: c.name })) || [], [listData]);
+
+    const productOptions = useMemo(() => {
+        if (!listData?.products) return [];
+        let products = listData.products;
+
+        // Filter by selected category if any
+        if (filterCategory) {
+            products = products.filter(p => p.category_id === filterCategory.value);
+        }
+
+        return products.map(p => ({ value: p.id, label: p.name }));
+    }, [listData, filterCategory]);
+
+    // Construct URL with query params (internal)
+    const generateUrl = () => {
         const params = new URLSearchParams();
         if (sort) params.append('sort', sort);
         if (fromDate) params.append('from', fromDate);
         if (toDate) params.append('to', toDate);
+        if (selectedBranch) params.append('branch_id', selectedBranch.value);
+        if (selectedCashier) params.append('cashier_id', selectedCashier.value);
+        if (selectedCashierMan) params.append('cashier_man_id', selectedCashierMan.value);
+
+        if (filterCategory) params.append('category_id', filterCategory.value);
+        if (selectedProducts && selectedProducts.length > 0) {
+            selectedProducts.forEach((p, index) => {
+                params.append(`products[${index}]`, p.value);
+            });
+        }
         return `${apiUrl}/admin/reports/product_report?${params.toString()}&locale=${selectedLanguage}`;
     };
 
+    // State for the actual URL used by useGet
+    const [fetchUrl, setFetchUrl] = useState(generateUrl());
+
+    // Effect to update fetchUrl when language changes (optional but good practice)
+    useEffect(() => {
+        setFetchUrl(generateUrl());
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedLanguage]);
+
     const { data, loading, refetch } = useGet({
-        url: getUrl()
+        url: fetchUrl
     });
 
     const reportData = data?.data || [];
+
+    // Client-side filtering logic
+    const filteredReportData = useMemo(() => {
+        if (!searchQuery) return reportData;
+
+        const lowerQuery = searchQuery.toLowerCase();
+
+        return reportData.map(categoryItem => {
+            // Filter products inside the category
+            const matchingProducts = (categoryItem.products || []).filter(product =>
+                (product.product_name || product.name || "").toLowerCase().includes(lowerQuery)
+            );
+
+            if (matchingProducts.length === 0) return null; // Filter out category later
+
+            // Recalculate totals for the filtered view
+            const newCount = matchingProducts.reduce((sum, p) => sum + (parseInt(p.count) || 0), 0);
+            const newPrice = matchingProducts.reduce((sum, p) => sum + (parseFloat(p.price || 0) * parseInt(p.count || 0)), 0);
+
+            return {
+                ...categoryItem,
+                products: matchingProducts,
+                products_count: newCount,
+                products_price: newPrice.toFixed(2)
+            };
+        }).filter(item => item !== null); // Remove categories with no matching products
+
+    }, [reportData, searchQuery]);
+
+    // Flatten data for table display
+    const flatProducts = useMemo(() => {
+        return filteredReportData.flatMap(cat =>
+            (cat.products || []).map(prod => ({
+                ...prod,
+                category_name: cat.category
+            }))
+        );
+    }, [filteredReportData]);
 
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
-    const totalPages = Math.ceil(reportData.length / itemsPerPage);
+    const totalPages = Math.ceil(flatProducts.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentItems = reportData.slice(startIndex, startIndex + itemsPerPage);
+    const currentItems = flatProducts.slice(startIndex, startIndex + itemsPerPage);
 
     const handlePageChange = (page) => {
         if (page >= 1 && page <= totalPages) {
@@ -49,21 +136,30 @@ const ProductsReports = () => {
     };
 
     const handleApplyFilters = () => {
-        refetch();
+        setCurrentPage(1);
+        setFetchUrl(generateUrl());
+        setTimeout(() => refetch(), 50);
     };
 
-    const handleShowProducts = (category) => {
-        setSelectedCategory(category);
-        setIsModalOpen(true);
-    };
-
-    const closeModal = () => {
-        setIsModalOpen(false);
-        setSelectedCategory(null);
+    const handleResetFilters = () => {
+        setFromDate('');
+        setToDate('');
+        setSort('desc');
+        setSelectedBranch(null);
+        setSelectedCashier(null);
+        setSelectedCashierMan(null);
+        setFilterCategory(null);
+        setSelectedProducts([]);
+        setSearchQuery('');
+        setCurrentPage(1);
+        // Reset URL to default (empty params)
+        const defaultUrl = `${apiUrl}/admin/reports/product_report?sort=desc&locale=${selectedLanguage}`;
+        setFetchUrl(defaultUrl);
+        setTimeout(() => refetch(), 50);
     };
 
     const handlePrint = () => {
-        if (reportData.length === 0) return;
+        if (filteredReportData.length === 0) return;
 
         const printWindow = window.open('', '_blank');
         const date = new Date().toLocaleDateString();
@@ -71,7 +167,7 @@ const ProductsReports = () => {
         let totalProducts = 0;
         let totalPrice = 0;
 
-        reportData.forEach(item => {
+        filteredReportData.forEach(item => {
             totalProducts += parseInt(item.products_count) || 0;
             totalPrice += parseFloat(item.products_price) || 0;
         });
@@ -181,16 +277,9 @@ const ProductsReports = () => {
                 <div class="header">
                     <div class="title">${t('Products Report')}</div>
                     <div class="date">${t('Date')}: ${date}</div>
-                    ${fromDate || toDate ? `
-                        <div class="filters">
-                            ${fromDate ? `${t('From')}: ${fromDate}` : ''}
-                            ${fromDate && toDate ? ' - ' : ''}
-                            ${toDate ? `${t('To')}: ${toDate}` : ''}
-                        </div>
-                    ` : ''}
                 </div>
-                
-                ${reportData.map((item, index) => `
+
+                ${filteredReportData.map((item, index) => `
                     <div class="category">
                         <div class="category-header">${index + 1}. ${item.category}</div>
                         ${item.products && item.products.length > 0 ? `
@@ -212,7 +301,7 @@ const ProductsReports = () => {
                         `}
                     </div>
                 `).join('')}
-                
+
                 <div class="total">
                     <div class="total-row">
                         <span>${t('Total Products')}:</span>
@@ -223,11 +312,11 @@ const ProductsReports = () => {
                         <span>${totalPrice.toFixed(2)} ${t('EGP')}</span>
                     </div>
                 </div>
-                
+
                 <div class="footer">
                     ${t('Thank you')}
                 </div>
-                
+
                 <script>
                     window.onload = function() {
                         window.print();
@@ -244,14 +333,93 @@ const ProductsReports = () => {
         printWindow.document.close();
     };
 
+    const selectStyles = {
+        control: (base) => ({
+            ...base,
+            borderColor: '#d1d5db',
+            borderRadius: '0.5rem',
+            padding: '2px',
+        }),
+    };
+
     return (
         <div className="w-full p-2 md:p-6 mb-20">
             <h1 className="mb-4 text-2xl font-bold text-mainColor">{t('Products Report')}</h1>
 
             {/* Filters Section */}
-            <div className="p-4 mb-6 rounded-lg bg-gray-50">
-                <div className="flex flex-wrap items-end gap-4">
-                    <div className="w-full md:w-1/4">
+            <div className="p-4 mb-6 rounded-lg bg-gray-50 shadow-sm">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+
+                    {/* 1. Category */}
+                    <div>
+                        <label className="block mb-1 text-sm font-medium text-gray-700">{t("Category")}</label>
+                        <Select
+                            options={categoryOptions}
+                            value={filterCategory}
+                            onChange={setFilterCategory}
+                            placeholder={t("Select Category")}
+                            styles={selectStyles}
+                            isClearable
+                        />
+                    </div>
+
+                    {/* 2. Products */}
+                    <div>
+                        <label className="block mb-1 text-sm font-medium text-gray-700">{t("Products")}</label>
+                        <Select
+                            options={productOptions}
+                            value={selectedProducts}
+                            onChange={setSelectedProducts}
+                            placeholder={t("Select Products")}
+                            styles={selectStyles}
+                            isMulti
+                            isClearable
+                            isDisabled={!filterCategory}
+                        />
+                    </div>
+
+                    {/* 3. Branch */}
+                    <div>
+                        <label className="block mb-1 text-sm font-medium text-gray-700">{t("Branch")}</label>
+                        <Select
+                            options={branchOptions}
+                            value={selectedBranch}
+                            onChange={setSelectedBranch}
+                            placeholder={t("Select Branch")}
+                            styles={selectStyles}
+                            isClearable
+                        />
+                    </div>
+
+                    {/* 4. Cashier */}
+                    <div>
+                        <label className="block mb-1 text-sm font-medium text-gray-700">{t("Cashier")}</label>
+                        <Select
+                            options={cashierOptions}
+                            value={selectedCashier}
+                            onChange={setSelectedCashier}
+                            placeholder={t("Select Cashier")}
+                            styles={selectStyles}
+                            isClearable
+                        />
+                    </div>
+
+                    {/* 5. Cashier Man */}
+                    <div>
+                        <label className="block mb-1 text-sm font-medium text-gray-700">{t("Cashier Man")}</label>
+                        <Select
+                            options={cashierManOptions}
+                            value={selectedCashierMan}
+                            onChange={setSelectedCashierMan}
+                            placeholder={t("Select Cashier Man")}
+                            styles={selectStyles}
+                            isClearable
+                        />
+                    </div>
+
+                    {/* 6. From Date */}
+                    <div>
+                        <label className="block mb-1 text-sm font-medium text-gray-700">{t("From Date")}</label>
                         <DateInput
                             placeholder={t("From Date")}
                             value={fromDate}
@@ -259,7 +427,10 @@ const ProductsReports = () => {
                             className="w-full"
                         />
                     </div>
-                    <div className="w-full md:w-1/4">
+
+                    {/* 7. To Date */}
+                    <div>
+                        <label className="block mb-1 text-sm font-medium text-gray-700">{t("To Date")}</label>
                         <DateInput
                             placeholder={t("To Date")}
                             value={toDate}
@@ -267,73 +438,84 @@ const ProductsReports = () => {
                             className="w-full"
                         />
                     </div>
-                    <div className="w-full md:w-1/4">
-                        <label className="block mb-2 text-sm font-medium text-gray-700">{t("Sort")}</label>
-                        <select
-                            value={sort}
-                            onChange={(e) => setSort(e.target.value)}
-                            className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mainColor"
-                        >
-                            <option value="asc">{t("Ascending")}</option>
-                            <option value="desc">{t("Descending")}</option>
-                        </select>
-                    </div>
-                    <div className="w-full md:w-auto">
+                </div>
+
+                {/* Buttons Row */}
+                <div className="flex gap-4 mb-4 border-t pt-4">
+                    <button
+                        onClick={handleApplyFilters}
+                        className="flex-1 px-6 py-2.5 text-white bg-mainColor rounded-xl hover:bg-opacity-90 transition-colors font-semibold"
+                    >
+                        {t("Filter")}
+                    </button>
+                    <button
+                        onClick={handleResetFilters}
+                        className="flex-1 px-6 py-2.5 text-gray-700 bg-gray-200 rounded-xl hover:bg-gray-300 transition-colors font-semibold"
+                    >
+                        {t("Cancel")}
+                    </button>
+                    {filteredReportData.length > 0 && (
                         <button
-                            onClick={handleApplyFilters}
-                            className="w-full px-6 py-2.5 text-white bg-mainColor rounded-xl hover:bg-opacity-90 transition-colors"
+                            onClick={handlePrint}
+                            className="flex-1 px-6 py-2.5 text-white bg-green-600 rounded-xl hover:bg-green-700 transition-colors flex items-center justify-center gap-2 font-semibold"
                         >
-                            {t("Apply")}
+                            <FaPrint size={16} />
+                            {t("Print")}
                         </button>
-                    </div>
-                    {reportData.length > 0 && (
-                        <div className="w-full md:w-auto">
-                            <button
-                                onClick={handlePrint}
-                                className="w-full px-6 py-2.5 text-white bg-green-600 rounded-xl hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
-                            >
-                                <FaPrint size={16} />
-                                {t("Print")}
-                            </button>
-                        </div>
                     )}
+                </div>
+
+                {/* Search Bar (Client Side) */}
+                <div className="w-full border-t pt-4">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">{t("Search Products")}</label>
+                    <div className="relative">
+                        <TextInput
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder={t("Search by product name...")}
+                            className="w-full"
+                        />
+                    </div>
                 </div>
             </div>
 
             {/* Main Data Table */}
             {loading ? (
-                <StaticLoader />
-            ) : reportData.length === 0 ? (
-                <div className="py-10 text-center text-gray-500">
-                    {t("No data found")}
+                <div className="flex justify-center items-center h-64">
+                    <StaticLoader />
+                </div>
+            ) : flatProducts.length === 0 ? (
+                <div className="py-20 text-center bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                    <p className="text-gray-500 text-lg font-medium">{t("No data found matching your filters")}</p>
                 </div>
             ) : (
                 <div className="flex flex-col gap-4">
-                    <div className="overflow-x-auto bg-white rounded-xl shadow">
+                    <div className="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-100">
                         <table className="w-full text-left">
-                            <thead className="bg-gray-50 text-thirdColor font-bold">
+                            <thead className="bg-gray-50 text-mainColor font-bold">
                                 <tr>
-                                    <th className="px-6 py-4">#</th>
-                                    <th className="px-6 py-4">{t("Category")}</th>
-                                    <th className="px-6 py-4">{t("Products Count")}</th>
-                                    <th className="px-6 py-4">{t("Total Price")}</th>
-                                    <th className="px-6 py-4">{t("Actions")}</th>
+                                    <th className="px-6 py-4 border-b">#</th>
+                                    <th className="px-6 py-4 border-b">{t("Category")}</th>
+                                    <th className="px-6 py-4 border-b">{t("Product Name")}</th>
+                                    <th className="px-6 py-4 border-b">{t("Price")}</th>
+                                    <th className="px-6 py-4 border-b">{t("Count")}</th>
+                                    <th className="px-6 py-4 border-b">{t("Total")}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
                                 {currentItems.map((item, index) => (
-                                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-6 py-4 font-medium">{startIndex + index + 1}</td>
-                                        <td className="px-6 py-4 font-semibold text-mainColor">{item.category}</td>
-                                        <td className="px-6 py-4">{item.products_count}</td>
-                                        <td className="px-6 py-4 font-mono">{item.products_price}</td>
+                                    <tr key={item.id || index} className="hover:bg-gray-50 transition-colors">
+                                        <td className="px-6 py-4 font-medium text-gray-500">{startIndex + index + 1}</td>
+                                        <td className="px-6 py-4 font-semibold text-gray-600">{item.category_name}</td>
+                                        <td className="px-6 py-4 font-bold text-gray-800">{item.name || item.product_name}</td>
+                                        <td className="px-6 py-4 font-mono text-gray-600">{parseFloat(item.price || 0).toFixed(2)}</td>
                                         <td className="px-6 py-4">
-                                            <button
-                                                onClick={() => handleShowProducts(item)}
-                                                className="px-4 py-2 text-sm font-medium text-mainColor underline bg-secondaryColor rounded-lg hover:bg-opacity-90"
-                                            >
-                                                {t("Show Products")}
-                                            </button>
+                                            <span className="bg-gray-100 px-3 py-1 rounded-full text-sm font-medium">
+                                                {item.count}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 font-mono font-medium text-mainColor">
+                                            {(parseFloat(item.price || 0) * parseInt(item.count || 0)).toFixed(2)}
                                         </td>
                                     </tr>
                                 ))}
@@ -343,20 +525,23 @@ const ProductsReports = () => {
 
                     {/* Pagination Controls */}
                     {totalPages > 1 && (
-                        <div className="flex justify-center items-center gap-2 mt-2">
+                        <div className="flex justify-center items-center gap-2 mt-4">
                             <button
                                 onClick={() => handlePageChange(currentPage - 1)}
                                 disabled={currentPage === 1}
-                                className="px-3 py-1 rounded border hover:bg-gray-100 disabled:opacity-50"
+                                className="px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
-                                {t("<")}
+                                {t("Previous")}
                             </button>
 
                             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                                 <button
                                     key={page}
                                     onClick={() => handlePageChange(page)}
-                                    className={`px-3 py-1 rounded border ${currentPage === page ? 'bg-mainColor text-white' : 'hover:bg-gray-100'}`}
+                                    className={`w-10 h-10 rounded-lg border transition-all font-medium ${currentPage === page
+                                        ? 'bg-mainColor text-white border-mainColor shadow-sm'
+                                        : 'border-gray-200 hover:bg-gray-50 text-gray-600'
+                                        }`}
                                 >
                                     {page}
                                 </button>
@@ -365,76 +550,12 @@ const ProductsReports = () => {
                             <button
                                 onClick={() => handlePageChange(currentPage + 1)}
                                 disabled={currentPage === totalPages}
-                                className="px-3 py-1 rounded border hover:bg-gray-100 disabled:opacity-50"
+                                className="px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
-                                {t(">")}
+                                {t("Next")}
                             </button>
                         </div>
                     )}
-                </div>
-            )}
-
-            {/* Products Modal */}
-            {isModalOpen && selectedCategory && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
-                        <div className="p-6 border-b flex justify-between items-center bg-gray-50">
-                            <h2 className="text-xl font-bold text-mainColor">
-                                {selectedCategory.category} - {t("Products")}
-                            </h2>
-                            <button
-                                onClick={closeModal}
-                                className="text-gray-400 hover:text-gray-600 transition-colors"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <div className="overflow-y-auto p-6">
-                            <table className="w-full text-left border-collapse">
-                                <thead className="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider sticky top-0">
-                                    <tr>
-                                        <th className="px-4 py-3 border-b">{t("ID")}</th>
-                                        <th className="px-4 py-3 border-b">{t("Product Name")}</th>
-                                        <th className="px-4 py-3 border-b">{t("Price")}</th>
-                                        <th className="px-4 py-3 border-b">{t("Count")}</th>
-                                        <th className="px-4 py-3 border-b">{t("Total")}</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-200">
-                                    {selectedCategory.products.map((product) => (
-                                        <tr key={product.id} className="hover:bg-gray-50">
-                                            <td className="px-4 py-3 text-gray-500">{product.id}</td>
-                                            <td className="px-4 py-3 font-medium text-gray-900">{product.name}</td>
-                                            <td className="px-4 py-3 text-gray-600">{product.price}</td>
-                                            <td className="px-4 py-3 text-gray-600">{product.count}</td>
-                                            <td className="px-4 py-3 font-semibold text-mainColor">
-                                                {(parseFloat(product.price || 0) * parseFloat(product.count || 0)).toFixed(2)}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                                <tfoot className="bg-gray-50 font-bold">
-                                    <tr>
-                                        <td colSpan="3" className="px-4 py-3 text-right text-gray-700">{t("Total")}:</td>
-                                        <td className="px-4 py-3 text-mainColor">{selectedCategory.products_count}</td>
-                                        <td className="px-4 py-3 text-mainColor">{selectedCategory.products_price}</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-
-                        <div className="p-4 border-t bg-gray-50 flex justify-end">
-                            <button
-                                onClick={closeModal}
-                                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"
-                            >
-                                {t("Close")}
-                            </button>
-                        </div>
-                    </div>
                 </div>
             )}
         </div>

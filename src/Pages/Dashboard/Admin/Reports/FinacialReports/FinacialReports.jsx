@@ -207,9 +207,21 @@ const FinacialReports = () => {
                     <span class="item-name">${t('Total Revenue')}</span>
                     <span class="item-value">${(reportData.total_amount || 0).toFixed(2)} ${t('EGP')}</span>
                 </div>
-                 <div class="item-row">
+                <div class="item-row">
                     <span class="item-name">${t('Total Expenses')}</span>
                     <span class="item-value">${(reportData.expenses_total || 0)} ${t('EGP')}</span>
+                </div>
+                 <div class="item-row">
+                    <span class="item-name">${t('Total Tax')}</span>
+                    <span class="item-value">${(reportData.total_tax || 0).toFixed(2)} ${t('EGP')}</span>
+                </div>
+                <div class="item-row">
+                    <span class="item-name">${t('Void Orders Value')}</span>
+                    <span class="item-value">${(reportData.void_order_sum || 0).toFixed(2)} ${t('EGP')}</span>
+                </div>
+                <div class="item-row">
+                    <span class="item-name">${t('Void Orders Count')}</span>
+                    <span class="item-value">${reportData.void_order_count || 0}</span>
                 </div>
             </div>
 
@@ -323,7 +335,10 @@ const FinacialReports = () => {
     const summaryData = [
       [t("Total Orders"), reportData.order_count || 0],
       [t("Total Revenue"), `${(reportData.total_amount || 0).toFixed(2)} ${t('EGP')}`],
-      [t("Total Expenses"), `${(reportData.expenses_total || 0)} ${t('EGP')}`]
+      [t("Total Expenses"), `${(reportData.expenses_total || 0)} ${t('EGP')}`],
+      [t("Total Tax"), `${(reportData.total_tax || 0).toFixed(2)} ${t('EGP')}`],
+      [t("Void Orders Value"), `${(reportData.void_order_sum || 0).toFixed(2)} ${t('EGP')}`],
+      [t("Void Orders Count"), reportData.void_order_count || 0]
     ];
 
     autoTable(doc, {
@@ -385,6 +400,9 @@ const FinacialReports = () => {
       { A: t("Total Orders"), B: reportData.order_count || 0 },
       { A: t("Total Revenue"), B: reportData.total_amount || 0 },
       { A: t("Total Expenses"), B: reportData.expenses_total || 0 },
+      { A: t("Total Tax"), B: reportData.total_tax || 0 },
+      { A: t("Void Orders Value"), B: reportData.void_order_sum || 0 },
+      { A: t("Void Orders Count"), B: reportData.void_order_count || 0 },
       { A: "" },
 
       // Accounts
@@ -506,6 +524,18 @@ const FinacialReports = () => {
               <div className="p-6 border border-red-200 rounded-lg bg-red-50">
                 <h3 className="text-sm font-medium text-red-800">{t("Total Expenses")}</h3>
                 <p className="text-3xl font-bold text-red-900">{reportData.expenses_total} {t("EGP")}</p>
+              </div>
+              <div className="p-6 border border-orange-200 rounded-lg bg-orange-50">
+                <h3 className="text-sm font-medium text-orange-800">{t("Total Tax")}</h3>
+                <p className="text-3xl font-bold text-orange-900">{(reportData.total_tax || 0).toFixed(2)} {t("EGP")}</p>
+              </div>
+              <div className="p-6 border border-red-200 rounded-lg bg-red-50">
+                <h3 className="text-sm font-medium text-red-800">{t("Void Orders Value")}</h3>
+                <p className="text-3xl font-bold text-red-900">{(reportData.void_order_sum || 0).toFixed(2)} {t("EGP")}</p>
+              </div>
+              <div className="p-6 border border-red-200 rounded-lg bg-red-50">
+                <h3 className="text-sm font-medium text-red-800">{t("Void Orders Count")}</h3>
+                <p className="text-3xl font-bold text-red-900">{reportData.void_order_count || 0}</p>
               </div>
             </div>
 
