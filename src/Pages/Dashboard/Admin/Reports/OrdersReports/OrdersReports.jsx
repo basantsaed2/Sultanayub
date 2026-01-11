@@ -557,7 +557,7 @@ const OrdersReports = () => {
                     <td className="px-4 py-3 border-b">{order.branch?.name || "N/A"}</td>
                     <td className="px-4 py-3 font-semibold text-green-600 border-b">{order.amount} EGP</td>
                     <td className="px-4 py-3 border-b">{getOrderTypeBadge(order.order_type)}</td>
-                    <td className="px-4 py-3 border-b">{order.order_type === "Delivery" ? `${order.address?.zone} EGP` : "_"}</td>
+                    <td className="px-4 py-3 border-b">{order.order_type === "delivery" ? `${order.delivery_fees} EGP` : "_"}</td>
                     <td className="px-4 py-3 border-b">{getStatusBadge(order.order_status)}</td>
                     <td className="px-4 py-3 text-sm border-b">{formatDate(order.created_at)}</td>
                     <td className="px-4 py-3 text-center border-b">
