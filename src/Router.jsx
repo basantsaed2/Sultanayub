@@ -232,6 +232,7 @@ import EditVariationRecipe from "./Pages/Dashboard/Admin/ProductSetup/VariationR
 import RealTimeSalesReports from "./Pages/Dashboard/Admin/Reports/SalesReport/RealTimeSalesReports";
 import PricingProduct from "./Pages/Dashboard/Admin/PricingProduct/PricingProduct";
 import ProductsReports from "./Pages/Dashboard/Admin/Reports/ProductsReports/ProductsReports";
+import DineReports from "./Pages/Dashboard/Admin/Reports/DineReports/DineReports";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -1774,6 +1775,10 @@ export const router = createBrowserRouter([
               {
                 path: "product_reports",
                 element: <ProductsReports />,
+              },
+              {
+                path: "dine_reports",
+                element: <DineReports />,
               }
             ],
           },
