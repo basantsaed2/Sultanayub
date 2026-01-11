@@ -15,7 +15,7 @@ const RealTimeSalesReports = () => {
 
     // 1. Fetch Branches List
     const { data: listData, loading: loadingList } = useGet({
-        url: `${apiUrl}/admin/reports/lists_report`
+        url: `${apiUrl}/admin/reports/branches_list`
     });
 
     const branches = listData?.branches || [];
@@ -68,6 +68,7 @@ const RealTimeSalesReports = () => {
                             <div class="item-row"><span class="item-name">${t('Dine In')}</span><span class="item-value">${b.dine_in}</span></div>
                             <div class="item-row"><span class="item-name">${t('Web')}</span><span class="item-value">${b.online_web}</span></div>
                             <div class="item-row"><span class="item-name">${t('App')}</span><span class="item-value">${b.online_mobile}</span></div>
+                            <div class="item-row"><span class="item-name">${t('Delivery Fees')}</span><span class="item-value">${(b.delivery_fees || 0).toLocaleString()}</span></div>
                         </div>
                     `).join('')}
                 </div>
@@ -197,6 +198,10 @@ const RealTimeSalesReports = () => {
                         <span class="item-name">${t('Online Web')}</span>
                         <span class="item-value">${salesData.online_web} ${t('EGP')}</span>
                     </div>
+                    <div class="item-row">
+                        <span class="item-name">${t('Delivery Fees')}</span>
+                        <span class="item-value">${(salesData.delivery_fees || 0).toLocaleString()} ${t('EGP')}</span>
+                    </div>
                 </div>
 
                 <div class="section">
@@ -286,6 +291,7 @@ const RealTimeSalesReports = () => {
             [t("Void Orders Value"), salesData.void_order_sum || 0],
             [t("Void Orders Count"), salesData.void_order_count || 0],
             [t("Discount"), salesData.discount || 0],
+            [t("Delivery Fees"), salesData.delivery_fees || 0],
         ];
 
         // Header for breakdown
@@ -300,7 +306,8 @@ const RealTimeSalesReports = () => {
 
         // Detailed Branch Table
         if (salesData.data && Array.isArray(salesData.data) && salesData.data.length > 0) {
-            const branchRows = salesData.data.map(b => [
+            const branchRows = salesData.data.map((b, index) => [
+                index + 1,
                 b.Branch,
                 (b.total_orders || 0).toLocaleString(),
                 b.count_orders,
@@ -312,15 +319,16 @@ const RealTimeSalesReports = () => {
                 b.take_away,
                 b.dine_in,
                 b.online_web,
-                b.online_mobile
+                b.online_mobile,
+                b.delivery_fees || 0,
             ]);
 
             autoTable(doc, {
                 startY: doc.lastAutoTable.finalY + 10,
-                head: [[t("Branch"), t("Rev"), t("Cnt"), t("Avg"), t("Tax"), t("Void"), t("Disc"), t("Del"), t("TkAw"), t("Dine"), t("Web"), t("App")]],
+                head: [[t("No."), t("Branch"), t("Rev"), t("Cnt"), t("Avg"), t("Tax"), t("Void"), t("Disc"), t("Del"), t("TkAw"), t("Dine"), t("Web"), t("App"), t("Del Fees")]],
                 body: branchRows,
                 theme: 'grid',
-                styles: { fontSize: 7, cellPadding: 1 },
+                styles: { fontSize: 5.5, cellPadding: 0.8 },
                 headStyles: { fillColor: [44, 62, 80] }
             });
         }
@@ -355,6 +363,7 @@ const RealTimeSalesReports = () => {
             [t("Void Orders Value"), salesData.void_order_sum || 0],
             [t("Void Orders Count"), salesData.void_order_count || 0],
             [t("Discount"), salesData.discount || 0],
+            [t("Delivery Fees"), salesData.delivery_fees || 0],
         ];
 
         // 2. Append Branch Breakdown Table if data exists
@@ -363,6 +372,7 @@ const RealTimeSalesReports = () => {
             exportData.push([t("Branches Breakdown")]);
             // Table Headers
             exportData.push([
+                t("No."),
                 t("Branch"),
                 t("Revenue"),
                 t("Count"),
@@ -375,12 +385,14 @@ const RealTimeSalesReports = () => {
                 t("Take Away"),
                 t("Dine In"),
                 t("Web"),
-                t("App")
+                t("App"),
+                t("Delivery Fees")
             ]);
 
             // Table Rows
-            salesData.data.forEach(b => {
+            salesData.data.forEach((b, index) => {
                 exportData.push([
+                    index + 1,
                     b.Branch,
                     b.total_orders || 0,
                     b.count_orders || 0,
@@ -393,7 +405,8 @@ const RealTimeSalesReports = () => {
                     b.take_away || 0,
                     b.dine_in || 0,
                     b.online_web || 0,
-                    b.online_mobile || 0
+                    b.online_mobile || 0,
+                    b.delivery_fees || 0,
                 ]);
             });
         }
@@ -425,7 +438,7 @@ const RealTimeSalesReports = () => {
     return (
         <div className="p-4 md:p-8 space-y-8 pb-20">
 
-            <div className="flex flex-col items-start gap-4 md:flex-row md:items-end md:justify-between">
+            <div className="flex flex-col items-start gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">{t("Real Time Sales Report")}</h1>
                     <p className="text-gray-500 mt-1">{t("Monitor your branch performance live")}</p>
@@ -504,6 +517,7 @@ const RealTimeSalesReports = () => {
                             <Card title="Void Orders Value" value={salesData.void_order_sum} colorClass="bg-red-50 border-red-100" textClass="text-red-700" />
                             <Card title="Void Orders Count" value={salesData.void_order_count} colorClass="bg-red-50 border-red-100" textClass="text-red-700" />
                             <Card title="Discount" value={salesData.discount} colorClass="bg-gray-50 border-gray-100" textClass="text-gray-700" />
+                            <Card title="Delivery Fees" value={salesData.delivery_fees} colorClass="bg-green-50 border-green-100" textClass="text-green-700" />
                         </div>
 
                         {/* Branch Breakdown Table (Only visible when viewing all branches) */}
@@ -513,6 +527,7 @@ const RealTimeSalesReports = () => {
                                     <table className="w-full text-sm text-left text-gray-500">
                                         <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                                             <tr>
+                                                <th className="px-6 py-3">{t("No.")}</th>
                                                 <th className="px-6 py-3">{t("Branch")}</th>
                                                 <th className="px-6 py-3">{t("Revenue")}</th>
                                                 <th className="px-6 py-3">{t("Count")}</th>
@@ -525,11 +540,13 @@ const RealTimeSalesReports = () => {
                                                 <th className="px-6 py-3">{t("Dine In")}</th>
                                                 <th className="px-6 py-3">{t("Web")}</th>
                                                 <th className="px-6 py-3">{t("App")}</th>
+                                                <th className="px-6 py-3">{t("Delivery Fees")}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {salesData.data.map((branch, index) => (
                                                 <tr key={index} className="bg-white border-b hover:bg-gray-50">
+                                                    <td className="px-6 py-4">{index + 1}</td>
                                                     <td className="px-6 py-4 font-medium text-gray-900">{branch.Branch}</td>
                                                     <td className="px-6 py-4 font-bold text-mainColor">{(branch.total_orders || 0).toLocaleString()} {t('EGP')}</td>
                                                     <td className="px-6 py-4">{branch.count_orders}</td>
@@ -542,6 +559,7 @@ const RealTimeSalesReports = () => {
                                                     <td className="px-6 py-4">{branch.dine_in}</td>
                                                     <td className="px-6 py-4">{branch.online_web}</td>
                                                     <td className="px-6 py-4">{branch.online_mobile}</td>
+                                                    <td className="px-6 py-4">{(branch.delivery_fees || 0).toLocaleString()} {t('EGP')}</td>
                                                 </tr>
                                             ))}
                                         </tbody>

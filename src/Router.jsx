@@ -233,6 +233,8 @@ import RealTimeSalesReports from "./Pages/Dashboard/Admin/Reports/SalesReport/Re
 import PricingProduct from "./Pages/Dashboard/Admin/PricingProduct/PricingProduct";
 import ProductsReports from "./Pages/Dashboard/Admin/Reports/ProductsReports/ProductsReports";
 import DineReports from "./Pages/Dashboard/Admin/Reports/DineReports/DineReports";
+import CashierShortage from "./Pages/Dashboard/Admin/Reports/CashierShortage/CashierShortage";
+
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -1779,6 +1781,10 @@ export const router = createBrowserRouter([
               {
                 path: "dine_reports",
                 element: <DineReports />,
+              },
+              {
+                path: "cashier_shortage",
+                element: <CashierShortage />,
               }
             ],
           },
