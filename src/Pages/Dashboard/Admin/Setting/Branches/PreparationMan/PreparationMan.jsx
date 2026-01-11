@@ -97,6 +97,8 @@ const PreparationMan = () => {
         t("SL"),
         t("Name"),
         t("Branch"),
+        t("Print Name"),
+        t("Print Status"),
         t("Status"),
         t("Action"),
     ];
@@ -153,6 +155,17 @@ const PreparationMan = () => {
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                             {PreparationMan?.branch?.name || "-"}
+                                        </td>
+                                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                            {PreparationMan?.print_name || "-"}
+                                        </td>
+                                        <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                            <span
+                                                className={`px-3 py-1 rounded-full text-white ${PreparationMan?.print_status === 1 ? "bg-green-500" : "bg-red-500"
+                                                    }`}
+                                            >
+                                                {PreparationMan?.print_status === 1 ? t("Active") : t("Inactive")}
+                                            </span>
                                         </td>
                                         <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                             <Switch

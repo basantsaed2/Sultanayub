@@ -12,6 +12,7 @@ import { usePost } from "../../../../../../Hooks/usePostJson";
 import { useAuth } from "../../../../../../Context/Auth";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import Select from 'react-select';
 import { IoArrowBack } from "react-icons/io5";
 import { useGet } from "../../../../../../Hooks/useGet";
 import { useParams } from "react-router-dom";
@@ -37,6 +38,11 @@ const AddPreparationMan = () => {
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [status, setStatus] = useState(1);
+    const [print_status, setPrintStatus] = useState(0);
+    const [print_ip, setPrintIp] = useState("");
+    const [print_port, setPrintPort] = useState("");
+    const [print_name, setPrintName] = useState("");
+    const [print_type, setPrintType] = useState({ value: "usb", label: "USB" });
 
     useEffect(() => {
         refetchPreparationMan();
@@ -54,11 +60,20 @@ const AddPreparationMan = () => {
         setStatus((prev) => (prev === 1 ? 0 : 1));
     };
 
+    const handleChangePrintStatus = () => {
+        setPrintStatus((prev) => (prev === 0 ? 1 : 0));
+    };
+
     // Reset form
     const handleReset = () => {
         setName("");
         setPassword("");
         setStatus(1);
+        setPrintStatus(0);
+        setPrintIp("");
+        setPrintPort("");
+        setPrintName("");
+        setPrintType({ value: "usb", label: "USB" });
     };
 
     // Handle form submission
@@ -80,6 +95,14 @@ const AddPreparationMan = () => {
         formData.append("password", password);
         formData.append("status", status);
         formData.append("branch_id", branchId);
+        formData.append("print_status", print_status);
+        formData.append("print_type", print_type.value);
+
+        if (print_status === 1) {
+            formData.append("print_ip", print_ip);
+            formData.append("print_port", print_port);
+            formData.append("print_name", print_name);
+        }
 
         postData(formData, t("Preparation Man Added Success"));
     };
@@ -135,6 +158,89 @@ const AddPreparationMan = () => {
                                     placeholder={t("Enter Password")}
                                 />
                             </div>
+
+                            {/* Print Type Select */}
+                            <div className="flex flex-col items-start justify-center w-full gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Print Type")}:
+                                </span>
+                                <Select
+                                    value={print_type}
+                                    onChange={setPrintType}
+                                    options={[
+                                        { value: "usb", label: t("USB") },
+                                        { value: "network", label: t("Network") }
+                                    ]}
+                                    placeholder={t("Select Print Type")}
+                                    className="w-full"
+                                    styles={{
+                                        control: (base) => ({
+                                            ...base,
+                                            borderColor: '#d1d5db',
+                                            borderRadius: '0.375rem',
+                                            padding: '2px 4px',
+                                            backgroundColor: 'white'
+                                        })
+                                    }}
+                                />
+                            </div>
+
+                            {/* Print Status Switch */}
+                            <div className="flex items-start justify-start w-full pt-8 gap-x-1">
+                                <div className="flex items-center justify-start w-2/4 gap-x-1">
+                                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                                        {t("Print Status")}:
+                                    </span>
+                                    <Switch
+                                        handleClick={handleChangePrintStatus}
+                                        checked={print_status === 1}
+                                    />
+                                </div>
+                            </div>
+
+                            {
+                                print_status === 1 && (
+                                    <>
+                                        {/* Print Name Input */}
+                                        <div className="flex flex-col items-start justify-center w-full gap-y-1">
+                                            <span className="text-xl font-TextFontRegular text-thirdColor">
+                                                {t("Print Name")}:
+                                            </span>
+                                            <TextInput
+                                                value={print_name}
+                                                onChange={(e) => setPrintName(e.target.value)}
+                                                name="print_name"
+                                                placeholder={t("Enter Print Name")}
+                                            />
+                                        </div>
+
+                                        {/* Print Port Input */}
+                                        <div className="flex flex-col items-start justify-center w-full gap-y-1">
+                                            <span className="text-xl font-TextFontRegular text-thirdColor">
+                                                {t("Print Port")}:
+                                            </span>
+                                            <TextInput
+                                                value={print_port}
+                                                onChange={(e) => setPrintPort(e.target.value)}
+                                                name="print_port"
+                                                placeholder={t("Enter Print Port")}
+                                            />
+                                        </div>
+
+                                        {/* Print IP Input */}
+                                        <div className="flex flex-col items-start justify-center w-full gap-y-1">
+                                            <span className="text-xl font-TextFontRegular text-thirdColor">
+                                                {t("Print IP")}:
+                                            </span>
+                                            <TextInput
+                                                value={print_ip}
+                                                onChange={(e) => setPrintIp(e.target.value)}
+                                                name="print_ip"
+                                                placeholder={t("Enter Print IP")}
+                                            />
+                                        </div>
+                                    </>
+                                )}
 
                             {/* Status */}
                             <div className="w-full flex items-start justify-start gap-x-1 pt-8">

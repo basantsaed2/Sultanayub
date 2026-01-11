@@ -163,6 +163,7 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
         ${receiptData.isDelivery && receiptData.deliveryMan ?
       `<div class="info-row"><span class="info-label">${t("DeliveryMan")}:</span><span>${receiptData.deliveryMan}</span></div>` : ''}
         <div class="info-row"><span class="info-label">${t("OrderType")}:</span><span>${receiptData.orderType}</span></div>
+      <div class="info-row"><span class="info-label">${t("Payment")}:</span><span>${receiptData.payment}</span></div>
       </div>
 
       <div class="address-notes-section">
@@ -330,15 +331,16 @@ const InvoiceOrderPage = () => {
       let formattedAddress = "";
       if (order.address) {
         const excludedKeys = ["id", "map", "type", "city", "user_id", "created_at", "updated_at", "deleted_at", "latitude", "longitude", "contact_person_name", "contact_person_number"];
-        const blockKeys = ["zone", "street", "landmark", "land_mark"];
+        const blockKeys = ["zone", "street", "additional_data"];
 
         let blockRows = [];
         let inlineRows = [];
 
         // 1. Add main address block at the very top
-        if (order.address.address) {
-          blockRows.push(`<div><span style="font-weight:bold;">${order.address.address}</span></div>`);
-        }
+        // if (order.address.address) {
+        //   blockRows.push(`<div><span style="font-weight:bold;">${order.address.address}</span></div>`);
+        // }
+
 
         // 2. Process specific block keys in fixed order
         blockKeys.forEach(key => {
