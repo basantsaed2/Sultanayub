@@ -244,8 +244,9 @@ const OrdersReports = () => {
       order.order_number,
       getUserName(order.user),
       order.branch?.name || "N/A",
-      `${order.amount} EGP`,
       order.order_type,
+      `${order.amount} EGP`,
+      order.delivery_fees,
       order.order_status,
       new Date(order.created_at).toLocaleDateString()
     ]);
@@ -257,8 +258,9 @@ const OrdersReports = () => {
         t("Order Number"),
         t("Customer"),
         t("Branch"),
-        t("Amount"),
         t("Type"),
+        t("Amount"),
+        t("Delivery Fees"),
         t("Status"),
         t("Date")
       ]],
@@ -280,9 +282,10 @@ const OrdersReports = () => {
       [t("Customer")]: getUserName(order.user),
       [t("Customer Phone")]: order.user?.phone || "",
       [t("Branch")]: order.branch?.name || "N/A",
-      [t("Amount")]: order.amount,
-      [t("Currency")]: "EGP",
       [t("Order Type")]: order.order_type,
+      [t("Amount")]: order.amount,
+      [t("Delivery Fees")]: order.delivery_fees,
+      [t("Currency")]: "EGP",
       [t("Status")]: order.order_status,
       [t("Date")]: new Date(order.created_at).toLocaleString()
     }));
@@ -534,8 +537,8 @@ const OrdersReports = () => {
                   <th className="px-4 py-3 border-b">{t("Order Number")}</th>
                   <th className="px-4 py-3 border-b">{t("Customer")}</th>
                   <th className="px-4 py-3 border-b">{t("Branch")}</th>
-                  <th className="px-4 py-3 border-b">{t("Amount")}</th>
                   <th className="px-4 py-3 border-b">{t("Order Type")}</th>
+                  <th className="px-4 py-3 border-b">{t("Amount")}</th>
                   <th className="px-4 py-3 border-b">{t("Delivery Fees")}</th>
                   <th className="px-4 py-3 border-b">{t("Status")}</th>
                   <th className="px-4 py-3 border-b">{t("Date")}</th>
@@ -555,8 +558,8 @@ const OrdersReports = () => {
                       )}
                     </td>
                     <td className="px-4 py-3 border-b">{order.branch?.name || "N/A"}</td>
-                    <td className="px-4 py-3 font-semibold text-green-600 border-b">{order.amount} EGP</td>
                     <td className="px-4 py-3 border-b">{getOrderTypeBadge(order.order_type)}</td>
+                    <td className="px-4 py-3 font-semibold text-green-600 border-b">{order.amount} EGP</td>
                     <td className="px-4 py-3 border-b">{order.order_type === "delivery" ? `${order.delivery_fees} EGP` : "_"}</td>
                     <td className="px-4 py-3 border-b">{getStatusBadge(order.order_status)}</td>
                     <td className="px-4 py-3 text-sm border-b">{formatDate(order.created_at)}</td>
