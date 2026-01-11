@@ -357,8 +357,7 @@ const OrdersReports = () => {
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
               required={true}
-              minDate={false}
-              maxDate={toDate || false}
+              maxDate={toDate}
               borderColor="mainColor"
               className="w-full"
             />
@@ -367,8 +366,7 @@ const OrdersReports = () => {
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
               required={true}
-              minDate={fromDate || false}
-              maxDate={true}
+              minDate={fromDate}
               borderColor="mainColor"
               className="w-full"
             />
