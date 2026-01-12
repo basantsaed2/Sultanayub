@@ -476,6 +476,7 @@ const adminRoutes = [
       { name: "Real Time Sales", path: "/dashboard/reports/real_time_sales_reports", permission: "Reports", },
       { name: "Products", path: "/dashboard/reports/product_reports", permission: "Reports", },
       { name: "Dine In", path: "/dashboard/reports/dine_reports", permission: "Reports", },
+      { name: "Invoices", path: "/dashboard/reports/invoices_reports", permission: "Reports", },
       { name: "Cashier Shortage", path: "/dashboard/reports/cashier_shortage", permission: "Reports", },
     ],
     redirectTo: "/dashboard/reports/orders_reports",

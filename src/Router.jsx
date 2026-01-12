@@ -160,6 +160,8 @@ import EditExpensesCategory from "./Pages/Dashboard/Admin/Expenses/ExpensesCateg
 import OrdersReports from "./Pages/Dashboard/Admin/Reports/OrdersReports/OrdersReports";
 import CashierShiftReport from "./Pages/Dashboard/Admin/Reports/CashierShiftReport/CashierShiftReport";
 import FinacialReports from "./Pages/Dashboard/Admin/Reports/FinacialReports/FinacialReports";
+import InvoicesReports from "./Pages/Dashboard/Admin/Reports/InvoicesReports/InvoicesReports";
+
 import ExpensesList from "./Pages/Dashboard/Admin/Expenses/ExpensesList/ExpensesList";
 import AddExpensesList from "./Pages/Dashboard/Admin/Expenses/ExpensesList/AddExpensesList";
 import EditExpensesList from "./Pages/Dashboard/Admin/Expenses/ExpensesList/EditExpensesList";
@@ -1781,6 +1783,10 @@ export const router = createBrowserRouter([
               {
                 path: "dine_reports",
                 element: <DineReports />,
+              },
+              {
+                path: "invoices_reports",
+                element: <InvoicesReports />,
               },
               {
                 path: "cashier_shortage",
