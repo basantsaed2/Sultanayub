@@ -29,7 +29,6 @@ const DetailsOrderPage = () => {
   const orderNumPath = pathOrder.split("/").pop();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const selectedLanguage = useSelector(state => state.language?.selected ?? 'en'); // Default to 'en' if no language is selected
-
   const role = localStorage.getItem("role");
 
   // ✅ Details Order endpoint
@@ -59,6 +58,8 @@ const DetailsOrderPage = () => {
   });
 
   const { t, i18n } = useTranslation();
+  const locale = i18n.language;
+  const isRtl = locale === 'ar';
 
   const { changeState, loadingChange, responseChange } = useChangeState();
   const [detailsData, setDetailsData] = useState([]);
@@ -340,32 +341,47 @@ const DetailsOrderPage = () => {
     }
   };
 
-useEffect(() => {
-  if (responseChange && responseChange.status === 200) {
-    const orderData = responseChange.data;
+  // useEffect(() => {
+  //   if (responseChange && responseChange.status === 200) {
+  //     const orderData = responseChange.data;
 
-    if (orderData?.order_status === "confirmed") {
-      console.log(orderData);
-      // تحضير بيانات الكاشير
-      const receiptData = prepareReceiptData(
-        orderData.kitchen?.success || [],
-        orderData?.kitchen
-      );
+  //     if (orderData?.order_status === "confirmed") {
+  //       console.log(orderData);
+  //       // تحضير بيانات الكاشير
+  //       const receiptData = prepareReceiptData(orderData.kitchen);
 
-      // نمرر الـ kitchen_items مباشرة كخاصية داخل الكائن
-      const formattedResponse = {
-        ...orderData,
-        kitchen_items: orderData.kitchen?.kitchen_items || orderData.kitchen_items || []
-      };
+  //       // نمرر الـ kitchen_items مباشرة كخاصية داخل الكائن
+  //       const formattedResponse = {
+  //         ...orderData,
+  //         kitchen_items: orderData.kitchen?.kitchen_items || orderData.kitchen_items || []
+  //       };
 
-      printReceiptSilently(receiptData, formattedResponse, () => {
+  //       printReceiptSilently(receiptData, formattedResponse, () => {
+  //         refetchDetailsOrder();
+  //       });
+  //     } else {
+  //       refetchDetailsOrder();
+  //     }
+  //   }
+  // }, [responseChange]);
+
+  useEffect(() => {
+    if (responseChange && responseChange.status === 200) {
+      const orderData = responseChange.data;
+
+      if (orderData?.order_status === "confirmed") {
+        // 1. نرسل الداتا بالكامل لدالة التجهيز
+        const allPrintData = prepareReceiptData(orderData, t("projectName"));
+
+        // 2. نستدعي الطباعة ونمرر لها البيانات الجاهزة
+        printReceiptSilently(allPrintData, t, () => {
+          refetchDetailsOrder();
+        });
+      } else {
         refetchDetailsOrder();
-      });
-    } else {
-      refetchDetailsOrder();
+      }
     }
-  }
-}, [responseChange]);
+  }, [responseChange]);
 
   useEffect(() => {
     const countdown = setInterval(() => {

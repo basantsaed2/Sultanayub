@@ -175,6 +175,8 @@ const BusinessSettingsPage = () => {
   const [dataMaintennance, setDataMaintenance] = useState({})
   const [formDataMaintenance, setFormDataMaintenance] = useState({});
 
+  const [scale, setScale] = useState('')
+
   const { postData, loadingPost, response } = usePost({
     url: `${apiUrl}/admin/settings/business_setup/company/add`,
   });
@@ -228,6 +230,7 @@ const BusinessSettingsPage = () => {
       setEndDate(dataCompany?.maintenance?.end_date || '')
       setWebsiteLink(dataCompany?.website || '')
       setQrCode(dataCompany?.qr_code || '')
+      setScale(dataCompany?.scale || '')
 
       if (dataCompany.company_info.currency_id) {
         const matchedCurrency = dataCompany.currency.find(
@@ -362,6 +365,7 @@ const BusinessSettingsPage = () => {
     }
 
     formData.append("copy_right", companyCopyrightText);
+    formData.append("scale", scale);
 
     for (const [key, value] of Object.entries(updatedData)) {
       formData.append(`maintenance[${key}]`, value);
@@ -647,6 +651,7 @@ const BusinessSettingsPage = () => {
     setEndDate("");
     setWebsiteLink("");
     setMapActive(0);
+    setScale("");
   };
 
   return (
@@ -816,6 +821,17 @@ const BusinessSettingsPage = () => {
               value={websiteLink}
               onChange={(e) => setWebsiteLink(e.target.value)}
               placeholder={t("Website Link")}
+            />
+          </div>
+          {/* scale */}
+          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+            <span className="text-xl font-TextFontRegular text-thirdColor">
+              {t("Scale")}:
+            </span>
+            <TextInput
+              value={scale}
+              onChange={(e) => setScale(e.target.value)}
+              placeholder={t("Scale")}
             />
           </div>
           {/* {qrCode && (
