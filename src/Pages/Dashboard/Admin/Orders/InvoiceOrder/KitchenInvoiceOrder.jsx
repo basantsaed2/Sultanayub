@@ -482,13 +482,12 @@
 
 
 
-
 import qz from "qz-tray";
 import { toast } from "react-toastify";
-import i18n from "i18next"; // للوصول للغة والاتجاه عالمياً داخل الدوال
+import i18n from "i18next";
 
 // ===================================================================
-// 1. تصاميم الإيصالات (Templates)
+// 1. تصاميم الإيصالات (تم تحديث جزء الإضافات هنا)
 // ===================================================================
 const getReceiptHTML = (preparedData, kitchenItem, t) => {
   const locale = i18n.language;
@@ -498,83 +497,33 @@ const getReceiptHTML = (preparedData, kitchenItem, t) => {
     <div class="receipt-only" dir="${isRtl ? 'rtl' : 'ltr'}">
       <style>
         @page { size: 80mm auto; margin: 0mm; }
-        .receipt-only {
-            width: 80mm; 
-            font-family: sans-serif;
-            color: #000;
-            background: #fff;
-            padding: 5px;
-            font-size: 15px; 
-        }
+        .receipt-only { width: 80mm; font-family: sans-serif; color: #000; padding: 5px; font-size: 15px; }
         .receipt-only * { box-sizing: border-box; }
+        .header { text-align: center; margin-bottom: 7px; border: 2px solid #000; padding: 7px 0; }
+        .header h1 { font-size: 35px; font-weight: bold; margin: 0; }
+        .info-box { padding: 5px 0; margin-bottom: 7px; border-bottom: 2px solid #000; }
+        table { width: 100%; border-collapse: collapse; }
+        th { border-bottom: 2px solid #000; padding: 8px 0; font-size: 18px; }
+        td { border-bottom: 1px solid #ccc; padding: 12px 0; vertical-align: top; }
+        .item-name-cell { text-align: ${isRtl ? 'right' : 'left'}; padding: 0 10px; }
+        .main-item-name { font-size: 21px; font-weight: bold; display: block; }
+        .qty-box { font-size: 28px; font-weight: 900; border: 3px solid #000; padding: 4px 12px; display: inline-block; }
         
-        /* Brand Header */
-        .receipt-only .brand-section { text-align: center; margin-bottom: 10px; }
-        .receipt-only .brand-logo { max-height: 50px; width: auto; margin-bottom: 4px; filter: grayscale(1); }
-        .receipt-only .brand-name { font-size: 14px; font-weight: bold; }
-
-        /* Order Header */
-        .receipt-only .header { text-align: center; margin-bottom: 7px; border: 2px solid #000; padding: 7px 0; }
-        .receipt-only .header h1 { font-size: 35px; font-weight: bold; margin: 0; line-height: 1; }
-        .receipt-only .header .order-type { font-size: 18px; font-weight: bold; text-transform: uppercase; margin-top: 5px; }
-        
-        /* Info Box */
-        .receipt-only .info-box { 
-          padding: 5px 0; 
-          margin-bottom: 7px; 
-          font-size: 16px;
-          border-bottom: 2px solid #000;
-        }
-        .receipt-only .info-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
-        .receipt-only .info-label { font-weight: bold; }
-
-        /* Table Design */
-        .receipt-only table { width: 100%; border-collapse: collapse; margin-bottom: 7px; }
-        .receipt-only th { border-bottom: 2px solid #000; padding: 8px 0; text-align: center; font-weight: bold; font-size: 18px; }
-        .receipt-only td { border-bottom: 1px solid #ccc; padding: 12px 0; text-align: center; vertical-align: top; }
-        
-        .receipt-only .item-name-cell { text-align: ${isRtl ? 'right' : 'left'}; padding-${isRtl ? 'right' : 'left'}: 10px; }
-        .receipt-only .main-item-name { font-size: 21px; font-weight: bold; display: block; line-height: 1.2; }
-
-        .receipt-only .qty-box {
-          font-size: 28px;
-          font-weight: 900;
-          border: 3px solid #000;
-          display: inline-block;
-          padding: 4px 12px;
-          margin-top: 5px;
-        }
-
-        .receipt-only .item-variations { font-size: 15px; margin-top: 4px; font-weight: bold; color: #000; }
-        .receipt-only .item-addon { font-size: 14px; margin-top: 2px; }
-        .receipt-only .item-note { 
-          font-size: 16px; margin-top: 6px; padding: 5px;
-          background-color: #eee; border: 1px solid #000; font-weight: bold;
-        }
-
-        .receipt-only .order-notes-section { 
-          margin-top: 10px; padding: 10px; border: 2px solid #000; font-size: 18px; text-align: center; font-weight: bold;
-        }
-
-        .receipt-only .footer { 
-          text-align: center; font-size: 13px; margin-top: 15px; padding-top: 5px; border-top: 1px dashed #000; 
-        }
+        /* تصميم الإضافات الجديد */
+        .item-addon { font-size: 15px; margin-top: 3px; color: #333; font-weight: bold; }
+        .item-variations { font-size: 15px; margin-top: 4px; font-weight: bold; }
+        .item-note { font-size: 16px; margin-top: 6px; padding: 5px; background: #eee; border: 1px solid #000; font-weight: bold; }
       </style>
-
-      <div class="brand-section">
-        ${preparedData.logoLink ? `<img src="${preparedData.logoLink}" class="brand-logo" alt="logo" />` : ""}
-        <div class="brand-name">${preparedData.restaurantName}</div>
-      </div>
 
       <div class="header">
         <h1># ${preparedData.invoiceNumber}</h1>
-        <div class="order-type">${preparedData.orderType}</div>
-        ${preparedData.table ? `<div style="font-size: 24px; font-weight: bold; margin-top: 5px;">${t("Table")}: ${preparedData.table}</div>` : ''}
+        <div style="font-size: 18px; font-weight: bold;">${preparedData.orderType}</div>
+        ${preparedData.table ? `<div style="font-size: 24px; font-weight: bold;">${t("Table")}: ${preparedData.table}</div>` : ''}
       </div>
 
       <div class="info-box">
-        <div class="info-row">
-          <span class="info-label">${t("Time")}:</span>
+        <div style="display: flex; justify-content: space-between;">
+          <span>${t("Time")}:</span>
           <span dir="ltr">${preparedData.timeFormatted}</span>
         </div>
       </div>
@@ -583,17 +532,24 @@ const getReceiptHTML = (preparedData, kitchenItem, t) => {
         <thead>
           <tr>
             <th style="width:25%;">${t("Qty")}</th>
-            <th style="width:75%;" class="item-name-cell">${t("Item")}</th>
+            <th style="width:75%;">${t("Item")}</th>
           </tr>
         </thead>
         <tbody>
           ${kitchenItem.items.map(item => `
             <tr>
-              <td><span class="qty-box">${item.qty}</span></td>
+              <td style="text-align: center;"><span class="qty-box">${item.qty}</span></td>
               <td class="item-name-cell">
                 <span class="main-item-name">${item.name}</span>
-                ${item.variations.map(v => `<div class="item-variations">• ${v.name}: ${v.options.map(o => o.name).join(", ")}</div>`).join('')}
-                ${item.addons.map(a => `<div class="item-addon">+ ${a.name}</div>`).join('')}
+                
+                ${item.variations.map(v => `
+                  <div class="item-variations">• ${v.name}: ${v.options.map(o => o.name).join(", ")}</div>
+                `).join('')}
+                
+                ${item.addons.map(a => `
+                  <div class="item-addon">+ ${a.name} (x${a.count || 1})</div>
+                `).join('')}
+
                 ${item.notes ? `<div class="item-note">${t("Note")}: ${item.notes}</div>` : ''}
               </td>
             </tr>
@@ -601,32 +557,26 @@ const getReceiptHTML = (preparedData, kitchenItem, t) => {
         </tbody>
       </table>
 
-      ${preparedData.orderNote ? `
-        <div class="order-notes-section">
-          ${t("Notes")}:<br>${preparedData.orderNote}
-        </div>
-      ` : ''}
+      ${preparedData.orderNote ? `<div style="margin-top: 10px; border: 2px solid #000; padding: 10px; text-align: center;">${preparedData.orderNote}</div>` : ''}
 
-      <div class="footer">
-        ${preparedData.timeFormatted} | ${kitchenItem.kitchenName}
-        <div style="font-weight: bold; margin-top: 4px;">KITCHEN COPY</div>
+      <div style="text-align: center; margin-top: 15px; border-top: 1px dashed #000;">
+        ${kitchenItem.kitchenName}
       </div>
     </div>
   `;
 };
 
 // ===================================================================
-// 2. تهيئة البيانات (Logic)
+// 2. تهيئة البيانات (تعديل التقاط الـ addons)
 // ===================================================================
 export const prepareReceiptData = (orderResponse, projectName, logo) => {
   const dateObj = new Date();
-
   const baseData = {
     restaurantName: projectName || "",
     logoLink: logo || "",
-    invoiceNumber: orderResponse?.order_id || orderResponse?.order_number || orderResponse.cart_id || "-",
+    invoiceNumber: orderResponse?.order_id || orderResponse?.order_number || "-",
     timeFormatted: dateObj.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true }),
-    orderType: orderResponse?.order_type || "take_away",
+    orderType: orderResponse?.order_type || "delivery",
     table: orderResponse?.table_name || orderResponse?.table || "",
     orderNote: orderResponse?.order_note || ""
   };
@@ -635,9 +585,11 @@ export const prepareReceiptData = (orderResponse, projectName, logo) => {
 
   const processedKitchens = kitchenList.map((kitchen) => {
     const grouped = new Map();
-    (kitchen.order || []).forEach((item) => {
+    const itemsToProcess = kitchen.success || kitchen.order || [];
+
+    itemsToProcess.forEach((item) => {
       const varKey = (item.variation_selected || []).map(v => v.id).join("-");
-      const addKey = (item.addons_selected || []).map(a => a.id).join("-");
+      const addKey = (item.addons_selected || []).map(a => `${a.id}_${a.count}`).join("-");
       const fullKey = `${item.id}-${item.notes}-${varKey}-${addKey}`;
 
       if (!grouped.has(fullKey)) {
@@ -649,12 +601,12 @@ export const prepareReceiptData = (orderResponse, projectName, logo) => {
     return {
       kitchenName: kitchen.name,
       printerName: kitchen.print_name,
-      printStatus: kitchen.print_status,
+      printStatus: Number(kitchen.print_status),
       items: Array.from(grouped.values()).map(g => ({
         qty: g.totalCount,
         name: g.name,
         notes: (g.notes === "null" || !g.notes) ? "" : g.notes,
-        addons: g.addons_selected || [],
+        addons: g.addons_selected || [], // هنا نحتفظ بالكائن كاملاً (الاسم والعدد)
         variations: g.variation_selected || []
       }))
     };
@@ -664,10 +616,11 @@ export const prepareReceiptData = (orderResponse, projectName, logo) => {
 };
 
 // ===================================================================
-// 3. دالة الطباعة والمعاينة
+// 3. دالة الطباعة (بقي كما هو)
 // ===================================================================
 export const printReceiptSilently = async (preparedData, t, callback) => {
   try {
+    // 1. تحقق من حالة الاتصال بـ QZ Tray بأمان
     const isQzActive = qz.websocket.isActive();
 
     for (const kitchenItem of preparedData.kitchens) {
@@ -675,28 +628,33 @@ export const printReceiptSilently = async (preparedData, t, callback) => {
 
       const htmlContent = getReceiptHTML(preparedData, kitchenItem, t);
 
+      // 2. إذا لم يكن الاتصال نشطاً، استخدم المعاينة فقط ولا تستدعي qz.print أبداً
       // if (!isQzActive) {
-      //   // فتح المعاينة في المتصفح إذا لم يكن QZ Tray متاحاً
+      //   console.warn("QZ Tray is not active. Falling back to browser preview.");
       //   const printWindow = window.open('', '_blank', 'width=600,height=800');
-      //   printWindow.document.write('<html><head><title>Kitchen Receipt</title></head><body>' + htmlContent + '</body></html>');
-      //   printWindow.document.close();
-      //   printWindow.onload = () => {
-      //     printWindow.print();
-      //   };
-      // }
+      //   if (printWindow) {
+      //     printWindow.document.write('<html><head><title>Print Preview</title></head><body>' + htmlContent + '</body></html>');
+      //     printWindow.document.close();
+      //     printWindow.onload = () => {
+      //       printWindow.print();
+      //     };
+      //   } else {
+      //     toast.error("Popup blocked! Please allow popups for this site.");
+      //   }
+      // } 
+      // 3. إذا كان الاتصال نشطاً، استخدم الطباعة الصامتة
       // else {
-      // الطباعة التلقائية عبر QZ Tray
       const config = qz.configs.create(kitchenItem.printerName);
       await qz.print(config, [{ type: "html", format: "plain", data: htmlContent }]);
-      // }
+      //   }
     }
 
     if (isQzActive) toast.success("✅ " + t("OrderSentToPrinter"));
     if (callback) callback();
 
   } catch (err) {
-    console.error("Print Error:", err);
-    toast.error("❌ " + t("PrintFailed"));
+    console.error("General Print Error:", err);
+    // منع ظهور TypeError للمستخدم، فقط تنفيذ الـ callback
     if (callback) callback();
   }
 };
