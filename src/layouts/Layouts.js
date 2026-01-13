@@ -7,6 +7,7 @@ export { default as ForgetPassLayout } from "./Authentication/ForgetPassLayout";
 /* Dashboard */
 // Home
 export { default as DashboardLayout } from "./Dashboard/Home/DashboardLayout";
+export { default as AdminLandingPage } from "../Pages/Dashboard/Admin/Home/AdminLandingPage";
 
 /* Addons */
 export { default as AddonsLayout } from "./Dashboard/Addons/AddonsLayout";

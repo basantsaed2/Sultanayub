@@ -7,6 +7,7 @@ export { default as ForgetPassPage } from "./Authentication/ForgetPassPage";
 /* Dashboard */
 // Home
 export { default as HomePage } from "./Dashboard/Admin/Home/HomePage";
+export { default as AdminLandingPage } from "./Dashboard/Admin/Home/AdminLandingPage";
 // Addons
 export { default as AddonsPage } from "./Dashboard/Admin/Addons/AddonsPage";
 export { default as AddAddonsSection } from "./Dashboard/Admin/Addons/AddAddonsSection";

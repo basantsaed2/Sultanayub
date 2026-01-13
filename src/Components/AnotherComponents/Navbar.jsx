@@ -15,6 +15,7 @@ import { usePost } from '../../Hooks/usePostJson';
 import "../../i18n.js";
 import { useTranslation } from "react-i18next";
 import { GrLanguage } from "react-icons/gr";
+import { RiApps2Line } from "react-icons/ri";
 import { setLanguage } from '../../Store/CreateSlices';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 
@@ -365,6 +366,14 @@ const Navbar = () => {
 
             {/* Notification Dropdown */}
             <div className="relative flex items-center gap-x-2" ref={notificationRef}>
+              {/* <Link
+                to="/dashboard"
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                title={t("All Modules")}
+              >
+                <RiApps2Line className="text-3xl text-mainColor" />
+              </Link> */}
+
               <button
                 type="button"
                 onClick={() => setNotificationOpen(!notificationOpen)}

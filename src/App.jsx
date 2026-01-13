@@ -233,12 +233,13 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState, useRef } from 'react';
 import { setNewOrders, setSoundNotification } from './Store/CreateSlices';
 import { usePost } from './Hooks/usePostJson';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useGet } from './Hooks/useGet';
 import { useTranslation } from 'react-i18next';
 
 const App = () => {
   const { t, i18n } = useTranslation();
+  const location = useLocation();
 
   // 🔥 Dynamically update the <title>
   useEffect(() => {
@@ -467,7 +468,7 @@ const App = () => {
       )}
       <div className="relative flex w-full min-h-screen overflow-hidden bg-secoundBgColor">
         {/* Sidebar */}
-        <div className={`${hideSide ? 'w-60' : 'w-16'} ${direction === "ltr" ? 'left-0' : 'right-0'} fixed left-0 z-10 duration-300 overflow-hidden`}>
+        <div className={`${hideSide ? 'w-60' : 'w-16'} ${direction === "ltr" ? 'left-0' : 'right-0'} fixed left-0 z-10 duration-300 overflow-hidden ${location.pathname === '/dashboard' ? 'hidden' : ''}`}>
           <Sidebar />
         </div>
 
@@ -475,8 +476,8 @@ const App = () => {
         <div className={`
         w-full duration-300
         ${direction === "ltr"
-            ? (hideSide ? 'pl-60' : 'pl-16')
-            : (hideSide ? 'pr-60' : 'pr-16')
+            ? (location.pathname === '/dashboard' ? 'pl-0' : (hideSide ? 'pl-60' : 'pl-16'))
+            : (location.pathname === '/dashboard' ? 'pr-0' : (hideSide ? 'pr-60' : 'pr-16'))
           }
       `}>
           {/* Navbar */}

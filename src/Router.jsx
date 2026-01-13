@@ -11,6 +11,7 @@ import {
   CitiesLayout,
   ConfirmedOrdersLayout,
   DashboardLayout,
+  AdminLandingPage,
   DealOrderLayout,
   DeliveredOrdersLayout,
   DeliveryManLayout,
@@ -437,6 +438,10 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "",
+            element: <AdminLandingPage />,
+          },
+          {
+            path: "home-overview",
             element: <DashboardLayout />,
           },
           {
