@@ -18,6 +18,8 @@ import { removeCanceledOrder } from "../../../../../Store/CreateSlices";
 import { useSelector } from "react-redux"; // Add this import
 import { FaFileInvoice, FaWhatsapp, FaCopy } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
+import qz from "qz-tray";
+import { prepareReceiptData, printReceiptSilently } from "../InvoiceOrder/KitchenInvoiceOrder";
 
 const DetailsOrderPage = () => {
   const StatusRef = useRef(null);
@@ -331,16 +333,39 @@ const DetailsOrderPage = () => {
           ...(orderStatus === "canceled" && { admin_cancel_reason: reason }), // Send reason if canceled
         }
       );
-      if (responseStatus) {
-        refetchDetailsOrder(); // Refetch the order details after successful status change
-        setShowReason(false);
-      }
     } catch (error) {
       if (error?.response?.data?.errors === "You can't change status") {
         setShowStatusModal(true);
       }
     }
   };
+
+useEffect(() => {
+  if (responseChange && responseChange.status === 200) {
+    const orderData = responseChange.data;
+
+    if (orderData?.order_status === "confirmed") {
+      console.log(orderData);
+      // تحضير بيانات الكاشير
+      const receiptData = prepareReceiptData(
+        orderData.kitchen?.success || [],
+        orderData?.kitchen
+      );
+
+      // نمرر الـ kitchen_items مباشرة كخاصية داخل الكائن
+      const formattedResponse = {
+        ...orderData,
+        kitchen_items: orderData.kitchen?.kitchen_items || orderData.kitchen_items || []
+      };
+
+      printReceiptSilently(receiptData, formattedResponse, () => {
+        refetchDetailsOrder();
+      });
+    } else {
+      refetchDetailsOrder();
+    }
+  }
+}, [responseChange]);
 
   useEffect(() => {
     const countdown = setInterval(() => {
@@ -406,6 +431,47 @@ const DetailsOrderPage = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // === QZ Tray Connection ===
+  useEffect(() => {
+    qz.security.setCertificatePromise(function (resolve, reject) {
+      fetch("/digital-certificate.txt")
+        .then((response) => response.text())
+        .then(resolve)
+        .catch(reject);
+    });
+
+    qz.security.setSignatureAlgorithm("SHA512");
+
+    qz.security.setSignaturePromise(function (toSign) {
+      return function (resolve, reject) {
+        const getQZ = `${apiUrl}/api/sign-qz-request?request=${toSign}`;
+
+        fetch(getQZ)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`Server returned ${response.status}`);
+            }
+            return response.text();
+          })
+          .then(resolve)
+          .catch(reject);
+      };
+    });
+
+    qz.websocket
+      .connect()
+      .then(() => {
+        console.log("✅ Connected to QZ Tray");
+      })
+      .catch((err) => {
+        console.error("❌ QZ Tray connection error:", err);
+      });
+
+    return () => {
+      qz.websocket.disconnect();
     };
   }, []);
 
