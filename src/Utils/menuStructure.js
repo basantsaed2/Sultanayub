@@ -34,7 +34,7 @@ import { LuBanknote } from "react-icons/lu";
 export const adminRoutes = [
     {
         name: "Home",
-        path: "/dashboard",
+        path: "/dashboard/home-overview",
         permission: "Home",
         icon: RiHome2Line,
     },
@@ -51,6 +51,10 @@ export const adminRoutes = [
             { name: "Processing", path: "/dashboard/orders/processing", countKey: "ordersProcessing" },
             { name: "OutForDelivery", path: "/dashboard/orders/out_for_delivery", countKey: "ordersOutForDelivery" },
             { name: "Delivered", path: "/dashboard/orders/delivered", countKey: "ordersDelivered" },
+            { name: "Returned", path: "/dashboard/orders/returned", countKey: "ordersReturned" },
+            { name: "Refund", path: "/dashboard/orders/refund", countKey: "ordersRefund" },
+            { name: "FailedToDeliver", path: "/dashboard/orders/failed", countKey: "ordersFailed" },
+            { name: "Canceled", path: "/dashboard/orders/canceled", countKey: "ordersCanceled" },
             { name: "Log", path: "/dashboard/orders/log" },
         ],
         redirectTo: "/dashboard/orders/all",
@@ -400,6 +404,10 @@ export const branchRoutes = [
             { name: "Processing", path: "/branch/orders/processing", countKey: "ordersProcessing" },
             { name: "OutForDelivery", path: "/branch/orders/out_for_delivery", countKey: "ordersOutForDelivery" },
             { name: "Delivered", path: "/branch/orders/delivered", countKey: "ordersDelivered" },
+            { name: "Returned", path: "/branch/orders/returned", countKey: "ordersReturned" },
+            { name: "Refund", path: "/branch/orders/refund", countKey: "ordersRefund" },
+            { name: "FailedToDeliver", path: "/branch/orders/failed", countKey: "ordersFailed" },
+            { name: "Canceled", path: "/branch/orders/canceled", countKey: "ordersCanceled" },
             { name: "Log", path: "/branch/orders/log" },
         ],
         redirectTo: "/branch/orders/all",
@@ -407,18 +415,18 @@ export const branchRoutes = [
 ];
 
 export const ADMIN_MENU_CATEGORIES = [
+      {
+        id: "home",
+        name: "Home",
+        description: "Access all modules and lists",
+        icon: RiHome2Line,
+        routes: ["Home"],
+    },
     {
         id: "dashboard",
         name: "Dashboard",
         description: "Statistics and overview",
         icon: MdDashboard,
-        routes: ["Home"],
-    },
-    {
-        id: "home",
-        name: "Home",
-        description: "Access all modules and lists",
-        icon: RiHome2Line,
         routes: ["Home"],
     },
     {

@@ -36,7 +36,7 @@ const AdminLandingPage = () => {
 
     return (
         <div className="p-6 bg-gray-50 min-h-screen">
-            <div className="max-w-7xl mx-auto">
+            <div className="w-full p-2 md:p-6">
                 {/* <header className="mb-10 text-center">
                     <h1 className="text-4xl font-bold text-gray-800 mb-4">{t('Admin Food2go Restructuring')}</h1>
                     <p className="text-gray-600 text-lg">{t('Select a module to manage your restaurant')}</p>
