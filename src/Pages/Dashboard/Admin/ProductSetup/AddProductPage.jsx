@@ -749,7 +749,9 @@ const AddProductPage = () => {
     formData.append("tax_id", selectedTaxId);
     formData.append("points", productPoint);
     formData.append("order", productPriority);
-    formData.append("product_code", productCode);
+    if (productCode) {
+      formData.append("product_code", productCode);
+    }
 
     formData.append("product_time_status", productTimeStatus);
     if (productStatusFrom) {
