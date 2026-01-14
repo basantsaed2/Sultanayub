@@ -445,7 +445,7 @@ export const ADMIN_MENU_CATEGORIES = [
     },
     {
         id: "menu_management",
-        name: "Products / Menu Management",
+        name: "ProductsManagement",
         description: "Setup categories, products, pricing, and recipes",
         icon: TbCategory,
         routes: [

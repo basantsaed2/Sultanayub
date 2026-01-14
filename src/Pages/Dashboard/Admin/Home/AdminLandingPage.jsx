@@ -46,7 +46,7 @@ const AdminLandingPage = () => {
                     <div className="relative">
                         <input
                             type="text"
-                            placeholder={t('Search for modules...')}
+                            placeholder={t('Search for modules')}
                             className="w-full p-4 pl-12 rounded-2xl border-none shadow-lg focus:ring-2 focus:ring-mainColor transition-all outline-none text-lg"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}

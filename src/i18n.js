@@ -5,6 +5,29 @@ const resources = {
      en: {
           translation: {
                projectName: import.meta.env.VITE_PROJECT_EN_NAME || "Food2go", // Fallback if undefined
+               "Order management": "Order management",
+               "Home": "Home",
+               "Dashboard": "Dashboard",
+               "Users": "Users",
+               "ProductsManagement": "Products / Menu Management",
+               "Inventory & Supply chain": "Inventory & Supply chain",
+               "Settings": "Settings",
+               "Staff": "Staff",
+               "Financials": "Financials",
+               "Marketing": "Marketing",
+               "Search for modules": "Search for modules...",
+               "Access all modules and lists": "Access all modules and lists",
+               "Statistics and overview": "Statistics and overview",
+               "Manage online, delivery, and void orders": "Manage online, delivery, and void orders",
+               "Setup categories, products, pricing, and recipes": "Setup categories, products, pricing, and recipes",
+               "Manage stock, inventory, and manufacturing": "Manage stock, inventory, and manufacturing",
+               "Setup branches, cities, zones, and tables": "Setup branches, cities, zones, and tables",
+               "Manage delivery men, stock men, and admins": "Manage delivery men, stock men, and admins",
+               "User list and management": "User list and management",
+               "Taxes, expenses, and payment methods": "Taxes, expenses, and payment methods",
+               "Deals, offers, coupons, and more": "Deals, offers, coupons, and more",
+               "Analytical reports and insights": "Analytical reports and insights",
+               "App configuration": "App configuration",
                "Invoices Reports": "Invoices Reports",
                "Invoices": "Invoices",
                "Print All": "Print All",
@@ -1933,6 +1956,29 @@ const resources = {
      ar: {
           translation: {
                projectName: import.meta.env.VITE_PROJECT_AR_NAME || "Food2go",
+               "Order management": "إدارة الطلبات",
+               "Home": "الرئيسية",
+               "Dashboard": "لوحة التحكم",
+               "Users": "المستخدمين",
+               "ProductsManagement": "إدارة المنتجات",
+               "Inventory & Supply chain": "إدارة المخزون",
+               "Settings": "الإعدادات",
+               "Staff": "الموظفين",
+               "Financials": "المالية",
+               "Marketing": "التسويق",
+               "Search for modules": "بحث عن الوحدات...",
+               "Access all modules and lists": "الوصول إلى جميع الوحدات والقوائم",
+               "Statistics and overview": "الإحصائيات ونظرة عامة",
+               "Manage online, delivery, and void orders": "إدارة الطلبات عبر الإنترنت، التوصيل، والطلبات الملغاة",
+               "Setup categories, products, pricing, and recipes": "إعداد الفئات، المنتجات، التسعير، والوصفات",
+               "Manage stock, inventory, and manufacturing": "إدارة المخزون، الجرد، والتصنيع",
+               "Setup branches, cities, zones, and tables": "إعداد الفروع، المدن، المناطق، والطاولات",
+               "Manage delivery men, stock men, and admins": "إدارة عمال التوصيل، موظفي المخازن، والمديرين",
+               "User list and management": "قائمة المستخدمين وإدارتهم",
+               "Taxes, expenses, and payment methods": "الضرائب، المصاريف، وطرق الدفع",
+               "Deals, offers, coupons, and more": "الصفقات، العروض، الكوبونات، والمزيد",
+               "Analytical reports and insights": "التقارير التحليلية والرؤى",
+               "App configuration": "إعدادات التطبيق",
                "Invoices Reports": "تقارير الفواتير",
                "Invoices": "الفواتير",
                "Print All": "طباعة الكل",
@@ -3709,15 +3755,29 @@ const resources = {
 };
 
 
+const savedLanguage = localStorage.getItem("language") || "en";
+
 i18n
      .use(initReactI18next)
      .init({
           resources,
-          lng: 'en', // default language
+          lng: savedLanguage,
           keySeparator: false,
           interpolation: {
                escapeValue: false,
           },
      });
+
+// Handle document direction (RTL/LTR)
+const updateDirection = (lng) => {
+     document.documentElement.dir = lng === "ar" ? "rtl" : "ltr";
+     document.documentElement.lang = lng;
+};
+
+updateDirection(savedLanguage);
+
+i18n.on('languageChanged', (lng) => {
+     updateDirection(lng);
+});
 
 export default i18n;
