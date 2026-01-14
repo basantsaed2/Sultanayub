@@ -140,22 +140,37 @@ export const adminRoutes = [
     },
     {
         name: "Recipe",
-        path: "/dashboard/recipe_products/category",
+        path: "/dashboard/recipe_products",
         permission: "recipe",
         icon: FaReceipt,
+        subRoutes: [
+            { name: "Recipe Category", path: "/dashboard/recipe_products/category", permission: "recipe" },
+            { name: "Recipe Product", path: "/dashboard/recipe_products/product", permission: "recipe" },
+        ],
+        redirectTo: "/dashboard/recipe_products/category",
     },
     {
         name: "Material",
-        path: "/dashboard/material/material_category",
+        path: "/dashboard/material",
         permission: "material",
         icon: SiMaterialformkdocs,
+        subRoutes: [
+            { name: "Material Category", path: "/dashboard/material/material_category", permission: "material" },
+            { name: "Material Product", path: "/dashboard/material/material_products", permission: "material" },
+        ],
+        redirectTo: "/dashboard/material/material_category",
     },
     // --- Inventory & Supply chain ---
     {
         name: "Stock",
-        path: "/dashboard/stock/stock_list",
+        path: "/dashboard/stock",
         permission: "Stock",
         icon: FaShoppingBasket,
+        subRoutes: [
+            { name: "Purchase Stock", path: "/dashboard/stock/stock_list", permission: "Stock" },
+            { name: "Stock Count", path: "/dashboard/stock/stock_count", permission: "Stock" },
+        ],
+        redirectTo: "/dashboard/stock/stock_list",
     },
     {
         name: "Transfer stock",
@@ -165,9 +180,14 @@ export const adminRoutes = [
     },
     {
         name: "Inventory",
-        path: "/dashboard/inventory/inventory_products",
+        path: "/dashboard/inventory",
         permission: "inventory",
         icon: TbReportSearch,
+        subRoutes: [
+            { name: "Product Inventory", path: "/dashboard/inventory/inventory_products", permission: "inventory" },
+            { name: "Material Inventory", path: "/dashboard/inventory/inventory_materials", permission: "inventory" },
+        ],
+        redirectTo: "/dashboard/inventory/inventory_products",
     },
     {
         name: "Manufacturing",
@@ -177,9 +197,15 @@ export const adminRoutes = [
     },
     {
         name: "Purchase",
-        path: "/dashboard/purchase/purchase_list",
+        path: "/dashboard/purchase",
         permission: "purchase",
         icon: BiSolidPurchaseTagAlt,
+        subRoutes: [
+            { name: "Purchase List", path: "/dashboard/purchase/purchase_list", permission: "purchase" },
+            { name: "Consumption", path: "/dashboard/purchase/purchase_consumption", permission: "purchase" },
+            { name: "Wasted", path: "/dashboard/purchase/purchase_wasted", permission: "purchase" },
+        ],
+        redirectTo: "/dashboard/purchase/purchase_list",
     },
     // --- Branches ---
     {
@@ -282,22 +308,37 @@ export const adminRoutes = [
     },
     // --- Financials ---
     {
-        name: "Financials",
+        name: "Taxes",
         path: "/dashboard/taxes",
         permission: "Setting",
         icon: HiReceiptTax,
         subRoutes: [
             { name: "All Taxes", path: "/dashboard/taxes/all_taxes" },
             { name: "Tax Type", path: "/dashboard/taxes/tax_type" },
-            { name: "Payment Method", path: "/dashboard/setting/payment_method", permission: "PaymentMethod" },
-            { name: "Financial Account", path: "/dashboard/setting/financial_account", permission: "FinancialAccount" },
         ],
+        redirectTo: "/dashboard/taxes/all_taxes",
     },
     {
         name: "Expenses",
         path: "/dashboard/expenses",
         permission: "expenses",
         icon: LuBanknote,
+        subRoutes: [
+            { name: "Expenses Category", path: "/dashboard/expenses/expenses_category", permission: "expenses" },
+            { name: "Expenses Payment", path: "/dashboard/expenses/expenses_payment", permission: "expenses" },
+        ],
+        redirectTo: "/dashboard/expenses/expenses_category",
+    },
+    {
+        name: "Financial Setup",
+        path: "/dashboard/setting",
+        permission: "Setting",
+        icon: MdOutlineSettingsInputComposite,
+        subRoutes: [
+            { name: "Payment Method", path: "/dashboard/setting/payment_method", permission: "PaymentMethod" },
+            { name: "Financial Account", path: "/dashboard/setting/financial_account", permission: "FinancialAccount" },
+        ],
+        redirectTo: "/dashboard/setting/payment_method",
     },
     {
         name: "Service Fees",
@@ -415,7 +456,7 @@ export const branchRoutes = [
 ];
 
 export const ADMIN_MENU_CATEGORIES = [
-      {
+    {
         id: "home",
         name: "Home",
         description: "Access all modules and lists",
@@ -520,8 +561,9 @@ export const ADMIN_MENU_CATEGORIES = [
         description: "Taxes, expenses, and payment methods",
         icon: LuBanknote,
         routes: [
-            "Financials",
+            "Taxes",
             "Expenses",
+            "Financial Setup",
             "Service Fees",
         ],
     },
