@@ -51,28 +51,28 @@ const ProfessionalDashboard = ({ realData }) => {
                     labels={data.enrichedFinancialLabels}
                     data={data.timeSeries.netSales}
                     color="#10b981"
-                    unit="$"
+                    unit="EGP"
                 />
                 <StandardLineChart
                     title="Net Payments"
                     labels={data.enrichedFinancialLabels}
                     data={data.timeSeries.netPayments}
                     color="#3b82f6"
-                    unit="$"
+                    unit="EGP"
                 />
                 <StandardLineChart
                     title="Return Amount"
                     labels={data.enrichedFinancialLabels}
                     data={data.timeSeries.returns}
                     color="#ef4444"
-                    unit="$"
+                    unit="EGP"
                 />
                 <StandardLineChart
                     title="Discount Amount"
                     labels={data.enrichedFinancialLabels}
                     data={data.timeSeries.discounts}
                     color="#f59e0b"
-                    unit="$"
+                    unit="EGP"
                 />
             </div>
 
