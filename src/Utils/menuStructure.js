@@ -263,7 +263,7 @@ export const adminRoutes = [
     },
     // --- Customers ---
     {
-        name: "List",
+        name: "Customers List",
         path: "/dashboard/users/customers",
         permission: "Customer",
         icon: FiUsers,
@@ -509,7 +509,7 @@ export const ADMIN_MENU_CATEGORIES = [
         description: "User list and management",
         icon: FiUsers,
         routes: [
-            "List",
+            "Customers List",
             "Due Customer",
             "Deleted Customer",
         ],
