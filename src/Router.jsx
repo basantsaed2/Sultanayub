@@ -986,6 +986,45 @@ export const router = createBrowserRouter([
                 path: "language_system",
                 element: <LanguageSystem />,
               },
+              {
+                path: "business_setup",
+                element: <BusinessSetupLayout />,
+                children: [
+                  {
+                    path: "business_settings",
+                    element: <BusinessSettingsPage />,
+                  },
+                  {
+                    path: "main_branch_setup",
+                    element: <MainBranchSetupPage />,
+                  },
+                  {
+                    path: "restaurant_time_slot",
+                    element: <RestaurantTimeSlotPage />,
+                  },
+                  {
+                    path: "customer_login",
+                    element: <CustomerLoginPage />,
+                  },
+                  {
+                    path: "orders",
+                    element: <OrdersPage />,
+                  },
+                ],
+              },
+              {
+                path: "receipt_design",
+                element: <ReceiptDesignPage />,
+              },
+              {
+                path: "languages",
+                children: [
+                  {
+                    path: "",
+                    element: <LanguagesLayout />,
+                  },
+                ],
+              },
             ],
           },
           {
@@ -1086,33 +1125,6 @@ export const router = createBrowserRouter([
             ],
           },
           {
-            path: "business_setup",
-            element: <BusinessSetupLayout />,
-
-            children: [
-              {
-                path: "business_settings",
-                element: <BusinessSettingsPage />,
-              },
-              {
-                path: "main_branch_setup",
-                element: <MainBranchSetupPage />,
-              },
-              {
-                path: "restaurant_time_slot",
-                element: <RestaurantTimeSlotPage />,
-              },
-              {
-                path: "customer_login",
-                element: <CustomerLoginPage />,
-              },
-              {
-                path: "orders",
-                element: <OrdersPage />,
-              },
-            ],
-          },
-          {
             path: "deals",
             children: [
               {
@@ -1124,10 +1136,6 @@ export const router = createBrowserRouter([
                 element: <EditDealLayout />,
               },
             ],
-          },
-          {
-            path: "receipt_design",
-            element: <ReceiptDesignPage />,
           },
           {
             path: "offers",
@@ -1152,15 +1160,6 @@ export const router = createBrowserRouter([
               {
                 path: "edit/:couponId",
                 element: <EditCouponLayout />,
-              },
-            ],
-          },
-          {
-            path: "languages",
-            children: [
-              {
-                path: "",
-                element: <LanguagesLayout />,
               },
             ],
           },
