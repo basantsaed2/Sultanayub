@@ -2042,7 +2042,7 @@ const resources = {
                "Orders percentage": "نسبة الطلبات",
                "App setup": "إعدادات التطبيق",
                "Auto payments": "الدفع التلقائي",
-               "All Modules": "جميع الوحدات",
+               "All Modules": "الرئيسية",
                "Invoices Reports": "تقارير الفواتير",
                "Invoices": "الفواتير",
                "Print All": "طباعة الكل",
