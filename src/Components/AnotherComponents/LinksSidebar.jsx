@@ -1144,7 +1144,7 @@ const LinksSidebar = () => {
         <Link
           to="/dashboard"
           className={`
-            flex items-center gap-x-2 p-3 mb-2 rounded-2xl
+            flex items-center gap-x-2 p-1 mb-2 rounded-2xl
             bg-white/10 hover:bg-white hover:text-mainColor
             text-white font-bold transition-all duration-300 group
             shadow-sm border border-white/20

@@ -154,6 +154,12 @@ export const adminRoutes = [
         icon: FaShoppingBasket,
     },
     {
+        name: "Transfer stock",
+        path: "/dashboard/stock_transfer",
+        permission: "Stock",
+        icon: RiExchange2Fill,
+    },
+    {
         name: "Inventory",
         path: "/dashboard/inventory/inventory_products",
         permission: "inventory",
@@ -454,6 +460,7 @@ export const ADMIN_MENU_CATEGORIES = [
         icon: FaShoppingBasket,
         routes: [
             "Stock",
+            "Transfer stock",
             "Inventory",
             "Manufacturing",
             "Purchase",
