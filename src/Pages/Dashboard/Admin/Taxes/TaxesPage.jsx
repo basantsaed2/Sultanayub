@@ -119,7 +119,7 @@ const TaxesPage = ({ refetch, setUpdate }) => {
   }, []);
 
   const availableProducts = (allListsData?.products || []).filter(p => {
-    const isInCategory = filterCategory === "all" || p.category_id === parseInt(filterCategory);
+    const isInCategory = filterCategory === "all" || p.category_id === parseInt(filterCategory) || p.sub_category_id === parseInt(filterCategory);
     return isInCategory && !selectedProductIds.includes(p.id);
   });
 
