@@ -964,6 +964,7 @@ const LinksSidebar = () => {
   // Handle active link detection
   useEffect(() => {
     const findActiveRoute = () => {
+      // First pass: Check for exact subroute matches across all routes
       for (const route of currentRoutes) {
         if (route.subRoutes) {
           const sub = route.subRoutes.find((s) => s.path === pathName);
@@ -971,6 +972,10 @@ const LinksSidebar = () => {
             return { name: route.name, subRoute: sub.name };
           }
         }
+      }
+
+      // Second pass: Check for main route path or redirect matches
+      for (const route of currentRoutes) {
         if (route.path === pathName || (route.redirectTo && pathName.startsWith(route.path))) {
           // Matching logic for active route
           if (pathName === route.path || (route.redirectTo && pathName.includes(route.path))) {

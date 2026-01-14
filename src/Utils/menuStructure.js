@@ -33,9 +33,9 @@ import { LuBanknote } from "react-icons/lu";
 // Admin routes configuration
 export const adminRoutes = [
     {
-        name: "Home",
+        name: "Dashboard",
         path: "/dashboard/home-overview",
-        permission: "Home",
+        permission: "Dashboard",
         icon: RiHome2Line,
     },
     // --- Order Management ---
@@ -384,23 +384,23 @@ export const adminRoutes = [
         permission: "Settings",
         icon: CiSettings,
         subRoutes: [
-            { name: "Order Type", path: "/dashboard/setting/order_type", permission: "OrderType" },
-            { name: "Restaurant Time", path: "/dashboard/setting/resturant_time", permission: "ResturantTime" },
-            { name: "Cancel Time", path: "/dashboard/setting/cancel_time", permission: "CancelTime" },
-            { name: "Delivery Time", path: "/dashboard/setting/delivery_time", permission: "DeliveryTime" },
-            { name: "Cancellation Notification", path: "/dashboard/setting/notification", permission: "Notification" },
             { name: "Policy & Support", path: "/dashboard/setting/policy_support", permission: "PolicySupport" },
+            { name: "Cancellation Notification", path: "/dashboard/setting/notification", permission: "Notification" },
             { name: "Sound", path: "/dashboard/setting/sound", permission: "Sound" },
-            { name: "Social Media", path: "/dashboard/setting/social_media", permission: "SocialMedia" },
-            { name: "Banner", path: "/dashboard/setting/banners", permission: "SocialMedia" },
-            { name: "Void Reason", path: "/dashboard/setting/void_reason", permission: "VoidReason" },
-            { name: "Receipt Design", path: "/dashboard/setting/receipt_design", permission: "receipt_design" },
-            { name: "Languages", path: "/dashboard/setting/languages", permission: "Settings" },
-            { name: "Language System", path: "/dashboard/setting/language_system", permission: "Settings" },
-            { name: "Fake Order", path: "/dashboard/setting/fake_order", permission: "FakeOrder" },
-            { name: "Order Percentage", path: "/dashboard/setting/order_percentage", permission: "OrderPercentage" },
-            { name: "App Setup", path: "/dashboard/setting/app_setup", permission: "AppSetup" },
-            { name: "Automatic Payment", path: "/dashboard/setting/automatic_payment", permission: "AutomaticPayment" },
+            { name: "Order type", path: "/dashboard/setting/order_type", permission: "OrderType" },
+            { name: "Notifications", path: "/dashboard/setting/notification", permission: "notification" },
+            { name: "Void reasons", path: "/dashboard/setting/void_reason", permission: "VoidReason" },
+            { name: "Schedule time", path: "/dashboard/setting/schedule_time", permission: "ScheduleTime" },
+            { name: "Cancel time", path: "/dashboard/setting/cancel_time", permission: "CancelTime" },
+            { name: "Delivery time", path: "/dashboard/setting/delivery_time", permission: "DeliveryTime" },
+            { name: "Receipt design", path: "/dashboard/setting/receipt_design", permission: "receipt_design" },
+            { name: "Language", path: "/dashboard/setting/languages", permission: "Settings" },
+            { name: "Language system", path: "/dashboard/setting/language_system", permission: "Settings" },
+            { name: "Restaurant time", path: "/dashboard/setting/resturant_time", permission: "ResturantTime" },
+            { name: "Fake orders", path: "/dashboard/setting/fake_order", permission: "FakeOrder" },
+            { name: "Orders percentage", path: "/dashboard/setting/order_percentage", permission: "OrderPercentage" },
+            { name: "App setup", path: "/dashboard/setting/app_setup", permission: "AppSetup" },
+            { name: "Auto payments", path: "/dashboard/setting/automatic_payment", permission: "AutomaticPayment" },
             { name: "Business Setup", path: "/dashboard/setting/business_setup/business_settings", permission: "CustomerLogin" },
         ],
         redirectTo: "/dashboard/setting/order_type",
@@ -456,13 +456,13 @@ export const branchRoutes = [
 ];
 
 export const ADMIN_MENU_CATEGORIES = [
-    {
-        id: "home",
-        name: "Home",
-        description: "Access all modules and lists",
-        icon: RiHome2Line,
-        routes: ["Home"],
-    },
+    // {
+    //     id: "home",
+    //     name: "Home",
+    //     description: "Access all modules and lists",
+    //     icon: RiHome2Line,
+    //     routes: ["Home"],
+    // },
     {
         id: "dashboard",
         name: "Dashboard",
