@@ -133,8 +133,10 @@ const ProductPage = () => {
       if (text === "") {
         setFilteredProducts(products);
       } else {
+        const lowerText = text.toLowerCase();
         const filter = products.filter((product) =>
-          product.name.toLowerCase().includes(text.toLowerCase())
+          product.name.toLowerCase().includes(lowerText) ||
+          (product.product_code && product.product_code.toLowerCase().includes(lowerText))
         );
         setFilteredProducts(filter);
       }
@@ -392,7 +394,7 @@ const ProductPage = () => {
         {activeTab === "products" && (
           <div className="sm:w-full lg:w-[70%] xl:w-[30%] mt-4">
             <SearchBar
-              placeholder={t("Search by Product Name")}
+              placeholder={t("Search by Name or Code")}
               value={textSearch}
               handleChange={handleFilterData}
             />
@@ -422,39 +424,77 @@ const ProductPage = () => {
               </svg>
             </button>
             {(activeTab === "products" && currentProducts.length) > 0 && (
-              <div className="flex flex-wrap items-center justify-center gap-x-4">
-                {currentPage !== 1 && (
-                  <button
-                    type="button"
-                    className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                  >
-                    {t("Prev")}
-                  </button>
-                )}
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (page) => (
+              <div className="flex flex-wrap items-center justify-center gap-x-2">
+                {/* Prev Button */}
+                <button
+                  type="button"
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 text-lg rounded-xl font-TextFontMedium transition-all duration-300 ${currentPage === 1
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-mainColor text-white hover:bg-opacity-90 active:scale-95"
+                    }`}
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                >
+                  {t("Prev")}
+                </button>
+
+                {/* Page Numbers */}
+                {(() => {
+                  const pages = [];
+                  const delta = 2; // Number of pages to show around current page
+                  const left = currentPage - delta;
+                  const right = currentPage + delta + 1;
+                  const range = [];
+                  const rangeWithDots = [];
+                  let l;
+
+                  for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || (i >= left && i < right)) {
+                      range.push(i);
+                    }
+                  }
+
+                  for (let i of range) {
+                    if (l) {
+                      if (i - l === 2) {
+                        rangeWithDots.push(l + 1);
+                      } else if (i - l !== 1) {
+                        rangeWithDots.push("...");
+                      }
+                    }
+                    rangeWithDots.push(i);
+                    l = i;
+                  }
+
+                  return rangeWithDots.map((page, index) => (
                     <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
-                        ? "bg-mainColor text-white"
-                        : "text-mainColor"
+                      key={index}
+                      disabled={page === "..."}
+                      onClick={() => typeof page === "number" && handlePageChange(page)}
+                      className={`px-4 py-2 text-lg font-TextFontSemiBold rounded-full duration-300 transition-all ${currentPage === page
+                        ? "bg-mainColor text-white shadow-md scale-110"
+                        : page === "..."
+                          ? "text-gray-400 cursor-default"
+                          : "text-mainColor hover:bg-gray-100"
                         }`}
                     >
                       {page}
                     </button>
-                  )
-                )}
-                {totalPages !== currentPage && (
-                  <button
-                    type="button"
-                    className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                  >
-                    {t("Next")}
-                  </button>
-                )}
+                  ));
+                })()}
+
+                {/* Next Button */}
+                <button
+                  type="button"
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 text-lg rounded-xl font-TextFontMedium transition-all duration-300 ${currentPage === totalPages
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-mainColor text-white hover:bg-opacity-90 active:scale-95"
+                    }`}
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                >
+                  {t("Next")}
+                </button>
               </div>
             )}
             <button
