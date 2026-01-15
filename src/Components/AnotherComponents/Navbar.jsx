@@ -261,9 +261,9 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="flex items-center justify-between px-4 py-0 md:py-1 shadow-md gap-x-4">
-        <div className="flex items-center justify-start sm:w-10/12 lg:w-6/12 xl:w-3/12 sm:gap-x-2">
-          <div className="relative z-10 w-14">
+      <nav className="flex items-center justify-between px-2 md:px-4 py-0 md:py-1 shadow-md gap-x-2 md:gap-x-4 flex-nowrap">
+        <div className="flex items-center justify-start flex-1 md:w-6/12 lg:w-4/12 xl:w-3/12 gap-x-1 md:gap-x-2 min-w-0">
+          <div className="relative z-10 w-14 hidden md:block">
             {(imagePreview || auth?.userState?.image) ? (
               <button
                 type="button"
@@ -290,13 +290,13 @@ const Navbar = () => {
                 } rounded-full bottom-1 w-[18px] h-[18px] animate-pulse`}
             ></span>
           </div>
-          <div className="sm:w-10/12">
-            <span className="w-full text-2xl text-left text-mainColor font-TextFontSemiBold">
+          <div className="w-40 sm:w-10/12 md:w-10/12">
+            <span className="w-full text-xs md:text-2xl text-left text-mainColor font-TextFontSemiBold truncate block">
               {t("Hello")}, {name ? name : auth?.userState?.name || ""}
             </span>
-            <div className="flex items-center sm:w-11/12 text-mainColor ">
+            <div className="flex items-center w-full md:w-11/12 text-mainColor text-[10px] md:text-base">
               <i>
-                <GrLanguage />
+                <GrLanguage className="text-xs md:text-base" />
               </i>
               <select
                 value={i18n.language}
@@ -310,123 +310,131 @@ const Navbar = () => {
           </div>
         </div>
 
-        <div className="flex gap-4 md:gap-12">
-          <div className="flex items-center justify-center w-2/12 gap-x-3">
-            {/* Cancellation Status Dropdown */}
-            <div className="relative" ref={cancelationDropdownRef}>
-              <button
-                type="button"
-                onClick={handleCancelationClickOpen}
-                className="relative flex items-center gap-x-2"
-              >
-                <IoBagHandleOutline className="text-3xl text-mainColor" />
-                {cancelationStatuses.length > 0 && (
-                  <span className="absolute flex items-center justify-center w-5 h-5 text-xs text-white bg-red-600 rounded-full -top-2 -right-2">
-                    {cancelationStatuses.length}
-                  </span>
-                )}
-              </button>
-              {cancelationOpen && (
-                <div className="absolute right-0 z-40 w-64 py-1 mt-2 overflow-y-auto bg-white rounded-md shadow-lg max-h-80">
-                  {loadingCancelation ? (
-                    <div className="px-4 py-2 text-gray-700">{t("Loading...")}</div>
-                  ) : cancelationStatuses.length === 0 ? (
-                    <div className="px-4 py-2 text-gray-700">{t("No cancellation orders")}</div>
-                  ) : (
-                    <>
-                      <div className="px-4 py-2 font-semibold border-b">{t("Cancellation Orders")}</div>
-                      {cancelationStatuses.map((status) => (
-                        <div
-                          key={status.id}
-                          className="flex items-center justify-between px-4 py-2 hover:bg-gray-100"
-                        >
-                          <Link
-                            to={`/dashboard/orders/details/${status.id}`}
-                            onClick={() => setSelectedCancelId(status.id)}
-                            className="flex-1 text-left"
-                          >
-                            <span className="flex-1 text-left cursor-pointer">
-                              {status.name || `Order #${status.id}`}
-                            </span>
-                          </Link>
-                          <button
-                            onClick={() => handleChangeStatus(status.id)}
-                            className="ml-2 text-red-600 hover:text-red-800"
-                            aria-label="Remove Cancellation Order"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
-                    </>
-                  )}
-                </div>
+        <div className="flex items-center gap-1 md:gap-8 flex-shrink-0 ml-auto">
+          {/* Cancellation Status Icon */}
+          <div className="relative" ref={cancelationDropdownRef}>
+            <button
+              type="button"
+              onClick={handleCancelationClickOpen}
+              className="relative p-1"
+            >
+              <IoBagHandleOutline className="text-xl md:text-3xl text-mainColor" />
+              {cancelationStatuses.length > 0 && (
+                <span className="absolute flex items-center justify-center w-5 h-5 text-xs text-white bg-red-600 rounded-full -top-1 -right-1">
+                  {cancelationStatuses.length}
+                </span>
               )}
-            </div>
-
-            {/* Notification Dropdown */}
-            <div className="relative flex items-center gap-x-2" ref={notificationRef}>
-              <Link
-                to="/dashboard"
-                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-                title={t("All Modules")}
-              >
-                <RiApps2Line className="text-3xl text-mainColor" />
-              </Link>
-
-              <button
-                type="button"
-                onClick={() => setNotificationOpen(!notificationOpen)}
-                className="relative"
-              >
-                <IoMdNotificationsOutline className="text-3xl text-mainColor" />
-                {canceledOrders.count > 0 && (
-                  <span className="absolute flex items-center justify-center w-5 h-5 text-xs text-white bg-red-600 rounded-full -top-2 -right-2">
-                    {canceledOrders.count}
-                  </span>
-                )}
-              </button>
-              {notificationOpen && (
-                <div className="absolute right-0 top-8 z-40 w-64 py-1 mt-2 overflow-y-auto bg-white rounded-md shadow-lg max-h-80">
-                  {canceledOrders.orders.length === 0 ? (
-                    <div className="px-4 py-2 text-gray-700">{t("No Waiting Orders")}</div>
-                  ) : (
-                    <>
-                      <div className="px-4 py-2 font-semibold border-b">{t("Waiting Orders")}</div>
-                      {canceledOrders.orders.map((orderId) => (
-                        <div
-                          key={orderId}
-                          className="flex items-center justify-between px-4 py-2 hover:bg-gray-100"
+            </button>
+            {cancelationOpen && (
+              <div className="absolute right-0 z-40 w-64 py-1 mt-2 overflow-y-auto bg-white rounded-md shadow-lg max-h-80">
+                {loadingCancelation ? (
+                  <div className="px-4 py-2 text-gray-700">{t("Loading...")}</div>
+                ) : cancelationStatuses.length === 0 ? (
+                  <div className="px-4 py-2 text-gray-700">{t("No cancellation orders")}</div>
+                ) : (
+                  <>
+                    <div className="px-4 py-2 font-semibold border-b">{t("Cancellation Orders")}</div>
+                    {cancelationStatuses.map((status) => (
+                      <div
+                        key={status.id}
+                        className="flex items-center justify-between px-4 py-2 hover:bg-gray-100"
+                      >
+                        <Link
+                          to={`/dashboard/orders/details/${status.id}`}
+                          onClick={() => setSelectedCancelId(status.id)}
+                          className="flex-1 text-left"
                         >
-                          <Link
-                            to={`/dashboard/orders/details/${orderId}`}
-                            onClick={() => {
-                              setNotificationOpen(false);
-                              dispatch(removeCanceledOrder(orderId));
-                            }}
-                            className="flex-1 text-left"
-                          >
-                            Order #{orderId}
-                          </Link>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveOrder(orderId);
-                            }}
-                            className="ml-2 text-red-600 hover:text-red-800"
-                            aria-label="Remove Order"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
+                          <span className="flex-1 text-left cursor-pointer">
+                            {status.name || `Order #${status.id}`}
+                          </span>
+                        </Link>
+                        <button
+                          onClick={() => handleChangeStatus(status.id)}
+                          className="ml-2 text-red-600 hover:text-red-800"
+                          aria-label="Remove Cancellation Order"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
           </div>
-          <StaticButton Size="text-1xl" px="px-2" type="button" text={t("Logout")} handleClick={handleLogout} />
+
+          {/* Apps Link */}
+          <Link
+            to="/dashboard"
+            className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
+            title={t("All Modules")}
+          >
+            <RiApps2Line className="text-xl md:text-3xl text-mainColor" />
+          </Link>
+
+          {/* Notification Dropdown */}
+          <div className="relative flex-shrink-0" ref={notificationRef}>
+            <button
+              type="button"
+              onClick={() => setNotificationOpen(!notificationOpen)}
+              className="relative p-1"
+            >
+              <IoMdNotificationsOutline className="text-xl md:text-3xl text-mainColor" />
+              {canceledOrders.count > 0 && (
+                <span className="absolute flex items-center justify-center w-5 h-5 text-xs text-white bg-red-600 rounded-full -top-1 -right-1">
+                  {canceledOrders.count}
+                </span>
+              )}
+            </button>
+            {/* Notification Dropdown Content */}
+            {notificationOpen && (
+              <div className="absolute right-0 top-8 z-40 w-64 py-1 mt-2 overflow-y-auto bg-white rounded-md shadow-lg max-h-80">
+                {canceledOrders.orders.length === 0 ? (
+                  <div className="px-4 py-2 text-gray-700">{t("No Waiting Orders")}</div>
+                ) : (
+                  <>
+                    <div className="px-4 py-2 font-semibold border-b">{t("Waiting Orders")}</div>
+                    {canceledOrders.orders.map((orderId) => (
+                      <div
+                        key={orderId}
+                        className="flex items-center justify-between px-4 py-2 hover:bg-gray-100"
+                      >
+                        <Link
+                          to={`/dashboard/orders/details/${orderId}`}
+                          onClick={() => {
+                            setNotificationOpen(false);
+                            dispatch(removeCanceledOrder(orderId));
+                          }}
+                          className="flex-1 text-left"
+                        >
+                          Order #{orderId}
+                        </Link>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveOrder(orderId);
+                          }}
+                          className="ml-2 text-red-600 hover:text-red-800"
+                          aria-label="Remove Order"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+
+          <StaticButton
+            Size="text-[10px] md:text-base"
+            px="px-2 md:px-4"
+            py="py-1"
+            type="button"
+            text={t("Logout")}
+            handleClick={handleLogout}
+          />
         </div>
       </nav>
 
