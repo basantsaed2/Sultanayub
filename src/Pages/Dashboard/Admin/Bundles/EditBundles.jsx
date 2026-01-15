@@ -100,7 +100,7 @@ const EditBundles = () => {
                 });
 
                 return {
-                    categoryId: p.category_id,
+                    categoryId: p.category_id ? p.category_id : p.sub_category_id,
                     id: p.id,
                     selectedVariationIds,
                     variations: variationState
@@ -276,7 +276,7 @@ const EditBundles = () => {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {selectedProducts.map((prodEntry, prodIdx) => {
-                            const filteredProducts = listData?.products?.filter(p => p.category_id === prodEntry.categoryId) || [];
+                            const filteredProducts = listData?.products?.filter(p => p.category_id === prodEntry.categoryId ? (p.category_id === prodEntry.categoryId) : (p.sub_category_id === prodEntry.categoryId)) || [];
                             const currentProductData = listData?.products?.find(p => p.id === prodEntry.id);
 
                             const categoryValue = listData?.categories?.find(c => c.id === prodEntry.categoryId)

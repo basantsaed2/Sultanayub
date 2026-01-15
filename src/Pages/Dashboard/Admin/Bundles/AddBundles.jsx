@@ -219,7 +219,7 @@ const AddBundles = () => {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {selectedProducts.map((prodEntry, prodIdx) => {
-                            const filteredProducts = listData?.products?.filter(p => p.category_id === prodEntry.categoryId) || [];
+                            const filteredProducts = listData?.products?.filter(p => p.category_id === prodEntry.categoryId ? (p.category_id === prodEntry.categoryId) : (p.sub_category_id === prodEntry.categoryId)) || [];
                             const currentProductData = listData?.products?.find(p => p.id === prodEntry.id);
 
                             return (
@@ -374,7 +374,7 @@ const AddBundles = () => {
                 <div className="flex justify-end gap-4 pb-10">
                     <button type="button" onClick={() => navigate(-1)} className="px-10 py-4 rounded-2xl border-2 border-gray-100 font-bold text-gray-500 hover:bg-gray-50 transition-all">{t("Cancel")}</button>
                     <div className="w-64">
-                        <SubmitButton text={t("Publish Bundle")} loading={loadingPost} />
+                        <SubmitButton text={t("Add Bundle")} loading={loadingPost} />
                     </div>
                 </div>
             </form>
