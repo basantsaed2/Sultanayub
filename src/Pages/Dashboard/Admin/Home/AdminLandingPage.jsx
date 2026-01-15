@@ -8,11 +8,48 @@ const AdminLandingPage = () => {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
 
+    // const filteredCategories = useMemo(() => {
+    //     return ADMIN_MENU_CATEGORIES.filter(category =>
+    //         t(category.name).toLowerCase().includes(searchQuery.toLowerCase()) ||
+    //         t(category.description).toLowerCase().includes(searchQuery.toLowerCase())
+    //     );
+    // }, [searchQuery, t]);
+
     const filteredCategories = useMemo(() => {
-        return ADMIN_MENU_CATEGORIES.filter(category =>
-            t(category.name).toLowerCase().includes(searchQuery.toLowerCase()) ||
-            t(category.description).toLowerCase().includes(searchQuery.toLowerCase())
-        );
+        const query = searchQuery.toLowerCase().trim();
+        if (!query) return ADMIN_MENU_CATEGORIES;
+
+        return ADMIN_MENU_CATEGORIES.filter(category => {
+            // Search Category Name & Description (Translated and Original)
+            const catNameEn = (category.name || '').toLowerCase();
+            const catNameLocal = t(category.name).toLowerCase();
+            const catDescEn = (category.description || '').toLowerCase();
+            const catDescLocal = t(category.description).toLowerCase();
+
+            if (catNameEn.includes(query) || catNameLocal.includes(query) ||
+                catDescEn.includes(query) || catDescLocal.includes(query)) {
+                return true;
+            }
+
+            // Search in Routes and their SubRoutes
+            return category.routes?.some(routeName => {
+                // Check route name
+                const routeNameEn = routeName.toLowerCase();
+                const routeNameLocal = t(routeName).toLowerCase();
+                if (routeNameEn.includes(query) || routeNameLocal.includes(query)) return true;
+
+                // Deep check adminRoutes for subRoutes
+                const routeConfig = adminRoutes.find(r => r.name === routeName);
+                if (routeConfig?.subRoutes) {
+                    return routeConfig.subRoutes.some(sub => {
+                        const subNameEn = (sub.name || '').toLowerCase();
+                        const subNameLocal = t(sub.name).toLowerCase();
+                        return subNameEn.includes(query) || subNameLocal.includes(query);
+                    });
+                }
+                return false;
+            });
+        });
     }, [searchQuery, t]);
 
     const handleCategoryClick = (category) => {

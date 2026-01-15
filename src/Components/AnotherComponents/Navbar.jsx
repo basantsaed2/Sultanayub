@@ -366,13 +366,13 @@ const Navbar = () => {
 
             {/* Notification Dropdown */}
             <div className="relative flex items-center gap-x-2" ref={notificationRef}>
-              {/* <Link
+              <Link
                 to="/dashboard"
                 className="p-1 hover:bg-gray-100 rounded-full transition-colors"
                 title={t("All Modules")}
               >
                 <RiApps2Line className="text-3xl text-mainColor" />
-              </Link> */}
+              </Link>
 
               <button
                 type="button"
