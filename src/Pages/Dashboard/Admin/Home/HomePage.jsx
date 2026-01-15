@@ -192,37 +192,36 @@ const HomePage = () => {
           </div>
         ) : (
           <div className="flex flex-col items-start justify-center w-full pb-28">
-            <div className="w-full px-2 md:px-6 pt-4">
+            {/* <div className="w-full px-2 md:px-6 pt-4">
               <SelectDateRangeSection typPage={'all'} />
 
-              {/* Restored Order Status Cards */}
-              {/* <div className="mt-6">
+              <div className="mt-6">
                 <CartsOrderSection ordersNum={counters} />
-              </div> */}
-            </div>
+              </div>
+            </div> */}
 
             <div className="flex flex-col items-start justify-center w-full px-2 md:px-6 gap-7 mt-5">
 
-            {/* New Professional Dashboard */}
-            <ProfessionalDashboard realData={dashboardRealData} />
+              {/* New Professional Dashboard */}
+              <ProfessionalDashboard realData={dashboardRealData} />
 
-            {/* Old Chart Restored to the bottom */}
-            <div className="flex flex-col items-start justify-center w-full px-4 gap-7 mt-12">
-              <Chart
-                order_statistics={order_statistics}
-                earning_statistics={earning_statistics}
-                recent_orders={recent_orders}
-                orders={orders}
-              /> 
-              <div className="flex flex-wrap items-center justify-between w-full gap-5">
+              {/* Old Chart Restored to the bottom */}
+              <div className="flex flex-col items-start justify-center w-full px-4 gap-7 mt-12">
+                <Chart
+                  order_statistics={order_statistics}
+                  earning_statistics={earning_statistics}
+                  recent_orders={recent_orders}
+                  orders={orders}
+                />
+                <div className="flex flex-wrap items-center justify-between w-full gap-5">
                   {renderSMSMessageCard()}
 
                   <FooterCard title={t("TopSellingProducts")} link="/dashboard/setup_product/product" layout={"TopSelling"} topCustomers={topCustomers} topSelling={topSelling} offers={offers} />
                   {/* <FooterCard title={t("Deals")} link="/dashboard/deals" layout={"Deals"} topCustomers={topCustomers} topSelling={topSelling} offers={offers} /> */}
                   <FooterCard title={t("TopCustomer")} link="/dashboard/users/customers" layout={"default"} topCustomers={topCustomers} topSelling={topSelling} offers={offers} />
                 </div>
+              </div>
             </div>
-          </div>
           </div>
         )}
       </div>

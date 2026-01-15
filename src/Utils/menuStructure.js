@@ -41,7 +41,7 @@ export const adminRoutes = [
     // --- Order Management ---
     {
         name: "Online Orders",
-        path: "/dashboard/orders/all",
+        path: "/dashboard/orders",
         permission: "Order",
         icon: IoBagAddOutline,
         subRoutes: [
