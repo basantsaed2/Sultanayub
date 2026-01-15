@@ -468,7 +468,7 @@ const App = () => {
       )}
       <div className="relative flex w-full min-h-screen overflow-hidden bg-secoundBgColor">
         {/* Sidebar */}
-        <div className={`${hideSide ? 'w-60' : 'w-16'} ${direction === "ltr" ? 'left-0' : 'right-0'} fixed left-0 z-10 duration-300 overflow-hidden ${location.pathname === '/dashboard' ? 'hidden' : ''}`}>
+        <div className={`${hideSide ? 'w-60' : 'w-16'} ${direction === "ltr" ? 'left-0' : 'right-0'} fixed left-0 z-10 duration-300 overflow-hidden ${location.pathname === '/dashboard' || location.pathname === '/dashboard/home-overview' ? 'hidden' : ''}`}>
           <Sidebar />
         </div>
 
@@ -476,8 +476,8 @@ const App = () => {
         <div className={`
         w-full duration-300
         ${direction === "ltr"
-            ? (location.pathname === '/dashboard' ? 'pl-0' : (hideSide ? 'pl-60' : 'pl-16'))
-            : (location.pathname === '/dashboard' ? 'pr-0' : (hideSide ? 'pr-60' : 'pr-16'))
+            ? (location.pathname === '/dashboard' || location.pathname === '/dashboard/home-overview' ? 'pl-0' : (hideSide ? 'pl-60' : 'pl-16'))
+            : (location.pathname === '/dashboard' || location.pathname === '/dashboard/home-overview' ? 'pr-0' : (hideSide ? 'pr-60' : 'pr-16'))
           }
       `}>
           {/* Navbar */}
