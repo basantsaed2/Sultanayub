@@ -265,30 +265,31 @@ const PricingProduct = () => {
 
                                 <div className="flex gap-2">
                                     {[...Array(totalPages)].map((_, i) => {
+                                        const pageNum = i + 1;
                                         // Simple pagination logic to avoid too many buttons
                                         // Show first, last, current, and neighbors
                                         if (
-                                            i + 1 === 1 ||
-                                            i + 1 === totalPages ||
-                                            (i + 1 >= currentPage - 1 && i + 1 <= currentPage + 1)
+                                            pageNum === 1 ||
+                                            pageNum === totalPages ||
+                                            (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
                                         ) {
                                             return (
                                                 <button
-                                                    key={i + 1}
-                                                    onClick={() => setCurrentPage(i + 1)}
-                                                    className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-bold transition-all shadow-sm ${currentPage === i + 1
+                                                    key={`page-${pageNum}`}
+                                                    onClick={() => setCurrentPage(pageNum)}
+                                                    className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-bold transition-all shadow-sm ${currentPage === pageNum
                                                         ? "bg-mainColor text-white"
                                                         : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
                                                         }`}
                                                 >
-                                                    {i + 1}
+                                                    {pageNum}
                                                 </button>
                                             );
                                         } else if (
-                                            (i + 1 === currentPage - 2 && currentPage > 3) ||
-                                            (i + 1 === currentPage + 2 && currentPage < totalPages - 2)
+                                            (pageNum === currentPage - 2 && currentPage > 3) ||
+                                            (pageNum === currentPage + 2 && currentPage < totalPages - 2)
                                         ) {
-                                            return <span key={i} className="px-1 text-gray-400">...</span>;
+                                            return <span key={`dots-${pageNum}`} className="px-1 text-gray-400">...</span>;
                                         }
                                         return null;
                                     })}

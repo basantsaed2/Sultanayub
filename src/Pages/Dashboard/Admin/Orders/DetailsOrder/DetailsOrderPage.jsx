@@ -322,8 +322,8 @@ const DetailsOrderPage = () => {
     try {
       const statusUrl =
         role === "branch"
-          ? `${apiUrl}/branch/online_order/status/${orderId}`
-          : `${apiUrl}/admin/order/status/${orderId}`;
+          ? `${apiUrl}/branch/online_order/status/${orderId}?locale=${selectedLanguage}`
+          : `${apiUrl}/admin/order/status/${orderId}?locale=${selectedLanguage}`;
 
       const responseStatus = await changeState(
         statusUrl,
