@@ -358,6 +358,13 @@ export const adminRoutes = [
             { name: "Coupon", path: "/dashboard/coupon", permission: "Coupon" },
             { name: "Popup", path: "/dashboard/popup", permission: "Popup" },
             { name: "Bundles", path: "/dashboard/bundles", permission: "Bundles" },
+            { name: "Emails", path: "/dashboard/emails", permission: "Email" },
+            { name: "Social media", path: "/dashboard/social_media", permission: "SocialMedia" },
+            { name: "Banners", path: "/dashboard/banners", permission: "Banner" },
+            { name: "Discount", path: "/dashboard/discount", permission: "Discount" },
+            { name: "Discount module", path: "/dashboard/discount_module", permission: "DiscountModule" },
+            { name: "Discount code", path: "/dashboard/discount_code", permission: "DiscountCode" },
+            { name: "Free discount", path: "/dashboard/free_discount", permission: "FreeDiscount" },
         ],
     },
     // --- Other ---
