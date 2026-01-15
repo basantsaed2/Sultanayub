@@ -962,32 +962,40 @@ const LinksSidebar = () => {
   }, [isAdmin, role]);
 
   // Handle active link detection
+  const findActiveRoute = useCallback(() => {
+    // 1. Check for exact subroute matches across all routes
+    for (const route of currentRoutes) {
+      if (route.subRoutes) {
+        const sub = route.subRoutes.find((s) => s.path === pathName);
+        if (sub) {
+          return { name: route.name, subRoute: sub.name };
+        }
+      }
+    }
+
+    // 2. Check for route path matches (including prefix matching for deep paths)
+    // Sort routes by path length descending to find the most specific match
+    const sortedRoutes = [...currentRoutes].sort((a, b) => b.path.length - a.path.length);
+    for (const route of sortedRoutes) {
+      // For shared roots like /dashboard or /branch, require exact match
+      const isRootPath = route.path === "/dashboard" || route.path === "/branch";
+      if (isRootPath) {
+        if (pathName === route.path) return { name: route.name, subRoute: "" };
+        continue;
+      }
+
+      // Prefix match for other routes (e.g., /dashboard/branches/...)
+      if (pathName.startsWith(route.path)) {
+        return { name: route.name, subRoute: "" };
+      }
+    }
+
+    return { name: "", subRoute: "" };
+  }, [pathName, currentRoutes]);
+
   useEffect(() => {
-    const findActiveRoute = () => {
-      // First pass: Check for exact subroute matches across all routes
-      for (const route of currentRoutes) {
-        if (route.subRoutes) {
-          const sub = route.subRoutes.find((s) => s.path === pathName);
-          if (sub) {
-            return { name: route.name, subRoute: sub.name };
-          }
-        }
-      }
-
-      // Second pass: Check for main route path or redirect matches
-      for (const route of currentRoutes) {
-        if (route.path === pathName || (route.redirectTo && pathName.startsWith(route.path))) {
-          // Matching logic for active route
-          if (pathName === route.path || (route.redirectTo && pathName.includes(route.path))) {
-            return { name: route.name, subRoute: "" };
-          }
-        }
-      }
-      return { name: "", subRoute: "" };
-    };
-
     setActiveLink(findActiveRoute());
-  }, [pathName, currentRoutes, isAdmin]);
+  }, [findActiveRoute]);
 
   // Navigation handlers
   // Main route click handler
@@ -1029,7 +1037,18 @@ const LinksSidebar = () => {
 
     // Get active category from search params
     const searchParams = new URLSearchParams(location.search);
-    const activeCategoryId = searchParams.get('category');
+    let activeCategoryId = searchParams.get('category');
+
+    // Auto-detect category if missing from query params
+    if (!activeCategoryId || activeCategoryId === 'home') {
+      const detected = findActiveRoute();
+      if (detected.name) {
+        const category = ADMIN_MENU_CATEGORIES.find(c => c.routes.includes(detected.name));
+        if (category) {
+          activeCategoryId = category.id;
+        }
+      }
+    }
 
     let routesToFilter = currentRoutes;
 

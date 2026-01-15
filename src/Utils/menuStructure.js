@@ -475,7 +475,7 @@ export const ADMIN_MENU_CATEGORIES = [
         name: "Dashboard",
         description: "Statistics and overview",
         icon: MdDashboard,
-        routes: ["Home"],
+        routes: ["Dashboard"],
     },
     {
         id: "order_management",

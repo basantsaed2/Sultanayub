@@ -4,18 +4,20 @@ import { usePost } from "../../../../Hooks/usePostJson";
 import { LoaderLogin, StaticLoader, TitlePage } from "../../../../Components/Components";
 import { useTranslation } from "react-i18next";
 import { IoSave, IoFastFood, IoBicycle, IoRestaurant, IoPencil, IoClose } from "react-icons/io5";
+import { TbBorderAll } from "react-icons/tb";
 
 const PricingProduct = () => {
     const { t } = useTranslation();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
     // State
-    const [activeTab, setActiveTab] = useState("take_away");
+    const [activeTab, setActiveTab] = useState("all");
     const [products, setProducts] = useState([]);
     const [editingRowId, setEditingRowId] = useState(null); // ID of row currently being edited
     const [editPrice, setEditPrice] = useState(""); // Temporary state for price being edited
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState("");
+    const [selectedModules, setSelectedModules] = useState(["take_away", "delivery", "dine_in"]);
 
     // Constants
     const itemsPerPage = 10;
@@ -60,6 +62,7 @@ const PricingProduct = () => {
     const handleEditClick = (product) => {
         setEditingRowId(product.id);
         setEditPrice(product.price);
+        setSelectedModules(["take_away", "delivery", "dine_in"]);
     };
 
     const handleCancelClick = () => {
@@ -71,9 +74,19 @@ const PricingProduct = () => {
         if (!editPrice) return;
 
         const formData = new FormData();
-        formData.append("module", activeTab);
-        formData.append("product_id", id);
-        formData.append("price", editPrice);
+
+        if (activeTab === "all") {
+            if (selectedModules.length === 0) return;
+            selectedModules.forEach((mod, index) => {
+                formData.append(`items[${index}][module]`, mod);
+                formData.append(`items[${index}][product_id]`, id);
+                formData.append(`items[${index}][price]`, editPrice);
+            });
+        } else {
+            formData.append("module", activeTab);
+            formData.append("product_id", id);
+            formData.append("price", editPrice);
+        }
 
         await postData(formData, t("Price Updated Successfully"));
         refetch();
@@ -82,6 +95,7 @@ const PricingProduct = () => {
     };
 
     const tabs = [
+        { id: "all", label: t("All"), icon: <TbBorderAll /> },
         { id: "take_away", label: t("Take Away"), icon: <IoFastFood /> },
         { id: "delivery", label: t("Delivery"), icon: <IoBicycle /> },
         { id: "dine_in", label: t("Dine In"), icon: <IoRestaurant /> },
@@ -162,15 +176,36 @@ const PricingProduct = () => {
                                                     </td>
                                                     <td className="px-6 py-4 text-center text-lg text-mainColor font-bold">
                                                         {isEditing ? (
-                                                            <div className="flex justify-center">
+                                                            <div className="flex flex-col items-center gap-2">
                                                                 <input
                                                                     type="number"
                                                                     step="0.01"
                                                                     value={editPrice}
                                                                     onChange={(e) => setEditPrice(e.target.value)}
-                                                                    className="w-32 px-3 py-2 border border-red-400 rounded-lg text-center text-gray-900 font-bold focus:ring-2 focus:ring-red-100 focus:border-red-500 outline-none transition-all shadow-sm"
+                                                                    className="w-32 px-3 py-1.5 border border-red-400 rounded-lg text-center text-gray-900 font-bold focus:ring-2 focus:ring-red-100 focus:border-red-500 outline-none transition-all shadow-sm"
                                                                     autoFocus
                                                                 />
+                                                                {activeTab === "all" && (
+                                                                    <div className="flex flex-wrap justify-center gap-2 mt-1 px-2">
+                                                                        {tabs.filter(t => t.id !== "all").map(m => (
+                                                                            <label key={m.id} className="flex items-center gap-1.5 text-[10px] cursor-pointer bg-gray-50 hover:bg-gray-100 px-2 py-1 rounded-md border border-gray-200 transition-colors">
+                                                                                <input
+                                                                                    type="checkbox"
+                                                                                    className="w-3 h-3 accent-mainColor"
+                                                                                    checked={selectedModules.includes(m.id)}
+                                                                                    onChange={(e) => {
+                                                                                        if (e.target.checked) {
+                                                                                            setSelectedModules([...selectedModules, m.id]);
+                                                                                        } else {
+                                                                                            setSelectedModules(selectedModules.filter(item => item !== m.id));
+                                                                                        }
+                                                                                    }}
+                                                                                />
+                                                                                <span className="font-semibold text-gray-600 uppercase tracking-tighter">{m.label}</span>
+                                                                            </label>
+                                                                        ))}
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         ) : (
                                                             product.price
@@ -186,7 +221,9 @@ const PricingProduct = () => {
                                                                         className="flex items-center gap-2 px-4 py-2 bg-mainColor text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
                                                                     >
                                                                         {loadingPost ? <StaticLoader /> : <IoSave size={18} />}
-                                                                        <span className="text-sm font-bold">{t("Save")}</span>
+                                                                        <span className="text-sm font-bold">
+                                                                            {activeTab === "all" ? t("Save to All") : t("Save")}
+                                                                        </span>
                                                                     </button>
                                                                     <button
                                                                         onClick={handleCancelClick}

@@ -1421,6 +1421,8 @@ const resources = {
 
                "Shift Number": "Shift Number",
                "Report Permission": "Report Permission",
+               "All": "All",
+               "Save to All": "Save to All",
                "Take Away": "Take Away",
                "Dine In": "Dine In",
 
@@ -1999,6 +2001,8 @@ const resources = {
 
      ar: {
           translation: {
+               "All": "الكل",
+               "Save to All": "حفظ في الكل",
                projectName: import.meta.env.VITE_PROJECT_AR_NAME || "Food2go",
                "Order management": "إدارة الطلبات",
                "Home": "الرئيسية",
