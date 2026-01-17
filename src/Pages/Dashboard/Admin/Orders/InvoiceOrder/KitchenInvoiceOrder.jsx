@@ -90,7 +90,7 @@ export const prepareReceiptData = (orderResponse, projectName, logo) => {
   const baseData = {
     restaurantName: projectName || "",
     logoLink: logo || "",
-    invoiceNumber: orderResponse?.order_id || orderResponse?.order_number || "-",
+    invoiceNumber: orderResponse?.order_number || orderResponse?.order_id || "-",
     timeFormatted: dateObj.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true }),
     orderType: orderResponse?.order_type || "delivery",
     table: orderResponse?.table_name || orderResponse?.table || "",
