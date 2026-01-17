@@ -128,7 +128,9 @@ const AddAdminSection = () => {
     formData.append("name", adminName);
     formData.append("phone", adminPhone);
     formData.append("email", adminEmail);
-    formData.append("password", adminPassword);
+    if (adminPassword) {
+      formData.append("password", adminPassword);
+    }
     formData.append("image", adminImageFile);
 
     formData.append("user_position_id", adminPositionSelected.id);
@@ -204,6 +206,7 @@ const AddAdminSection = () => {
               </span>
               <PasswordInput
                 backgound="white"
+                required={false}
                 value={adminPassword}
                 onChange={(e) => setAdminPassword(e.target.value)}
                 placeholder={t("Password")}
