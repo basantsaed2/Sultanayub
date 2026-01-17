@@ -43,7 +43,7 @@ const ProductsReports = () => {
 
         // Filter by selected category if any
         if (filterCategory) {
-            products = products.filter(p => p.category_id === filterCategory.value);
+            products = products.filter((p => p.category_id === filterCategory.value) || (p => p.sub_category_id === filterCategory.value));
         }
 
         return products.map(p => ({ value: p.id, label: p.name }));
@@ -99,7 +99,7 @@ const ProductsReports = () => {
 
             // Recalculate totals for the filtered view
             const newCount = matchingProducts.reduce((sum, p) => sum + (parseInt(p.count) || 0), 0);
-            const newPrice = matchingProducts.reduce((sum, p) => sum + (parseFloat(p.price || 0) * parseInt(p.count || 0)), 0);
+            const newPrice = matchingProducts.reduce((sum, p) => sum + (parseFloat(p.price || 0)), 0);
 
             return {
                 ...categoryItem,
@@ -287,7 +287,7 @@ const ProductsReports = () => {
                                 <div class="product-item">
                                     <span class="product-name">${product.product_name || product.name}</span>
                                     <span class="product-count">x${product.count || 0}</span>
-                                    <span class="product-price">${(parseFloat(product.price || 0) * parseInt(product.count || 0)).toFixed(2)}</span>
+                                    <span class="product-price">${(parseFloat(product.price || 0)).toFixed(2)}</span>
                                 </div>
                             `).join('')}
                             <div class="category-total">
@@ -347,7 +347,7 @@ const ProductsReports = () => {
             <h1 className="mb-4 text-2xl font-bold text-mainColor">{t('Products Report')}</h1>
 
             {/* Filters Section */}
-            <div className="p-4 mb-6 rounded-lg bg-gray-50 shadow-sm">
+            <div className="p-2 md:p-4 mb-6 rounded-lg bg-gray-50 shadow-sm">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
 
                     {/* 1. Category */}
@@ -499,7 +499,7 @@ const ProductsReports = () => {
                                     <th className="px-6 py-4 border-b">{t("Product Name")}</th>
                                     <th className="px-6 py-4 border-b">{t("Price")}</th>
                                     <th className="px-6 py-4 border-b">{t("Count")}</th>
-                                    <th className="px-6 py-4 border-b">{t("Total")}</th>
+                                    {/* <th className="px-6 py-4 border-b">{t("Total")}</th> */}
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
@@ -514,9 +514,9 @@ const ProductsReports = () => {
                                                 {item.count}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 font-mono font-medium text-mainColor">
+                                        {/* <td className="px-6 py-4 font-mono font-medium text-mainColor">
                                             {(parseFloat(item.price || 0) * parseInt(item.count || 0)).toFixed(2)}
-                                        </td>
+                                        </td> */}
                                     </tr>
                                 ))}
                             </tbody>
