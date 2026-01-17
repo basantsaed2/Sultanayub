@@ -264,7 +264,7 @@
 //       { name: "Hall", path: "/dashboard/setting/hall_locations", permission: "Hall" },
 //       { name: "Tables", path: "/dashboard/setting/hall_tables", permission: "Tables" },
 //       { name: "Order Percentage", path: "/dashboard/setting/order_percentage", permission: "OrderPercentage" },
-//       { name: "Discount Code", path: "/dashboard/setting/discount_code", permission: "DiscountCode" },
+// 
 //       { name: "Notifications", path: "/dashboard/setting/notification", permission: "notification" },
 //       // { name: "Receipt Language", path: "/dashboard/setting/receipt_language", permission: "receipt_language" },
 //       { name: "Policy & Support", path: "/dashboard/setting/policy_support", permission: "PolicySupport" },
@@ -966,7 +966,9 @@ const LinksSidebar = () => {
     // 1. Check for exact subroute matches across all routes
     for (const route of currentRoutes) {
       if (route.subRoutes) {
-        const sub = route.subRoutes.find((s) => s.path === pathName);
+        // Sort subRoutes by path length descending to match most specific path first
+        const sortedSubRoutes = [...route.subRoutes].sort((a, b) => b.path.length - a.path.length);
+        const sub = sortedSubRoutes.find((s) => pathName.startsWith(s.path));
         if (sub) {
           return { name: route.name, subRoute: sub.name };
         }

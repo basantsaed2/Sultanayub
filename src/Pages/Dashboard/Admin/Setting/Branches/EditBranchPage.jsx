@@ -431,6 +431,7 @@ const EditBranchPage = () => {
                                                                                                          <PasswordInput
                                                                                                                 backgound="white"
                                                                                                                 value={branchPassword}
+                                                                                                                required={false}
                                                                                                                 onChange={(e) =>
                                                                                                                        setBranchPassword(e.target.value)
                                                                                                                 }

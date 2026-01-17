@@ -773,41 +773,6 @@ export const router = createBrowserRouter([
                   },
                 ],
               },
-              // {
-              //   path: 'branches',
-              //   children: [
-              //     {
-              //       path: '',
-              //       element: <BranchesLayout />,
-              //     },
-              //     {
-              //       path: 'edit/:branchId',
-              //       element: <EditBranchLayout />,
-              //     },
-              //     {
-              //       path: 'branch_category/:branchId',
-              //       element: <AppBranchCategoryLayout />,
-              //       children:[
-              //         {
-              //           path: '',
-              //           element: <BranchCategoryLayout />,
-              //         },
-              //         {
-              //           path: 'category_product/:productId',
-              //           element: <CategoryProductLayout />,
-              //         },
-              //         {
-              //           path: 'product_variation/:variationId',
-              //           element: <ProductVariationLayout />,
-              //         },
-              //         {
-              //           path: 'variation_option/:optionId',
-              //           element: <VariationOptionLayout />,
-              //         }
-              //       ]
-              //     }
-              //   ]
-              // },
               {
                 path: "hall_locations",
                 children: [
@@ -955,28 +920,6 @@ export const router = createBrowserRouter([
                       {
                         index: true,
                         element: <OrderPercentage />,
-                      },
-                    ],
-                  },
-                ],
-              },
-              {
-                path: "discount_code",
-                children: [
-                  {
-                    path: "",
-                    children: [
-                      {
-                        index: true,
-                        element: <DiscountCode />,
-                      },
-                      {
-                        path: "add",
-                        element: <AddDiscountCode />,
-                      },
-                      {
-                        path: "edit/:codeId",
-                        element: <EditDiscountCode />,
                       },
                     ],
                   },
@@ -1173,6 +1116,28 @@ export const router = createBrowserRouter([
               {
                 path: "edit/:discountId",
                 element: <EditDiscountLayout />,
+              },
+            ],
+          },
+          {
+            path: "discount_code",
+            children: [
+              {
+                path: "",
+                children: [
+                  {
+                    index: true,
+                    element: <DiscountCode />,
+                  },
+                  {
+                    path: "add",
+                    element: <AddDiscountCode />,
+                  },
+                  {
+                    path: "edit/:codeId",
+                    element: <EditDiscountCode />,
+                  },
+                ],
               },
             ],
           },
