@@ -2,24 +2,50 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ADMIN_MENU_CATEGORIES, adminRoutes } from '../../../../Utils/menuStructure';
+import { useAuth } from '../../../../Context/Auth';
 
 const AdminLandingPage = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
 
-    // const filteredCategories = useMemo(() => {
-    //     return ADMIN_MENU_CATEGORIES.filter(category =>
-    //         t(category.name).toLowerCase().includes(searchQuery.toLowerCase()) ||
-    //         t(category.description).toLowerCase().includes(searchQuery.toLowerCase())
-    //     );
-    // }, [searchQuery, t]);
-
+    const auth = useAuth();
+    const roles = auth?.userState?.user_positions?.roles?.map((role) => role.role) || [];
     const filteredCategories = useMemo(() => {
-        const query = searchQuery.toLowerCase().trim();
-        if (!query) return ADMIN_MENU_CATEGORIES;
+        let categories = ADMIN_MENU_CATEGORIES;
 
-        return ADMIN_MENU_CATEGORIES.filter(category => {
+        // Role-based filtering
+        const restrictedRoles = ["Home", "PosReports"];
+        const userRestrictedRoles = roles.filter(role => restrictedRoles.includes(role));
+
+        const userPosition = auth?.userState?.user_positions;
+        const isSuperAdmin = userPosition?.name === "Super Admin";
+
+        if (!isSuperAdmin) {
+            if (userRestrictedRoles.length > 0) {
+                const allowedIds = [];
+                if (roles.includes("Home")) allowedIds.push('dashboard');
+                if (roles.includes("PosReports")) allowedIds.push('reports');
+
+                categories = categories.filter(c => allowedIds.includes(c.id));
+            } else {
+                categories = categories.filter(category => {
+                    if (!category.routes || category.routes.length === 0) return false;
+
+                    return category.routes.some(routeName => {
+                        const routeConfig = adminRoutes.find(r => r.name === routeName);
+                        if (!routeConfig) return false;
+                        if (!routeConfig.permission) return true;
+                        return roles.includes(routeConfig.permission);
+                    });
+                });
+            }
+        }
+
+        const query = searchQuery.toLowerCase().trim();
+        if (!query) return categories;
+
+        return categories.filter(category => {
             // Search Category Name & Description (Translated and Original)
             const catNameEn = (category.name || '').toLowerCase();
             const catNameLocal = t(category.name).toLowerCase();
@@ -50,7 +76,7 @@ const AdminLandingPage = () => {
                 return false;
             });
         });
-    }, [searchQuery, t]);
+    }, [searchQuery, t, roles]);
 
     const handleCategoryClick = (category) => {
         if (category.id === 'home' || category.id === 'dashboard') {

@@ -954,7 +954,7 @@ const LinksSidebar = () => {
 
   const role = localStorage.getItem("role");
   const isAdmin = role === "admin";
-  const permissions = auth?.userState?.user_positions?.permissions || [];
+  const permissions = auth?.userState?.user_positions?.roles?.map((role) => role.role) || [];
 
   const currentRoutes = useMemo(() => {
     const routes = isAdmin ? adminRoutes : branchRoutes;
@@ -1036,6 +1036,18 @@ const LinksSidebar = () => {
 
     // Non-admin users (like Branch users) see all routes
     if (!isAdmin) return currentRoutes;
+
+    // Special handling for restricted permissions (Home, PosReports)
+    const restrictedPermissions = ["Home", "PosReports"];
+    const hasRestrictedPermissions = permissions.some(p => restrictedPermissions.includes(p));
+
+    if (hasRestrictedPermissions && !isSuperAdmin) {
+      const allowedNames = [];
+      if (permissions.includes("Home")) allowedNames.push("Dashboard");
+      if (permissions.includes("PosReports")) allowedNames.push("Reports");
+
+      return currentRoutes.filter((route) => allowedNames.includes(route.name));
+    }
 
     // Get active category from search params
     const searchParams = new URLSearchParams(location.search);
