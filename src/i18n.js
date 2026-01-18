@@ -1995,7 +1995,11 @@ const resources = {
                "Services": "Services",
                "Customers List": "Customers List",
                "Footer": "Footer",
-               "No location available for this captain order": "No location available for this captain order"
+               "No location available for this captain order": "No location available for this captain order",
+               "Sort Order": "Sort Order",
+               "Ascending": "Ascending",
+               "Descending": "Descending",
+               "Select Sort Order": "Select Sort Order"
           },
      },
 
@@ -3843,6 +3847,10 @@ const resources = {
                "Order Screen Language": "لغة شاشة الطلب",
                "Arabic": "العربية",
                "English": "الإنجليزية",
+               "Sort Order": "ترتيب",
+               "Ascending": "تصاعدي",
+               "Descending": "تنازلي",
+               "Select Sort Order": "اختر الترتيب"
           },
 
      },

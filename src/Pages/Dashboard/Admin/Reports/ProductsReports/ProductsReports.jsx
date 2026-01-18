@@ -347,7 +347,7 @@ const ProductsReports = () => {
 
             {/* Filters Section */}
             <div className="p-2 md:p-4 mb-6 rounded-lg bg-gray-50 shadow-sm">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
 
                     {/* 1. Category */}
                     <div>
@@ -437,6 +437,25 @@ const ProductsReports = () => {
                             className="w-full"
                         />
                     </div>
+
+                    {/* 8. Sort Order */}
+                    <div>
+                        <label className="block mb-1 text-sm font-medium text-gray-700">{t("Sort Order")}</label>
+                        <Select
+                            options={[
+                                { value: 'desc', label: t('Descending') },
+                                { value: 'asc', label: t('Ascending') }
+                            ]}
+                            value={[
+                                { value: 'desc', label: t('Descending') },
+                                { value: 'asc', label: t('Ascending') }
+                            ].find(o => o.value === sort)}
+                            onChange={(option) => setSort(option ? option.value : 'desc')}
+                            placeholder={t("Select Sort Order")}
+                            styles={selectStyles}
+                            isSearchable={false}
+                        />
+                    </div>
                 </div>
 
                 {/* Buttons Row */}
@@ -478,7 +497,6 @@ const ProductsReports = () => {
                 </div>
             </div>
 
-            {/* Main Data Table */}
             {loading ? (
                 <div className="flex justify-center items-center h-64">
                     <StaticLoader />
