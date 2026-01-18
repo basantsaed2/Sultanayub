@@ -418,9 +418,9 @@ const CashierShiftReport = () => {
       {loadingPost ? (
         <p className="text-center text-gray-600">{t("Loading shifts...")}</p>
       ) : shifts.length > 0 ? (
-        <div className="w-full bg-white rounded-lg shadow overflow-hidden">
+        <div className="w-full overflow-hidden bg-white rounded-lg shadow">
           {/* Table View - Desktop */}
-          <div className="hidden md:block overflow-x-auto">
+          <div className="hidden overflow-x-auto md:block">
             <table className="min-w-full text-sm">
               <thead className="sticky top-0 text-white bg-mainColor">
                 <tr>
@@ -467,16 +467,16 @@ const CashierShiftReport = () => {
           </div>
 
           {/* Card View - Mobile */}
-          <div className="md:hidden w-full p-3 space-y-3 overflow-hidden">
+          <div className="w-full p-3 space-y-3 overflow-hidden md:hidden">
             {currentShifts.map((shift, index) => (
-              <div key={shift.id} className="w-full p-4 border rounded-lg border-gray-200 hover:shadow-md transition box-border">
+              <div key={shift.id} className="box-border w-full p-4 transition border border-gray-200 rounded-lg hover:shadow-md">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <span className="px-2 py-1 text-xs font-bold text-white rounded bg-mainColor">
                       #{(currentPage - 1) * shiftsPerPage + index + 1}
                     </span>
                     <div>
-                      <p className="font-semibold text-sm">{shift.cashier_man?.user_name || "N/A"}</p>
+                      <p className="text-sm font-semibold">{shift.cashier_man?.user_name || "N/A"}</p>
                       <p className="text-xs text-gray-600">{shift.cashier_man?.role || "N/A"}</p>
                     </div>
                   </div>
@@ -484,16 +484,16 @@ const CashierShiftReport = () => {
 
                 <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
                   <div className="p-2 rounded bg-gray-50">
-                    <p className="text-gray-600 text-xs">{t("Shift #")}</p>
+                    <p className="text-xs text-gray-600">{t("Shift #")}</p>
                     <p className="font-semibold">{shift.cashier_man?.shift_number || "N/A"}</p>
                   </div>
                   <div className="p-2 rounded bg-gray-50">
-                    <p className="text-gray-600 text-xs">{t("Start Time")}</p>
-                    <p className="font-semibold text-xs">{formatDate(shift.start_time)}</p>
+                    <p className="text-xs text-gray-600">{t("Start Time")}</p>
+                    <p className="text-xs font-semibold">{formatDate(shift.start_time)}</p>
                   </div>
-                  <div className="p-2 rounded bg-gray-50 col-span-2">
-                    <p className="text-gray-600 text-xs">{t("End Time")}</p>
-                    <p className="font-semibold text-xs">{formatDate(shift.end_time) || "Ongoing"}</p>
+                  <div className="col-span-2 p-2 rounded bg-gray-50">
+                    <p className="text-xs text-gray-600">{t("End Time")}</p>
+                    <p className="text-xs font-semibold">{formatDate(shift.end_time) || "Ongoing"}</p>
                   </div>
                 </div>
 
