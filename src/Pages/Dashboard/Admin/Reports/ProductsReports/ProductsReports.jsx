@@ -137,8 +137,7 @@ const ProductsReports = () => {
 
     const handleApplyFilters = () => {
         setCurrentPage(1);
-        setFetchUrl(generateUrl());
-        setTimeout(() => refetch(), 50);
+        setFetchUrl(generateUrl()); // Just update the URL
     };
 
     const handleResetFilters = () => {
