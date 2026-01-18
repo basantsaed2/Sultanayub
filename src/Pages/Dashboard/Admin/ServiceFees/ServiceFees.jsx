@@ -85,7 +85,8 @@ const ServiceFees = () => {
 
     // Table Headers
     const headers = [
-        t("SL"),
+        t("No."),
+        t("Title"),
         t("Amount"),
         t("Type"),
         t("Module"),
@@ -139,7 +140,9 @@ const ServiceFees = () => {
                                             <td className="px-4 py-4 text-center text-sm sm:text-base text-thirdColor">
                                                 {(currentPage - 1) * serviceFeesPerPage + index + 1}
                                             </td>
-
+                                            <td className="px-4 py-4 text-center text-sm sm:text-base text-thirdColor">
+                                                {fee.title}
+                                            </td>
                                             {/* Amount */}
                                             <td className="px-4 py-4 text-center font-TextFontMedium text-mainColor">
                                                 {formatAmount(fee)}

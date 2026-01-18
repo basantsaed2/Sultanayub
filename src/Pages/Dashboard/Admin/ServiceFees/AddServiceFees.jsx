@@ -3,6 +3,7 @@ import {
   StaticButton,
   StaticLoader,
   SubmitButton,
+  TextInput,
   TitlePage,
 } from "../../../../Components/Components";
 import { useGet } from "../../../../Hooks/useGet";
@@ -51,6 +52,7 @@ const AddServiceFees = () => {
   const [amount, setAmount] = useState("");
   const [selectedBranches, setSelectedBranches] = useState([]);
   const [type, setType] = useState("percentage"); // "percentage" or "value"
+  const [title , setTitle]=useState("")
 
   // NEW STATES
   const [module, setModule] = useState("pos"); // "pos" or "online"
@@ -105,10 +107,16 @@ const AddServiceFees = () => {
     setType("percentage");
     setModule("pos");
     setOnlineType("all");
+    setTitle("")
   };
 
   const handleAdd = (e) => {
     e.preventDefault();
+
+    if (!title) {
+      auth.toastError(t("TitleRequired"));
+      return;
+    }
 
     if (!amount) {
       auth.toastError(t("AmountRequired"));
@@ -132,6 +140,7 @@ const AddServiceFees = () => {
     }
 
     const formData = new FormData();
+    formData.append("title", title);
     formData.append("type", type === "percentage" ? "precentage" : "value");
     formData.append("amount", amount);
     formData.append("module", module); // pos or online
@@ -194,6 +203,17 @@ const AddServiceFees = () => {
 
           <form className="p-2" onSubmit={handleAdd}>
             <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+
+              <div className="flex flex-col gap-y-3">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Title")}:
+                </span>
+                <TextInput
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder={t("Enter Title")}
+                />
+              </div>
               {/* Module: POS or Online */}
               <div className="flex flex-col gap-y-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">

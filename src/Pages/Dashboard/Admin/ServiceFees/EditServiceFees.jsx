@@ -3,6 +3,7 @@ import {
     StaticButton,
     StaticLoader,
     SubmitButton,
+    TextInput,
     TitlePage,
 } from "../../../../Components/Components";
 import { useGet } from "../../../../Hooks/useGet";
@@ -57,6 +58,7 @@ const EditServiceFees = () => {
     const [type, setType] = useState("fixed"); // "percentage" or "fixed"
     const [module, setModule] = useState("pos"); // "pos" or "online"
     const [onlineType, setOnlineType] = useState("all"); // "all", "app", "web"
+    const [title, setTitle] = useState("");
 
     // Options
     const moduleOptions = [
@@ -90,6 +92,8 @@ const EditServiceFees = () => {
     useEffect(() => {
         if (dataServiceFeeItem?.service_fees && branches.length > 0) {
             const fee = dataServiceFeeItem.service_fees;
+
+            setTitle(fee.title);
 
             setAmount(fee.amount?.toString() || "");
 
@@ -129,6 +133,7 @@ const EditServiceFees = () => {
     const handleReset = () => {
         if (dataServiceFeeItem?.service_fees) {
             const fee = dataServiceFeeItem.service_fees;
+            setTitle(fee.title);
             setAmount(fee.amount?.toString() || "");
             setType(fee.type === "precentage" ? "percentage" : "fixed");
             setModule(fee.module || "pos");
@@ -147,6 +152,7 @@ const EditServiceFees = () => {
 
     const handleUpdate = (e) => {
         e.preventDefault();
+        if (!title) return auth.toastError(t("Title is required"));
 
         if (!amount) return auth.toastError(t("Amount is required"));
         if (selectedBranches.length === 0) return auth.toastError(t("At least one branch is required"));
@@ -158,6 +164,7 @@ const EditServiceFees = () => {
         if (value < 0) return auth.toastError(t("Amount must be positive"));
 
         const formData = new FormData();
+        formData.append("title", title);
         formData.append("type", type === "percentage" ? "precentage" : "value");
         formData.append("amount", amount);
         formData.append("module", module);
@@ -210,6 +217,16 @@ const EditServiceFees = () => {
 
                     <form className="p-2" onSubmit={handleUpdate}>
                         <div className="w-full gap-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+
+                            {/* Title */}
+                            <div className="flex flex-col gap-y-3">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">{t("Title")}:</span>
+                                <TextInput
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    placeholder={t("Enter Title")}
+                                />
+                            </div>
 
                             {/* Module: POS / Online */}
                             <div className="flex flex-col gap-y-3">
