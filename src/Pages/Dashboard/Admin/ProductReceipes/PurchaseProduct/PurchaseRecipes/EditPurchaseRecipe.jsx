@@ -63,7 +63,6 @@ const EditPurchaseRecipe = () => {
     // 2. Initialize form state using the data passed through location state
     useEffect(() => {
         if (initialRecipeData) {
-            console.log(initialRecipeData);
             const initialData = {
                 product_id: initialRecipeData.product?.id || "",
                 unit_id: initialRecipeData.unit?.id || "",

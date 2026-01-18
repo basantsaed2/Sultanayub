@@ -25,7 +25,7 @@ const AdminLandingPage = () => {
         roles.push("Reports");
     }
 
-    console.log(roles);
+    // console.log(roles);
     const filteredCategories = useMemo(() => {
         let categories = ADMIN_MENU_CATEGORIES;
 

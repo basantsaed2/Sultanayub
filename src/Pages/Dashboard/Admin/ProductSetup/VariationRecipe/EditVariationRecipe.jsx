@@ -24,8 +24,6 @@ const EditVariationRecipe = () => {
     const optionName = location.state?.optionName || "";
     const variationId = location.state?.variationId || "";
 
-    console.log(location.state);
-
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
     // Fetch form data (categories, products, units)

@@ -969,7 +969,7 @@ const LinksSidebar = () => {
     }
 
     setPermissions(computedPermissions);
-    console.log("computedPermissions", computedPermissions);
+    // console.log("computedPermissions", computedPermissions);
   }, [auth?.userState?.user_positions?.roles]);
 
 

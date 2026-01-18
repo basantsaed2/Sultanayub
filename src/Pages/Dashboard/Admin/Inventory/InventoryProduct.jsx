@@ -268,7 +268,6 @@ const InventoryProduct = () => {
 
     useEffect(() => {
         if (modifyProductsResponse && modifyProductsResponse.status === 200 && modifyProductsResponse?.data?.report) {
-            console.log(modifyProductsResponse.data.report);
             setReportData(modifyProductsResponse);
             setShowReport(true);
             auth.toastSuccess(t("Quantities updated successfully"));

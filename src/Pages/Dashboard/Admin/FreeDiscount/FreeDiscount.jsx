@@ -50,9 +50,7 @@ const FreeDiscount = () => {
     useEffect(() => {
         if (settingsData) {
             const data = settingsData;
-            
-            console.log("Received data:", data); // For debugging
-            
+                        
             // Check if emails exist and is an array
             const emailArray = data.emails || [];
             
