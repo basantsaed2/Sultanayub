@@ -954,7 +954,24 @@ const LinksSidebar = () => {
 
   const role = localStorage.getItem("role");
   const isAdmin = role === "admin";
-  const permissions = auth?.userState?.user_positions?.roles?.map((role) => role.role) || [];
+  const [permissions, setPermissions] = useState([]);
+  useEffect(() => {
+    const rawRoles = auth?.userState?.user_positions?.roles || [];
+    const computedPermissions = rawRoles.map((role) => role?.role || role);
+
+    if (computedPermissions.includes("Home") && !computedPermissions.includes("Dashboard")) {
+      computedPermissions.push("Dashboard");
+    }
+
+    // Ensure "PosReports" role grants access to "Reports" permission (and all its sub-items)
+    if (computedPermissions.includes("PosReports") && !computedPermissions.includes("Reports")) {
+      computedPermissions.push("Reports");
+    }
+
+    setPermissions(computedPermissions);
+    console.log("computedPermissions", computedPermissions);
+  }, [auth?.userState?.user_positions?.roles]);
+
 
   const currentRoutes = useMemo(() => {
     const routes = isAdmin ? adminRoutes : branchRoutes;
@@ -1037,18 +1054,6 @@ const LinksSidebar = () => {
     // Non-admin users (like Branch users) see all routes
     if (!isAdmin) return currentRoutes;
 
-    // Special handling for restricted permissions (Home, PosReports)
-    const restrictedPermissions = ["Home", "PosReports"];
-    const hasRestrictedPermissions = permissions.some(p => restrictedPermissions.includes(p));
-
-    if (hasRestrictedPermissions && !isSuperAdmin) {
-      const allowedNames = [];
-      if (permissions.includes("Home")) allowedNames.push("Dashboard");
-      if (permissions.includes("PosReports")) allowedNames.push("Reports");
-
-      return currentRoutes.filter((route) => allowedNames.includes(route.name));
-    }
-
     // Get active category from search params
     const searchParams = new URLSearchParams(location.search);
     let activeCategoryId = searchParams.get('category');
@@ -1082,10 +1087,20 @@ const LinksSidebar = () => {
 
         // If the route has subroutes, filter them by permission
         if (route.subRoutes) {
-          const allowedSubRoutes = route.subRoutes.filter(
-            (sub) => !sub.permission || permissions.includes(sub.permission)
-          );
+          const allowedSubRoutes = route.subRoutes.filter((sub) => {
+            // 1. If subroute has specific permission, check it (Overrides parent)
+            if (sub.permission) {
+              return permissions.includes(sub.permission);
+            }
+            // 2. If no specific permission, inherit parent permission
+            if (route.permission) {
+              return permissions.includes(route.permission);
+            }
+            // 3. If neither have permission, it's public
+            return true;
+          });
 
+          // ❌ Hide entire route if no allowed subroutes
           if (allowedSubRoutes.length === 0) {
             return null;
           }

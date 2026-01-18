@@ -10,36 +10,58 @@ const AdminLandingPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
 
     const auth = useAuth();
-    const roles = auth?.userState?.user_positions?.roles?.map((role) => role.role) || [];
+    const userPositions = auth?.userState?.user_positions;
+    const rawRoles = userPositions?.roles || [];
+    // Handle both object roles ({role: "Admin"}) and string roles ("Admin")
+    const roles = rawRoles.map((role) => role?.role || role);
+
+    // Ensure "Home" role grants access to "Dashboard" permission
+    if (roles.includes("Home") && !roles.includes("Dashboard")) {
+        roles.push("Dashboard");
+    }
+
+    // Ensure "PosReports" role grants access to "Reports" permission
+    if (roles.includes("PosReports") && !roles.includes("Reports")) {
+        roles.push("Reports");
+    }
+
+    console.log(roles);
     const filteredCategories = useMemo(() => {
         let categories = ADMIN_MENU_CATEGORIES;
 
-        // Role-based filtering
-        const restrictedRoles = ["Home", "PosReports"];
-        const userRestrictedRoles = roles.filter(role => restrictedRoles.includes(role));
-
-        const userPosition = auth?.userState?.user_positions;
-        const isSuperAdmin = userPosition?.name === "Super Admin";
+        const isSuperAdmin = userPositions?.name === "Super Admin";
 
         if (!isSuperAdmin) {
-            if (userRestrictedRoles.length > 0) {
-                const allowedIds = [];
-                if (roles.includes("Home")) allowedIds.push('dashboard');
-                if (roles.includes("PosReports")) allowedIds.push('reports');
+            categories = categories.filter(category => {
+                if (!category.routes || category.routes.length === 0) return false;
 
-                categories = categories.filter(c => allowedIds.includes(c.id));
-            } else {
-                categories = categories.filter(category => {
-                    if (!category.routes || category.routes.length === 0) return false;
+                // Check if user has permission for ANY route in this category
+                return category.routes.some(routeName => {
+                    // Check route configuration permissions
+                    const routeConfig = adminRoutes.find(r => r.name === routeName);
+                    if (!routeConfig) return false;
 
-                    return category.routes.some(routeName => {
-                        const routeConfig = adminRoutes.find(r => r.name === routeName);
-                        if (!routeConfig) return false;
-                        if (!routeConfig.permission) return true;
-                        return roles.includes(routeConfig.permission);
-                    });
+                    // 1. Check direct permission
+                    if (!routeConfig.permission || roles.includes(routeConfig.permission)) {
+                        return true;
+                    }
+
+                    // 2. Check Sub-routes Permissions
+                    // If prompt says "resturant time in setting", we must check if ANY subroute is allowed
+                    if (routeConfig.subRoutes && routeConfig.subRoutes.length > 0) {
+                        return routeConfig.subRoutes.some(sub => {
+                            // If subroute has permission, check it
+                            if (sub.permission) return roles.includes(sub.permission);
+                            // If no subroute permission, check parent permission
+                            if (routeConfig.permission) return roles.includes(routeConfig.permission);
+                            // Public
+                            return true;
+                        });
+                    }
+
+                    return false;
                 });
-            }
+            });
         }
 
         const query = searchQuery.toLowerCase().trim();
