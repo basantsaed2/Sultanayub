@@ -9,7 +9,7 @@ import { FaFileExcel, FaFilePdf, FaSearch } from 'react-icons/fa';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-
+import { useAuth } from "../../../../../Context/Auth";
 const OrdersReports = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const { postData, loadingPost, response } = usePost({ url: `${apiUrl}/admin/reports/orders_report` });
@@ -17,6 +17,7 @@ const OrdersReports = () => {
   const { refetch: refetchList, loading: loadingList, data: dataList } = useGet({
     url: `${apiUrl}/admin/reports/lists_report`
   });
+  const auth = useAuth();
 
   const [cashierMans, setCashierMans] = useState([]);
   const [cashiers, setCashiers] = useState([]);
@@ -155,7 +156,13 @@ const OrdersReports = () => {
   const financialOptions = prepareOptions(financialAccounts);
 
   const handleGenerateReport = () => {
+
     const formData = new FormData();
+
+    if (!fromDate) {
+      auth.toastError(t("Please enter start date."));
+      return;
+    }
 
     if (fromDate) {
       formData.append("from", fromDate);
