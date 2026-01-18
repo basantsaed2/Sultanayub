@@ -55,7 +55,15 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (response) {
-      auth.login(response.data.admin);
+
+      const adminData = {
+        ...response.data.admin,
+        order_lang: response.data.order_lang,
+        r_online_noti: response.data.r_online_noti,
+        receipt_design: response.data.receipt_design
+      };
+
+      auth.login(adminData);
 
       const userRole = response.data.role;
 

@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { LoaderLogin } from "../../../../../Components/Components";
 import { useTranslation } from "react-i18next";
 import { FaPrint, FaArrowLeft } from "react-icons/fa";
+import { useAuth } from "../../../../../Context/Auth";
 
 // ===================================================================
 // Helper: Clean Logo URL
@@ -11,19 +12,26 @@ import { FaPrint, FaArrowLeft } from "react-icons/fa";
 const cleanLogoUrl = (url) => {
   if (!url) return "";
   try {
-    const clean = url.replace(/(https?:\/\/[^\/]+)?\/storage\/+/g, (match, p1) => {
+    const clean = url.replace(/(https?:\/\/[^/]+)?\/storage\//g, (match, p1) => {
       return p1 ? p1 + "/storage/" : "/storage/";
     });
     return clean;
-  } catch (e) {
+  } catch {
     return url;
   }
 };
 
 // ===================================================================
+// Helper: Check if field should be displayed
+// ===================================================================
+const shouldShowField = (fieldName, receiptDesign) => {
+  return receiptDesign && receiptDesign[fieldName] === 1;
+};
+
+// ===================================================================
 // RECEIPT FORMATTING FUNCTION
 // ===================================================================
-const formatCashierReceipt = (receiptData, t, isRtl) => {
+const formatCashierReceipt = (receiptData, t, isRtl, receiptDesign) => {
   const phones = [receiptData.customerPhone, receiptData.customerPhone2]
     .filter(Boolean)
     .join(" / ");
@@ -146,12 +154,12 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
       </style>
 
       <div class="header">
-        ${logoUrl
+        ${shouldShowField('logo', receiptDesign) && logoUrl
       ? `<img src="${logoUrl}" alt="Restaurant Logo" />`
       : ``
     }
-        <h1>${receiptData.restaurantName}</h1>
-        ${receiptData.branchName ? `<p>${receiptData.branchName}</p>` : ''}
+        ${shouldShowField('name', receiptDesign) ? `<h1>${receiptData.restaurantName}</h1>` : ''}
+        ${shouldShowField('branch', receiptDesign) && receiptData.branchName ? `<p>${receiptData.branchName}</p>` : ''}
       </div>
 
       <div class="info-box">
@@ -159,15 +167,17 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
         <div class="info-row"><span class="info-label">${t("Date")}:</span><span dir="ltr">${receiptData.date}</span></div>
         <div class="info-row"><span class="info-label">${t("Time")}:</span><span dir="ltr">${receiptData.orderTime || ''}</span></div>
         <div class="info-row"><span class="info-label">${t("Client")}:</span><span>${receiptData.customerName}</span></div>
-        ${phones ? `<div class="info-row"><span class="info-label">${t("Phone")}:</span><span dir="ltr">${phones}</span></div>` : ''}
+        ${shouldShowField('phone', receiptDesign) && phones ? `<div class="info-row"><span class="info-label">${t("Phone")}:</span><span dir="ltr">${phones}</span></div>` : ''}
         ${receiptData.isDelivery && receiptData.deliveryMan ?
       `<div class="info-row"><span class="info-label">${t("DeliveryMan")}:</span><span>${receiptData.deliveryMan}</span></div>` : ''}
         <div class="info-row"><span class="info-label">${t("OrderType")}:</span><span>${receiptData.orderType}</span></div>
       <div class="info-row"><span class="info-label">${t("Payment")}:</span><span>${receiptData.payment}</span></div>
+      ${shouldShowField('table_num', receiptDesign) && receiptData.tableNumber ? `<div class="info-row"><span class="info-label">${t("TableNumber")}:</span><span>${receiptData.tableNumber}</span></div>` : ''}
+      ${shouldShowField('preparation_num', receiptDesign) && receiptData.preparationNumber ? `<div class="info-row"><span class="info-label">${t("PreparationNumber")}:</span><span>${receiptData.preparationNumber}</span></div>` : ''}
       </div>
 
       <div class="address-notes-section">
-        ${receiptData.isDelivery && receiptData.customerAddress ?
+        ${shouldShowField('address', receiptDesign) && receiptData.isDelivery && receiptData.customerAddress ?
       `<div style="margin-bottom:5px"><span class="section-title">${t("DeliveryAddress")}:</span><div>${receiptData.customerAddress}</div></div>` : ''}
         ${receiptData.orderNotes ?
       `<div><span class="section-title">${t("Notes")}:</span><div>${receiptData.orderNotes}</div></div>` : ''}
@@ -233,18 +243,18 @@ const formatCashierReceipt = (receiptData, t, isRtl) => {
 
       <div class="totals-section">
         <div class="total-row"><span>${t("TotalProductPrice")}</span><span>${Number(receiptData.subtotal).toFixed(2)}</span></div>
-        <div class="total-row"><span>${t("Tax")} %:</span><span>${Number(receiptData.tax).toFixed(2)}</span></div>
+        ${shouldShowField('taxes', receiptDesign) ? `<div class="total-row"><span>${t("Tax")} %:</span><span>${Number(receiptData.tax).toFixed(2)}</span></div>` : ''}
         ${receiptData.delivery > 0 ? `<div class="total-row"><span>${t("DeliveryFee")}</span><span>${Number(receiptData.delivery).toFixed(2)}</span></div>` : ''}
         ${receiptData.discount > 0 ? `<div class="total-row"><span>${t("Discount")}</span><span>-${Number(receiptData.discount).toFixed(2)}</span></div>` : ''}
-        ${receiptData.service_fees > 0 ? `<div class="total-row"><span>${t("ServiceFee")} ${receiptData.service_fees_item?.type === "precentage" ? `(${receiptData.service_fees_item.amount}%)` : ""}</span><span>${Number(receiptData.service_fees).toFixed(2)}</span></div>` : ''}
+        ${shouldShowField('services', receiptDesign) && receiptData.service_fees > 0 ? `<div class="total-row"><span>${t("ServiceFee")} ${receiptData.service_fees_item?.type === "precentage" ? `(${receiptData.service_fees_item.amount}%)` : ""}</span><span>${Number(receiptData.service_fees).toFixed(2)}</span></div>` : ''}
         <div class="total-row grand-total"><span>${t("GrandTotal")}</span><span>${Number(receiptData.total).toFixed(2)}</span></div>
       </div>
 
-      <div class="footer">
+      ${shouldShowField('footer', receiptDesign) ? `<div class="footer">
         ${t("ThankYouForYourOrder")}
         <div style="font-size:12px;margin-top:2px;">${t("Powered by")} Food2Go</div>
         <div style="font-size:12px;">food2go.online</div>
-      </div>
+      </div>` : ''}
     </div>
   `;
 };
@@ -260,6 +270,7 @@ const InvoiceOrderPage = () => {
   const userRole = localStorage.getItem("role") || "admin";
   const locale = i18n.language;
   const isRtl = locale === 'ar';
+  const auth = useAuth();
 
   const apiEndpoint =
     userRole === "branch"
@@ -397,9 +408,9 @@ const InvoiceOrderPage = () => {
         service_fees_item: order.service_fees_item,
       };
 
-      setInvoiceHtml(formatCashierReceipt(receiptData, t, isRtl));
+      setInvoiceHtml(formatCashierReceipt(receiptData, t, isRtl, auth.userState.receipt_design));
     }
-  }, [data, t, isRtl]);
+  }, [data, t, isRtl, auth]);
 
   const handlePrint = () => {
     // Open a new window
