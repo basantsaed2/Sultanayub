@@ -1,12 +1,307 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePost } from "../../../../../Hooks/usePostJson";
 import { DateInput } from "../../../../../Components/Components";
 import { useGet } from "../../../../../Hooks/useGet";
 import { useTranslation } from "react-i18next";
+import { FaPrint } from "react-icons/fa";
+
+// ===================================================================
+// Receipt Formatting Function for Shift Report
+// ===================================================================
+const formatShiftReceipt = (shiftData, detailsData, t, isRtl) => {
+  const formatCurrency = (value) => Number(value || 0).toFixed(2);
+
+  return `
+    <div class="receipt-only" dir="${isRtl ? 'rtl' : 'ltr'}">
+      <style>
+        @page { 
+            size: 80mm auto; 
+            margin: 0mm; 
+        }
+
+        .receipt-only {
+            width: 80mm; 
+            font-family: sans-serif;
+            color: #000;
+            background: #fff;
+            padding: 3px;
+            font-size: 9px; 
+        }
+
+        .receipt-only * { 
+            box-sizing: border-box; 
+        }
+        
+        .receipt-only .header { 
+          text-align: center; 
+          margin-bottom: 3px; 
+          border-bottom: 2px solid #000; 
+          padding-bottom: 3px;
+        }
+        
+        .receipt-only .header h1 { 
+          font-size: 12px; 
+          font-weight: bold; 
+          margin: 0; 
+        }
+        
+        .receipt-only .header p { 
+          font-size: 8px; 
+          margin: 1px 0 0 0; 
+        }
+        
+        .receipt-only .section-title { 
+          font-weight: bold; 
+          border-top: 1px solid #000;
+          margin-top: 2px;
+          margin-bottom: 1px;
+          padding-top: 1px;
+          display: block;
+          font-size: 9px;
+        }
+        
+        .receipt-only .info-row { 
+          display: flex; 
+          justify-content: space-between; 
+          margin-bottom: 1px; 
+          font-size: 8px;
+        }
+        
+        .receipt-only .info-label { 
+          font-weight: bold; 
+          flex: 0 0 50%;
+        }
+
+        .receipt-only .info-value {
+          flex: 0 0 50%;
+          text-align: right;
+        }
+
+        .receipt-only table { 
+          width: 100%; 
+          font-size: 8px; 
+          border-collapse: collapse; 
+          margin: 1px 0;
+        }
+        
+        .receipt-only th { 
+          border-bottom: 1px solid #000 !important; 
+          padding: 1px 0; 
+          text-align: center; 
+          font-weight: bold; 
+          background: transparent;
+          font-size: 8px; 
+        }
+        
+        .receipt-only td { 
+          border: none; 
+          padding: 1px 1px; 
+          font-size: 8px;
+        }
+
+        .receipt-only .text-left {
+          text-align: left;
+        }
+
+        .receipt-only .text-right {
+          text-align: right;
+        }
+
+        .receipt-only .text-center {
+          text-align: center;
+        }
+        
+        .receipt-only .footer { 
+          text-align: center; 
+          font-size: 8px; 
+          margin-top: 2px; 
+          padding-top: 1px;
+          border-top: 1px solid #000; 
+        }
+
+        .receipt-only .amount-positive {
+          color: #27ae60;
+          font-weight: bold;
+        }
+
+        .receipt-only .amount-negative {
+          color: #e74c3c;
+          font-weight: bold;
+        }
+
+        .receipt-only .module-table {
+          width: 100%;
+          font-size: 7px;
+          border-collapse: collapse;
+          margin: 1px 0;
+        }
+
+        .receipt-only .module-table td {
+          padding: 1px 2px;
+          border-right: 1px solid #ddd;
+        }
+
+        .receipt-only .module-table td:last-child {
+          border-right: none;
+        }
+
+        .receipt-only .module-header {
+          background-color: #f0f0f0;
+          font-weight: bold;
+          border-bottom: 1px solid #000;
+        }
+
+        .receipt-only .module-row {
+          border-bottom: 1px dotted #ccc;
+        }
+
+        .receipt-only .account-name {
+          font-weight: bold;
+          font-size: 8px;
+          padding: 2px 0;
+        }
+      </style>
+
+      <div class="header">
+        <h1>${t("Shift Report")}</h1>
+        <p>${t("Complete Cashier Summary")}</p>
+      </div>
+
+      <div class="info-section">
+        <span class="section-title">CASHIER INFO</span>
+        <div class="info-row">
+          <span class="info-label">Name:</span>
+          <span class="info-value">${shiftData.cashier_man?.user_name || "N/A"}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Role:</span>
+          <span class="info-value">${shiftData.cashier_man?.role || "N/A"}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Shift #:</span>
+          <span class="info-value">${shiftData.cashier_man?.shift_number || "N/A"}</span>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <span class="section-title">TIMING</span>
+        <div class="info-row">
+          <span class="info-label">Start:</span>
+          <span class="info-value">${new Date(shiftData.start_time).toLocaleString("en-US", { dateStyle: "short", timeStyle: "short" })}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">End:</span>
+          <span class="info-value">${shiftData.end_time ? new Date(shiftData.end_time).toLocaleString("en-US", { dateStyle: "short", timeStyle: "short" }) : "Ongoing"}</span>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <span class="section-title">SHIFT DETAILS</span>
+        <div class="info-row">
+          <span class="info-label">Free Discount:</span>
+          <span class="info-value">${shiftData.free_discount || 0}</span>
+        </div>
+      </div>
+
+      ${detailsData && detailsData.order_count !== undefined ? `
+        <div class="info-section">
+          <span class="section-title">SUMMARY</span>
+          <div class="info-row">
+            <span class="info-label">Order Count:</span>
+            <span class="info-value">${detailsData.order_count || 0}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Total Amount:</span>
+            <span class="info-value ${detailsData.total_amount < 0 ? 'amount-negative' : 'amount-positive'}">${formatCurrency(detailsData.total_amount || 0)}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Expenses Total:</span>
+            <span class="info-value amount-negative">-${formatCurrency(detailsData.expenses_total || 0)}</span>
+          </div>
+        </div>
+
+        ${detailsData.financial_accounts && detailsData.financial_accounts.length > 0 ? `
+          <span class="section-title">PAYMENT METHODS BY MODULE</span>
+          ${detailsData.financial_accounts.map(acc => {
+            const net = (acc.total_amount_delivery || 0) + (acc.total_amount_take_away || 0) + (acc.total_amount_dine_in || 0);
+            return `
+              <div style="margin-bottom: 2px; border: 1px solid #ddd; padding: 2px;">
+                <div class="account-name">${acc.financial_name}</div>
+                <table class="module-table">
+                  <tr class="module-header">
+                    <td style="text-align: center;">Delivery</td>
+                    <td style="text-align: center;">Take Away</td>
+                    <td style="text-align: center;">Dine In</td>
+                    <td style="text-align: center; font-weight: bold;">Total</td>
+                  </tr>
+                  <tr class="module-row">
+                    <td style="text-align: center; ${acc.total_amount_delivery < 0 ? 'color: #e74c3c;' : 'color: #27ae60;'} font-weight: bold;">${formatCurrency(acc.total_amount_delivery || 0)}</td>
+                    <td style="text-align: center; ${acc.total_amount_take_away < 0 ? 'color: #e74c3c;' : 'color: #27ae60;'} font-weight: bold;">${formatCurrency(acc.total_amount_take_away || 0)}</td>
+                    <td style="text-align: center; ${acc.total_amount_dine_in < 0 ? 'color: #e74c3c;' : 'color: #27ae60;'} font-weight: bold;">${formatCurrency(acc.total_amount_dine_in || 0)}</td>
+                    <td style="text-align: center; ${net < 0 ? 'color: #e74c3c;' : 'color: #27ae60;'} font-weight: bold;">${formatCurrency(net)}</td>
+                  </tr>
+                </table>
+              </div>
+            `;
+          }).join('')}
+        ` : ''}
+
+        ${detailsData.expenses && detailsData.expenses.length > 0 ? `
+          <span class="section-title">EXPENSES BREAKDOWN</span>
+          <table>
+            <tbody>
+              ${detailsData.expenses.map(exp => `
+                <tr>
+                  <td class="text-left">${exp.financial_account}</td>
+                  <td class="text-right amount-negative">-${formatCurrency(exp.total)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        ` : ''}
+
+        ${detailsData.online_order && (detailsData.online_order.paid?.length > 0 || detailsData.online_order.un_paid?.length > 0) ? `
+          <span class="section-title">ONLINE ORDERS - PAID</span>
+          ${detailsData.online_order.paid && detailsData.online_order.paid.length > 0 ? `
+            <table>
+              <tbody>
+                ${detailsData.online_order.paid.map(p => `
+                  <tr>
+                    <td class="text-left">${p.payment_method}</td>
+                    <td class="text-right amount-positive">${formatCurrency(p.amount)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          ` : '<p style="font-size: 8px; text-align: center;">No paid orders</p>'}
+
+          <span class="section-title">ONLINE ORDERS - UNPAID/COD</span>
+          ${detailsData.online_order.un_paid && detailsData.online_order.un_paid.length > 0 ? `
+            <table>
+              <tbody>
+                ${detailsData.online_order.un_paid.map(u => `
+                  <tr>
+                    <td class="text-left">${u.payment_method}</td>
+                    <td class="text-right">${formatCurrency(u.amount)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          ` : '<p style="font-size: 8px; text-align: center;">No unpaid orders</p>'}
+        ` : ''}
+      ` : ''}
+
+      <div class="footer">
+        <div>${new Date().toLocaleString("en-US", { dateStyle: "short", timeStyle: "short" })}</div>
+      </div>
+    </div>
+  `;
+};
 
 const CashierShiftReport = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const { postData, loadingPost, response } = usePost({ url: `${apiUrl}/admin/reports/cashier_reports` });
+  const { t, i18n } = useTranslation();
 
   const [selectedShiftId, setSelectedShiftId] = useState(null);
   const { refetch: refetchOrder, loading: loadingOrder, data: dataOrder } = useGet({
@@ -19,10 +314,10 @@ const CashierShiftReport = () => {
   const [toDate, setToDate] = useState("");
   const [shiftDetails, setShiftDetails] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { t } = useTranslation();
+  const [isPrinting, setIsPrinting] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const shiftsPerPage = 20;
+  const shiftsPerPage = 15;
   const totalPages = Math.ceil(shifts.length / shiftsPerPage);
   const currentShifts = shifts.slice((currentPage - 1) * shiftsPerPage, currentPage * shiftsPerPage);
 
@@ -33,18 +328,44 @@ const CashierShiftReport = () => {
   useEffect(() => {
     if (dataOrder) {
       setShiftDetails(dataOrder);
+      // If printing, print now and reset
+      if (isPrinting) {
+        const shiftToPrint = shifts.find(s => s.id === selectedShiftId);
+        if (shiftToPrint) {
+          const isRtl = i18n?.language === 'ar';
+          const receiptHtml = formatShiftReceipt(shiftToPrint, dataOrder, t, isRtl);
+          
+          // Open print window
+          const pw = window.open("", "", "width=500,height=600");
+          if (pw) {
+            pw.document.write("<html><head><title>Shift Report</title></head><body style='margin:0; padding:0;'>");
+            pw.document.write(receiptHtml);
+            pw.document.write("</body></html>");
+            pw.document.close();
+            setTimeout(() => { pw.focus(); pw.print(); pw.close(); }, 500);
+          }
+          setIsPrinting(false);
+        }
+      }
     }
-  }, [dataOrder]);
+  }, [dataOrder, isPrinting, selectedShiftId, shifts, t, i18n?.language]);
 
   useEffect(() => {
     if (response && !loadingPost) {
       setShifts(response.data?.cashier_shifts || []);
     }
-  }, [response]);
+  }, [response, loadingPost]);
 
   const handleGenerateReport = () => {
-    if (fromDate && toDate) {
-      postData({ start_date: fromDate, end_date: toDate });
+    if (fromDate) {
+      
+      const payload = {
+        start_date: fromDate,
+      }
+      if(toDate){
+        payload.end_date = toDate;
+      }
+      postData(payload);
     }
   };
 
@@ -64,6 +385,13 @@ const CashierShiftReport = () => {
     return new Date(dateString).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
   };
 
+  const handlePrintShift = (shiftId) => {
+    // Set flag to print after data loads
+    setIsPrinting(true);
+    // Set the selected shift ID to trigger the useGet hook
+    setSelectedShiftId(shiftId);
+  };
+
   return (
     <div className="w-full p-6 space-y-8">
       <h1 className="text-3xl font-bold text-mainColor">{t("Cashier Shift Report")}</h1>
@@ -76,8 +404,8 @@ const CashierShiftReport = () => {
         </div>
         <button
           onClick={handleGenerateReport}
-          disabled={!fromDate || !toDate}
-          className={`px-8 py-3 rounded-lg font-medium transition ${fromDate && toDate
+          disabled={!fromDate}
+          className={`px-8 py-3 rounded-lg font-medium transition ${fromDate
             ? "bg-mainColor text-white hover:bg-opacity-90"
             : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
@@ -113,12 +441,21 @@ const CashierShiftReport = () => {
                   <td className="px-4 py-3">{formatDate(shift.start_time)}</td>
                   <td className="px-4 py-3">{formatDate(shift.end_time) || "Ongoing"}</td>
                   <td className="px-4 py-3">
-                    <button
-                      onClick={() => handleViewOrders(shift.id)}
-                      className="font-medium text-mainColor hover:underline"
-                    >
-                      {t("View Details")}
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleViewOrders(shift.id)}
+                        className="font-medium text-mainColor hover:underline"
+                      >
+                        {t("View Details")}
+                      </button>
+                      <button
+                        onClick={() => handlePrintShift(shift.id)}
+                        title={t("Print Shift")}
+                        className="p-2 text-white rounded bg-mainColor hover:bg-opacity-90"
+                      >
+                        <FaPrint size={16} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -127,7 +464,7 @@ const CashierShiftReport = () => {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex justify-center gap-2 py-4 border-t">
+            <div className="flex flex-wrap justify-center gap-2 py-4 border-t">
               <button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
@@ -135,15 +472,66 @@ const CashierShiftReport = () => {
               >
                 {t("Prev")}
               </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`px-4 py-2 rounded ${currentPage === page ? "bg-mainColor text-white" : "bg-gray-200"}`}
-                >
-                  {page}
-                </button>
-              ))}
+              
+              {/* Pagination Numbers with Ellipsis */}
+              {totalPages <= 10 ? (
+                // Show all pages if 10 or fewer
+                Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-3 py-2 rounded ${currentPage === page ? "bg-mainColor text-white" : "bg-gray-200"}`}
+                  >
+                    {page}
+                  </button>
+                ))
+              ) : (
+                // Show with ellipsis if more than 10 pages
+                <>
+                  {/* First page */}
+                  <button
+                    onClick={() => setCurrentPage(1)}
+                    className={`px-3 py-2 rounded ${currentPage === 1 ? "bg-mainColor text-white" : "bg-gray-200"}`}
+                  >
+                    1
+                  </button>
+                  
+                  {/* Left ellipsis */}
+                  {currentPage > 4 && (
+                    <span className="px-2 py-2">...</span>
+                  )}
+                  
+                  {/* Pages around current */}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(page => {
+                      if (page === 1 || page === totalPages) return false;
+                      return Math.abs(page - currentPage) <= 2;
+                    })
+                    .map(page => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-3 py-2 rounded ${currentPage === page ? "bg-mainColor text-white" : "bg-gray-200"}`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  
+                  {/* Right ellipsis */}
+                  {currentPage < totalPages - 3 && (
+                    <span className="px-2 py-2">...</span>
+                  )}
+                  
+                  {/* Last page */}
+                  <button
+                    onClick={() => setCurrentPage(totalPages)}
+                    className={`px-3 py-2 rounded ${currentPage === totalPages ? "bg-mainColor text-white" : "bg-gray-200"}`}
+                  >
+                    {totalPages}
+                  </button>
+                </>
+              )}
+              
               <button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
