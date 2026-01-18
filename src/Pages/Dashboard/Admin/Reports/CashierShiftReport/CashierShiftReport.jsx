@@ -424,9 +424,9 @@ const CashierShiftReport = () => {
               <tr>
                 <th className="px-2 py-2 text-xs text-left md:px-4 md:py-3 md:text-sm">#</th>
                 <th className="px-2 py-2 text-xs text-left md:px-4 md:py-3 md:text-sm">{t("Cashier")}</th>
-                <th className="hidden px-2 py-2 text-xs text-left md:px-4 md:py-3 md:text-sm sm:table-cell">{t("Shift #")}</th>
+                {/* <th className="hidden px-2 py-2 text-xs text-left md:px-4 md:py-3 md:text-sm sm:table-cell">{t("Shift #")}</th> */}
                 <th className="px-2 py-2 text-xs text-left md:px-4 md:py-3 md:text-sm">{t("Start")}</th>
-                <th className="hidden px-2 py-2 text-xs text-left md:px-4 md:py-3 md:text-sm md:table-cell">{t("End")}</th>
+                <th className="px-2 py-2 text-xs text-left md:px-4 md:py-3 md:text-sm">{t("End")}</th>
                 <th className="px-2 py-2 text-xs text-left md:px-4 md:py-3 md:text-sm">{t("Actions")}</th>
               </tr>
             </thead>
@@ -436,11 +436,11 @@ const CashierShiftReport = () => {
                   <td className="px-2 py-2 md:px-4 md:py-3">{(currentPage - 1) * shiftsPerPage + index + 1}</td>
                   <td className="px-2 py-2 font-medium md:px-4 md:py-3">
                     <div>{shift.cashier_man?.user_name || "N/A"}</div>
-                    <div className="text-xs text-gray-600">{shift.cashier_man?.role || "N/A"}</div>
+                    {/* <div className="text-xs text-gray-600">{shift.cashier_man?.role || "N/A"}</div> */}
                   </td>
-                  <td className="hidden px-2 py-2 md:px-4 md:py-3 sm:table-cell">{shift.cashier_man?.shift_number || "N/A"}</td>
+                  {/* <td className="hidden px-2 py-2 md:px-4 md:py-3 sm:table-cell">{shift.cashier_man?.shift_number || "N/A"}</td> */}
                   <td className="px-2 py-2 text-xs md:px-4 md:py-3">{formatDate(shift.start_time)}</td>
-                  <td className="hidden px-2 py-2 text-xs md:px-4 md:py-3 md:table-cell">{formatDate(shift.end_time) || "Ongoing"}</td>
+                  <td className="px-2 py-2 text-xs md:px-4 md:py-3">{formatDate(shift.end_time) || "Ongoing"}</td>
                   <td className="px-2 py-2 md:px-4 md:py-3">
                     <div className="flex flex-col gap-1 md:gap-2 sm:flex-row">
                       <button
