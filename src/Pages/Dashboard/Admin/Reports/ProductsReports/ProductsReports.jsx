@@ -516,7 +516,7 @@ const ProductsReports = () => {
                                     <th className="px-6 py-4 border-b">{t("Product Name")}</th>
                                     <th className="px-6 py-4 border-b">{t("Price")}</th>
                                     <th className="px-6 py-4 border-b">{t("Count")}</th>
-                                    {/* <th className="px-6 py-4 border-b">{t("Total")}</th> */}
+                                    <th className="px-6 py-4 border-b">{t("Total")}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
@@ -531,9 +531,9 @@ const ProductsReports = () => {
                                                 {item.count}
                                             </span>
                                         </td>
-                                        {/* <td className="px-6 py-4 font-mono font-medium text-mainColor">
+                                        <td className="px-6 py-4 font-mono font-medium text-mainColor">
                                             {(parseFloat(item.price || 0) * parseInt(item.count || 0)).toFixed(2)}
-                                        </td> */}
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
