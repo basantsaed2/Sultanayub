@@ -418,50 +418,103 @@ const CashierShiftReport = () => {
       {loadingPost ? (
         <p className="text-center text-gray-600">{t("Loading shifts...")}</p>
       ) : shifts.length > 0 ? (
-        <div className="overflow-x-auto bg-white rounded-lg shadow">
-          <table className="min-w-full text-sm">
-            <thead className="sticky top-0 text-white bg-mainColor">
-              <tr>
-                <th className="px-2 py-2 text-xs text-left md:px-4 md:py-3 md:text-sm">#</th>
-                <th className="px-2 py-2 text-xs text-left md:px-4 md:py-3 md:text-sm">{t("Cashier")}</th>
-                {/* <th className="hidden px-2 py-2 text-xs text-left md:px-4 md:py-3 md:text-sm sm:table-cell">{t("Shift #")}</th> */}
-                <th className="px-2 py-2 text-xs text-left md:px-4 md:py-3 md:text-sm">{t("Start")}</th>
-                <th className="px-2 py-2 text-xs text-left md:px-4 md:py-3 md:text-sm">{t("End")}</th>
-                <th className="px-2 py-2 text-xs text-left md:px-4 md:py-3 md:text-sm">{t("Actions")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentShifts.map((shift, index) => (
-                <tr key={shift.id} className="text-xs border-t hover:bg-gray-50 md:text-sm">
-                  <td className="px-2 py-2 md:px-4 md:py-3">{(currentPage - 1) * shiftsPerPage + index + 1}</td>
-                  <td className="px-2 py-2 font-medium md:px-4 md:py-3">
-                    <div>{shift.cashier_man?.user_name || "N/A"}</div>
-                    {/* <div className="text-xs text-gray-600">{shift.cashier_man?.role || "N/A"}</div> */}
-                  </td>
-                  {/* <td className="hidden px-2 py-2 md:px-4 md:py-3 sm:table-cell">{shift.cashier_man?.shift_number || "N/A"}</td> */}
-                  <td className="px-2 py-2 text-xs md:px-4 md:py-3">{formatDate(shift.start_time)}</td>
-                  <td className="px-2 py-2 text-xs md:px-4 md:py-3">{formatDate(shift.end_time) || "Ongoing"}</td>
-                  <td className="px-2 py-2 md:px-4 md:py-3">
-                    <div className="flex flex-col gap-1 md:gap-2 sm:flex-row">
-                      <button
-                        onClick={() => handleViewOrders(shift.id)}
-                        className="px-2 py-1 text-xs font-medium text-mainColor hover:underline md:text-sm"
-                      >
-                        {t("View")}
-                      </button>
-                      <button
-                        onClick={() => handlePrintShift(shift.id)}
-                        title={t("Print Shift")}
-                        className="p-1 text-white rounded md:p-2 bg-mainColor hover:bg-opacity-90"
-                      >
-                        <FaPrint size={14} className="md:w-4 md:h-4" />
-                      </button>
-                    </div>
-                  </td>
+        <div className="w-full bg-white rounded-lg shadow overflow-hidden">
+          {/* Table View - Desktop */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead className="sticky top-0 text-white bg-mainColor">
+                <tr>
+                  <th className="px-2 py-2 text-xs text-left md:px-4 md:py-3 md:text-sm">#</th>
+                  <th className="px-2 py-2 text-xs text-left md:px-4 md:py-3 md:text-sm">{t("Cashier")}</th>
+                  <th className="px-2 py-2 text-xs text-left md:px-4 md:py-3 md:text-sm">{t("Shift #")}</th>
+                  <th className="px-2 py-2 text-xs text-left md:px-4 md:py-3 md:text-sm">{t("Start")}</th>
+                  <th className="px-2 py-2 text-xs text-left md:px-4 md:py-3 md:text-sm">{t("End")}</th>
+                  <th className="px-2 py-2 text-xs text-left md:px-4 md:py-3 md:text-sm">{t("Actions")}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {currentShifts.map((shift, index) => (
+                  <tr key={shift.id} className="text-xs border-t hover:bg-gray-50 md:text-sm">
+                    <td className="px-2 py-2 md:px-4 md:py-3">{(currentPage - 1) * shiftsPerPage + index + 1}</td>
+                    <td className="px-2 py-2 font-medium md:px-4 md:py-3">
+                      <div>{shift.cashier_man?.user_name || "N/A"}</div>
+                      <div className="text-xs text-gray-600">{shift.cashier_man?.role || "N/A"}</div>
+                    </td>
+                    <td className="px-2 py-2 md:px-4 md:py-3">{shift.cashier_man?.shift_number || "N/A"}</td>
+                    <td className="px-2 py-2 text-xs md:px-4 md:py-3">{formatDate(shift.start_time)}</td>
+                    <td className="px-2 py-2 text-xs md:px-4 md:py-3">{formatDate(shift.end_time) || "Ongoing"}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleViewOrders(shift.id)}
+                          className="px-2 py-1 text-xs font-medium text-mainColor hover:underline md:text-sm"
+                        >
+                          {t("View Details")}
+                        </button>
+                        <button
+                          onClick={() => handlePrintShift(shift.id)}
+                          title={t("Print Shift")}
+                          className="p-1 text-white rounded md:p-2 bg-mainColor hover:bg-opacity-90"
+                        >
+                          <FaPrint size={14} className="md:w-4 md:h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Card View - Mobile */}
+          <div className="md:hidden w-full p-3 space-y-3 overflow-hidden">
+            {currentShifts.map((shift, index) => (
+              <div key={shift.id} className="w-full p-4 border rounded-lg border-gray-200 hover:shadow-md transition box-border">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-1 text-xs font-bold text-white rounded bg-mainColor">
+                      #{(currentPage - 1) * shiftsPerPage + index + 1}
+                    </span>
+                    <div>
+                      <p className="font-semibold text-sm">{shift.cashier_man?.user_name || "N/A"}</p>
+                      <p className="text-xs text-gray-600">{shift.cashier_man?.role || "N/A"}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
+                  <div className="p-2 rounded bg-gray-50">
+                    <p className="text-gray-600 text-xs">{t("Shift #")}</p>
+                    <p className="font-semibold">{shift.cashier_man?.shift_number || "N/A"}</p>
+                  </div>
+                  <div className="p-2 rounded bg-gray-50">
+                    <p className="text-gray-600 text-xs">{t("Start Time")}</p>
+                    <p className="font-semibold text-xs">{formatDate(shift.start_time)}</p>
+                  </div>
+                  <div className="p-2 rounded bg-gray-50 col-span-2">
+                    <p className="text-gray-600 text-xs">{t("End Time")}</p>
+                    <p className="font-semibold text-xs">{formatDate(shift.end_time) || "Ongoing"}</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-3 border-t">
+                  <button
+                    onClick={() => handleViewOrders(shift.id)}
+                    className="flex-1 px-3 py-2 text-sm font-medium text-white rounded bg-mainColor hover:bg-opacity-90"
+                  >
+                    {t("View Details")}
+                  </button>
+                  <button
+                    onClick={() => handlePrintShift(shift.id)}
+                    title={t("Print Shift")}
+                    className="px-3 py-2 text-white rounded bg-mainColor hover:bg-opacity-90"
+                  >
+                    <FaPrint size={16} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
 
           {/* Pagination */}
           {totalPages > 1 && (
