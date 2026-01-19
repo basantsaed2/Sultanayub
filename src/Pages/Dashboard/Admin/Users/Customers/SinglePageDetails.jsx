@@ -4,6 +4,7 @@ import { useGet } from "../../../../../Hooks/useGet";
 import { usePost } from "../../../../../Hooks/usePostJson";
 import { StaticLoader } from "../../../../../Components/Components";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "../../../../../Context/Auth";
 
 const SinglePageDetails = () => {
     const { userId } = useParams();
@@ -12,6 +13,7 @@ const SinglePageDetails = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const { t, i18n } = useTranslation();
     const isRtl = i18n.language === 'ar';
+    const auth = useAuth();
 
     // Get customer data from navigation state
     const [customerData] = useState(location.state?.customerData);
@@ -53,7 +55,7 @@ const SinglePageDetails = () => {
     // Apply date filter
     const handleFilter = async () => {
         if (!startDate || !endDate) {
-            alert(t("Please select both start and end dates"));
+            auth.toastError(t("Please select both start and end dates"));
             return;
         }
         await postData({ from_date: startDate, to_date: endDate });
@@ -92,7 +94,7 @@ const SinglePageDetails = () => {
     const { total: totalPendingPages, data: currentPending } = getPaginatedItems(orderDue);
     const { total: totalHistoryPages, data: currentHistory } = getPaginatedItems(paidDebt);
 
-    if (loadingCustomerDetails && !customerData) {
+    if (loadingCustomerDetails || !customerData) {
         return (
             <div className="flex items-center justify-center w-full h-80">
                 <StaticLoader />
