@@ -34,12 +34,12 @@ const ProfessionalDashboard = ({ realData }) => {
     }, [realData]);
 
     return (
-        <div className="w-full flex flex-col gap-4 p-1 md:p-3 lg:p-6 bg-gray-50/50 min-h-screen">
+        <div className="w-full flex flex-col gap-4 p-1 md:p-3 xl:p-6 bg-gray-50/50 min-h-screen">
             {/* Header / KPIs */}
             <DashboardKpiCards kpis={data.kpis} />
 
             {/* Main Time Series Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 <StandardLineChart
                     title="# of Orders"
                     labels={data.timeSeries.labels}
@@ -77,7 +77,7 @@ const ProfessionalDashboard = ({ realData }) => {
             </div>
 
             {/* Secondary Insights Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 <OrderTypeDistributionChart
                     labels={data.orderTypes.labels}
                     dineIn={data.orderTypes.dineIn}
@@ -91,21 +91,21 @@ const ProfessionalDashboard = ({ realData }) => {
             </div>
 
             {/* Top Performance Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-1">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                <div className="xl:col-span-1">
                     <TopProductsBarChart
                         labels={data.topProducts.labels}
                         values={data.topProducts.orders_count}
                     />
                 </div>
-                <div className="lg:col-span-1">
+                <div className="xl:col-span-1">
                     <SimplePieChart
                         title="Top Payments"
                         labels={data.topPayments.labels}
                         values={data.topPayments.values}
                     />
                 </div>
-                <div className="lg:col-span-1">
+                <div className="xl:col-span-1">
                     <SimplePieChart
                         title="Top Branches"
                         labels={data.topBranches.labels}

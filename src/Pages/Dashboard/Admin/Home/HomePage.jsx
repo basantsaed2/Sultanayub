@@ -200,13 +200,13 @@ const HomePage = () => {
               </div>
             </div> */}
 
-            <div className="flex flex-col items-start justify-center w-full px-2 md:px-6 gap-7 mt-5">
+            <div className="flex flex-col items-start justify-center w-full px-2 md:px-3 xl:px-6 gap-7 mt-5">
 
               {/* New Professional Dashboard */}
               <ProfessionalDashboard realData={dashboardRealData} />
 
               {/* Old Chart Restored to the bottom */}
-              <div className="flex flex-col items-start justify-center w-full px-1 md:px-3 lg:px-6 gap-7 mt-12">
+              <div className="flex flex-col items-start justify-center w-full px-1 md:px-3 xl:px-6 gap-7 mt-12">
                 <Chart
                   order_statistics={order_statistics}
                   earning_statistics={earning_statistics}

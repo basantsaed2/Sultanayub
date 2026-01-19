@@ -15,7 +15,7 @@ const KpiCard = ({ title, value, icon: Icon, color }) => (
 
 const DashboardKpiCards = ({ kpis }) => {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full mb-8">
             <KpiCard
                 title="Active Orders"
                 value={kpis.activeOrders}
