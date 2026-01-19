@@ -9,290 +9,249 @@ import { FaPrint } from "react-icons/fa";
 // Receipt Formatting Function for Shift Report
 // ===================================================================
 const formatShiftReceipt = (shiftData, detailsData, t, isRtl) => {
-  const formatCurrency = (value) => Number(value || 0).toFixed(2);
+  const formatCurrency = (value) => `${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${t("EGP")}`;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString(isRtl ? 'ar-EG' : 'en-US');
+  const timeStr = now.toLocaleTimeString(isRtl ? 'ar-EG' : 'en-US', { hour: '2-digit', minute: '2-digit' });
 
   return `
-    <div class="receipt-only" dir="${isRtl ? 'rtl' : 'ltr'}">
+    <div class="receipt-container" dir="${isRtl ? 'rtl' : 'ltr'}">
       <style>
-        @page { 
-            size: 80mm auto; 
-            margin: 0mm; 
+        @page { size: 80mm auto; margin: 0; }
+        body { margin: 0; padding: 0; }
+        .receipt-container {
+          width: 80mm;
+          max-width: 100%;
+          padding: 4mm 2mm;
+          font-family: 'Arial', sans-serif;
+          color: #000;
+          background: #fff;
+          font-size: 13px;
+          box-sizing: border-box;
+          margin: 0 auto;
         }
-
-        .receipt-only {
-            width: 80mm; 
-            font-family: sans-serif;
-            color: #000;
-            background: #fff;
-            padding: 3px;
-            font-size: 9px; 
-        }
-
-        .receipt-only * { 
-            box-sizing: border-box; 
-        }
-        
-        .receipt-only .header { 
-          text-align: center; 
-          margin-bottom: 3px; 
-          border-bottom: 2px solid #000; 
-          padding-bottom: 3px;
-        }
-        
-        .receipt-only .header h1 { 
-          font-size: 12px; 
-          font-weight: bold; 
-          margin: 0; 
-        }
-        
-        .receipt-only .header p { 
-          font-size: 8px; 
-          margin: 1px 0 0 0; 
-        }
-        
-        .receipt-only .section-title { 
-          font-weight: bold; 
-          border-top: 1px solid #000;
-          margin-top: 2px;
-          margin-bottom: 1px;
-          padding-top: 1px;
-          display: block;
-          font-size: 9px;
-        }
-        
-        .receipt-only .info-row { 
-          display: flex; 
-          justify-content: space-between; 
-          margin-bottom: 1px; 
-          font-size: 8px;
-        }
-        
-        .receipt-only .info-label { 
-          font-weight: bold; 
-          flex: 0 0 50%;
-        }
-
-        .receipt-only .info-value {
-          flex: 0 0 50%;
-          text-align: right;
-        }
-
-        .receipt-only table { 
-          width: 100%; 
-          font-size: 8px; 
-          border-collapse: collapse; 
-          margin: 1px 0;
-        }
-        
-        .receipt-only th { 
-          border-bottom: 1px solid #000 !important; 
-          padding: 1px 0; 
-          text-align: center; 
-          font-weight: bold; 
-          background: transparent;
-          font-size: 8px; 
-        }
-        
-        .receipt-only td { 
-          border: none; 
-          padding: 1px 1px; 
-          font-size: 8px;
-        }
-
-        .receipt-only .text-left {
-          text-align: left;
-        }
-
-        .receipt-only .text-right {
-          text-align: right;
-        }
-
-        .receipt-only .text-center {
+        .header {
           text-align: center;
+          margin-bottom: 15px;
         }
-        
-        .receipt-only .footer { 
-          text-align: center; 
-          font-size: 8px; 
-          margin-top: 2px; 
-          padding-top: 1px;
-          border-top: 1px solid #000; 
-        }
-
-        .receipt-only .amount-positive {
-          color: #27ae60;
+        .header h1 {
+          font-size: 20px;
+          margin: 0 0 5px 0;
           font-weight: bold;
         }
-
-        .receipt-only .amount-negative {
-          color: #e74c3c;
+        .header .meta {
+          font-size: 12px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 5px;
+        }
+        .section-box {
+          border: 1.5px solid #000;
+          padding: 10px;
+          margin-bottom: 12px;
+          position: relative;
+        }
+        .section-title {
           font-weight: bold;
-        }
-
-        .receipt-only .module-table {
-          width: 100%;
-          font-size: 7px;
-          border-collapse: collapse;
-          margin: 1px 0;
-        }
-
-        .receipt-only .module-table td {
-          padding: 1px 2px;
-          border-right: 1px solid #ddd;
-        }
-
-        .receipt-only .module-table td:last-child {
-          border-right: none;
-        }
-
-        .receipt-only .module-header {
-          background-color: #f0f0f0;
-          font-weight: bold;
+          font-size: 15px;
+          margin-bottom: 8px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
           border-bottom: 1px solid #000;
+          padding-bottom: 5px;
         }
-
-        .receipt-only .module-row {
+        .row {
+          display: flex;
+          justify-content: space-between;
+          padding: 4px 0;
           border-bottom: 1px dotted #ccc;
         }
-
-        .receipt-only .account-name {
+        .row:last-child {
+          border-bottom: none;
+        }
+        .row-label {
+          font-weight: 500;
+        }
+        .row-value {
           font-weight: bold;
-          font-size: 8px;
-          padding: 2px 0;
+        }
+        .net-cash-box {
+          border: 2px solid #000;
+          text-align: center;
+          padding: 15px 10px;
+          margin-top: 15px;
+        }
+        .net-cash-label {
+          font-size: 13px;
+          margin-bottom: 8px;
+          font-weight: bold;
+        }
+        .net-cash-value {
+          font-size: 24px;
+          font-weight: 900;
+        }
+        .footer {
+          text-align: center;
+          margin-top: 25px;
+          padding-top: 10px;
+          border-top: 1px solid #eee;
+          font-size: 11px;
+        }
+        .footer-line {
+          margin-top: 5px;
+          color: #666;
+        }
+        .icon {
+          font-size: 18px;
+        }
+        .sub-section-title {
+          font-weight: bold;
+          background: #eee;
+          padding: 3px 5px;
+          margin: 5px 0;
+          font-size: 12px;
         }
       </style>
 
       <div class="header">
-        <h1>${t("Shift Report")}</h1>
-        <p>${t("Complete Cashier Summary")}</p>
-      </div>
-
-      <div class="info-section">
-        <span class="section-title">CASHIER INFO</span>
-        <div class="info-row">
-          <span class="info-label">Name:</span>
-          <span class="info-value">${shiftData.cashier_man?.user_name || "N/A"}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Role:</span>
-          <span class="info-value">${shiftData.cashier_man?.role || "N/A"}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Shift #:</span>
-          <span class="info-value">${shiftData.cashier_man?.shift_number || "N/A"}</span>
+        <h1>${t("Shift End Report")}</h1>
+        <div class="meta">
+          <span>📋</span>
+          <span>${dateStr} - ${timeStr}</span>
         </div>
       </div>
 
-      <div class="info-section">
-        <span class="section-title">TIMING</span>
-        <div class="info-row">
-          <span class="info-label">Start:</span>
-          <span class="info-value">${new Date(shiftData.start_time).toLocaleString("en-US", { dateStyle: "short", timeStyle: "short" })}</span>
+      <!-- Cashier Information Box -->
+      <div class="section-box">
+        <div class="section-title">
+          <span class="icon">�</span>
+          <span>${t("Cashier Information")}</span>
         </div>
-        <div class="info-row">
-          <span class="info-label">End:</span>
-          <span class="info-value">${shiftData.end_time ? new Date(shiftData.end_time).toLocaleString("en-US", { dateStyle: "short", timeStyle: "short" }) : "Ongoing"}</span>
+        <div class="row">
+          <span class="row-label">${t("name")}</span>
+          <span class="row-value">${shiftData.cashier_man?.user_name || '-'}</span>
         </div>
-      </div>
-
-      <div class="info-section">
-        <span class="section-title">SHIFT DETAILS</span>
-        <div class="info-row">
-          <span class="info-label">Free Discount:</span>
-          <span class="info-value">${shiftData.free_discount || 0}</span>
+        <div class="row">
+          <span class="row-label">${t("Shift Number")}</span>
+          <span class="row-value">#${shiftData.cashier_man?.shift_number || '-'}</span>
         </div>
       </div>
 
-      ${detailsData && detailsData.order_count !== undefined ? `
-        <div class="info-section">
-          <span class="section-title">SUMMARY</span>
-          <div class="info-row">
-            <span class="info-label">Order Count:</span>
-            <span class="info-value">${detailsData.order_count || 0}</span>
+      <!-- Timing Information Box -->
+      <div class="section-box">
+        <div class="section-title">
+          <span class="icon">🕒</span>
+          <span>${t("Timing Information")}</span>
+        </div>
+        <div class="row">
+          <span class="row-label">${t("Start Time")}</span>
+          <span class="row-value">${shiftData.start_time ? new Date(shiftData.start_time).toLocaleString(isRtl ? 'ar-EG' : 'en-US', { hour: '2-digit', minute: '2-digit' }) : '-'}</span>
+        </div>
+        <div class="row">
+          <span class="row-label">${t("End Time")}</span>
+          <span class="row-value">${shiftData.end_time ? new Date(shiftData.end_time).toLocaleString(isRtl ? 'ar-EG' : 'en-US', { hour: '2-digit', minute: '2-digit' }) : '-'}</span>
+        </div>
+      </div>
+
+      <!-- Financial Accounts Detailed Box -->
+      ${detailsData.financial_accounts && detailsData.financial_accounts.length > 0 ? `
+        <div class="section-box">
+          <div class="section-title">
+            <span class="icon">💳</span>
+            <span>${t("Account Breakdown")}</span>
           </div>
-          <div class="info-row">
-            <span class="info-label">Total Amount:</span>
-            <span class="info-value ${detailsData.total_amount < 0 ? 'amount-negative' : 'amount-positive'}">${formatCurrency(detailsData.total_amount || 0)}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Expenses Total:</span>
-            <span class="info-value amount-negative">-${formatCurrency(detailsData.expenses_total || 0)}</span>
-          </div>
-        </div>
-
-        ${detailsData.financial_accounts && detailsData.financial_accounts.length > 0 ? `
-          <span class="section-title">PAYMENT METHODS BY MODULE</span>
           ${detailsData.financial_accounts.map(acc => {
-            const net = (acc.total_amount_delivery || 0) + (acc.total_amount_take_away || 0) + (acc.total_amount_dine_in || 0);
-            return `
-              <div style="margin-bottom: 2px; border: 1px solid #ddd; padding: 2px;">
-                <div class="account-name">${acc.financial_name}</div>
-                <table class="module-table">
-                  <tr class="module-header">
-                    <td style="text-align: center;">Delivery</td>
-                    <td style="text-align: center;">Take Away</td>
-                    <td style="text-align: center;">Dine In</td>
-                    <td style="text-align: center; font-weight: bold;">Total</td>
-                  </tr>
-                  <tr class="module-row">
-                    <td style="text-align: center; ${acc.total_amount_delivery < 0 ? 'color: #e74c3c;' : 'color: #27ae60;'} font-weight: bold;">${formatCurrency(acc.total_amount_delivery || 0)}</td>
-                    <td style="text-align: center; ${acc.total_amount_take_away < 0 ? 'color: #e74c3c;' : 'color: #27ae60;'} font-weight: bold;">${formatCurrency(acc.total_amount_take_away || 0)}</td>
-                    <td style="text-align: center; ${acc.total_amount_dine_in < 0 ? 'color: #e74c3c;' : 'color: #27ae60;'} font-weight: bold;">${formatCurrency(acc.total_amount_dine_in || 0)}</td>
-                    <td style="text-align: center; ${net < 0 ? 'color: #e74c3c;' : 'color: #27ae60;'} font-weight: bold;">${formatCurrency(net)}</td>
-                  </tr>
-                </table>
-              </div>
+    const accNet = (acc.total_amount_delivery || 0) + (acc.total_amount_take_away || 0) + (acc.total_amount_dine_in || 0);
+    return `
+              <div class="sub-section-title">${acc.financial_name}</div>
+              <div class="row"><span class="row-label">${t("Dine In")}</span><span class="row-value">${formatCurrency(acc.total_amount_dine_in)}</span></div>
+              <div class="row"><span class="row-label">${t("Take Away")}</span><span class="row-value">${formatCurrency(acc.total_amount_take_away)}</span></div>
+              <div class="row"><span class="row-label">${t("Delivery")}</span><span class="row-value">${formatCurrency(acc.total_amount_delivery)}</span></div>
+              <div class="row" style="border-top: 1px solid #000;"><span class="row-label">${t("Net")}</span><span class="row-value">${formatCurrency(accNet)}</span></div>
             `;
-          }).join('')}
-        ` : ''}
-
-        ${detailsData.expenses && detailsData.expenses.length > 0 ? `
-          <span class="section-title">EXPENSES BREAKDOWN</span>
-          <table>
-            <tbody>
-              ${detailsData.expenses.map(exp => `
-                <tr>
-                  <td class="text-left">${exp.financial_account}</td>
-                  <td class="text-right amount-negative">-${formatCurrency(exp.total)}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        ` : ''}
-
-        ${detailsData.online_order && (detailsData.online_order.paid?.length > 0 || detailsData.online_order.un_paid?.length > 0) ? `
-          <span class="section-title">ONLINE ORDERS - PAID</span>
-          ${detailsData.online_order.paid && detailsData.online_order.paid.length > 0 ? `
-            <table>
-              <tbody>
-                ${detailsData.online_order.paid.map(p => `
-                  <tr>
-                    <td class="text-left">${p.payment_method}</td>
-                    <td class="text-right amount-positive">${formatCurrency(p.amount)}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          ` : '<p style="font-size: 8px; text-align: center;">No paid orders</p>'}
-
-          <span class="section-title">ONLINE ORDERS - UNPAID/COD</span>
-          ${detailsData.online_order.un_paid && detailsData.online_order.un_paid.length > 0 ? `
-            <table>
-              <tbody>
-                ${detailsData.online_order.un_paid.map(u => `
-                  <tr>
-                    <td class="text-left">${u.payment_method}</td>
-                    <td class="text-right">${formatCurrency(u.amount)}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          ` : '<p style="font-size: 8px; text-align: center;">No unpaid orders</p>'}
-        ` : ''}
+  }).join('')}
+        </div>
       ` : ''}
 
+       <!-- Expenses Box -->
+      ${detailsData.expenses && detailsData.expenses.length > 0 ? `
+        <div class="section-box">
+          <div class="section-title">
+            <span class="icon">💸</span>
+            <span>${t("Expenses")}</span>
+          </div>
+          ${detailsData.expenses.map(exp => `
+            <div class="row">
+              <span class="row-label">${exp.financial_account}</span>
+              <span class="row-value" style="color: #c0392b;">-${formatCurrency(exp.total)}</span>
+            </div>
+          `).join('')}
+          <div class="row" style="border-top: 1px solid #000; margin-top: 5px;">
+            <span class="row-label">${t("Total Expenses")}</span>
+            <span class="row-value" style="color: #c0392b;">-${formatCurrency(detailsData.expenses_total || 0)}</span>
+          </div>
+        </div>
+      ` : ''}
+      <!-- Orders Summary Box -->
+      <div class="section-box">
+        <div class="section-title">
+          <span class="icon">🛒</span>
+          <span>${t("Orders Summary")}</span>
+        </div>
+        <div class="row">
+          <span class="row-label">${t("Total Orders")}</span>
+          <span class="row-value">${detailsData.order_count || 0}</span>
+        </div>
+        <div class="row">
+          <span class="row-label">${t("Total Revenue")}</span>
+          <span class="row-value">${formatCurrency(detailsData.total_amount)}</span>
+        </div>
+        <div class="row">
+          <span class="row-label">${t("Total Expenses")}</span>
+          <span class="row-value" style="color: #c0392b;">${formatCurrency(detailsData.expenses_total || 0)}</span>
+        </div>
+      </div>
+
+      <!-- Online Orders Section -->
+      ${(detailsData.online_order?.paid?.length > 0 || detailsData.online_order?.un_paid?.length > 0) ? `
+        <div class="section-box">
+          <div class="section-title">
+            <span class="icon">🌐</span>
+            <span>${t("Online Orders")}</span>
+          </div>
+          ${detailsData.online_order.paid?.length > 0 ? `
+            <div class="sub-section-title">${t("Paid Online")}</div>
+            ${detailsData.online_order.paid.map(p => `
+              <div class="row"><span class="row-label capitalize">${p.payment_method}</span><span class="row-value">${formatCurrency(p.amount)}</span></div>
+            `).join('')}
+          ` : ''}
+          ${detailsData.online_order.un_paid?.length > 0 ? `
+            <div class="sub-section-title">${t("Unpaid / COD")}</div>
+            ${detailsData.online_order.un_paid.map(u => `
+              <div class="row"><span class="row-label capitalize">${u.payment_method}</span><span class="row-value">${formatCurrency(u.amount)}</span></div>
+            `).join('')}
+          ` : ''}
+        </div>
+      ` : ''}
+
+      <!-- Net Cash Remaining Box -->
+      <div class="net-cash-box">
+        <div class="net-cash-label">
+          <span>${t("Net Cash Remaining")}</span><br/>
+          <small>(${t("Total Cash in Shift")})</small>
+        </div>
+        <div class="net-cash-value">
+          ${formatCurrency((detailsData.total_amount) - (detailsData.expenses_total || 0))}
+        </div>
+      </div>
+
       <div class="footer">
-        <div>${new Date().toLocaleString("en-US", { dateStyle: "short", timeStyle: "short" })}</div>
+        <div style="font-size: 14px; font-weight: bold;">${t("Thank You")} 💫</div>
+        <div class="footer-line">
+          Powered by <b>Food2Go</b> - food2go.online
+        </div>
       </div>
     </div>
   `;
@@ -334,7 +293,7 @@ const CashierShiftReport = () => {
         if (shiftToPrint) {
           const isRtl = i18n?.language === 'ar';
           const receiptHtml = formatShiftReceipt(shiftToPrint, dataOrder, t, isRtl);
-          
+
           // Open print window
           const pw = window.open("", "", "width=500,height=600");
           if (pw) {
@@ -358,11 +317,11 @@ const CashierShiftReport = () => {
 
   const handleGenerateReport = () => {
     if (fromDate) {
-      
+
       const payload = {
         start_date: fromDate,
       }
-      if(toDate){
+      if (toDate) {
         payload.end_date = toDate;
       }
       postData(payload);
@@ -526,7 +485,7 @@ const CashierShiftReport = () => {
               >
                 {t("Prev")}
               </button>
-              
+
               {/* Pagination Numbers with Ellipsis */}
               {totalPages <= 10 ? (
                 // Show all pages if 10 or fewer
@@ -549,12 +508,12 @@ const CashierShiftReport = () => {
                   >
                     1
                   </button>
-                  
+
                   {/* Left ellipsis */}
                   {currentPage > 4 && (
                     <span className="px-2 py-2">...</span>
                   )}
-                  
+
                   {/* Pages around current */}
                   {Array.from({ length: totalPages }, (_, i) => i + 1)
                     .filter(page => {
@@ -570,12 +529,12 @@ const CashierShiftReport = () => {
                         {page}
                       </button>
                     ))}
-                  
+
                   {/* Right ellipsis */}
                   {currentPage < totalPages - 3 && (
                     <span className="px-2 py-2">...</span>
                   )}
-                  
+
                   {/* Last page */}
                   <button
                     onClick={() => setCurrentPage(totalPages)}
@@ -585,7 +544,7 @@ const CashierShiftReport = () => {
                   </button>
                 </>
               )}
-              
+
               <button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
