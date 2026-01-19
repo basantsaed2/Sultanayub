@@ -206,7 +206,7 @@ const HomePage = () => {
               <ProfessionalDashboard realData={dashboardRealData} />
 
               {/* Old Chart Restored to the bottom */}
-              <div className="flex flex-col items-start justify-center w-full px-4 gap-7 mt-12">
+              <div className="flex flex-col items-start justify-center w-full px-1 md:px-3 lg:px-6 gap-7 mt-12">
                 <Chart
                   order_statistics={order_statistics}
                   earning_statistics={earning_statistics}

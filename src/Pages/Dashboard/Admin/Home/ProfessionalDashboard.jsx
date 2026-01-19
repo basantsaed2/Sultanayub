@@ -34,7 +34,7 @@ const ProfessionalDashboard = ({ realData }) => {
     }, [realData]);
 
     return (
-        <div className="w-full flex flex-col gap-8 p-6 bg-gray-50/50 min-h-screen">
+        <div className="w-full flex flex-col gap-4 p-1 md:p-3 lg:p-6 bg-gray-50/50 min-h-screen">
             {/* Header / KPIs */}
             <DashboardKpiCards kpis={data.kpis} />
 
