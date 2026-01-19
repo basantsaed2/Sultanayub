@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 
 const AddProductPage = () => {
   const { t, i18n } = useTranslation();
+  const selectedLanguage = i18n.language;
 
   const auth = useAuth();
   /* Get Data */
@@ -35,13 +36,13 @@ const AddProductPage = () => {
     refetch: refetchCategory,
     loading: loadingCategory,
     data: dataCategory,
-  } = useGet({ url: `${apiUrl}/admin/category` });
+  } = useGet({ url: `${apiUrl}/admin/category?locale=${selectedLanguage}` });
   const {
     refetch: refetchProduct,
     loading: loadingProduct,
     data: dataProduct,
   } = useGet({
-    url: `${apiUrl}/admin/product`,
+    url: `${apiUrl}/admin/product?locale=${selectedLanguage}`,
   });
   const { postData, loadingPost, response } = usePost({
     url: `${apiUrl}/admin/product/add`,
@@ -85,18 +86,23 @@ const AddProductPage = () => {
   const [selectedUnit, setSelectedUnit] = useState("");
   const [selectedUnitState, setSelectedUnitState] = useState(t("Selected Unit"));
 
-  const [itemTypes, setItemTypes] = useState([
-    { id: "", name: t("Selected Item Type") },
-    { id: "online", name: t("online") },
-    { id: "offline", name: t("offline") },
-    { id: "all", name: t("all") },
-  ]);
-  const [stockTypes, setStockTypes] = useState([
-    { id: "", name: t("Selected Stock Type") },
-    { id: "unlimited", name: t("unlimited") },
-    { id: "daily", name: t("daily") },
-    { id: "fixed", name: t("fixed") },
-  ]);
+  const [itemTypes, setItemTypes] = useState([]);
+  const [stockTypes, setStockTypes] = useState([]);
+
+  useEffect(() => {
+    setItemTypes([
+      { id: "", name: t("Selected Item Type") },
+      { id: "online", name: t("online") },
+      { id: "offline", name: t("offline") },
+      { id: "all", name: t("all") },
+    ]);
+    setStockTypes([
+      { id: "", name: t("Selected Stock Type") },
+      { id: "unlimited", name: t("unlimited") },
+      { id: "daily", name: t("daily") },
+      { id: "fixed", name: t("fixed") },
+    ]);
+  }, [t, i18n.language]);
 
   // Selected Data
   // Product Names
@@ -200,7 +206,7 @@ const AddProductPage = () => {
     refetchTranslation(); // Get Language Translation data when the component mounts
     refetchCategory(); // Get Categories && Addons && SubCategories data when the component mounts
     refetchProduct(); // Get Discounts && Taxes data when the component mounts
-  }, [refetchTranslation, refetchCategory, refetchProduct]);
+  }, [i18n.language]); // Refetch when language changes
 
   useEffect(() => {
     /* Set data to Taps Languages Translation */
@@ -248,7 +254,20 @@ const AddProductPage = () => {
     setSelectedUnitState(t("Selected Unit"));
   };
 
-  // Handle unit selection
+  // Update placeholders when language changes
+  useEffect(() => {
+    if (!selectedCategoryId) setSelectedCategoryState(t("Selected Category"));
+    if (!selectedSubCategoryId) setSelectedSubCategoryState(t("Selected Subcategory"));
+    if (!selectedDiscountId) setSelectedDiscountState(t("Selected Discount"));
+    if (!selectedTaxId) setSelectedTaxState(t("Selected Tax"));
+    if (!selectedGroupId) setSelectedGroupState(t("Selected Group"));
+    if (!selectedItemTypeName) setSelectedItemTypeState(t("Selected Item Type"));
+    if (!selectedStockTypeName) setSelectedStockTypeState(t("Selected Stock Type"));
+    if (!selectedUnit) setSelectedUnitState(t("Selected Unit"));
+    if (selectedAddonsId.length === 0) setSelectedAddonsState(t("Selected Addons"));
+    if (!productImage) setProductImageName(t("Choose Photo"));
+  }, [i18n.language, t]);
+
   const handleSelectUnit = (option) => {
     setSelectedUnit(option.id);
     setSelectedUnitState(option.name);

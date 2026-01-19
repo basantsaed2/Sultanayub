@@ -365,7 +365,10 @@ const BusinessSettingsPage = () => {
     }
 
     formData.append("copy_right", companyCopyrightText);
-    formData.append("scale", scale);
+
+    if (scale) {
+      formData.append("scale", scale);
+    }
 
     for (const [key, value] of Object.entries(updatedData)) {
       formData.append(`maintenance[${key}]`, value);

@@ -23,7 +23,8 @@ const EditProductPage = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
   const auth = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const selectedLanguage = i18n.language;
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
   /* Get Data */
@@ -41,12 +42,12 @@ const EditProductPage = () => {
     refetch: refetchCategory,
     loading: loadingCategory,
     data: dataCategory,
-  } = useGet({ url: `${apiUrl}/admin/category` });
+  } = useGet({ url: `${apiUrl}/admin/category?locale=${selectedLanguage}` });
   const {
     refetch: refetchProduct,
     loading: loadingProduct,
     data: dataProduct,
-  } = useGet({ url: `${apiUrl}/admin/product` });
+  } = useGet({ url: `${apiUrl}/admin/product?locale=${selectedLanguage}` });
   const { postData, loading: loadingPut, response } = usePost({
     url: `${apiUrl}/admin/product/update/${productId}`,
   });
@@ -89,18 +90,23 @@ const EditProductPage = () => {
   const [selectedUnit, setSelectedUnit] = useState("");
   const [selectedUnitState, setSelectedUnitState] = useState(t("Selected Unit"));
 
-  const [itemTypes, setItemTypes] = useState([
-    { id: "", name: t("Selected Item Type") },
-    { id: "online", name: t("online") },
-    { id: "offline", name: t("offline") },
-    { id: "all", name: t("all") },
-  ]);
-  const [stockTypes, setStockTypes] = useState([
-    { id: "", name: t("Selected Stock Type") },
-    { id: "unlimited", name: t("unlimited") },
-    { id: "daily", name: t("daily") },
-    { id: "fixed", name: t("fixed") },
-  ]);
+  const [itemTypes, setItemTypes] = useState([]);
+  const [stockTypes, setStockTypes] = useState([]);
+
+  useEffect(() => {
+    setItemTypes([
+      { id: "", name: t("Selected Item Type") },
+      { id: "online", name: t("online") },
+      { id: "offline", name: t("offline") },
+      { id: "all", name: t("all") },
+    ]);
+    setStockTypes([
+      { id: "", name: t("Selected Stock Type") },
+      { id: "unlimited", name: t("unlimited") },
+      { id: "daily", name: t("daily") },
+      { id: "fixed", name: t("fixed") },
+    ]);
+  }, [t, i18n.language]);
 
   // Selected Data
   const [productNames, setProductNames] = useState([]);
@@ -152,7 +158,7 @@ const EditProductPage = () => {
     refetchTranslation();
     refetchCategory();
     refetchProduct();
-  }, [refetchProductEdit, refetchTranslation, refetchCategory, refetchProduct]);
+  }, [i18n.language]); // Refetch when language changes
 
   /* Set Translation, Category, and Product Data */
   useEffect(() => {

@@ -19,7 +19,7 @@ const ProductPage = () => {
   const navigate = useNavigate();
 
   // State for main tabs
-  const [activeTab, setActiveTab] = useState("products"); // "products" or "categories"
+  const [activeTab, setActiveTab] = useState("products"); // "products", "category", or "sub_category"
   // State for toggling category product lists
   const [expandedCategories, setExpandedCategories] = useState({});
   // State for toggling category status dialog
@@ -49,7 +49,8 @@ const ProductPage = () => {
   const [showLayer, setShowLayer] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [parentCategories, setParentCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
   const [textSearch, setTextSearch] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
 
@@ -90,8 +91,9 @@ const ProductPage = () => {
   }, [dataProducts]);
 
   useEffect(() => {
-    if (dataCategories && dataCategories.categories) {
-      setCategories(dataCategories.categories);
+    if (dataCategories) {
+      setParentCategories(dataCategories.parent_categories || []);
+      setSubCategories(dataCategories.sub_categories || []);
     }
   }, [dataCategories]);
 
@@ -377,16 +379,28 @@ const ProductPage = () => {
             {t("Products")}
           </button>
           <button
-            className={`px-4 py-2 text-lg font-TextFontMedium rounded-md ${activeTab === "categories"
+            className={`px-4 py-2 text-lg font-TextFontMedium rounded-md ${activeTab === "category"
               ? "bg-mainColor text-white"
               : "bg-gray-100 text-mainColor"
               }`}
             onClick={() => {
-              setActiveTab("categories");
+              setActiveTab("category");
               setCurrentPage(1);
             }}
           >
-            {t("Categories")}
+            {t("Category")}
+          </button>
+          <button
+            className={`px-4 py-2 text-lg font-TextFontMedium rounded-md ${activeTab === "sub_category"
+              ? "bg-mainColor text-white"
+              : "bg-gray-100 text-mainColor"
+              }`}
+            onClick={() => {
+              setActiveTab("sub_category");
+              setCurrentPage(1);
+            }}
+          >
+            {t("Sub Category")}
           </button>
         </div>
 
@@ -646,7 +660,7 @@ const ProductPage = () => {
               ) : (
                 <>
                   <div className="w-full">
-                    {categories.map((category, index) => (
+                    {(activeTab === "category" ? parentCategories : subCategories).map((category, index) => (
                       <div key={category.id} className="border-b">
                         <div className="flex items-center justify-between px-4 py-3">
                           <button
