@@ -224,6 +224,7 @@ const resources = {
                "Reset": "Reset",
                "image": "Image",
                "category": "Category",
+               "subcategory": "SubCategory",
                "product": "Product",
                "deal": "Deal",
                "status": "Status",
@@ -2978,7 +2979,7 @@ const resources = {
                "daily": "يومي",
 
                "please set your reason reject": "الرجاء تحديد سبب الرفض",
-               "subcategory": "فئة فرعية",
+               "subcategory": "الصنف الفرعي",
                "SelectDateRange": "حدد نطاق التاريخ",
                "order_id": "رقم الطلب",
                "delivery_date": "تاريخ التوصيل",

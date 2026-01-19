@@ -10,6 +10,9 @@ import ToggleItems from "./ToggleItems";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { useChangeState } from "../../../../Hooks/useChangeState";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import { FaFileExcel } from "react-icons/fa6";
 
 const ProductPage = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -118,6 +121,27 @@ const ProductPage = () => {
       setFilteredProducts((prevProduct) =>
         prevProduct.map((product) =>
           product.id === id ? { ...product, favourite: favourite } : product
+        )
+      );
+    }
+  };
+
+  const handleProductStatusChange = async (id, name, status) => {
+    const response = await changeState(
+      `${apiUrl}/admin/product/status/${id}`,
+      `${name} ${status === 1 ? t("Activated") : t("Deactivated")}.`,
+      { status: status }
+    );
+
+    if (response) {
+      setProducts((prevProduct) =>
+        prevProduct.map((product) =>
+          product.id === id ? { ...product, status: status } : product
+        )
+      );
+      setFilteredProducts((prevProduct) =>
+        prevProduct.map((product) =>
+          product.id === id ? { ...product, status: status } : product
         )
       );
     }
@@ -307,6 +331,28 @@ const ProductPage = () => {
     }
   };
 
+  const handleDownloadExcel = () => {
+    const dataToExport = products.map((product, index) => ({
+      [t("#")]: index + 1,
+      [t("Name")]: product.name,
+      [t("Description")]: product.description || "-",
+      [t("Price")]: product.price || 0,
+      [t("Category")]: product.category?.name || product.sub_category?.name || "-",
+      [t("Code")]: product.product_code || "-",
+      [t("Priority")]: product.order || 0,
+      [t("Discount")]: product.discount || 0,
+      [t("Favorite POS")]: product.favourite === 1 ? t("Yes") : t("No"),
+      [t("Status")]: product.status === 1 ? t("Active") : t("Inactive"),
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Products");
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(data, `Products_${new Date().toLocaleDateString()}.xlsx`);
+  };
+
   const tableContainerRef = useRef(null);
   const tableRef = useRef(null);
   const [showScrollHint, setShowScrollHint] = useState(false);
@@ -350,8 +396,9 @@ const ProductPage = () => {
     t("Price"),
     t("Image"),
     t("Category"),
-    t("Variation"),
+    t("variation"),
     t("Favorite POS"),
+    t("Status"),
     t("Code"),
     t("priority"),
     t("Recipes"),
@@ -400,28 +447,37 @@ const ProductPage = () => {
               setCurrentPage(1);
             }}
           >
-            {t("Sub Category")}
+            {t("subcategory")}
           </button>
         </div>
 
-        {/* Search Bar */}
-        {activeTab === "products" && (
-          <div className="sm:w-full lg:w-[70%] xl:w-[30%] mt-4">
-            <SearchBar
-              placeholder={t("Search by Name or Code")}
-              value={textSearch}
-              handleChange={handleFilterData}
-            />
-          </div>
-        )}
+        {/* Search Bar & Export Button */}
+        <div className="flex flex-wrap items-center justify-between w-full gap-4 mt-4">
+          {activeTab === "products" && (
+            <div className="sm:w-full lg:w-[70%] xl:w-[30%]">
+              <SearchBar
+                placeholder={t("Search by Name or Code")}
+                value={textSearch}
+                handleChange={handleFilterData}
+              />
+            </div>
+          )}
+          <button
+            onClick={handleDownloadExcel}
+            className="flex items-center gap-2 px-6 py-2 text-lg text-white transition-all duration-300 rounded-md bg-mainColor font-TextFontMedium hover:bg-opacity-90 active:scale-95"
+          >
+            <FaFileExcel className="text-xl" />
+            {t("Download Excel")}
+          </button>
+        </div>
 
         {/* Scroll Controls */}
         {showScrollHint && (
           <div className="sticky top-0 z-10 flex items-center justify-between py-2 mb-2 bg-white shadow-sm">
             <button
-              onClick={() => scrollTable("left")}
+              onClick={() => scrollTable(selectedLanguage === "ar" ? "right" : "left")}
               className="p-2 transition bg-gray-100 rounded-full hover:bg-gray-200"
-              aria-label="Scroll left"
+              aria-label={selectedLanguage === "ar" ? "Scroll right" : "Scroll left"}
             >
               <svg
                 className="w-5 h-5"
@@ -433,7 +489,7 @@ const ProductPage = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
+                  d={selectedLanguage === "ar" ? "M9 5l7 7-7 7" : "M15 19l-7-7 7-7"}
                 />
               </svg>
             </button>
@@ -512,9 +568,9 @@ const ProductPage = () => {
               </div>
             )}
             <button
-              onClick={() => scrollTable("right")}
+              onClick={() => scrollTable(selectedLanguage === "ar" ? "left" : "right")}
               className="p-2 transition bg-gray-100 rounded-full hover:bg-gray-200"
-              aria-label="Scroll right"
+              aria-label={selectedLanguage === "ar" ? "Scroll left" : "Scroll right"}
             >
               <svg
                 className="w-5 h-5"
@@ -526,7 +582,7 @@ const ProductPage = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M9 5l7 7-7 7"
+                  d={selectedLanguage === "ar" ? "M15 19l-7-7 7-7" : "M9 5l7 7-7 7"}
                 />
               </svg>
             </button>
@@ -601,7 +657,7 @@ const ProductPage = () => {
                             <td onClick={() => navigate(`product_variation/${product.id}`, { state: { product_name: product.name } })} className="px-4 py-2 text-sm text-center text-red-800 lg:text-base cursor-pointer underline">
                               {product.variations?.length || "0"}
                             </td>
-                            <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                            <td className="min-w-[150px] py-2 text-center overflow-hidden">
                               <Switch
                                 checked={product.favourite === 1}
                                 handleClick={() => {
@@ -609,6 +665,18 @@ const ProductPage = () => {
                                     product.id,
                                     product?.name,
                                     product.favourite == 1 ? 0 : 1
+                                  );
+                                }}
+                              />
+                            </td>
+                            <td className="min-w-[150px] py-2 text-center overflow-hidden">
+                              <Switch
+                                checked={product.status === 1}
+                                handleClick={() => {
+                                  handleProductStatusChange(
+                                    product.id,
+                                    product?.name,
+                                    product.status == 1 ? 0 : 1
                                   );
                                 }}
                               />
@@ -704,7 +772,7 @@ const ProductPage = () => {
                                   .length === 0 ? (
                                   <tr>
                                     <td
-                                      colSpan={10}
+                                      colSpan={13}
                                       className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base"
                                     >
                                       {t("No products in this category")}
@@ -756,6 +824,18 @@ const ProductPage = () => {
                                                 product.id,
                                                 product?.name,
                                                 product.favourite == 1 ? 0 : 1
+                                              );
+                                            }}
+                                          />
+                                        </td>
+                                        <td className="min-w-[150px] py-2 text-center overflow-hidden">
+                                          <Switch
+                                            checked={product.status === 1}
+                                            handleClick={() => {
+                                              handleProductStatusChange(
+                                                product.id,
+                                                product?.name,
+                                                product.status == 1 ? 0 : 1
                                               );
                                             }}
                                           />
