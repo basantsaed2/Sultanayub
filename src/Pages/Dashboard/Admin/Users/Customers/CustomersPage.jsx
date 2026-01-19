@@ -475,41 +475,81 @@ const CustomersPage = ({ refetch, setUpdate }) => {
               </tbody>
             </table>
 
-            {/* Pagination remains the same */}
+            {/* Enhanced Pagination */}
             {filteredCustomers.length > 0 && (
-              <div className="flex flex-wrap items-center justify-center my-6 gap-x-4">
-                {currentPage !== 1 && (
-                  <button
-                    type="button"
-                    className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                  >
-                    {t("Prev")}
-                  </button>
-                )}
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (page) => (
-                    <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
-                        ? "bg-mainColor text-white"
-                        : " text-mainColor"
-                        }`}
-                    >
-                      {page}
-                    </button>
-                  )
-                )}
-                {totalPages !== currentPage && (
-                  <button
-                    type="button"
-                    className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                  >
-                    {t("Next")}
-                  </button>
-                )}
+              <div className="flex flex-wrap items-center justify-center my-6 gap-2 sm:gap-x-4">
+                {/* Prev Button */}
+                <button
+                  type="button"
+                  disabled={currentPage === 1}
+                  className={`px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-lg rounded-xl font-TextFontMedium transition-all duration-200 ${currentPage === 1
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-mainColor text-white hover:bg-opacity-90 active:scale-95"
+                    }`}
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                >
+                  {t("Prev")}
+                </button>
+
+                {/* Page Numbers with Ellipses */}
+                <div className="flex items-center gap-1 sm:gap-2">
+                  {(() => {
+                    const pages = [];
+                    const maxVisible = 5;
+
+                    if (totalPages <= 7) {
+                      for (let i = 1; i <= totalPages; i++) pages.push(i);
+                    } else {
+                      pages.push(1);
+                      if (currentPage > 4) pages.push("...");
+
+                      const start = Math.max(2, currentPage - 2);
+                      const end = Math.min(totalPages - 1, currentPage + 2);
+
+                      // Adjust start/end to keep total count consistent if near bounds
+                      let adjustedStart = start;
+                      let adjustedEnd = end;
+                      if (currentPage <= 4) adjustedEnd = 5;
+                      if (currentPage > totalPages - 4) adjustedStart = totalPages - 4;
+
+                      for (let i = Math.max(2, adjustedStart); i <= Math.min(totalPages - 1, adjustedEnd); i++) {
+                        pages.push(i);
+                      }
+
+                      if (currentPage < totalPages - 3) pages.push("...");
+                      pages.push(totalPages);
+                    }
+
+                    return pages.map((page, index) => (
+                      <button
+                        key={index}
+                        disabled={page === "..."}
+                        onClick={() => page !== "..." && handlePageChange(page)}
+                        className={`min-w-[32px] sm:min-w-[40px] h-8 sm:h-10 px-2 sm:px-3 text-sm sm:text-lg font-TextFontSemiBold rounded-full transition-all duration-300 ${page === "..."
+                          ? "text-gray-400 cursor-default"
+                          : currentPage === page
+                            ? "bg-mainColor text-white shadow-md scale-110"
+                            : "text-mainColor hover:bg-gray-100 active:scale-90"
+                          }`}
+                      >
+                        {page}
+                      </button>
+                    ));
+                  })()}
+                </div>
+
+                {/* Next Button */}
+                <button
+                  type="button"
+                  disabled={currentPage === totalPages}
+                  className={`px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-lg rounded-xl font-TextFontMedium transition-all duration-200 ${currentPage === totalPages
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-mainColor text-white hover:bg-opacity-90 active:scale-95"
+                    }`}
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                >
+                  {t("Next")}
+                </button>
               </div>
             )}
           </div>
