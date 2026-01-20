@@ -3,8 +3,8 @@ import { IoSearch } from 'react-icons/io5'
 import { useTranslation } from 'react-i18next';
 
 const SearchBar = ({ type = "text", bgColor = 'bg-mainBgColor', textColor = 'mainColor', pr = "2", value, handleChange, placeholder = 'Search' }) => {
-               const { t, i18n } = useTranslation();
-             const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
+       const { t, i18n } = useTranslation();
+       const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
 
        return (
               <div className={`relative w-full ${direction === 'rtl' ? 'text-right' : 'text-left'}`}>

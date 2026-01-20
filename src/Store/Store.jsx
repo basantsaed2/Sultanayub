@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import { userReducer, categoryReducer, ordersAllReducer, ordersPendingReducer, ordersConfirmedReducer, ordersProcessingReducer, ordersOutForDeliveryReducer, ordersDeliveredReducer, ordersReturnedReducer, ordersRefundReducer, ordersFailedReducer, ordersCanceledReducer, ordersScheduleReducer, newOrdersReducer, soundNotificationReducer ,languageReducer} from "./CreateSlices";
+import { userReducer, categoryReducer, ordersAllReducer, ordersPendingReducer, ordersConfirmedReducer, ordersProcessingReducer, ordersOutForDeliveryReducer, ordersDeliveredReducer, ordersReturnedReducer, ordersRefundReducer, ordersFailedReducer, ordersCanceledReducer, ordersScheduleReducer, newOrdersReducer, soundNotificationReducer, languageReducer, searchReducer } from "./CreateSlices";
 import { combineReducers } from 'redux';
 import { canceledOrdersReducer } from "./CreateSlices";
 
@@ -23,6 +23,7 @@ const reducers = combineReducers({
        ordersSchedule: ordersScheduleReducer,
        userProject: userReducer,  // Add user reducer here
        language: languageReducer,
+       search: searchReducer,
 
        canceledOrders: canceledOrdersReducer,
 

@@ -7,7 +7,7 @@ import { IoIosArrowDown, IoMdNotificationsOutline } from 'react-icons/io';
 import RedLogo from '../../Assets/Images/RedLogo.jsx';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { removeCategory, removeUser } from '../../Store/CreateSlices.jsx';
+import { removeCategory, removeUser, setGlobalSearch } from '../../Store/CreateSlices.jsx';
 import { removeCanceledOrder } from '../../Store/CreateSlices';
 import { useChangeState } from '../../Hooks/useChangeState.jsx';
 import { useGet } from '../../Hooks/useGet.jsx';
@@ -18,6 +18,7 @@ import { GrLanguage } from "react-icons/gr";
 import { RiApps2Line } from "react-icons/ri";
 import { setLanguage } from '../../Store/CreateSlices';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
+import { useLocation } from 'react-router-dom';
 
 const Navbar = () => {
   const { t, i18n } = useTranslation();
@@ -25,6 +26,8 @@ const Navbar = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const searchQuery = useSelector((state) => state.search?.query || '');
   const dropdownRef = useRef(null);
   const notificationRef = useRef(null);
   const cancelationDropdownRef = useRef(null);
@@ -309,6 +312,16 @@ const Navbar = () => {
             </div>
           </div>
         </div>
+
+        {(location.pathname === '/dashboard' || location.pathname === '/dashboard/') && (
+          <div className="flex-1 w-full hidden lg:block">
+            <SearchBar
+              placeholder={t('Search for modules')}
+              value={searchQuery}
+              handleChange={(e) => dispatch(setGlobalSearch(e.target.value))}
+            />
+          </div>
+        )}
 
         <div className="flex items-center gap-1 md:gap-8 flex-shrink-0 ml-auto">
           {/* Cancellation Status Icon */}

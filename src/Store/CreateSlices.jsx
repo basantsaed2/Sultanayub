@@ -58,6 +58,10 @@ const initialOrdersScheduleState = {
        loading: false,
 };
 
+const initialSearchState = {
+       query: '',
+};
+
 const initialLanguage = { data: [], selected: 'en', }
 
 // New Orders slice
@@ -292,6 +296,20 @@ const canceledOrdersSlice = createSlice({
        },
 });
 
+// Search slice
+const searchSlice = createSlice({
+       name: "search",
+       initialState: initialSearchState,
+       reducers: {
+              setGlobalSearch: (state, action) => {
+                     state.query = action.payload;
+              },
+              clearGlobalSearch: (state) => {
+                     state.query = '';
+              },
+       },
+});
+
 /* Languages */
 const languageSlice = createSlice({
        name: 'language',
@@ -399,6 +417,7 @@ export const { setOrdersFailed } = ordersFailedSlice.actions;
 export const { setOrdersCanceled } = ordersCanceledSlice.actions;
 export const { setOrdersSchedule } = ordersScheduleSlice.actions;
 export const { setLanguage, setLanguageData } = languageSlice.actions;
+export const { setGlobalSearch, clearGlobalSearch } = searchSlice.actions;
 
 // Export reducers
 export const newOrdersReducer = newOrdersSlice.reducer;
@@ -418,6 +437,7 @@ export const ordersFailedReducer = ordersFailedSlice.reducer;
 export const ordersCanceledReducer = ordersCanceledSlice.reducer;
 export const ordersScheduleReducer = ordersScheduleSlice.reducer;
 export const languageReducer = languageSlice.reducer;
+export const searchReducer = searchSlice.reducer;
 
 
 // Add to your exports

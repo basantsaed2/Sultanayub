@@ -1,13 +1,16 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ADMIN_MENU_CATEGORIES, adminRoutes } from '../../../../Utils/menuStructure';
 import { useAuth } from '../../../../Context/Auth';
+import { useSelector, useDispatch } from 'react-redux';
+import { setGlobalSearch } from '../../../../Store/CreateSlices';
 
 const AdminLandingPage = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const [searchQuery, setSearchQuery] = useState('');
+    const dispatch = useDispatch();
+    const searchQuery = useSelector((state) => state.search?.query || '');
 
     const auth = useAuth();
     const userPositions = auth?.userState?.user_positions;
@@ -127,14 +130,14 @@ const AdminLandingPage = () => {
                     <p className="text-gray-600 text-lg">{t('Select a module to manage your restaurant')}</p>
                 </header> */}
 
-                <div className="mb-10 max-w-2xl mx-auto">
+                <div className="mb-10 max-w-2xl mx-auto lg:hidden">
                     <div className="relative">
                         <input
                             type="text"
                             placeholder={t('Search for modules')}
                             className="w-full p-4 pl-12 rounded-2xl border-none shadow-lg focus:ring-2 focus:ring-mainColor transition-all outline-none text-lg"
                             value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onChange={(e) => dispatch(setGlobalSearch(e.target.value))}
                         />
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-2xl">🔍</span>
                     </div>
