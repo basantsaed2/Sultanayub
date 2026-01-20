@@ -3,7 +3,7 @@ import { useGet } from "../../../../Hooks/useGet";
 import { useDelete } from "../../../../Hooks/useDelete";
 import { LoaderLogin, SearchBar, Switch } from "../../../../Components/Components";
 import { DeleteIcon, EditIcon } from "../../../../Assets/Icons/AllIcons";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import ToggleItems from "./ToggleItems";
@@ -20,6 +20,7 @@ const ProductPage = () => {
   const { t } = useTranslation();
   const { changeState } = useChangeState();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // State for main tabs
   const [activeTab, setActiveTab] = useState("products"); // "products", "category", or "sub_category"
@@ -85,6 +86,42 @@ const ProductPage = () => {
     (currentPage - 1) * productsPerPage,
     currentPage * productsPerPage
   );
+
+  const [highlightedProductId, setHighlightedProductId] = useState(null);
+
+  // Handle scrolling to a specific product if passed in location state
+  useEffect(() => {
+    if (location.state?.scrollToProductId && filteredProducts.length > 0) {
+      const productId = location.state.scrollToProductId;
+      const index = filteredProducts.findIndex((p) => p.id === productId);
+
+      if (index !== -1) {
+        const targetPage = Math.floor(index / productsPerPage) + 1;
+        if (currentPage !== targetPage) {
+          setCurrentPage(targetPage);
+        } else {
+          // If already on the correct page, or after page switch, scroll to it
+          setTimeout(() => {
+            const element = document.getElementById(`product-row-${productId}`);
+            if (element) {
+              element.scrollIntoView({ behavior: "smooth", block: "center" });
+              setHighlightedProductId(productId);
+              // Remove highlight after a few seconds
+              setTimeout(() => setHighlightedProductId(null), 3000);
+              // Clear location state to prevent re-scrolling
+              navigate(location.pathname, { replace: true, state: {} });
+            }
+          }, 500);
+        }
+      }
+    }
+  }, [
+    location.state?.scrollToProductId,
+    filteredProducts,
+    currentPage,
+    navigate,
+    location.pathname,
+  ]);
 
   useEffect(() => {
     if (dataProducts && dataProducts.products) {
@@ -627,7 +664,11 @@ const ProductPage = () => {
                         </tr>
                       ) : (
                         currentProducts.map((product, index) => (
-                          <tr className="border-b-2" key={index}>
+                          <tr
+                            id={`product-row-${product.id}`}
+                            className={`border-b-2 transition-colors duration-500 ${highlightedProductId === product.id ? "bg-yellow-100" : ""}`}
+                            key={index}
+                          >
                             <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                               {(currentPage - 1) * productsPerPage + index + 1}
                             </td>

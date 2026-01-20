@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { DeleteIcon, EditIcon } from "../../../../Assets/Icons/AllIcons";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   AddButton,
   DropDown,
@@ -21,6 +21,7 @@ import { useSelector } from "react-redux";
 
 const CategoryPage = ({ refetch, setUpdate }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const selectedLanguage = useSelector((state) => state.language?.selected ?? "en");
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const {
@@ -520,9 +521,12 @@ const CategoryPage = ({ refetch, setUpdate }) => {
                                               key={product.id}
                                               className="flex flex-col items-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
                                             >
-                                              <span className="text-lg font-TextFontMedium text-mainColor text-center">
+                                              <button
+                                                onClick={() => navigate('/dashboard/setup_product/product', { state: { scrollToProductId: product.id } })}
+                                                className="text-lg font-TextFontMedium text-mainColor text-center hover:underline focus:outline-none"
+                                              >
                                                 {index + 1}. {product.name}
-                                              </span>
+                                              </button>
                                             </div>
                                           ))}
                                         </div>
