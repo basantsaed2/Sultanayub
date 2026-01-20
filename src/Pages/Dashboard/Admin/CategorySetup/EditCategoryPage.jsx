@@ -276,9 +276,9 @@ const EditCategoryPage = () => {
       );
     });
 
-    if (categoriesParentId) {
-      formData.append("category_id", categoriesParentId);
-    }
+    // if (categoriesParentId) {
+    formData.append("category_id", categoriesParentId);
+    // }
 
     formData.append("priority", priority);
     // Assuming selectedCategoriesAddons is an array of selected objects with `id` properties
@@ -311,11 +311,10 @@ const EditCategoryPage = () => {
                 <span
                   key={tap.id}
                   onClick={() => handleTap(index)}
-                  className={`${
-                    currentTap === index
+                  className={`${currentTap === index
                       ? "text-mainColor border-b-4 border-mainColor"
                       : "text-thirdColor"
-                  }  pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
+                    }  pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
                 >
                   {tap.name}
                 </span>
@@ -385,7 +384,7 @@ const EditCategoryPage = () => {
                           </div>
                           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                             <span className="text-xl font-TextFontRegular text-thirdColor">
-                               {t("PriorityNum")}:
+                              {t("PriorityNum")}:
                             </span>
                             <NumberInput
                               value={priority} // Access addon_name property
