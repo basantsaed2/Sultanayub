@@ -255,6 +255,7 @@ const ProductPage = () => {
     if (success) {
       setProducts(products.filter((product) => product.id !== id));
       setFilteredProducts(filteredProducts.filter((product) => product.id !== id));
+      handleCloseDelete();
     }
   };
 
