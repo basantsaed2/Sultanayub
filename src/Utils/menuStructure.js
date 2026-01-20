@@ -341,6 +341,12 @@ export const adminRoutes = [
         redirectTo: "/dashboard/setting/payment_method",
     },
     {
+        name: "Auto payments",
+        path: "/dashboard/setting/automatic_payment",
+        permission: "AutomaticPayment",
+        icon: MdOutlinePayments,
+    },
+    {
         name: "Service Fees",
         path: "/dashboard/service_fees",
         permission: "service_fees",
@@ -407,7 +413,6 @@ export const adminRoutes = [
             { name: "Fake orders", path: "/dashboard/setting/fake_order", permission: "FakeOrder" },
             { name: "Orders percentage", path: "/dashboard/setting/order_percentage", permission: "OrderPercentage" },
             { name: "App setup", path: "/dashboard/setting/app_setup", permission: "AppSetup" },
-            { name: "Auto payments", path: "/dashboard/setting/automatic_payment", permission: "AutomaticPayment" },
             { name: "Business Setup", path: "/dashboard/setting/business_setup/business_settings", permission: "CustomerLogin" },
         ],
         redirectTo: "/dashboard/setting/order_type",
@@ -571,6 +576,7 @@ export const ADMIN_MENU_CATEGORIES = [
             "Taxes",
             "Expenses",
             "Financial Setup",
+            "Auto payments",
             "Service Fees",
         ],
     },
