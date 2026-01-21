@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useGet } from "../../../../Hooks/useGet";
 import { usePost } from "../../../../Hooks/usePostJson";
 import {
@@ -22,6 +22,7 @@ import { useTranslation } from "react-i18next";
 const EditProductPage = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const auth = useAuth();
   const { t, i18n } = useTranslation();
   const selectedLanguage = i18n.language;
@@ -558,9 +559,15 @@ const EditProductPage = () => {
   /* Handle Navigation on Success */
   useEffect(() => {
     if (response && response.status === 200) {
-      navigate(-1);
+      // Instead of navigate(-1), navigate to product page with state
+      navigate("/dashboard/setup_product/product", {
+        state: {
+          ...location.state,
+          scrollToProductId: parseInt(productId)
+        }
+      });
     }
-  }, [response, navigate]);
+  }, [response, navigate, location.state, productId]);
 
   /* Handlers */
   const handleAddExclude = () => {

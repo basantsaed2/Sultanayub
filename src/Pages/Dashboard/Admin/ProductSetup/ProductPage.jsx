@@ -23,9 +23,9 @@ const ProductPage = () => {
   const location = useLocation();
 
   // State for main tabs
-  const [activeTab, setActiveTab] = useState("products"); // "products", "category", or "sub_category"
+  const [activeTab, setActiveTab] = useState(location.state?.activeTab || "products"); // "products", "category", or "sub_category"
   // State for toggling category product lists
-  const [expandedCategories, setExpandedCategories] = useState({});
+  const [expandedCategories, setExpandedCategories] = useState(location.state?.expandedCategories || {});
   // State for toggling category status dialog
   const [openCategoryToggle, setOpenCategoryToggle] = useState(null);
 
@@ -55,7 +55,7 @@ const ProductPage = () => {
   const [products, setProducts] = useState([]);
   const [parentCategories, setParentCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
-  const [textSearch, setTextSearch] = useState("");
+  const [textSearch, setTextSearch] = useState(location.state?.textSearch || "");
   const [filteredProducts, setFilteredProducts] = useState([]);
 
   // Add state for price editing
@@ -75,7 +75,7 @@ const ProductPage = () => {
   const [priorityChange, setPriorityChange] = useState("");
   const [priorityProductName, setPriorityProductName] = useState("");
 
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(location.state?.currentPage || 1);
   const productsPerPage = 20;
 
   // Calculate total pages for products (used in "Products" tab)
@@ -90,37 +90,62 @@ const ProductPage = () => {
   const [highlightedProductId, setHighlightedProductId] = useState(null);
 
   // Handle scrolling to a specific product if passed in location state
+  // Handle scrolling to a specific product if passed in location state
   useEffect(() => {
-    if (location.state?.scrollToProductId && filteredProducts.length > 0) {
-      const productId = location.state.scrollToProductId;
-      const index = filteredProducts.findIndex((p) => p.id === productId);
+    if (location.state?.scrollToProductId && products.length > 0) {
+      const productId = parseInt(location.state.scrollToProductId);
+      const product = products.find((p) => p.id === productId);
 
-      if (index !== -1) {
-        const targetPage = Math.floor(index / productsPerPage) + 1;
-        if (currentPage !== targetPage) {
-          setCurrentPage(targetPage);
-        } else {
-          // If already on the correct page, or after page switch, scroll to it
-          setTimeout(() => {
-            const element = document.getElementById(`product-row-${productId}`);
-            if (element) {
-              element.scrollIntoView({ behavior: "smooth", block: "center" });
-              setHighlightedProductId(productId);
-              // Remove highlight after a few seconds
-              setTimeout(() => setHighlightedProductId(null), 3000);
-              // Clear location state to prevent re-scrolling
-              navigate(location.pathname, { replace: true, state: {} });
+      if (product) {
+        if (activeTab === "products") {
+          // Logic for Products tab (Pagination)
+          // Use filteredProducts for pagination calculation if searching, otherwise products
+          const listToCheck = textSearch ? filteredProducts : products;
+          const index = listToCheck.findIndex((p) => p.id === productId);
+
+          if (index !== -1) {
+            const targetPage = Math.floor(index / productsPerPage) + 1;
+            if (currentPage !== targetPage) {
+              setCurrentPage(targetPage);
             }
-          }, 500);
+          }
+        } else if (activeTab === "category") {
+          // Logic for Category tab
+          if (product.category_id) {
+            setExpandedCategories(prev => ({ ...prev, [product.category_id]: true }));
+          }
+        } else if (activeTab === "sub_category") {
+          // Logic for Sub Category tab
+          if (product.sub_category_id) {
+            setExpandedCategories(prev => ({ ...prev, [product.sub_category_id]: true }));
+          }
         }
+
+        // Common scrolling and highlighting logic
+        setTimeout(() => {
+          const element = document.getElementById(`product-row-${productId}`);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "center" });
+            setHighlightedProductId(productId);
+            setTimeout(() => setHighlightedProductId(null), 3000);
+
+            // Clear location state but keep other params
+            const newState = { ...location.state };
+            delete newState.scrollToProductId;
+            navigate(location.pathname, { replace: true, state: newState });
+          }
+        }, 800); // Increased timeout to allow for expansion/rendering
       }
     }
   }, [
     location.state?.scrollToProductId,
+    products,
     filteredProducts,
     currentPage,
+    activeTab,
     navigate,
     location.pathname,
+    textSearch
   ]);
 
   useEffect(() => {
@@ -141,6 +166,18 @@ const ProductPage = () => {
     refetchProducts();
     refetchCategories();
   }, [refetchProducts, refetchCategories, selectedLanguage]);
+
+  // Apply filter if textSearch is restored from state
+  useEffect(() => {
+    if (textSearch && products.length > 0) {
+      const lowerText = textSearch.toLowerCase();
+      const filter = products.filter((product) =>
+        product.name.toLowerCase().includes(lowerText) ||
+        (product.product_code && product.product_code.toLowerCase().includes(lowerText))
+      );
+      setFilteredProducts(filter);
+    }
+  }, [textSearch, products]);
 
   const handleChangeStatus = async (id, name, favourite) => {
     const response = await changeFavoritePos(
@@ -754,7 +791,16 @@ const ProductPage = () => {
                             </td>
                             <td className="px-4 py-2 text-center">
                               <div className="flex items-center justify-center gap-2">
-                                <Link to={`edit/${product.id}`}>
+                                <Link
+                                  to={`edit/${product.id}`}
+                                  state={{
+                                    activeTab,
+                                    currentPage,
+                                    textSearch,
+                                    expandedCategories,
+                                    scrollToProductId: product.id
+                                  }}
+                                >
                                   <EditIcon />
                                 </Link>
                                 <button
@@ -832,7 +878,11 @@ const ProductPage = () => {
                                         product.sub_category?.id === category.id
                                     )
                                     .map((product, index) => (
-                                      <tr className="border-b-2" key={index}>
+                                      <tr
+                                        className={`border-b-2 transition-colors duration-500 ${highlightedProductId === product.id ? "bg-yellow-100" : ""}`}
+                                        key={index}
+                                        id={`product-row-${product.id}`}
+                                      >
                                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                                           {index + 1}
                                         </td>
@@ -912,7 +962,16 @@ const ProductPage = () => {
                                         </td>
                                         <td className="px-4 py-2 text-center">
                                           <div className="flex items-center justify-center gap-2">
-                                            <Link to={`edit/${product.id}`}>
+                                            <Link
+                                              to={`edit/${product.id}`}
+                                              state={{
+                                                activeTab,
+                                                currentPage,
+                                                textSearch,
+                                                expandedCategories,
+                                                scrollToProductId: product.id
+                                              }}
+                                            >
                                               <EditIcon />
                                             </Link>
                                             <button
