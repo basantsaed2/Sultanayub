@@ -3,7 +3,8 @@ import { usePost } from "../../../../../Hooks/usePostJson";
 import { DateInput } from "../../../../../Components/Components";
 import { useGet } from "../../../../../Hooks/useGet";
 import { useTranslation } from "react-i18next";
-import { FaPrint } from "react-icons/fa";
+import { FaPrint, FaFileExcel } from "react-icons/fa";
+import * as XLSX from "xlsx";
 
 // ===================================================================
 // Receipt Formatting Function for Shift Report
@@ -274,6 +275,7 @@ const CashierShiftReport = () => {
   const [shiftDetails, setShiftDetails] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const shiftsPerPage = 15;
@@ -287,27 +289,99 @@ const CashierShiftReport = () => {
   useEffect(() => {
     if (dataOrder) {
       setShiftDetails(dataOrder);
-      // If printing, print now and reset
-      if (isPrinting) {
-        const shiftToPrint = shifts.find(s => s.id === selectedShiftId);
-        if (shiftToPrint) {
-          const isRtl = i18n?.language === 'ar';
-          const receiptHtml = formatShiftReceipt(shiftToPrint, dataOrder, t, isRtl);
 
-          // Open print window
-          const pw = window.open("", "", "width=500,height=600");
-          if (pw) {
-            pw.document.write("<html><head><title>Shift Report</title></head><body style='margin:0; padding:0;'>");
-            pw.document.write(receiptHtml);
-            pw.document.write("</body></html>");
-            pw.document.close();
-            setTimeout(() => { pw.focus(); pw.print(); pw.close(); }, 500);
-          }
-          setIsPrinting(false);
+      const shiftToProcess = shifts.find(s => s.id === selectedShiftId);
+
+      // Handle Printing
+      if (isPrinting && shiftToProcess) {
+        const isRtl = i18n?.language === 'ar';
+        const receiptHtml = formatShiftReceipt(shiftToProcess, dataOrder, t, isRtl);
+
+        const pw = window.open("", "", "width=500,height=600");
+        if (pw) {
+          pw.document.write("<html><head><title>Shift Report</title></head><body style='margin:0; padding:0;'>");
+          pw.document.write(receiptHtml);
+          pw.document.write("</body></html>");
+          pw.document.close();
+          setTimeout(() => { pw.focus(); pw.print(); pw.close(); }, 500);
         }
+        setIsPrinting(false);
+      }
+
+      // Handle Excel Export
+      if (isExporting && shiftToProcess) {
+        const date = new Date().toLocaleDateString();
+        const exportData = [
+          { A: t("Shift End Report") },
+          { A: `${new Date().toLocaleString()}` },
+          { A: "" },
+
+          // Cashier Info
+          { A: t("Cashier Information") },
+          { A: t("name"), B: shiftToProcess.cashier_man?.user_name || '-' },
+          { A: t("Shift Number"), B: `#${shiftToProcess.cashier_man?.shift_number || '-'}` },
+          { A: "" },
+
+          // Timing Info
+          { A: t("Timing Information") },
+          { A: t("Start Time"), B: shiftToProcess.start_time ? new Date(shiftToProcess.start_time).toLocaleString() : '-' },
+          { A: t("End Time"), B: shiftToProcess.end_time ? new Date(shiftToProcess.end_time).toLocaleString() : '-' },
+          { A: "" },
+
+          // Account Breakdown
+          { A: t("Account Breakdown") },
+          { A: t("Account"), B: t("Dine In"), C: t("Take Away"), D: t("Delivery"), E: t("Net") },
+          ...(dataOrder.financial_accounts || []).map(acc => ({
+            A: acc.financial_name,
+            B: acc.total_amount_dine_in || 0,
+            C: acc.total_amount_take_away || 0,
+            D: acc.total_amount_delivery || 0,
+            E: (acc.total_amount_delivery || 0) + (acc.total_amount_take_away || 0) + (acc.total_amount_dine_in || 0)
+          })),
+          { A: "" },
+
+          // Expenses
+          { A: t("Expenses") },
+          { A: t("Account"), B: t("Amount") },
+          ...(dataOrder.expenses || []).map(exp => ({
+            A: exp.financial_account,
+            B: exp.total || 0
+          })),
+          { A: t("Total Expenses"), B: dataOrder.expenses_total || 0 },
+          { A: "" },
+
+          // Orders Summary
+          { A: t("Orders Summary") },
+          { A: t("Total Orders"), B: dataOrder.order_count || 0 },
+          { A: t("Total Revenue"), B: dataOrder.total_amount || 0 },
+          { A: t("Total Expenses"), B: dataOrder.expenses_total || 0 },
+          { A: "" },
+
+          // Online Orders
+          { A: t("Online Orders") },
+          { A: t("Paid Online") },
+          ...(dataOrder.online_order?.paid || []).map(p => ({
+            A: p.payment_method, B: p.amount || 0
+          })),
+          { A: t("Unpaid / COD") },
+          ...(dataOrder.online_order?.un_paid || []).map(u => ({
+            A: u.payment_method, B: u.amount || 0
+          })),
+          { A: "" },
+
+          // Net Cash
+          { A: t("Net Cash Remaining"), B: (dataOrder.total_amount || 0) - (dataOrder.expenses_total || 0) }
+        ];
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData, { skipHeader: true });
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Shift Report");
+        XLSX.writeFile(workbook, `Shift_Report_${shiftToProcess.cashier_man?.user_name}_${date.replace(/\//g, '-')}.xlsx`);
+
+        setIsExporting(false);
       }
     }
-  }, [dataOrder, isPrinting, selectedShiftId, shifts, t, i18n?.language]);
+  }, [dataOrder, isPrinting, isExporting, selectedShiftId, shifts, t, i18n?.language]);
 
   useEffect(() => {
     if (response && !loadingPost) {
@@ -347,6 +421,13 @@ const CashierShiftReport = () => {
   const handlePrintShift = (shiftId) => {
     // Set flag to print after data loads
     setIsPrinting(true);
+    // Set the selected shift ID to trigger the useGet hook
+    setSelectedShiftId(shiftId);
+  };
+
+  const handleExportShift = (shiftId) => {
+    // Set flag to export after data loads
+    setIsExporting(true);
     // Set the selected shift ID to trigger the useGet hook
     setSelectedShiftId(shiftId);
   };
@@ -411,6 +492,13 @@ const CashierShiftReport = () => {
                           {t("View Details")}
                         </button>
                         <button
+                          onClick={() => handleExportShift(shift.id)}
+                          title={t("Export to Excel")}
+                          className="p-1 text-white rounded md:p-2 bg-green-600 hover:bg-green-700"
+                        >
+                          <FaFileExcel size={14} className="md:w-4 md:h-4" />
+                        </button>
+                        <button
                           onClick={() => handlePrintShift(shift.id)}
                           title={t("Print Shift")}
                           className="p-1 text-white rounded md:p-2 bg-mainColor hover:bg-opacity-90"
@@ -462,6 +550,13 @@ const CashierShiftReport = () => {
                     className="flex-1 px-3 py-2 text-sm font-medium text-white rounded bg-mainColor hover:bg-opacity-90"
                   >
                     {t("View Details")}
+                  </button>
+                  <button
+                    onClick={() => handleExportShift(shift.id)}
+                    title={t("Export to Excel")}
+                    className="px-3 py-2 text-white rounded bg-green-600 hover:bg-green-700"
+                  >
+                    <FaFileExcel size={16} />
                   </button>
                   <button
                     onClick={() => handlePrintShift(shift.id)}
@@ -564,8 +659,30 @@ const CashierShiftReport = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 bg-black md:p-4 bg-opacity-60">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] overflow-y-auto">
             <div className="sticky top-0 flex items-center justify-between p-3 bg-white border-b md:p-6">
-              <h2 className="text-lg font-bold md:text-2xl text-mainColor">{t("Shift Details")} #{selectedShiftId}</h2>
-              <button onClick={closeModal} className="text-2xl text-gray-500 md:text-3xl hover:text-gray-800">×</button>
+              <div className="flex flex-col gap-1">
+                <h2 className="text-lg font-bold md:text-2xl text-mainColor">{t("Shift Details")} #{selectedShiftId}</h2>
+              </div>
+              <div className="flex items-center gap-2">
+                {shiftDetails && (
+                  <>
+                    <button
+                      onClick={() => handleExportShift(selectedShiftId)}
+                      className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-white transition-all bg-green-600 shadow-sm md:px-4 md:py-2.5 rounded-xl hover:bg-green-700 md:text-sm"
+                    >
+                      <FaFileExcel size={18} />
+                      <span className="hidden sm:inline">{t("Excel")}</span>
+                    </button>
+                    <button
+                      onClick={() => handlePrintShift(selectedShiftId)}
+                      className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-white transition-all bg-blue-600 shadow-sm md:px-4 md:py-2.5 rounded-xl hover:bg-blue-700 md:text-sm"
+                    >
+                      <FaPrint size={18} />
+                      <span className="hidden sm:inline">{t("Print")}</span>
+                    </button>
+                  </>
+                )}
+                <button onClick={closeModal} className="ml-2 text-2xl text-gray-500 md:text-3xl hover:text-gray-800">×</button>
+              </div>
             </div>
 
             <div className="p-3 space-y-4 md:p-6 md:space-y-8">
