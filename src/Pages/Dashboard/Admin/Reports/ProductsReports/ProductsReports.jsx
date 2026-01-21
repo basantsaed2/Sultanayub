@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import * as XLSX from 'xlsx';
 import { useTranslation } from 'react-i18next';
 import { useGet } from '../../../../../Hooks/useGet';
 import { DateInput, StaticLoader, TextInput } from '../../../../../Components/Components';
-import { FaPrint, FaSearch } from 'react-icons/fa';
+import { FaFileExcel, FaPrint, FaSearch } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import Select from 'react-select';
 
@@ -332,6 +333,25 @@ const ProductsReports = () => {
         printWindow.document.close();
     };
 
+    const handleExportExcel = () => {
+        if (!flatProducts || flatProducts.length === 0) return;
+
+        const dataToExport = flatProducts.map((item, index) => ({
+            [t("#")]: index + 1,
+            [t("Category")]: item.category_name,
+            [t("Product Name")]: item.name || item.product_name,
+            [t("Price")]: parseFloat(item.price || 0).toFixed(2),
+            [t("Count")]: item.count,
+            [t("Total")]: (parseFloat(item.price || 0) * parseInt(item.count || 0)).toFixed(2),
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Products Report");
+
+        XLSX.writeFile(workbook, "Products_Report.xlsx");
+    };
+
     const selectStyles = {
         control: (base) => ({
             ...base,
@@ -342,8 +362,28 @@ const ProductsReports = () => {
     };
 
     return (
-        <div className="w-full p-2 md:p-6 mb-20">
-            <h1 className="mb-4 text-2xl font-bold text-mainColor">{t('Products Report')}</h1>
+        <div className="w-full p-2 md:p-6 mb-20 space-y-4">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <h1 className="text-2xl font-bold text-mainColor">{t('Products Report')}</h1>
+                {filteredReportData.length > 0 && (
+                    <div className="flex gap-2">
+                        <button
+                            onClick={handleExportExcel}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all shadow-sm font-bold"
+                        >
+                            <FaFileExcel size={18} />
+                            {t("Excel")}
+                        </button>
+                        <button
+                            onClick={handlePrint}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-sm font-bold"
+                        >
+                            <FaPrint size={18} />
+                            {t("Print")}
+                        </button>
+                    </div>
+                )}
+            </div>
 
             {/* Filters Section */}
             <div className="p-2 md:p-4 mb-6 rounded-lg bg-gray-50 shadow-sm">
@@ -459,28 +499,19 @@ const ProductsReports = () => {
                 </div>
 
                 {/* Buttons Row */}
-                <div className="flex gap-4 mb-4 border-t pt-4">
+                <div className="flex flex-wrap gap-4 mb-4">
                     <button
                         onClick={handleApplyFilters}
-                        className="flex-1 px-6 py-2.5 text-white bg-mainColor rounded-xl hover:bg-opacity-90 transition-colors font-semibold"
+                        className="px-6 py-2.5 text-white bg-mainColor rounded-xl hover:bg-opacity-90 transition-colors font-semibold"
                     >
                         {t("Filter")}
                     </button>
                     <button
                         onClick={handleResetFilters}
-                        className="flex-1 px-6 py-2.5 text-gray-700 bg-gray-200 rounded-xl hover:bg-gray-300 transition-colors font-semibold"
+                        className="px-6 py-2.5 text-gray-700 bg-gray-200 rounded-xl hover:bg-gray-300 transition-colors font-semibold"
                     >
                         {t("Cancel")}
                     </button>
-                    {filteredReportData.length > 0 && (
-                        <button
-                            onClick={handlePrint}
-                            className="flex-1 px-6 py-2.5 text-white bg-green-600 rounded-xl hover:bg-green-700 transition-colors flex items-center justify-center gap-2 font-semibold"
-                        >
-                            <FaPrint size={16} />
-                            {t("Print")}
-                        </button>
-                    )}
                 </div>
 
                 {/* Search Bar (Client Side) */}

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useGet } from "../../../../../Hooks/useGet";
 import { useTranslation } from "react-i18next";
 import Select from 'react-select';
+import * as XLSX from 'xlsx';
+import { FaFileExcel, FaPrint } from 'react-icons/fa';
 
 const CashierShortage = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -82,6 +84,128 @@ const CashierShortage = () => {
         setSelectedCashierManId(null);
     };
 
+    const handleExportExcel = () => {
+        if (!gapsData || gapsData.length === 0) return;
+
+        const dataToExport = gapsData.map((gap, index) => ({
+            [t("No.")]: index + 1,
+            [t("Amount")]: gap.amount,
+            [t("Cashier")]: gap.cashier,
+            [t("Cashier Man")]: gap.cashier_man,
+            [t("Date")]: gap.date,
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Cashier Shortage");
+
+        XLSX.writeFile(workbook, "Cashier_Shortage_Report.xlsx");
+    };
+
+    const handlePrint = () => {
+        if (!gapsData || gapsData.length === 0) return;
+
+        const printWindow = window.open('', '_blank');
+        const date = new Date().toLocaleDateString();
+
+        const receiptContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>${t('Cashier Shortage Report')}</title>
+                <style>
+                    @media print {
+                        body { margin: 0; }
+                    }
+                    body {
+                        font-family: 'Courier New', monospace;
+                        max-width: 80mm;
+                        margin: 0 auto;
+                        padding: 10px;
+                        font-size: 12px;
+                    }
+                    .header {
+                        text-align: center;
+                        border-bottom: 2px dashed #000;
+                        padding-bottom: 10px;
+                        margin-bottom: 10px;
+                    }
+                    .title {
+                        font-size: 18px;
+                        font-weight: bold;
+                        margin-bottom: 5px;
+                    }
+                    .date {
+                        font-size: 11px;
+                        margin-bottom: 5px;
+                    }
+                    .table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 10px;
+                    }
+                    .table th, .table td {
+                        border-bottom: 1px dotted #ccc;
+                        padding: 5px;
+                        text-align: left;
+                        font-size: 10px;
+                    }
+                    .footer {
+                        text-align: center;
+                        margin-top: 15px;
+                        padding-top: 10px;
+                        border-top: 2px dashed #000;
+                        font-size: 10px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <div class="title">${t('Cashier Shortage Report')}</div>
+                    <div class="date">${t('Date')}: ${date}</div>
+                </div>
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>${t('No.')}</th>
+                            <th>${t('Amount')}</th>
+                            <th>${t('Cashier')}</th>
+                            <th>${t('Date')}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${gapsData.map((gap, index) => `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${gap.amount}</td>
+                                <td>${gap.cashier}</td>
+                                <td>${gap.date}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+
+                <div class="footer">
+                    ${t('Thank you')}
+                </div>
+
+                <script>
+                    window.onload = function() {
+                        window.print();
+                        window.onafterprint = function() {
+                            window.close();
+                        };
+                    };
+                </script>
+            </body>
+            </html>
+        `;
+
+        printWindow.document.write(receiptContent);
+        printWindow.document.close();
+    };
+
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
@@ -120,6 +244,24 @@ const CashierShortage = () => {
         <div className="w-full p-6 pb-32 space-y-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <h1 className="text-3xl font-bold text-mainColor">{t("Cashier Shortage")}</h1>
+                {gapsData && gapsData.length > 0 && (
+                    <div className="flex gap-2">
+                        <button
+                            onClick={handleExportExcel}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all shadow-sm font-bold"
+                        >
+                            <FaFileExcel size={18} />
+                            {t("Excel")}
+                        </button>
+                        <button
+                            onClick={handlePrint}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-sm font-bold"
+                        >
+                            <FaPrint size={18} />
+                            {t("Print")}
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Filters */}
@@ -148,7 +290,7 @@ const CashierShortage = () => {
                     </div>
                 </div>
 
-                <div className="flex gap-4">
+                <div className="flex flex-wrap gap-4">
                     <button onClick={handleGenerateReport} className="px-6 py-3 font-medium text-white rounded-lg bg-mainColor hover:bg-opacity-90">
                         {t("Generate Report")}
                     </button>
