@@ -132,7 +132,7 @@ const CashierMan = () => {
     t("Void Order"),
     t("Service Fees"),
     t("Total Tax"),
-    t("Enter Amount"),
+    t("allowAmountEntry"),
     t("Status"),
     t("Roles"),
     t("Action"),

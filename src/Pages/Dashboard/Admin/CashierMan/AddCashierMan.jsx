@@ -470,7 +470,7 @@ const AddCashierMan = () => {
               {/* Enter Amount */}
               <div className="flex items-start justify-start pt-8 gap-x-3">
                 <span className="text-xl font-TextFontRegular text-thirdColor">
-                  {t("Enter Amount")}:
+                  {t("allowAmountEntry")}:
                 </span>
                 <Switch handleClick={handleEnterAmount} checked={enterAmount} />
               </div>

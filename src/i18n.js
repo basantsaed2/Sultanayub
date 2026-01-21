@@ -6,6 +6,9 @@ const resources = {
           translation: {
                projectName: import.meta.env.VITE_PROJECT_EN_NAME || "Food2go", // Fallback if undefined
                "Order management": "Order management",
+               "allowAmountEntry": "Allow Amount Entry",
+               "Total Tax": "Total Tax",
+               "Manager": "Manager",
                "Social Media": "Social Media",
                "Home": "Home",
                "Dashboard": "Dashboard",
@@ -2029,6 +2032,9 @@ const resources = {
      ar: {
           translation: {
                "All": "الكل",
+               "allowAmountEntry": "السماح بإدخال المبلغ",
+               "Total Tax": "الإجمالي الضريبة",
+               "Manager": "مدير",
                "Save to All": "حفظ في الكل",
                projectName: import.meta.env.VITE_PROJECT_AR_NAME || "Food2go",
                "Order management": "إدارة الطلبات",
@@ -2622,8 +2628,8 @@ const resources = {
                "Report Permission": "صلاحية التقرير",
                "Take Away": "تيك أواي",
                "Dine In": "صالة",
-               "Cashier Man Table": "جدول أمناء الصندوق",
-               "Add Cashier Man": "إضافة أمين صندوق",
+               "Cashier Man Table": "جدول الكاشير",
+               "Add Cashier Man": "إضافة كاشير",
                "No cashiers found": "لا يوجد كاشير",
                "Cashier Table": "الكاشير",
 
