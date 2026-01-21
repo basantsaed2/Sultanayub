@@ -12,6 +12,7 @@ import {
   TimeInput,
   TitlePage,
   UploadInput,
+  MapPreview,
 } from "../../../../../Components/Components";
 import { usePost } from "../../../../../Hooks/usePostJson";
 import { useAuth } from "../../../../../Context/Auth";
@@ -428,19 +429,6 @@ const AddBannerSection = () => {
                                 placeholder={t("BranchPassword")}
                               />
                             </div>
-                            {/* Branch Coverage */}
-                            <div className="flex flex-col items-start justify-center w-full gap-y-1">
-                              <span className="text-xl font-TextFontRegular text-thirdColor">
-                                {t("BranchCoverage")}:
-                              </span>
-                              <NumberInput
-                                value={branchCoverage}
-                                onChange={(e) =>
-                                  setBranchCoverage(e.target.value)
-                                }
-                                placeholder={t("BranchCoverage")}
-                              />
-                            </div>
                             {/* Cities */}
                             <div className="flex flex-col items-start justify-center w-full gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -483,6 +471,22 @@ const AddBannerSection = () => {
                                 placeholder={t("BranchLongitude")}
                               />
                             </div>
+                            {/* Branch Coverage */}
+                            <div className="flex flex-col items-start justify-center w-full gap-y-1">
+                              <span className="text-xl font-TextFontRegular text-thirdColor">
+                                {t("BranchCoverage")}:
+                              </span>
+                              <NumberInput
+                                value={branchCoverage}
+                                onChange={(e) =>
+                                  setBranchCoverage(e.target.value)
+                                }
+                                placeholder={t("BranchCoverage")}
+                              />
+                            </div>
+                            <div className="w-full col-span-1 md:col-span-2 xl:col-span-3">
+                              <MapPreview lat={branchLatitude} lng={branchLongitude} radius={branchCoverage} />
+                            </div>
                             {/* Branch Preparion Time */}
                             <div className="flex flex-col items-start justify-center w-full gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -503,7 +507,7 @@ const AddBannerSection = () => {
                               <UploadInput
                                 value={image}
                                 uploadFileRef={ImageRef}
-                                placeholder={t("CategoryImage")}
+                                placeholder={t("Image")}
                                 handleFileChange={handleImageChange}
                                 onChange={(e) => setImage(e.target.value)}
                                 onClick={() => handleImageClick(ImageRef)}
@@ -523,7 +527,7 @@ const AddBannerSection = () => {
                                 onClick={() => handleCoverClick(CoverRef)}
                               />
                             </div>
-                            <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3">
+                            <div className="flex items-center justify-start w-full gap-3">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("Active")}:
                               </span>
@@ -548,7 +552,7 @@ const AddBannerSection = () => {
                                   />
                                 </div>
                               )}
-                            <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3">
+                            <div className="flex items-center justify-start w-full gap-3">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
                                 {t("ActiveBranchPhone")}:
                               </span>
@@ -594,7 +598,7 @@ const AddBannerSection = () => {
 };
 
 const CustomTimeInput = ({ value, onChange }) => {
-  const {t}=useTranslation()
+  const { t } = useTranslation()
   const hours = Array.from({ length: 24 }, (_, i) =>
     i.toString().padStart(2, "0")
   ); // Pad hours to 2 digits

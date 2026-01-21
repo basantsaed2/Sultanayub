@@ -26,3 +26,4 @@ export { default as Switch } from "./AnotherComponents/Switch";
 export { default as DropDown } from "./AnotherComponents/DropDown";
 export { default as Cart } from "./AnotherComponents/Cart";
 export { default as NewOrdersComponent } from "./AnotherComponents/NewOrdersComponent";
+export { default as MapPreview } from "./Map/MapPreview";

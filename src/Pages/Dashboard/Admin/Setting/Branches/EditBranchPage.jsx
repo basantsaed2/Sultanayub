@@ -11,6 +11,7 @@ import {
        Switch,
        TextInput,
        UploadInput,
+       MapPreview,
 } from "../../../../../Components/Components";
 import { usePost } from "../../../../../Hooks/usePostJson";
 import { useAuth } from "../../../../../Context/Auth";
@@ -352,7 +353,7 @@ const EditBranchPage = () => {
                                                                              className="flex flex-wrap items-center justify-start w-full gap-4 sm:flex-col lg:flex-row"
                                                                              key={tap.id}
                                                                       >
-                                                                             <div className="flex flex-wrap items-center justify-start w-full gap-4 sm:flex-col lg:flex-row">
+                                                                             <div className="grid w-full grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
                                                                                     {/* Branch Name */}
                                                                                     <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                                                                                            <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -388,7 +389,7 @@ const EditBranchPage = () => {
                                                                                     {currentTap === 0 && (
                                                                                            <>
                                                                                                   {/* Branch Address */}
-                                                                                                  <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                                                                                                  <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                                                                                          <span className="text-xl font-TextFontRegular text-thirdColor">
                                                                                                                 {t("BranchAddress")}:
                                                                                                          </span>
@@ -401,7 +402,7 @@ const EditBranchPage = () => {
                                                                                                          />
                                                                                                   </div>
                                                                                                   {/* Branch Phone */}
-                                                                                                  <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                                                                                                  <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                                                                                          <span className="text-xl font-TextFontRegular text-thirdColor">
                                                                                                                 {t("BranchPhone")}:
                                                                                                          </span>
@@ -412,7 +413,7 @@ const EditBranchPage = () => {
                                                                                                          />
                                                                                                   </div>
                                                                                                   {/* Branch Email */}
-                                                                                                  <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                                                                                                  <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                                                                                          <span className="text-xl font-TextFontRegular text-thirdColor">
                                                                                                                 {t("BranchEmail")}:
                                                                                                          </span>
@@ -424,7 +425,7 @@ const EditBranchPage = () => {
                                                                                                          />
                                                                                                   </div>
                                                                                                   {/* Branch Password */}
-                                                                                                  <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                                                                                                  <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                                                                                          <span className="text-xl font-TextFontRegular text-thirdColor">
                                                                                                                 {t("BranchPassword")}:
                                                                                                          </span>
@@ -438,21 +439,8 @@ const EditBranchPage = () => {
                                                                                                                 placeholder={t("BranchPassword")}
                                                                                                          />
                                                                                                   </div>
-                                                                                                  {/* Branch Coverage */}
-                                                                                                  <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                                                                                                         <span className="text-xl font-TextFontRegular text-thirdColor">
-                                                                                                                {t("BranchCoverage")}:
-                                                                                                         </span>
-                                                                                                         <NumberInput
-                                                                                                                value={branchCoverage}
-                                                                                                                onChange={(e) =>
-                                                                                                                       setBranchCoverage(e.target.value)
-                                                                                                                }
-                                                                                                                placeholder={t("BranchCoverage")}
-                                                                                                         />
-                                                                                                  </div>
                                                                                                   {/* Cities */}
-                                                                                                  <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                                                                                                  <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                                                                                          <span className="text-xl font-TextFontRegular text-thirdColor">
                                                                                                                 {t("City")}:
                                                                                                          </span>
@@ -468,7 +456,7 @@ const EditBranchPage = () => {
                                                                                                          />
                                                                                                   </div>
                                                                                                   {/* Branch Latitude */}
-                                                                                                  <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                                                                                                  <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                                                                                          <span className="text-xl font-TextFontRegular text-thirdColor">
                                                                                                                 {t("BranchLatitude")}:
                                                                                                          </span>
@@ -481,7 +469,7 @@ const EditBranchPage = () => {
                                                                                                          />
                                                                                                   </div>
                                                                                                   {/* Branch Longitude */}
-                                                                                                  <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                                                                                                  <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                                                                                          <span className="text-xl font-TextFontRegular text-thirdColor">
                                                                                                                 {t("BranchLongitude")}:
                                                                                                          </span>
@@ -493,8 +481,24 @@ const EditBranchPage = () => {
                                                                                                                 placeholder={t("BranchLongitude")}
                                                                                                          />
                                                                                                   </div>
+                                                                                                  {/* Branch Coverage */}
+                                                                                                  <div className="flex flex-col items-start justify-center w-full gap-y-1">
+                                                                                                         <span className="text-xl font-TextFontRegular text-thirdColor">
+                                                                                                                {t("BranchCoverage")}:
+                                                                                                         </span>
+                                                                                                         <NumberInput
+                                                                                                                value={branchCoverage}
+                                                                                                                onChange={(e) =>
+                                                                                                                       setBranchCoverage(e.target.value)
+                                                                                                                }
+                                                                                                                placeholder={t("BranchCoverage")}
+                                                                                                         />
+                                                                                                  </div>
+                                                                                                  <div className="w-full col-span-1 md:col-span-2 xl:col-span-3">
+                                                                                                         <MapPreview lat={branchLatitude} lng={branchLongitude} radius={branchCoverage} />
+                                                                                                  </div>
                                                                                                   {/* Branch Preparion Time */}
-                                                                                                  <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                                                                                                  <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                                                                                          <span className="text-xl font-TextFontRegular text-thirdColor">
                                                                                                                 {t("FoodPreparationTime")}:
                                                                                                          </span>
@@ -506,7 +510,7 @@ const EditBranchPage = () => {
                                                                                                          />
                                                                                                   </div>
                                                                                                   {/* Branch Image */}
-                                                                                                  <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                                                                                                  <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                                                                                          <span className="text-xl font-TextFontRegular text-thirdColor">
                                                                                                                 {t("Image")}:
                                                                                                          </span>
@@ -520,7 +524,7 @@ const EditBranchPage = () => {
                                                                                                          />
                                                                                                   </div>
                                                                                                   {/* Banner Cover Image */}
-                                                                                                  <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                                                                                                  <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                                                                                          <span className="text-xl font-TextFontRegular text-thirdColor">
                                                                                                                 {t("CoverImage")}:
                                                                                                          </span>
@@ -533,7 +537,7 @@ const EditBranchPage = () => {
                                                                                                                 onClick={() => handleCoverClick(CoverRef)}
                                                                                                          />
                                                                                                   </div>
-                                                                                                  <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3">
+                                                                                                  <div className="flex items-center justify-start w-full gap-3">
                                                                                                          <span className="text-xl font-TextFontRegular text-thirdColor">
                                                                                                                 {t("Active")}:
                                                                                                          </span>
@@ -545,7 +549,7 @@ const EditBranchPage = () => {
                                                                                                   {/* Branch Not Active Reason */}
                                                                                                   {
                                                                                                          activeBranch === 0 && (
-                                                                                                                <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                                                                                                                <div className="flex flex-col items-start justify-center w-full gap-y-1">
                                                                                                                        <span className="text-xl font-TextFontRegular text-thirdColor">
                                                                                                                               {t("BranchNotActiveReason")}:
                                                                                                                        </span>
@@ -558,7 +562,7 @@ const EditBranchPage = () => {
                                                                                                                        />
                                                                                                                 </div>
                                                                                                          )}
-                                                                                                  <div className="sm:w-full xl:w-[30%] flex items-center justify-start gap-3">
+                                                                                                  <div className="flex items-center justify-start w-full gap-3">
                                                                                                          <span className="text-xl font-TextFontRegular text-thirdColor">
                                                                                                                 {t("ActiveBranchPhone")}:
                                                                                                          </span>
