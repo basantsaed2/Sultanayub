@@ -485,7 +485,15 @@ const AddBannerSection = () => {
                               />
                             </div>
                             <div className="w-full col-span-1 md:col-span-2 xl:col-span-3">
-                              <MapPreview lat={branchLatitude} lng={branchLongitude} radius={branchCoverage} />
+                              <MapPreview
+                                lat={branchLatitude}
+                                lng={branchLongitude}
+                                radius={branchCoverage}
+                                onLocationSelect={(lat, lng) => {
+                                  setBranchLatitude(lat);
+                                  setBranchLongitude(lng);
+                                }}
+                              />
                             </div>
                             {/* Branch Preparion Time */}
                             <div className="flex flex-col items-start justify-center w-full gap-y-1">

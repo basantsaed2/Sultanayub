@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Circle, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Circle, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -31,7 +31,19 @@ const RecenterMap = ({ lat, lng, radius }) => {
     return null;
 };
 
-const MapPreview = ({ lat, lng, radius }) => {
+// Helper component to handle map clicks
+const MapClickHandler = ({ onLocationSelect }) => {
+    useMapEvents({
+        click(e) {
+            if (onLocationSelect) {
+                onLocationSelect(e.latlng.lat, e.latlng.lng);
+            }
+        },
+    });
+    return null;
+};
+
+const MapPreview = ({ lat, lng, radius, onLocationSelect }) => {
     const latitude = parseFloat(lat);
     const longitude = parseFloat(lng);
     const coverageRadius = parseFloat(radius);
@@ -63,6 +75,7 @@ const MapPreview = ({ lat, lng, radius }) => {
                 />
                 {isValidLocation && (
                     <>
+                        {onLocationSelect && <MapClickHandler onLocationSelect={onLocationSelect} />}
                         <RecenterMap lat={latitude} lng={longitude} radius={coverageRadius} />
                         <Marker position={[latitude, longitude]} />
                         {!isNaN(coverageRadius) && coverageRadius > 0 && (
