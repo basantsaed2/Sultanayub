@@ -434,6 +434,7 @@ const ProductPage = () => {
     t("Price"),
     t("Image"),
     t("Category"),
+    t("Sub Category"),
     t("variation"),
     t("Favorite POS"),
     t("Status"),
@@ -693,8 +694,11 @@ const ProductPage = () => {
                                 />
                               </div>
                             </td>
-                            <td onClick={() => handleOpenCategoryToggle(product.category_id)} className="px-4 py-2 text-sm text-center text-red-800 lg:text-base underline">
-                              {product.category?.name || product.sub_category?.name || "-"}
+                            <td onClick={() => handleOpenCategoryToggle(product.category_id)} className={`px-4 py-2 text-sm text-center text-red-800 lg:text-base ${product.category?.name ? "underline cursor-pointer" : ""} `}>
+                              {product.category?.name || "-"}
+                            </td>
+                            <td onClick={() => handleOpenCategoryToggle(product.sub_category_id)} className={`px-4 py-2 text-sm text-center text-red-800 lg:text-base ${product.sub_category?.name ? "underline cursor-pointer" : ""} `}>
+                              {product.sub_category?.name || "-"}
                             </td>
                             <td onClick={() => navigate(`product_variation/${product.id}`, { state: { product_name: product.name } })} className="px-4 py-2 text-sm text-center text-red-800 lg:text-base cursor-pointer underline">
                               {product.variations?.length || "0"}
@@ -850,10 +854,11 @@ const ProductPage = () => {
                                             />
                                           </div>
                                         </td>
-                                        <td onClick={() => handleOpenCategoryToggle(product.category_id)} className="px-4 py-2 text-sm text-center text-red-800 lg:text-base underline">
-                                          {product.category?.name ||
-                                            product.sub_category?.name ||
-                                            "-"}
+                                        <td onClick={() => handleOpenCategoryToggle(product.category_id)} className={`px-4 py-2 text-sm text-center text-red-800 lg:text-base ${product.category?.name ? "underline cursor-pointer" : ""}`}>
+                                          {product.category?.name || "-"}
+                                        </td>
+                                        <td onClick={() => handleOpenCategoryToggle(product.sub_category_id)} className={`px-4 py-2 text-sm text-center text-red-800 lg:text-base ${product.sub_category?.name ? "underline cursor-pointer" : ""}`}>
+                                          {product.sub_category?.name || "-"}
                                         </td>
                                         <td onClick={() => navigate(`product_variation/${product.id}`, { state: { product_name: product.name } })} className="px-4 py-2 text-sm text-center text-red-800 lg:text-base cursor-pointer underline">
                                           {product.variations?.length || "0"}
