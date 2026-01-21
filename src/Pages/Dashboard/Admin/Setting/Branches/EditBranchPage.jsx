@@ -122,7 +122,7 @@ const EditBranchPage = () => {
                      setFoodPreparationTime(dataBranch.branch.food_preparion_time || "00:00");
                      setBranchLatitude(dataBranch.branch.latitude || "");
                      setBranchLongitude(dataBranch.branch.longitude || "");
-                     setBranchCoverage(dataBranch.branch.coverage || "");
+                     setBranchCoverage(dataBranch.branch.coverage / 1000 || ""); // Convert meters to KM for UI
 
                      setActiveBranch(dataBranch.branch.status || 0);
                      setActiveBranchPhone(dataBranch.branch.phone_status || 0);
@@ -292,7 +292,7 @@ const EditBranchPage = () => {
               formData.append("food_preparion_time", foodPreparationTime);
               formData.append("latitude", branchLatitude);
               formData.append("longitude", branchLongitude);
-              formData.append("coverage", branchCoverage);
+              formData.append("coverage", branchCoverage * 1000); // Convert KM to meters for backend
               formData.append("city_id", cityId);
               formData.append("status", activeBranch);
               formData.append("phone_status", activeBranchPhone);
@@ -483,15 +483,11 @@ const EditBranchPage = () => {
                                                                                                   </div>
                                                                                                   {/* Branch Coverage */}
                                                                                                   <div className="flex flex-col items-start justify-center w-full gap-y-1">
-                                                                                                         <span className="text-xl font-TextFontRegular text-thirdColor">
-                                                                                                                {t("BranchCoverage")}:
-                                                                                                         </span>
+                                                                                                         <span className="text-xl font-TextFontRegular text-thirdColor">{t("BranchCoverage")} ({t("km")}):</span>
                                                                                                          <NumberInput
                                                                                                                 value={branchCoverage}
-                                                                                                                onChange={(e) =>
-                                                                                                                       setBranchCoverage(e.target.value)
-                                                                                                                }
-                                                                                                                placeholder={t("BranchCoverage")}
+                                                                                                                onChange={(e) => setBranchCoverage(e.target.value)}
+                                                                                                                placeholder={`${t("BranchCoverage")} (${t("km")})`}
                                                                                                          />
                                                                                                   </div>
                                                                                                   <div className="w-full col-span-1 md:col-span-2 xl:col-span-3">

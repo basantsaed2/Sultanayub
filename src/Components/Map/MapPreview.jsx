@@ -46,7 +46,8 @@ const MapClickHandler = ({ onLocationSelect }) => {
 const MapPreview = ({ lat, lng, radius, onLocationSelect }) => {
     const latitude = parseFloat(lat);
     const longitude = parseFloat(lng);
-    const coverageRadius = parseFloat(radius);
+    // Convert KM to meters for Leaflet
+    const coverageRadius = parseFloat(radius) * 1000;
 
     // Default to Cairo if no valid coordinates (or hide map)
     // For better UX, we only show map if we have valid-ish numbers, 

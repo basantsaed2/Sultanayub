@@ -283,7 +283,7 @@ const AddBannerSection = () => {
     formData.append("food_preparion_time", foodPreparationTime);
     formData.append("latitude", branchLatitude);
     formData.append("longitude", branchLongitude);
-    formData.append("coverage", branchCoverage);
+    formData.append("coverage", branchCoverage * 1000); // Convert KM to meters for backend
     formData.append("city_id", cityId);
     formData.append("status", activeBranch);
     formData.append("phone_status", activeBranchPhone);
@@ -474,14 +474,14 @@ const AddBannerSection = () => {
                             {/* Branch Coverage */}
                             <div className="flex flex-col items-start justify-center w-full gap-y-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
-                                {t("BranchCoverage")}:
+                                {t("BranchCoverage")} ({t("km")}):
                               </span>
                               <NumberInput
                                 value={branchCoverage}
                                 onChange={(e) =>
                                   setBranchCoverage(e.target.value)
                                 }
-                                placeholder={t("BranchCoverage")}
+                                placeholder={`${t("BranchCoverage")} (${t("km")})`}
                               />
                             </div>
                             <div className="w-full col-span-1 md:col-span-2 xl:col-span-3">
