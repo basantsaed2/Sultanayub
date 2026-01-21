@@ -46,6 +46,9 @@ const AddCashierMan = () => {
   const [reportPermission, setReportPermission] = useState([]);
   const [selectedReportPermission, setSelectedReportPermission] = useState(null);
   const [manager, setManager] = useState(0);
+  const [serviceFees, setServiceFees] = useState(0);
+  const [totalTax, setTotalTax] = useState(0);
+  const [enterAmount, setEnterAmount] = useState(0);
 
   // Role options for react-select
   const roleOptions = [
@@ -107,6 +110,9 @@ const AddCashierMan = () => {
   const handleOrderOnline = () => setOrderOnline((prev) => (prev === 0 ? 1 : 0));
   const handleVoidOrder = () => setVoidOrder((prev) => (prev === 0 ? 1 : 0));
   const handleManager = () => setManager((prev) => (prev === 0 ? 1 : 0));
+  const handleServiceFees = () => setServiceFees((prev) => (prev === 0 ? 1 : 0));
+  const handleTotalTax = () => setTotalTax((prev) => (prev === 0 ? 1 : 0));
+  const handleEnterAmount = () => setEnterAmount((prev) => (prev === 0 ? 1 : 0));
 
   // Reset form
   const handleReset = () => {
@@ -126,6 +132,9 @@ const AddCashierMan = () => {
     setImage(null);
     setSelectedReportPermission(null);
     setManager(0);
+    setServiceFees(0);
+    setTotalTax(0);
+    setEnterAmount(0);
   };
 
   const handleReportPermission = (selectedOption) => {
@@ -167,6 +176,9 @@ const AddCashierMan = () => {
     formData.append("discount_perimission", discount);
     formData.append("void_order", voidOrder);
     formData.append("manger", manager);
+    formData.append("service_fees", serviceFees);
+    formData.append("total_tax", totalTax);
+    formData.append("enter_amount", enterAmount);
 
     // Append roles if any selected
     selectedRoles.forEach((role, index) => {
@@ -437,6 +449,30 @@ const AddCashierMan = () => {
                   {t("Void Order")}:
                 </span>
                 <Switch handleClick={handleVoidOrder} checked={voidOrder} />
+              </div>
+
+              {/* Service Fees */}
+              <div className="flex items-start justify-start pt-8 gap-x-3">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Service Fees")}:
+                </span>
+                <Switch handleClick={handleServiceFees} checked={serviceFees} />
+              </div>
+
+              {/* Total Tax */}
+              <div className="flex items-start justify-start pt-8 gap-x-3">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Total Tax")}:
+                </span>
+                <Switch handleClick={handleTotalTax} checked={totalTax} />
+              </div>
+
+              {/* Enter Amount */}
+              <div className="flex items-start justify-start pt-8 gap-x-3">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Enter Amount")}:
+                </span>
+                <Switch handleClick={handleEnterAmount} checked={enterAmount} />
               </div>
             </div>
 

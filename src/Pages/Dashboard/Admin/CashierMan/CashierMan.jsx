@@ -130,6 +130,9 @@ const CashierMan = () => {
     t("Online Order"),
     t("Discount Perimission"),
     t("Void Order"),
+    t("Service Fees"),
+    t("Total Tax"),
+    t("Enter Amount"),
     t("Status"),
     t("Roles"),
     t("Action"),
@@ -242,6 +245,15 @@ const CashierMan = () => {
                     </td>
                     <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
                       {cashier.void_order === 1 ? "✔" : "✘"}
+                    </td>
+                    <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
+                      {cashier.service_fees === 1 ? "✔" : "✘"}
+                    </td>
+                    <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
+                      {cashier.total_tax === 1 ? "✔" : "✘"}
+                    </td>
+                    <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
+                      {cashier.enter_amount === 1 ? "✔" : "✘"}
                     </td>
                     <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       <Switch
