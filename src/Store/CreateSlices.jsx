@@ -272,6 +272,7 @@ const ordersScheduleSlice = createSlice({
 const initialCanceledOrdersState = {
        orders: [], // Array of order IDs
        count: 0,   // Total count for badge
+       newOrder: null, // Track current notification
 };
 
 // Add this with your other slices
@@ -289,9 +290,13 @@ const canceledOrdersSlice = createSlice({
                      state.orders = state.orders.filter(id => id !== action.payload);
                      state.count = state.orders.length;
               },
+              setNewCanceledOrder: (state, action) => {
+                     state.newOrder = action.payload;
+              },
               clearCanceledOrders: (state) => {
                      state.orders = [];
                      state.count = 0;
+                     state.newOrder = null;
               },
        },
 });
@@ -441,5 +446,5 @@ export const searchReducer = searchSlice.reducer;
 
 
 // Add to your exports
-export const { addCanceledOrder, removeCanceledOrder, clearCanceledOrders } = canceledOrdersSlice.actions;
+export const { addCanceledOrder, removeCanceledOrder, clearCanceledOrders, setNewCanceledOrder } = canceledOrdersSlice.actions;
 export const canceledOrdersReducer = canceledOrdersSlice.reducer;

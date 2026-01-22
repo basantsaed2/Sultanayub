@@ -226,12 +226,12 @@
 import './index.css';
 import { Outlet } from 'react-router-dom';
 import { useAuth } from './Context/Auth';
-import { Navbar, NewOrdersComponent, Sidebar } from './Components/Components';
+import { Navbar, NewOrdersComponent, Sidebar, NewCancellationOrderComponent } from './Components/Components';
 import { PrimeReactProvider } from 'primereact/api';
 import 'primereact/resources/themes/lara-light-blue/theme.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState, useRef } from 'react';
-import { setNewOrders, setSoundNotification } from './Store/CreateSlices';
+import { setNewOrders, setSoundNotification, setNewCanceledOrder } from './Store/CreateSlices';
 import { usePost } from './Hooks/usePostJson';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useGet } from './Hooks/useGet';
@@ -279,6 +279,10 @@ const App = () => {
       ? `${apiUrl}/admin/settings/notification_sound`
       : null;// No sound for branch role
 
+  // Cancellation endpoint
+  const cancellationUrl =
+    role === "admin" ? `${apiUrl}/admin/settings/cancelation` : null;
+
   const {
     refetch: refetchCountOrders,
     loading,
@@ -299,13 +303,22 @@ const App = () => {
     url: notificationUrl,
   });
 
+  const {
+    refetch: refetchCancellations,
+    data: dataCancellations,
+  } = useGet({
+    url: cancellationUrl,
+  });
+
   const newOrders = useSelector((state) => state.newOrders);
+  const canceledOrders = useSelector((state) => state.canceledOrders);
   const soundNotification = useSelector((state) => state.soundNotification);
 
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const [orderCounts, setOrderCounts] = useState(0);
   const [orderId, setOrderId] = useState('');
+  const [isCancelOpen, setIsCancelOpen] = useState(false);
   const [newOrder, setNewOrder] = useState([]);
 
   // Track if user has interacted with the page
@@ -384,6 +397,7 @@ const App = () => {
   }, [dataSong, dispatch]);
 
   const handleClose = () => setIsOpen(false);
+  const handleCloseCancel = () => setIsCancelOpen(false);
 
   // Update `orderCounts` when a response is received
   useEffect(() => {
@@ -392,6 +406,24 @@ const App = () => {
       setOrderId(response.data.order_id)
     }
   }, [response]);
+
+  const prevCancelOrderIdRef = useRef(null);
+
+  // Handle cancellation data
+  useEffect(() => {
+    if (dataCancellations && dataCancellations.orders && dataCancellations.orders.length > 0) {
+      const latestOrder = dataCancellations.orders[0];
+      // Check if this order is already known and not the one we just notified for
+      if (!canceledOrders?.orders.includes(latestOrder.id) && latestOrder.id !== prevCancelOrderIdRef.current) {
+        dispatch(setNewCanceledOrder(latestOrder.id));
+        prevCancelOrderIdRef.current = latestOrder.id;
+        // Optionally play sound
+        if (soundNotification && soundNotification.data) {
+          playNotificationSound(soundNotification.data, `cancel-${latestOrder.id}`);
+        }
+      }
+    }
+  }, [dataCancellations, canceledOrders, soundNotification, dispatch]);
 
   // Update `newOrders` in Redux store and play sound
   useEffect(() => {
@@ -436,6 +468,10 @@ const App = () => {
   }, [newOrders]);
 
   useEffect(() => {
+    setIsCancelOpen(!!canceledOrders?.newOrder);
+  }, [canceledOrders?.newOrder]);
+
+  useEffect(() => {
     if (dataCountOrders) {
       setAllCount(dataCountOrders.orders);
     }
@@ -448,6 +484,11 @@ const App = () => {
       const formData = new FormData();
       formData.append('orders', allCount || 0);
       postData(formData);
+
+      // Poll cancellation orders if admin
+      // if (role === "admin") {
+        refetchCancellations();
+      // }
     }, 8000);
 
     return () => clearInterval(interval);
@@ -464,6 +505,12 @@ const App = () => {
         <NewOrdersComponent
           isOpen={isOpen}
           onClose={handleClose}
+        />
+      )}
+      {isCancelOpen && (
+        <NewCancellationOrderComponent
+          isOpen={isCancelOpen}
+          onClose={handleCloseCancel}
         />
       )}
       <div className="relative flex w-full min-h-screen overflow-hidden bg-secoundBgColor">
