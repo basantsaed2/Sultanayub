@@ -422,7 +422,7 @@ export const router = createBrowserRouter([
               },
             ],
           },
-           {
+          {
             path: "cashier",
             element: <Outlet />,
             children: [
@@ -476,26 +476,26 @@ export const router = createBrowserRouter([
             ],
           },
           {
-                path: "financial_account",
+            path: "financial_account",
+            children: [
+              {
+                path: "",
                 children: [
                   {
-                    path: "",
-                    children: [
-                      {
-                        index: true,
-                        element: <FinacialAccountPage />,
-                      },
-                      {
-                        path: "add",
-                        element: <AddFinacialAccountPage />,
-                      },
-                      {
-                        path: "edit/:financialId",
-                        element: <EditFinacialAccountPage />,
-                      },
-                    ],
+                    index: true,
+                    element: <FinacialAccountPage />,
+                  },
+                  {
+                    path: "add",
+                    element: <AddFinacialAccountPage />,
+                  },
+                  {
+                    path: "edit/:financialId",
+                    element: <EditFinacialAccountPage />,
                   },
                 ],
+              },
+            ],
           },
           {
             path: "expenses",
@@ -1105,6 +1105,11 @@ export const router = createBrowserRouter([
             element: <OrdersPaymentLayout />,
 
             children: [
+              {
+                path: "",
+                index: true,
+                element: <OrdersPaymentPendingPage />,
+              },
               {
                 path: "payment_pending",
                 element: <OrdersPaymentPendingPage />,
