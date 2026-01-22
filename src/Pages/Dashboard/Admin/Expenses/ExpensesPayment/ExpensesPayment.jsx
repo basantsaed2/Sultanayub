@@ -248,7 +248,7 @@ const ExpensesPayment = () => {
   return (
     <>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 bg-white shadow-sm">
+      <div className="flex flex-col lg:flex-row items-center justify-between p-4 bg-white shadow-sm">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}
@@ -264,6 +264,8 @@ const ExpensesPayment = () => {
             icon={<IoCash size={20} className="mr-2" />}
             rounded="rounded-full"
             handleClick={openAddModal}
+            px="px-2"
+            Size="text-lg"
           />
         </div>
       </div>

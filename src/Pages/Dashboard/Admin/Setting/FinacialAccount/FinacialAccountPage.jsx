@@ -10,11 +10,20 @@ import Warning from '../../../../../Assets/Icons/AnotherIcons/WarningIcon';
 import { useTranslation } from "react-i18next";
 import { usePost } from '../../../../../Hooks/usePostJson';
 import Select from 'react-select';
+import { useAuth } from '../../../../../Context/Auth';
 
 const FinancialAccountPage = ({ refetch }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const auth = useAuth();
+  const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
+  const financialAccountUrl =
+  role === "branch"
+    ? `branch`
+    : `admin/settings`;
+
+
   const { refetch: refetchFinancialAccount, loading: loadingFinancialAccount, data: dataFinancialAccount } = useGet({
-    url: `${apiUrl}/admin/settings/financial`,
+    url: `${apiUrl}/${financialAccountUrl}/financial`,
   });
   const { changeState, loadingChange } = useChangeState();
   const { deleteData, loadingDelete } = useDelete();
@@ -28,7 +37,7 @@ const FinancialAccountPage = ({ refetch }) => {
   const [transferTo, setTransferTo] = useState('');
   const [transferAmount, setTransferAmount] = useState('');
   const { postData, loadingPost } = usePost({
-    url: `${apiUrl}/admin/settings/financial_transfer/transfer`,
+    url: `${apiUrl}/${financialAccountUrl}/financial_transfer/transfer`,
   });
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -56,7 +65,7 @@ const FinancialAccountPage = ({ refetch }) => {
 
   const handleChangeStatus = async (id, name, status) => {
     const response = await changeState(
-      `${apiUrl}/admin/settings/financial/status/${id}`,
+      `${apiUrl}/${financialAccountUrl}/financial/status/${id}`,
       t('StatusChangedSuccess', { name }),
       { status }
     );
@@ -79,7 +88,7 @@ const FinancialAccountPage = ({ refetch }) => {
 
   const handleDelete = async (id, name) => {
     const success = await deleteData(
-      `${apiUrl}/admin/settings/financial/delete/${id}`,
+      `${apiUrl}/${financialAccountUrl}/financial/delete/${id}`,
       t('DeletedSuccess', { name })
     );
     if (success) {
@@ -125,7 +134,7 @@ const FinancialAccountPage = ({ refetch }) => {
   const headers = [
     '#',
     t('Name'),
-    t('Branches'),
+    role == "admin" ? t("Branch") : null,
     t('Image'),
     t('Balance'),
     t('Description'),
@@ -150,7 +159,7 @@ const FinancialAccountPage = ({ refetch }) => {
           <table className="block w-full overflow-x-scroll sm:min-w-0 scrollPage">
             <thead className="w-full">
               <tr className="w-full border-b-2">
-                {headers.map((name, index) => (
+                {headers.filter(name => name !== null).map((name, index) => (
                   <th
                     className="min-w-[120px] sm:w-[8%] lg:w-[5%] text-mainColor text-center font-TextFontLight sm:text-sm lg:text-base xl:text-lg pb-3"
                     key={index}
@@ -164,7 +173,7 @@ const FinancialAccountPage = ({ refetch }) => {
               {financialAccounts.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={headers.length}
+                    colSpan={headers.filter(name => name !== null).length}
                     className="text-xl text-center text-mainColor font-TextFontMedium"
                   >
                     {t('NotfindfinancialAccount')}
@@ -179,65 +188,67 @@ const FinancialAccountPage = ({ refetch }) => {
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {financialAccount.name}
                     </td>
-                    <td className="min-w-[120px] sm:min-w-[80px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                      <button
-                        type="button"
-                        className="inline-flex items-center justify-center px-3 py-1 text-sm font-TextFontMedium text-white bg-mainColor rounded-full hover:bg-opacity-80 transition-colors duration-300"
-                        onClick={() => handleOpenBranchesModal(financialAccount)}
-                      >
-                        {financialAccount.branch.length} {t('Branches')}
-                      </button>
-                      {openBranchesModal?.id === financialAccount.id && (
-                        <Dialog
-                          open={true}
-                          onClose={handleCloseBranchesModal}
-                          className="relative z-20"
+                    {role === "admin" ? (
+                      <td className="min-w-[120px] sm:min-w-[80px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                        <button
+                          type="button"
+                          className="inline-flex items-center justify-center px-3 py-1 text-sm font-TextFontMedium text-white bg-mainColor rounded-full hover:bg-opacity-80 transition-colors duration-300"
+                          onClick={() => handleOpenBranchesModal(financialAccount)}
                         >
-                          <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
-                          <div className="fixed inset-0 z-20 w-screen overflow-y-auto">
-                            <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
-                              <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-md">
-                                <div className="px-4 pt-5 pb-4 sm:p-6">
-                                  <DialogTitle as="h3" className="text-lg font-TextFontSemiBold text-mainColor">
-                                    {t('BranchesForAccount', { name: financialAccount.name })}
-                                  </DialogTitle>
-                                  <div className="mt-4 max-h-64 overflow-y-auto">
-                                    {financialAccount.branch.length > 0 ? (
-                                      financialAccount.branch.map((branch) => (
-                                        <div
-                                          key={branch.id}
-                                          className="flex flex-col p-3 mb-2 bg-gray-50 rounded-md border border-gray-200"
-                                        >
-                                          <div className="text-sm font-TextFontMedium text-mainColor">
-                                            {t('BranchName')}: {branch.name}
+                          {financialAccount.branch.length} {t('Branches')}
+                        </button>
+                        {openBranchesModal?.id === financialAccount.id && (
+                          <Dialog
+                            open={true}
+                            onClose={handleCloseBranchesModal}
+                            className="relative z-20"
+                          >
+                            <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                            <div className="fixed inset-0 z-20 w-screen overflow-y-auto">
+                              <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                                <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-md">
+                                  <div className="px-4 pt-5 pb-4 sm:p-6">
+                                    <DialogTitle as="h3" className="text-lg font-TextFontSemiBold text-mainColor">
+                                      {t('BranchesForAccount', { name: financialAccount.name })}
+                                    </DialogTitle>
+                                    <div className="mt-4 max-h-64 overflow-y-auto">
+                                      {financialAccount.branch.length > 0 ? (
+                                        financialAccount.branch.map((branch) => (
+                                          <div
+                                            key={branch.id}
+                                            className="flex flex-col p-3 mb-2 bg-gray-50 rounded-md border border-gray-200"
+                                          >
+                                            <div className="text-sm font-TextFontMedium text-mainColor">
+                                              {t('BranchName')}: {branch.name}
+                                            </div>
+                                            <div className="text-xs text-gray-900">
+                                              {t('Address')}: {branch.address || t('NoAddress')}
+                                            </div>
                                           </div>
-                                          <div className="text-xs text-gray-900">
-                                            {t('Address')}: {branch.address || t('NoAddress')}
-                                          </div>
+                                        ))
+                                      ) : (
+                                        <div className="text-sm text-thirdColor">
+                                          {t('NoBranches')}
                                         </div>
-                                      ))
-                                    ) : (
-                                      <div className="text-sm text-thirdColor">
-                                        {t('NoBranches')}
-                                      </div>
-                                    )}
+                                      )}
+                                    </div>
                                   </div>
-                                </div>
-                                <div className="px-4 py-3 sm:px-6">
-                                  <button
-                                    type="button"
-                                    onClick={handleCloseBranchesModal}
-                                    className="inline-flex justify-center w-full px-6 py-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:w-auto"
-                                  >
-                                    {t('Close')}
-                                  </button>
-                                </div>
-                              </DialogPanel>
+                                  <div className="px-4 py-3 sm:px-6">
+                                    <button
+                                      type="button"
+                                      onClick={handleCloseBranchesModal}
+                                      className="inline-flex justify-center w-full px-6 py-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:w-auto"
+                                    >
+                                      {t('Close')}
+                                    </button>
+                                  </div>
+                                </DialogPanel>
+                              </div>
                             </div>
-                          </div>
-                        </Dialog>
-                      )}
-                    </td>
+                          </Dialog>
+                        )}
+                      </td>
+                    ) : null}
                     <td className="min-w-[120px] sm:min-w-[80px] sm:w-2/12 lg:w-2/12 py-2 overflow-hidden">
                       <div className="flex justify-center">
                         <img
@@ -248,7 +259,7 @@ const FinancialAccountPage = ({ refetch }) => {
                       </div>
                     </td>
                     <td className="min-w-[120px] sm:min-w-[80px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                      {financialAccount.balance}
+                      {financialAccount.balance || "-"}
                     </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {financialAccount.details}

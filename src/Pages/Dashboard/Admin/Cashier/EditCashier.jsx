@@ -18,20 +18,21 @@ import Select from "react-select";
 const EditCashier = () => {
     const { cashierId } = useParams();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const auth = useAuth();
+    const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
     const { refetch: refetchCashierItem, loading: loadingCashierItem, data: dataCashierItem } = useGet({
-        url: `${apiUrl}/admin/cashier/item/${cashierId}`,
+        url: `${apiUrl}/${role}/cashier/item/${cashierId}`,
     });
     const { refetch: refetchBranch, loading: loadingBranch, data: dataBranch } = useGet({
-        url: `${apiUrl}/admin/cashier`,
+        url: `${apiUrl}/${role}/cashier`,
     });
     const { refetch: refetchTranslation, loading: loadingTranslation, data: dataTranslation } = useGet({
-        url: `${apiUrl}/admin/translation`,
+        url: `${apiUrl}/${role}/translation`,
     });
     const { postData, loadingPost, response } = usePost({
-        url: `${apiUrl}/admin/cashier/update/${cashierId}`,
+        url: `${apiUrl}/${role}/cashier/update/${cashierId}`,
     });
     const { t } = useTranslation();
-    const auth = useAuth();
     const navigate = useNavigate();
 
     const [branches, setBranches] = useState([]);
@@ -72,9 +73,9 @@ const EditCashier = () => {
 
     // Set form fields when all data is available
     useEffect(() => {
-        if (dataCashierItem && dataCashierItem.cashier && branches.length > 0 && translations.length > 0 && !initialDataLoaded) {
+        if (dataCashierItem && dataCashierItem.cashier && translations.length > 0 && !initialDataLoaded) {
             const cashier = dataCashierItem;
-            // Find the matching branch
+            // Find the matching branch 
             const selected = branches.find((branch) => branch.value === cashier?.cashier.branch_id);
             setSelectedBranch(selected || null);
             setActive(cashier?.cashier.status);
@@ -268,6 +269,7 @@ const EditCashier = () => {
                             ))}
 
                             {/* Branch Selection */}
+                            {role === "admin" && (
                             <div className="w-full flex flex-col items-start justify-center gap-y-1">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">
                                     {t("Branch")} *
@@ -282,6 +284,7 @@ const EditCashier = () => {
                                     className="w-full"
                                 />
                             </div>
+                            )}
 
                             {/* Print Type Selection */}
                             <div className="w-full flex flex-col items-start justify-center gap-y-1">

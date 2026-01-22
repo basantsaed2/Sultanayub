@@ -13,15 +13,18 @@ import { useDelete } from "../../../../Hooks/useDelete";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { t } from "i18next";
+import { useAuth } from "../../../../Context/Auth";
 
 const CashierMan = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const auth = useAuth();
+  const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
   const {
     refetch: refetchCashier,
     loading: loadingCashier,
     data: dataCashier,
   } = useGet({
-    url: `${apiUrl}/admin/cashier_man`,
+    url: `${apiUrl}/${role}/cashier_man`,
   });
   const { deleteData, loadingDelete } = useDelete();
   const { changeState, loadingChange } = useChangeState();
@@ -57,7 +60,7 @@ const CashierMan = () => {
 
   const handleChangeStatus = async (id, name, status) => {
     const response = await changeState(
-      `${apiUrl}/admin/cashier_man/status/${id}`,
+      `${apiUrl}/${role}/cashier_man/status/${id}`,
       `${name} Changed Status.`,
       { status }
     );
@@ -74,7 +77,7 @@ const CashierMan = () => {
   // Change logout status function
   const handleChangeLogout = async (id, name, currentLogoutStatus) => {
     const response = await changeLogoutStatus(
-      `${apiUrl}/admin/cashier_man/logout/${id}`,
+      `${apiUrl}/${role}/cashier_man/logout/${id}`,
       `${name} ${currentLogoutStatus ? 'Logged Out' : 'Logged In'} Successfully`,
       { logout: currentLogoutStatus ? 0 : 1 } // Toggle logout status
     );
@@ -90,7 +93,7 @@ const CashierMan = () => {
 
   const handleDelete = async (id, name) => {
     const success = await deleteData(
-      `${apiUrl}/admin/cashier_man/delete/${id}`,
+      `${apiUrl}/${role}/cashier_man/delete/${id}`,
       `${name} Deleted Success.`
     );
 
@@ -119,7 +122,7 @@ const CashierMan = () => {
     t("Name"),
     t("Cashier"), // Changed from "Name" to "Cashier"
     t("Manager"),
-    t("Branch"),
+    role == "admin" ? t("Branch") : null,
     t("Image"),
     t("Shift Number"),
     t("Report Permission"),
@@ -159,7 +162,7 @@ const CashierMan = () => {
           <table className="block w-full overflow-x-scroll sm:min-w-0 scrollPage">
             <thead className="w-full">
               <tr className="w-full border-b-2">
-                {headers.map((name, index) => (
+                {headers.filter(name => name !== null).map((name, index) => (
                   <th
                     className="min-w-[120px] sm:w-[8%] lg:w-[5%] text-mainColor text-center font-TextFontLight sm:text-sm lg:text-base xl:text-lg pb-3"
                     key={index}
@@ -173,7 +176,7 @@ const CashierMan = () => {
               {cashiersMan.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={headers.length}
+                    colSpan={headers.filter(name => name !== null).length}
                     className="text-xl text-center text-mainColor font-TextFontMedium"
                   >
                     {t("No cashiers found")}
@@ -205,9 +208,11 @@ const CashierMan = () => {
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {cashier?.manger === 1 ? "Cashier & Manager" : "Cashier"}
                     </td>
-                    <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                      {cashier?.branch?.name || "-"}
-                    </td>
+                    {role === "admin" ? (
+                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                        {cashier?.branch?.name || "-"}
+                      </td>
+                    ) : null}
                     <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {cashier.image_link && cashier.image_link !== "https://bcknd.food2go.online/storage" ? (
                         <img

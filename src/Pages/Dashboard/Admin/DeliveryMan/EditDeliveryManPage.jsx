@@ -8,18 +8,19 @@ import { useTranslation } from 'react-i18next';
 
 const EditDeliveryManPage = () => {
   const { deliveryManId } = useParams();
+  const auth = useAuth();
+  const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const { refetch: refetchDeliveries, loading: loadingDeliveries, data: dataDeliveries } = useGet({
-    url: `${apiUrl}/admin/delivery`
+    url: `${apiUrl}/${role}/delivery`
   });
 
-  const { refetch: refetchDeliveryMan, loading: loadingDeliveryMan, data: dataDeliveryMan } = useGet({ url: `${apiUrl}/admin/delivery/item/${deliveryManId}` });
-  const { postData, loadingPost, response } = usePost({ url: `${apiUrl}/admin/delivery/update/${deliveryManId}` });
+  const { refetch: refetchDeliveryMan, loading: loadingDeliveryMan, data: dataDeliveryMan } = useGet({ url: `${apiUrl}/${role}/delivery/item/${deliveryManId}` });
+  const { postData, loadingPost, response } = usePost({ url: `${apiUrl}/${role}/delivery/update/${deliveryManId}` });
   const { t, i18n } = useTranslation();
 
   const [branches, setBranches] = useState([]);
 
-  const auth = useAuth();
   const navigate = useNavigate();
   const BranchesRef = useRef();
   const IdentityTypeRef = useRef();
@@ -84,9 +85,11 @@ const EditDeliveryManPage = () => {
       setDeliveryStatus(delivery.status || 0)
       setChatStatus(delivery.chat_status || 0)
       setPhoneStatus(delivery.phone_status || 0)
+      if(role === "admin"){
       setDeliveryBranchState(delivery.branch?.name || t('Select Branche'))
       setDeliveryBranchName(delivery.branch?.name || '')
       setDeliveryBranchId(delivery.branch?.id || '')
+      }
       setIdentityTypeState(delivery.identity_type || t('Select Identity Type'))
       setIdentityTypeName(delivery.identity_type || '')
       setIdentityNumber(delivery.identity_number || '')
@@ -200,7 +203,7 @@ const EditDeliveryManPage = () => {
       auth.toastError(t('please Enter The Phone'))
       return;
     }
-    if (!deliveryBranchId) {
+    if (!deliveryBranchId && role === "admin") {
       auth.toastError(t('please Select Branch'))
       return;
     }
@@ -240,8 +243,12 @@ const EditDeliveryManPage = () => {
     formData.append('phone', deliveryPhone)
     formData.append('image', deliveryImageFile)
     formData.append('email', deliveryEmail)
+    if(deliveryPassword){
     formData.append('password', deliveryPassword)
+    }
+    if(role === "admin"){
     formData.append('branch_id', deliveryBranchId)
+    }
     formData.append('identity_type', identityTypeName)
     formData.append('identity_number', identityNumber)
     formData.append('identity_image', identityImageFile)
@@ -293,6 +300,7 @@ const EditDeliveryManPage = () => {
               />
             </div>
             {/* Branches */}
+            {role === "admin" && (
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
               <span className="text-xl font-TextFontRegular text-thirdColor">{t("Branches")}:</span>
               <DropDown
@@ -306,6 +314,7 @@ const EditDeliveryManPage = () => {
                 border={false}
               />
             </div>
+            )}
             {/* Delivery Image */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
               <span className="text-xl font-TextFontRegular text-thirdColor">{t("DeliveryPhoto")}:</span>
@@ -369,6 +378,7 @@ const EditDeliveryManPage = () => {
               <PasswordInput
                 backgound='white'
                 value={deliveryPassword}
+                required={false}
                 onChange={(e) => setDeliveryPassword(e.target.value)}
                 placeholder={t('Password')}
               />

@@ -465,6 +465,41 @@ export const branchRoutes = [
         ],
         redirectTo: "/branch/orders/all",
     },
+    {
+        name:"Cashier",
+        path:"/branch/cashier",
+        permission:"Cashier",
+        icon:FiUsers,
+    },
+    {
+        name:"Cashier Man",
+        path:"/branch/cashier_man",
+        permission:"CashierMan",
+        icon:FiUsers,
+    },
+    {
+        name:"Delivery Man",
+        path:"/branch/delivery_man",
+        permission:"DeliveryMan",
+        icon:FiUsers,
+    },
+    {
+        name:"Financial Account",
+        path:"/branch/financial_account",
+        permission:"FinancialAccount",
+        icon:FiUsers,
+    },
+    {
+        name: "Expenses",
+        path: "/dashboard/expenses",
+        permission: "expenses",
+        icon: LuBanknote,
+        subRoutes: [
+            { name: "Expenses Category", path: "/dashboard/expenses/expenses_category", permission: "expenses" },
+            { name: "Expenses Payment", path: "/dashboard/expenses/expenses_payment", permission: "expenses" },
+        ],
+        redirectTo: "/dashboard/expenses/expenses_category",
+    },
 ];
 
 export const ADMIN_MENU_CATEGORIES = [

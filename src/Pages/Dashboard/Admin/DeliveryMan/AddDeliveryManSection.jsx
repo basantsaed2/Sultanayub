@@ -17,12 +17,13 @@ import { useTranslation } from "react-i18next";
 
 const AddDeliveryManSection = ({ data, refetch, setRefetch }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const auth = useAuth();
+  const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
   const { postData, loadingPost, response } = usePost({
-    url: `${apiUrl}/admin/delivery/add`,
+    url: `${apiUrl}/${role}/delivery/add`,
   });
   const { t, i18n } = useTranslation();
 
-  const auth = useAuth();
   const BranchesRef = useRef();
   const IdentityTypeRef = useRef();
   const DeliveryImageRef = useRef();
@@ -188,7 +189,7 @@ const AddDeliveryManSection = ({ data, refetch, setRefetch }) => {
       auth.toastError(t("please Enter The Phone"));
       return;
     }
-    if (!deliveryBranchId) {
+    if (!deliveryBranchId && role === "admin") {
       auth.toastError(t("please Select Branch"));
       return;
     }
@@ -229,7 +230,9 @@ const AddDeliveryManSection = ({ data, refetch, setRefetch }) => {
     formData.append("image", deliveryImageFile);
     formData.append("email", deliveryEmail);
     formData.append("password", deliveryPassword);
+    if(role === "admin"){
     formData.append("branch_id", deliveryBranchId);
+    }
     formData.append("identity_type", identityTypeName);
     formData.append("identity_number", identityNumber);
     formData.append("identity_image", identityImageFile);
@@ -242,7 +245,7 @@ const AddDeliveryManSection = ({ data, refetch, setRefetch }) => {
 
   return (
     <>
-      {data.length === 0 || loadingPost ? (
+      {loadingPost ? (
         <div className="flex items-center justify-center w-full h-56">
           <StaticLoader />
         </div>
@@ -286,6 +289,7 @@ const AddDeliveryManSection = ({ data, refetch, setRefetch }) => {
               />
             </div>
             {/* Branches */}
+            {data === 0 && (
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
               <span className="text-xl font-TextFontRegular text-thirdColor">
                 {t("Branches")}:
@@ -301,6 +305,7 @@ const AddDeliveryManSection = ({ data, refetch, setRefetch }) => {
                 border={false}
               />
             </div>
+            )}
             {/* Delivery Image */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
               <span className="text-xl font-TextFontRegular text-thirdColor">

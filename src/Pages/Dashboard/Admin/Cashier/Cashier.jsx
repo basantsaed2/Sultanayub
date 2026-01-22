@@ -16,12 +16,14 @@ import { t } from "i18next";
 
 const Cashier = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const role = localStorage.getItem("role");
+
     const {
         refetch: refetchCashier,
         loading: loadingCashier,
         data: dataCashier,
     } = useGet({
-        url: `${apiUrl}/admin/cashier`,
+        url: `${apiUrl}/${role}/cashier`,
     });
     const { deleteData, loadingDelete, responseDelete } = useDelete();
     const { changeState, loadingChange, responseChange } = useChangeState();
@@ -56,7 +58,7 @@ const Cashier = () => {
     // Change Cashier status
     const handleChangeStaus = async (id, name, status) => {
         const response = await changeState(
-            ` ${apiUrl}/admin/cashier/status/${id}`,
+            ` ${apiUrl}/${role}/cashier/status/${id}`,
             `${name} Changed Status.`,
             { status } // Pass status as an object if changeState expects an object
         );
@@ -85,7 +87,7 @@ const Cashier = () => {
     // Delete Language
     const handleDelete = async (id, name) => {
         const success = await deleteData(
-            `${apiUrl}/admin/cashier/delete/${id}`,
+            `${apiUrl}/${role}/cashier/delete/${id}`,
             `${name} Deleted Success.`
         );
 
@@ -99,7 +101,7 @@ const Cashier = () => {
         t("SL"),
         t("Name"),
         t("Cashier Man"),
-        t("Branch"),
+        role == "admin" ? t("Branch") : null,
         t("Status"),
         t("Action"),
     ];
@@ -124,7 +126,7 @@ const Cashier = () => {
                     <table className="block w-full overflow-x-scroll sm:min-w-0 scrollPage">
                         <thead className="w-full">
                             <tr className="w-full border-b-2">
-                                {headers.map((name, index) => (
+                                {headers.filter(Boolean).map((name, index) => (
                                     <th
                                         className="min-w-[120px] sm:w-[8%] lg:w-[5%] text-mainColor text-center font-TextFontLight sm:text-sm lg:text-base xl:text-lg pb-3"
                                         key={index}
@@ -138,7 +140,7 @@ const Cashier = () => {
                             {Cashiers.length === 0 ? (
                                 <tr>
                                     <td
-                                        colSpan={12}
+                                        colSpan={headers.length}
                                         className="text-xl text-center text-mainColor font-TextFontMedium "
                                     >
                                         {t("Not find discounts")}
@@ -157,12 +159,14 @@ const Cashier = () => {
                                             <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                                 {Cashier?.name || "-"}
                                             </td>
-                                             <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                                {Cashier?.cashier_man?.user_name || "-"}
-                                            </td>
                                             <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                                                {Cashier?.branch?.name || "-"}
-                                            </td>
+                                                {Cashier?.cashier_man?.user_name || "-"}
+                                            </td>   
+                                            {role === "admin" && (
+                                                <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                                    {Cashier?.branch?.name || "-"}
+                                                </td>
+                                            )}
                                             <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                                 <Switch
                                                     checked={Cashier.status === 1}

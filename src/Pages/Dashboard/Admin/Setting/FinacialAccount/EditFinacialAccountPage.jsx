@@ -20,12 +20,18 @@ import { IoArrowBack } from "react-icons/io5";
 const EditFinacialAccountPage = () => {
   const { financialId } = useParams();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
-  const { refetch: refetchFinancialAccount, loading: loadingFinancialAccount, data: dataFinancialAccount } = useGet({ url: `${apiUrl}/admin/settings/financial/item/${financialId}` });
+  const auth = useAuth();
+  const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
+  const financialAccountUrl =
+    role === "branch"
+      ? `branch/financial`
+      : `admin/settings/financial`;
+  const { refetch: refetchFinancialAccount, loading: loadingFinancialAccount, data: dataFinancialAccount } = useGet({ url: `${apiUrl}/${role}/settings/financial/item/${financialId}` });
   const { refetch: refetchBranches, loading: loadingBranches, data: dataBranches } = useGet({
-    url: `${apiUrl}/admin/settings/financial`,
+    url: `${apiUrl}/${financialAccountUrl}`,
   });
   const { postData, loadingPost, response } = usePost({
-    url: `${apiUrl}/admin/settings/financial/update/${financialId}`,
+    url: `${apiUrl}/${financialAccountUrl}/update/${financialId}`,
   });
   const { t } = useTranslation();
   const { toastError } = useAuth();
@@ -144,13 +150,16 @@ const EditFinacialAccountPage = () => {
     formData.append("name", name);
     formData.append("details", description);
     formData.append("balance", balance || 0);
+    if(imageFile){
     formData.append("logo", imageFile);
+    }
     formData.append("status", status);
     formData.append("discount", discount);
     formData.append("description_status", visaStatus);
+    if(role === 'admin'){
     selectedBranch.forEach((branch, index) => {
       formData.append(`branch_id[${index}]`, branch.id); // Append each ID as an array element in FormData
-    });
+    });}
     postData(formData, t("Financial Account Updated Success")); // Updated to use t() for success message
   };
 
@@ -193,6 +202,7 @@ const EditFinacialAccountPage = () => {
                   />
                 </div>
                 {/* Branch Dropdown */}
+                {role === "admin" && (
                 <div className="w-full flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
                     {t("BranchName")}:
@@ -209,6 +219,7 @@ const EditFinacialAccountPage = () => {
                     filter
                   />
                 </div>
+                )}
                 <div className="w-full flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
                     {t("Description")}:

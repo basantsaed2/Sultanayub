@@ -422,6 +422,114 @@ export const router = createBrowserRouter([
               },
             ],
           },
+           {
+            path: "cashier",
+            element: <Outlet />,
+            children: [
+              {
+                path: "",
+                element: <Cashier />,
+              },
+              {
+                path: "add",
+                element: <AddCashier />,
+              },
+              {
+                path: "edit/:cashierId",
+                element: <EditCashier />,
+              },
+            ],
+          },
+          {
+            path: "cashier_man",
+            element: <Outlet />,
+            children: [
+              {
+                path: "",
+                element: <CashierMan />,
+              },
+              {
+                path: "add",
+                element: <AddCashierMan />,
+              },
+              {
+                path: "edit/:cashierManId",
+                element: <EditCashierMan />,
+              },
+            ],
+          },
+          {
+            path: "delivery_man",
+            children: [
+              {
+                path: "",
+                element: <DeliveryManLayout />,
+              },
+              {
+                path: "edit/:deliveryManId",
+                element: <EditDeliveryManLayout />,
+              },
+              {
+                path: "delivery-man-orders/:id",
+                element: <DeliveryManOrdersParent />,
+              },
+            ],
+          },
+          {
+                path: "financial_account",
+                children: [
+                  {
+                    path: "",
+                    children: [
+                      {
+                        index: true,
+                        element: <FinacialAccountPage />,
+                      },
+                      {
+                        path: "add",
+                        element: <AddFinacialAccountPage />,
+                      },
+                      {
+                        path: "edit/:financialId",
+                        element: <EditFinacialAccountPage />,
+                      },
+                    ],
+                  },
+                ],
+          },
+          {
+            path: "expenses",
+            element: <Outlet />,
+            children: [
+              {
+                path: "expenses_category",
+                children: [
+                  {
+                    path: "",
+                    children: [
+                      {
+                        index: true,
+                        element: <ExpensesCategory />,
+                      },
+                      {
+                        path: "add",
+                        element: <AddExpensesCategory />,
+                      },
+                      {
+                        path: "edit/:expensesCategoryId",
+                        element: <EditExpensesCategory />,
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                path: "expenses_payment",
+                element: <ExpensesPayment />,
+              },
+            ],
+          },
+
         ],
       },
     ],

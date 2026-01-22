@@ -7,9 +7,12 @@ import { DeleteIcon, EditIcon } from '../../../../Assets/Icons/AllIcons';
 import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react';
 import Warning from '../../../../Assets/Icons/AnotherIcons/WarningIcon';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../../../Context/Auth';
 
 const DeliveryManPage = ({ data, setDeliveries, loading }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const auth = useAuth();
+  const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
   const navigate = useNavigate();
   const { changeState, loadingChange, responseChange } = useChangeState();
   const { deleteData, loadingDelete, responseDelete } = useDelete();
@@ -37,7 +40,7 @@ const DeliveryManPage = ({ data, setDeliveries, loading }) => {
   // Change Deliveries status 
   const handleChangeStaus = async (id, name, status) => {
     const response = await changeState(
-      `${apiUrl}/admin/delivery/status/${id}`,
+      `${apiUrl}/${role}/delivery/status/${id}`,
       `${name} Changed Status.`,
       { status } // Pass status as an object if changeState expects an object
     );
@@ -69,7 +72,7 @@ const DeliveryManPage = ({ data, setDeliveries, loading }) => {
 
   // Delete Delivery
   const handleDelete = async (id, name) => {
-    const success = await deleteData(`${apiUrl}/admin/delivery/delete/${id}`, `${name} Deleted Success.`);
+    const success = await deleteData(`${apiUrl}/${role}/delivery/delete/${id}`, `${name} Deleted Success.`);
 
     if (success) {
       // Update Deliveries only if changeState succeeded
@@ -107,7 +110,7 @@ const DeliveryManPage = ({ data, setDeliveries, loading }) => {
           <table className="block w-full overflow-x-scroll sm:min-w-0 scrollPage">
             <thead className="w-full">
               <tr className="w-full border-b-2">
-                {headers.map((name, index) => (
+                {headers.filter(name => name !== null).map((name, index) => (
                   <th className="min-w-[120px] sm:w-[8%] lg:w-[5%] text-mainColor text-center font-TextFontLight sm:text-sm lg:text-base xl:text-lg pb-3" key={index}>
                     {name}
                   </th>

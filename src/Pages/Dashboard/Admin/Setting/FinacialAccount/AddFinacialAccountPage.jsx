@@ -19,11 +19,17 @@ import { IoArrowBack } from "react-icons/io5";
 
 const AddFinacialAccountPage = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const auth = useAuth();
+  const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
+  const financialAccountUrl =
+    role === "branch"
+      ? `branch/financial`
+      : `admin/settings/financial`;
   const { refetch: refetchBranches, loading: loadingBranches, data: dataBranches } = useGet({
-    url: `${apiUrl}/admin/settings/financial`,
+    url: `${apiUrl}/${financialAccountUrl}`,
   });
   const { postData, loadingPost, response } = usePost({
-    url: `${apiUrl}/admin/settings/financial/add`,
+    url: `${apiUrl}/${financialAccountUrl}/add`,
   });
   const { t } = useTranslation();
   const { toastError } = useAuth();
@@ -48,7 +54,7 @@ const AddFinacialAccountPage = () => {
   }, [refetchBranches]);
 
   useEffect(() => {
-    if (dataBranches && dataBranches.branches) {
+    if (dataBranches && dataBranches.branches && role === "admin") {
       setBranches(dataBranches.branches);
     }
   }, [dataBranches]);
@@ -117,7 +123,7 @@ const AddFinacialAccountPage = () => {
     //   toastError(t("setfinancialAccountImage"));
     //   return;
     // }
-    if (!selectedBranch) {
+    if (!selectedBranch && role === "admin") {
       toastError(t("selectBranch")); // Add new translation key for branch validation
       return;
     }
@@ -126,13 +132,17 @@ const AddFinacialAccountPage = () => {
     formData.append("name", name);
     formData.append("details", description);
     formData.append("balance", balance || 0);
+    if(imageFile){
     formData.append("logo", imageFile);
+    }
     formData.append("status", status);
     formData.append("discount", discount);
     formData.append("description_status", visaStatus);
-    selectedBranch.forEach((branch, index) => {
-      formData.append(`branch_id[${index}]`, branch.id); // Append each ID as an array element in FormData
-    });
+    if (role === 'admin') {
+      selectedBranch.forEach((branch, index) => {
+        formData.append(`branch_id[${index}]`, branch.id); // Append each ID as an array element in FormData
+      });
+    }
     postData(formData, t("Financial Account Added Success")); // Updated to use t() for success message
   };
 
@@ -175,22 +185,24 @@ const AddFinacialAccountPage = () => {
                   />
                 </div>
                 {/* Branch Dropdown */}
-                <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                  <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("BranchName")}:
-                  </span>
-                  <MultiSelect
-                    value={selectedBranch}
-                    onChange={(e) => setSelectedBranch(e.value)}
-                    options={branches}
-                    optionLabel="name"
-                    display="chip"
-                    placeholder={t("selectBranch")}
-                    // maxSelectedLabels={3}
-                    className="w-full p-1 md:w-20rem text-mainColor"
-                    filter
-                  />
-                </div>
+                {role === "admin" && (
+                  <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                      {t("BranchName")}:
+                    </span>
+                    <MultiSelect
+                      value={selectedBranch}
+                      onChange={(e) => setSelectedBranch(e.value)}
+                      options={branches}
+                      optionLabel="name"
+                      display="chip"
+                      placeholder={t("selectBranch")}
+                      // maxSelectedLabels={3}
+                      className="w-full p-1 md:w-20rem text-mainColor"
+                      filter
+                    />
+                  </div>
+                )}
                 <div className="w-full flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
                     {t("Description")}:

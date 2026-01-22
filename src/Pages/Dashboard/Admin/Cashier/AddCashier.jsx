@@ -16,18 +16,19 @@ import { IoArrowBack } from "react-icons/io5";
 import Select from "react-select";
 
 const AddCashier = () => {
-    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;   
+    const auth = useAuth();
+    const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
     const { refetch: refetchTranslation, loading: loadingTranslation, data: dataTranslation } = useGet({
-        url: `${apiUrl}/admin/translation`,
+        url: `${apiUrl}/${role}/translation`,
     });
     const { refetch: refetchBranch, loading: loadingBranch, data: dataBranch } = useGet({
-        url: `${apiUrl}/admin/cashier`,
+        url: `${apiUrl}/${role}/cashier`,
     });
     const { postData, loadingPost, response } = usePost({
-        url: `${apiUrl}/admin/cashier/add`,
+        url: `${apiUrl}/${role}/cashier/add`,
     });
     const { t, i18n } = useTranslation();
-    const auth = useAuth();
     const navigate = useNavigate();
 
     const [branches, setBranches] = useState([]);
@@ -48,7 +49,7 @@ const AddCashier = () => {
 
     // Update branches state when dataBranch is available
     useEffect(() => {
-        if (dataBranch && dataBranch.branches) {
+        if (dataBranch && dataBranch.branches && role === "admin") {
             const branchOptions = dataBranch.branches.map((branch) => ({
                 value: branch.id,
                 label: branch.name,
@@ -117,13 +118,15 @@ const AddCashier = () => {
             return;
         }
 
-        if (!selectedBranch) {
+        if (!selectedBranch && role === "admin") {
             auth.toastError(t("BranchRequired"));
             return;
         }
 
         const formData = new FormData();
-        formData.append("branch_id", selectedBranch.value);
+        if (role === "admin") {
+            formData.append("branch_id", selectedBranch.value);
+        }
         formData.append("status", active);
         formData.append("print_type", printType.value);
         formData.append("print_name", printName);
@@ -212,11 +215,12 @@ const AddCashier = () => {
                             ))}
 
                             {/* Branch Selection */}
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Branch")} *
-                                </span>
-                                <Select
+                            {role === "admin" && (
+                                <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                                        {t("Branch")} *
+                                    </span>
+                                    <Select
                                     options={branches}
                                     value={selectedBranch}
                                     onChange={setSelectedBranch}
@@ -226,6 +230,7 @@ const AddCashier = () => {
                                     className="w-full"
                                 />
                             </div>
+                            )}
 
                             {/* Print Type Selection */}
                             <div className="w-full flex flex-col items-start justify-center gap-y-1">

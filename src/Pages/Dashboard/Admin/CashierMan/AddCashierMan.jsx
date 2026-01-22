@@ -18,14 +18,15 @@ import Select from "react-select";
 
 const AddCashierMan = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const auth = useAuth();
+  const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
   const { refetch: refetchBranch, loading: loadingBranch, data: dataBranch } = useGet({
-    url: `${apiUrl}/admin/cashier_man`,
+    url: `${apiUrl}/${role}/cashier_man`,
   });
   const { postData, loadingPost, response } = usePost({
-    url: `${apiUrl}/admin/cashier_man/add`,
+    url: `${apiUrl}/${role}/cashier_man/add`,
   });
   const { t } = useTranslation();
-  const auth = useAuth();
   const navigate = useNavigate();
 
   const [branches, setBranches] = useState([]);
@@ -80,12 +81,14 @@ const AddCashierMan = () => {
 
   // Update branches state when dataBranch is available
   useEffect(() => {
-    if (dataBranch && dataBranch.branches && dataBranch.report_role) {
-      const branchOptions = dataBranch.branches.map((branch) => ({
-        value: branch.id,
-        label: branch.name,
-      }));
-      setBranches(branchOptions);
+    if (dataBranch) {
+      if (role === "admin") { 
+        const branchOptions = dataBranch.branches.map((branch) => ({
+          value: branch.id,
+          label: branch.name,
+        }));
+        setBranches(branchOptions);
+      }
 
       // Use the mapping function for report permissions
       const reportOptions = getReportPermissionOptions(dataBranch.report_role);
@@ -157,7 +160,7 @@ const AddCashierMan = () => {
       auth.toastError(t("MyIdRequired"));
       return;
     }
-    if (!selectedBranch) {
+    if (!selectedBranch && role === "admin") {
       auth.toastError(t("BranchRequired"));
       return;
     }
@@ -166,7 +169,12 @@ const AddCashierMan = () => {
     formData.append("user_name", userName);
     formData.append("password", password);
     formData.append("my_id", myId);
-    formData.append("branch_id", selectedBranch.value);
+    if (role === "admin") {
+      formData.append("branch_id", selectedBranch.value);
+    }
+    else {
+      formData.append("branch_id", auth.userState?.id);
+    }
     formData.append("status", status);
     formData.append("take_away", takeAway);
     formData.append("dine_in", dineIn);
@@ -313,21 +321,22 @@ const AddCashierMan = () => {
                 />
               </div>
 
-              {/* Branch Selection */}
-              <div className="flex flex-col items-start justify-center gap-y-1">
-                <span className="text-xl font-TextFontRegular text-thirdColor">
-                  {t("Branch")}:
-                </span>
-                <Select
-                  options={branches}
-                  value={selectedBranch}
-                  onChange={setSelectedBranch}
-                  placeholder={t("SelectBranch")}
-                  styles={customStyles}
-                  isSearchable
-                  className="w-full"
-                />
-              </div>
+{role === "admin" && (
+                <div className="flex flex-col items-start justify-center gap-y-1">
+                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                    {t("Branch")}:
+                  </span>
+                  <Select
+                    options={branches}
+                    value={selectedBranch}
+                    onChange={setSelectedBranch}
+                    placeholder={t("SelectBranch")}
+                    styles={customStyles}
+                    isSearchable
+                    className="w-full"
+                  />
+                </div>
+                )}
 
               {/* Roles Multi-Select */}
               <div className="flex flex-col items-start justify-center gap-y-1">

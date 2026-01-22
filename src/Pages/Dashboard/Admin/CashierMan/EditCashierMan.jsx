@@ -20,17 +20,19 @@ import Select from "react-select";
 const EditCashierMan = () => {
   const { cashierManId } = useParams();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const auth = useAuth();
+  const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
+
   const { refetch: refetchCashierManItem, loading: loadingCashierManItem, data: dataCashierManItem } = useGet({
-    url: `${apiUrl}/admin/cashier_man/item/${cashierManId}`,
+    url: `${apiUrl}/${role}/cashier_man/item/${cashierManId}`,
   });
   const { refetch: refetchBranch, loading: loadingBranch, data: dataBranch } = useGet({
-    url: `${apiUrl}/admin/cashier_man`,
+    url: `${apiUrl}/${role}/cashier_man`,
   });
   const { postData, loadingPost, response } = usePost({
-    url: `${apiUrl}/admin/cashier_man/update/${cashierManId}`,
+    url: `${apiUrl}/${role}/cashier_man/update/${cashierManId}`,
   });
   const { t } = useTranslation();
-  const auth = useAuth();
   const navigate = useNavigate();
 
   const [branches, setBranches] = useState([]);

@@ -3,12 +3,14 @@ import { TitlePage, TitleSection } from '../../../Components/Components'
 import { AddDeliveryManSection, DeliveryManPage } from '../../../Pages/Pages'
 import { useGet } from '../../../Hooks/useGet';
 import { useTranslation } from 'react-i18next';
-
+import { useAuth } from '../../../Context/Auth';
 
 const DeliveryManLayout = () => {
        const apiUrl = import.meta.env.VITE_API_BASE_URL;
+       const auth = useAuth();
+       const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
        const { refetch: refetchDeliveries, loading: loadingDeliveries, data: dataDeliveries } = useGet({
-              url: `${apiUrl}/admin/delivery`
+              url: `${apiUrl}/${role}/delivery`
        });
            const { t, i18n } = useTranslation();
 
@@ -25,9 +27,11 @@ const DeliveryManLayout = () => {
 
        // Update Deliveries when `data` changes
        useEffect(() => {
-              if (dataDeliveries && dataDeliveries.deliveries && dataDeliveries.branches) {
+              if (dataDeliveries && dataDeliveries.deliveries) {
                      setDeliveries(dataDeliveries.deliveries);
+                     if(role === "admin"){
                      setBranches([{ id: '', name: t('Select Branche') }, ...dataDeliveries.branches] || []);
+                     }
               }
        }, [dataDeliveries]); // Only run this effect when `data` changes
 
@@ -36,7 +40,11 @@ const DeliveryManLayout = () => {
        return (
               <>
                      <TitlePage text={t('AddDelivery')} />
+                     {role === "admin" ? (
                      <AddDeliveryManSection data={branches} refetch={refetch} setRefetch={setRefetch} />
+                     ) : (
+                     <AddDeliveryManSection refetch={refetch} setRefetch={setRefetch} />
+                     )}
                      <TitleSection text={t('DeliveriesTable')} />
                      <DeliveryManPage data={deliveries} setDeliveries={setDeliveries} loading={loadingDeliveries} />
               </>
