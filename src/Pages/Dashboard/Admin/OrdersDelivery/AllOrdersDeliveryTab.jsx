@@ -23,9 +23,11 @@ const AllOrdersDeliveryTab = () => {
 
   const [fromDate, setFromDate] = useState(getCurrentDate());
   const [toDate, setToDate] = useState(getCurrentDate());
+  const [currentPage, setCurrentPage] = useState(1);
 
   // ---------- APIs ----------
-  const getUrl = `${apiUrl}/admin/delivery/single_page/orders`;
+  // Updated URL to include query parameters for filtering and pagination
+  const getUrl = `${apiUrl}/admin/delivery/single_page/orders?from=${fromDate}&to=${toDate}&page=${currentPage}`;
   const getDeliveryUrl = `${apiUrl}/admin/delivery_balance/lists`;
   const assignUrl = `${apiUrl}/admin/delivery/single_page/orders_delivery`;
 
@@ -39,19 +41,19 @@ const AllOrdersDeliveryTab = () => {
   const [selectedOrderIds, setSelectedOrderIds] = useState([]);
   const [selectedDeliveryOption, setSelectedDeliveryOption] = useState(null); // react-select value
 
-  const rawOrders = normalData?.orders || [];
+  // Data path updated to handle the new paginated response structure
+  const allOrders = normalData?.data || [];
+  const totalPages = normalData?.last_page || 1;
 
-  // Filter by date range (inclusive)
-  const allOrders = rawOrders.filter(order => {
-    if (!order.date) return false;
-    // Assuming order.date is "YYYY-MM-DD" or similar interpretable string
-    const orderDate = new Date(order.date).toISOString().split('T')[0];
-    return orderDate >= fromDate && orderDate <= toDate;
-  });
   const deliveries = deliveryData?.deliveries || [];
 
   const allSelected = allOrders.length > 0 && selectedOrderIds.length === allOrders.length;
   const someSelected = selectedOrderIds.length > 0;
+
+  // Reset page when dates change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [fromDate, toDate]);
 
   // ---------- react-select options ----------
   const deliveryOptions = deliveries.map(del => ({
@@ -74,6 +76,13 @@ const AllOrdersDeliveryTab = () => {
         ? prev.filter(id => id !== orderId)
         : [...prev, orderId]
     );
+  };
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      setSelectedOrderIds([]); // Clear selection when changing page
+    }
   };
 
   const handleAssign = async () => {
@@ -104,7 +113,7 @@ const AllOrdersDeliveryTab = () => {
       setSelectedOrderIds([]);
       setSelectedDeliveryOption(null); // Clear react-select
     }
-  }, [response, assigning]);
+  }, [response, assigning, refetchNormalData, auth, t]);
 
   // ---------- Custom Styles for react-select ----------
   const customStyles = {
@@ -244,6 +253,55 @@ const AllOrdersDeliveryTab = () => {
             onSelectAll={handleSelectAll}
             allSelected={allSelected}
           />
+
+          {/* Server-side Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-6">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-4 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-50 transition-colors shadow-sm text-gray-600 font-medium"
+              >
+                {t("<")}
+              </button>
+
+              <div className="flex items-center gap-2">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`w-10 h-10 rounded-xl border font-semibold transition-all shadow-sm ${currentPage === pageNum
+                        ? 'bg-mainColor text-white border-mainColor'
+                        : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                        }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-50 transition-colors shadow-sm text-gray-600 font-medium"
+              >
+                {t(">")}
+              </button>
+            </div>
+          )}
         </>
       )}
     </div>
