@@ -494,10 +494,10 @@ const FinacialReports = () => {
         </div>
 
         <div className="flex gap-4">
-          <button onClick={handleGenerateReport} className="px-6 py-3 font-medium text-white rounded-lg bg-mainColor hover:bg-opacity-90">
+          <button onClick={handleGenerateReport} className="px-3 py-3 font-medium text-white rounded-lg bg-mainColor hover:bg-opacity-90">
             {t("Generate Report")}
           </button>
-          <button onClick={handleResetFilters} className="px-6 py-3 font-medium text-white bg-gray-500 rounded-lg hover:bg-gray-600">
+          <button onClick={handleResetFilters} className="px-3 py-3 font-medium text-white bg-gray-500 rounded-lg hover:bg-gray-600">
             {t("Reset Filters")}
           </button>
         </div>
