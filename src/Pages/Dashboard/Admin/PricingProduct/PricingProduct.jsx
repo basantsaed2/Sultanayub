@@ -77,15 +77,29 @@ const PricingProduct = () => {
 
         if (activeTab === "all") {
             if (selectedModules.length === 0) return;
-            selectedModules.forEach((mod, index) => {
-                formData.append(`items[${index}][module]`, mod);
-                formData.append(`items[${index}][product_id]`, id);
-                formData.append(`items[${index}][price]`, editPrice);
-            });
+
+            console.log(selectedModules)
+
+            // Check if selectedModules contains all three
+            const allModules = ["take_away", "delivery", "dine_in"];
+            const hasAll = allModules.every(m => selectedModules.includes(m));
+
+            if (hasAll) {
+                formData.append(`items[0][module]`, "all");
+                formData.append(`items[0][product_id]`, id);
+                formData.append(`items[0][price]`, editPrice);
+            } else {
+                selectedModules.forEach((mod, index) => {
+                    formData.append(`items[${index}][module]`, mod);
+                    formData.append(`items[${index}][product_id]`, id);
+                    formData.append(`items[${index}][price]`, editPrice);
+                });
+            }
+
         } else {
-            formData.append("module", activeTab);
-            formData.append("product_id", id);
-            formData.append("price", editPrice);
+            formData.append(`items[0][module]`, activeTab);
+            formData.append(`items[0][product_id]`, id);
+            formData.append(`items[0][price]`, editPrice);
         }
 
         await postData(formData, t("Price Updated Successfully"));
