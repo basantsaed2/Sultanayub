@@ -62,8 +62,8 @@ const RealTimeSalesReports = () => {
                 <div class="section">
                     <div class="section-title">${t("Branches Breakdown")}</div>
                     ${salesData.data
-                      .map(
-                        (b) => `
+          .map(
+            (b) => `
                         <div style="border-bottom: 2px dotted #000; padding: 5px 0; margin-bottom: 5px;">
                             <div style="font-weight: bold; margin-bottom: 3px; font-size: 13px;">${b.Branch}</div>
                             
@@ -86,8 +86,8 @@ const RealTimeSalesReports = () => {
                             <div class="item-row"><span class="item-name">${t("Service Fees")}</span><span class="item-value">${(b.service_fees || 0).toLocaleString()}</span></div>
                         </div>
                     `,
-                      )
-                      .join("")}
+          )
+          .join("")}
                 </div>
             `;
     }
@@ -320,13 +320,13 @@ const RealTimeSalesReports = () => {
       [t("Dine In"), salesData.dine_in || 0],
       [t("Online Mobile"), salesData.online_mobile || 0],
       [t("Online Web"), salesData.online_web || 0],
-        [t("Out For Delivery"), salesData.out_of_delivery || 0],
+      [t("Out For Delivery"), salesData.out_of_delivery || 0],
       [t("Total Tax"), salesData.total_tax || 0],
       [t("Void Orders Value"), salesData.void_order_sum || 0],
       [t("Void Orders Count"), salesData.void_order_count || 0],
       [t("Discount"), salesData.discount || 0],
       [t("Delivery Fees"), salesData.delivery_fees || 0],
-        [t("Service Fees"), salesData.service_fees || 0],
+      [t("Service Fees"), salesData.service_fees || 0],
     ];
 
     // Header for breakdown
@@ -420,14 +420,14 @@ const RealTimeSalesReports = () => {
       [t("Dine In"), salesData.dine_in || 0],
       [t("Online Mobile"), salesData.online_mobile || 0],
       [t("Online Web"), salesData.online_web || 0],
-        [t("Out For Delivery"), salesData.out_of_delivery || 0],
+      [t("Out For Delivery"), salesData.out_of_delivery || 0],
       [], // Spacer
       [t("Total Tax"), salesData.total_tax || 0],
       [t("Void Orders Value"), salesData.void_order_sum || 0],
       [t("Void Orders Count"), salesData.void_order_count || 0],
       [t("Discount"), salesData.discount || 0],
       [t("Delivery Fees"), salesData.delivery_fees || 0],
-        [t("Service Fees"), salesData.service_fees || 0],
+      [t("Service Fees"), salesData.service_fees || 0],
     ];
 
     // 2. Append Branch Breakdown Table if data exists
@@ -476,9 +476,9 @@ const RealTimeSalesReports = () => {
           b.dine_in || 0,
           b.online_web || 0,
           b.online_mobile || 0,
-            b.out_of_delivery || 0,
+          b.out_of_delivery || 0,
           b.delivery_fees || 0,
-            b.service_fees || 0,
+          b.service_fees || 0,
         ]);
       });
     }
@@ -514,8 +514,8 @@ const RealTimeSalesReports = () => {
           ? value.toLocaleString(undefined, { maximumFractionDigits: 2 })
           : value}
         {typeof value === "number" &&
-        title !== "Total Orders Count" &&
-        title !== "Void Orders Count" && title !== "Out For Delivery"
+          title !== "Total Orders Count" &&
+          title !== "Void Orders Count" && title !== "Out For Delivery"
           ? ` ${t("EGP")}`
           : ""}
       </p>
@@ -523,8 +523,8 @@ const RealTimeSalesReports = () => {
   );
 
   return (
-    <div className="p-4 pb-20 space-y-8 md:p-8">
-      <div className="flex flex-col items-start gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div className="p-2 md:p-4 lg:p-6 pb-20 space-y-8">
+      <div className="flex flex-col items-start gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
             {t("Real Time Sales Report")}
@@ -534,7 +534,7 @@ const RealTimeSalesReports = () => {
           </p>
         </div>
 
-        <div className="flex flex-col items-stretch w-full gap-4 md:flex-row md:items-end md:w-auto">
+        <div className="flex flex-col items-stretch w-full gap-4 lg:flex-row md:items-end md:w-auto">
           {/* Action Buttons */}
           {salesData && (
             <div className="flex gap-2">
@@ -624,7 +624,7 @@ const RealTimeSalesReports = () => {
               <Card title="Dine In" value={salesData.dine_in} />
               <Card title="Online Mobile" value={salesData.online_mobile} />
               <Card title="Online Web" value={salesData.online_web} />
-            <Card title="Out For Delivery" value={salesData.out_of_delivery || 0} />
+              <Card title="Out For Delivery" value={salesData.out_of_delivery || 0} />
               <Card
                 title="Total Tax"
                 value={salesData.total_tax}
