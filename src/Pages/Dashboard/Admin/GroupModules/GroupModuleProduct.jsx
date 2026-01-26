@@ -34,15 +34,6 @@ const GroupModuleProducts = () => {
   const [priceValue, setPriceValue] = useState("");
   const [loadingActions, setLoadingActions] = useState({});
 
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 20;
-  const totalPages = Math.ceil(products.length / productsPerPage);
-  const currentProducts = products.slice(
-    (currentPage - 1) * productsPerPage,
-    currentPage * productsPerPage
-  );
-
   // Variations Modal
   const [showVariationsModal, setShowVariationsModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -53,6 +44,8 @@ const GroupModuleProducts = () => {
   const [optionPriceValue, setOptionPriceValue] = useState("");
   const [savingOptionId, setSavingOptionId] = useState(null);
   const [savingOptionPrice, setSavingOptionPrice] = useState(null);
+
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch variations
   const {
@@ -195,23 +188,58 @@ const GroupModuleProducts = () => {
     }
   };
 
+  // Filter Logic
+  const filteredProducts = products.filter(product =>
+    product?.product_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 20;
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+  const currentProducts = filteredProducts.slice(
+    (currentPage - 1) * productsPerPage,
+    currentPage * productsPerPage
+  );
+
   const headers = [t("SL"), t("Product Name"), t("Price"), t("Status"), t("Change Price"), t("Variations")];
 
   return (
-    <div className="flex flex-col w-full p-4 pb-32 overflow-x-auto">
+    <div className="flex flex-col w-full p-2 md:p-4 pb-32 overflow-x-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <button onClick={() => navigate(-1)} className="text-mainColor hover:text-red-700">
             <IoArrowBack size={28} />
           </button>
-          <TitlePage text={`${t("Group Module")}: ${groupName || "..."}`} />
+          <TitlePage text={`${t("Group Module")}: ${groupName || "..."}`} size="text-xl" />
         </div>
       </div>
 
-      <p className="text-xl font-medium text-mainColor mb-6">
-        {t("Total Products")}: {products.length}
-      </p>
+
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
+
+        <div className="flex flex-wrap gap-4 bg-white p-2 rounded-2xl shadow-sm w-fit">
+
+          <p className="text-xl font-medium text-mainColor">
+            {t("Total Products")}: {products.length}
+          </p>
+        </div>
+
+        {/* Search Input */}
+        <div className="w-full md:w-auto">
+          <input
+            type="text"
+            placeholder={t("Search by product name...")}
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="w-full md:w-80 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-mainColor/20 focus:border-mainColor transition-all shadow-sm"
+          />
+        </div>
+      </div>
 
       {loadingGroupProducts ? (
         <div className="flex justify-center py-20">

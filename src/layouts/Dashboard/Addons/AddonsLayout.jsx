@@ -6,12 +6,12 @@ import { useTranslation } from 'react-i18next';
 const AddonsLayout = () => {
        const [update, setUpdate] = useState(false)
        const { t, i18n } = useTranslation();
-       
+
        return (
               <>
                      <TitlePage text={t('AddNewAddons')} />
                      <AddAddonsSection update={update} setUpdate={setUpdate} />
-                     <TitleSection text={typeof('AddonsTable')} />
+                     <TitleSection text={('AddonsTable')} />
                      <AddonsPage refetch={update} />
               </>
        )
