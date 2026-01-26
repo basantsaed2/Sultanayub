@@ -968,7 +968,7 @@ const EditProductPage = () => {
       ) : (
         <form
           onSubmit={handleProductUpdate}
-          className="flex flex-col items-center justify-center w-full gap-5 pb-24"
+          className="flex flex-col items-center justify-center w-full gap-5 pb-24 mt-5"
         >
           <div className="flex flex-col items-start justify-start w-full gap-5">
             {/* Product Names && Description */}
