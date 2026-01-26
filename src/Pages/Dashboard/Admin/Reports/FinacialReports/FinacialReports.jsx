@@ -436,29 +436,28 @@ const FinacialReports = () => {
   };
 
   return (
-    <div className="w-full p-6 pb-32 space-y-8">
+    <div className="w-full p-2 md:p-4 xl:p-6 pb-32 space-y-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <h1 className="text-3xl font-bold text-mainColor">{t("Financial Report")}</h1>
-
         {reportData && (
-          <div className="flex gap-2">
+          <div className="flex flex-row gap-2">
             <button
               onClick={handleExportExcel}
-              className="flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all shadow-sm font-bold"
+              className="flex items-center gap-2 px-2 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all shadow-sm font-bold"
             >
               <FaFileExcel size={18} />
               {t("Excel")}
             </button>
             <button
               onClick={handlePrintPdf}
-              className="flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all shadow-sm font-bold"
+              className="flex items-center gap-2 px-2 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all shadow-sm font-bold"
             >
               <FaFilePdf size={18} />
               {t("PDF")}
             </button>
             <button
               onClick={handlePrint}
-              className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-sm font-bold"
+              className="flex items-center gap-2 px-2 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-sm font-bold"
             >
               <FaPrint size={18} />
               {t("Print")}
@@ -468,7 +467,7 @@ const FinacialReports = () => {
       </div>
 
       {/* Filters */}
-      <div className="p-6 rounded-lg shadow-sm bg-gray-50">
+      <div className="p-2 md:p-4 xl:p-6 rounded-lg shadow-sm bg-gray-50">
         <h2 className="mb-4 text-xl font-semibold text-mainColor">{t("Filters")}</h2>
         <div className="flex flex-col w-full gap-4 mb-4 md:flex-row">
           <DateInput placeholder="From Date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} borderColor="mainColor" />
