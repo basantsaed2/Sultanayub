@@ -23,6 +23,10 @@ const TaxesPage = ({ refetch, setUpdate }) => {
     url: `${apiUrl}/admin/tax_product/lists`,
   });
 
+  const { data: branchListsData } = useGet({
+    url: `${apiUrl}/admin/tax_module/lists`,
+  });
+
   // 2. Local State
   const [taxes, setTaxes] = useState([]);
   const [targetTaxId, setTargetTaxId] = useState(null);
@@ -35,6 +39,9 @@ const TaxesPage = ({ refetch, setUpdate }) => {
   const [addModal, setAddModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [filterCategory, setFilterCategory] = useState("all");
+  const [selectedBranch, setSelectedBranch] = useState("");
+  const [selectedModule, setSelectedModule] = useState("take_away"); // Default to 'take_away'
+  const [selectedOnlineType, setSelectedOnlineType] = useState("all"); // Default 'all'
 
   const [currentPage, setCurrentPage] = useState(1);
   const taxesPerPage = 10;
@@ -51,7 +58,10 @@ const TaxesPage = ({ refetch, setUpdate }) => {
     setTargetTaxId(taxId);
     setAssignedProducts([]);
     setSelectedProductIds([]);
-    setFilterCategory("all"); // Reset the filter every time modal opens
+    setFilterCategory("all");
+    setSelectedBranch(""); // Reset branch
+    setSelectedModule("take_away"); // Reset module
+    setSelectedOnlineType("all"); // Reset type
     setAddModal(true);
     fetchAssignedProducts(taxId);
   };
@@ -83,12 +93,45 @@ const TaxesPage = ({ refetch, setUpdate }) => {
     }
   };
 
+  /* 
+    4. Derived State for Modules 
+    If the API returns a list of modules, use them. Otherwise fallback to hardcoded strings.
+  */
+  const moduleOptions = branchListsData?.modules || branchListsData?.tax_modules
+    ? (branchListsData?.modules || branchListsData?.tax_modules).map(m => ({ value: m.id || m.key || m.name, label: m.name || m.label, is_online: m.type === 'online' || m.name === 'Online' }))
+    : [
+      { value: "take_away", label: t("Take Away") },
+      { value: "delivery", label: t("Delivery") },
+      { value: "dine_in", label: t("Dine In") },
+    ];
+
+  const onlineTypeOptions = [
+    { value: "all", label: t("All") },
+    { value: "app", label: t("App") },
+    { value: "web", label: t("Web") },
+  ];
+
   const handleSubmitSelection = async () => {
+    if (!selectedBranch) {
+      alert(t("Please select a branch"));
+      return;
+    }
+
     setLoadingAction(true);
     const formData = new FormData();
     formData.append("tax_id", targetTaxId);
     selectedProductIds.forEach((id, index) => {
       formData.append(`products[${index}]`, id);
+      formData.append(`branch_id[${index}]`, selectedBranch);
+      formData.append(`tax_modules[${index}]`, selectedModule);
+
+      const isOnlineModule = ["take_away", "delivery", "online"].includes(String(selectedModule))
+        || moduleOptions.find(m => m.value == selectedModule)?.is_online;
+
+      if (isOnlineModule) {
+        formData.append(`type[${index}]`, selectedOnlineType);
+      }
+
     });
 
     try {
@@ -243,6 +286,61 @@ const TaxesPage = ({ refetch, setUpdate }) => {
                         </div>
                       </div>
                     </div>
+
+                    {/* Branch & Module Selection Section */}
+                    <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-4">
+                      {/* Branch Select */}
+                      <div className="flex flex-col gap-2">
+                        <label className="font-bold text-gray-700">{t("Select Branch")}</label>
+                        <select
+                          className="border p-2 rounded-lg"
+                          value={selectedBranch}
+                          onChange={(e) => setSelectedBranch(e.target.value)}
+                        >
+                          <option value="">{t("Select Branch")}</option>
+                          {branchListsData?.branches?.map((branch) => (
+                            <option key={branch.id} value={branch.id}>
+                              {branch.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Module Select */}
+                      <div className="flex flex-col gap-2">
+                        <label className="font-bold text-gray-700">{t("Select Module")}</label>
+                        <select
+                          className="border p-2 rounded-lg"
+                          value={selectedModule}
+                          onChange={(e) => setSelectedModule(e.target.value)}
+                        >
+                          {moduleOptions.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Online Type Select (Conditional) */}
+                      {["take_away", "delivery"].includes(selectedModule) && (
+                        <div className="flex flex-col gap-2">
+                          <label className="font-bold text-gray-700">{t("Online Type")}</label>
+                          <select
+                            className="border p-2 rounded-lg"
+                            value={selectedOnlineType}
+                            onChange={(e) => setSelectedOnlineType(e.target.value)}
+                          >
+                            {onlineTypeOptions.map((opt) => (
+                              <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                    </div>
+
                     <div className="flex justify-end mt-6 gap-3">
                       <button onClick={() => setAddModal(false)} className="px-6 py-2 border rounded-lg">{t("Cancel")}</button>
                       <button onClick={handleSubmitSelection} className="bg-mainColor text-white px-8 py-2 rounded-lg font-bold disabled:opacity-50" disabled={loadingAction}>
@@ -275,8 +373,9 @@ const TaxesPage = ({ refetch, setUpdate }) => {
             </div>
           </Dialog>
         </>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 };
 
