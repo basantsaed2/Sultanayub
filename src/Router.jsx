@@ -529,7 +529,15 @@ export const router = createBrowserRouter([
               },
             ],
           },
-
+          {
+            path: "category",
+            children: [
+              {
+                path: "",
+                element: <CategoryLayout />,
+              },
+            ],
+          }
         ],
       },
     ],

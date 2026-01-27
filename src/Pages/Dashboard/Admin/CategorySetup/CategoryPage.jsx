@@ -18,18 +18,26 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
+import { useAuth } from "../../../../Context/Auth";
 
 const CategoryPage = ({ refetch, setUpdate }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const auth = useAuth();
+  const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
   const selectedLanguage = useSelector((state) => state.language?.selected ?? "en");
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const categoryUrl =
+    role === "branch"
+      ? `branch/category`
+      : `admin/category`;
+
   const {
     refetch: refetchCategory,
     loading: loadingCategory,
     data: dataCategory,
   } = useGet({
-    url: `${apiUrl}/admin/category?locale=${selectedLanguage}`,
+    url: `${apiUrl}/${categoryUrl}?locale=${selectedLanguage}`,
   });
   const { changeState, loadingChange, responseChange } = useChangeState();
   const { deleteData, loadingDelete, responseDelete } = useDelete();
@@ -142,7 +150,7 @@ const CategoryPage = ({ refetch, setUpdate }) => {
   // Change categories status
   const handleChangeStaus = async (id, name, status) => {
     const response = await changeState(
-      `${apiUrl}/admin/category/status/${id}`,
+      `${apiUrl}/${categoryUrl}/status/${id}`,
       `${name} Changed Status.`,
       { status } // Pass status as an object if changeState expects an object
     );
@@ -158,7 +166,7 @@ const CategoryPage = ({ refetch, setUpdate }) => {
   };
   const handleChangeActive = async (id, name, status) => {
     const response = await changeState(
-      `${apiUrl}/admin/category/active/${id}`,
+      `${apiUrl}/${categoryUrl}/active/${id}`,
       `${name} Changed Active.`,
       { active: status } // Pass status as an object if changeState expects an object
     );
@@ -185,7 +193,7 @@ const CategoryPage = ({ refetch, setUpdate }) => {
   // Change categories priority
   const handleChangePriority = async (id, name) => {
     const response = await changeState(
-      `${apiUrl}/admin/category/priority/${id}`,
+      `${apiUrl}/${categoryUrl}/priority/${id}`,
       `${name} Changed Priority.`,
       { priority: priorityChange } // Pass priority as an object if changeState expects an object
     );
@@ -201,7 +209,7 @@ const CategoryPage = ({ refetch, setUpdate }) => {
   // Delete Category
   const handleSupDelete = async (id, name) => {
     const success = await deleteData(
-      `${apiUrl}/admin/category/delete/${id}`,
+      `${apiUrl}/${categoryUrl}/delete/${id}`,
       `${name} Deleted Success.`
     );
 
@@ -227,7 +235,7 @@ const CategoryPage = ({ refetch, setUpdate }) => {
   };
   const handleDelete = async (id, name) => {
     const success = await deleteData(
-      `${apiUrl}/admin/category/delete/${id}`,
+      `${apiUrl}/${categoryUrl}/delete/${id}`,
       `${name} Deleted Success.`
     );
 
@@ -283,7 +291,7 @@ const CategoryPage = ({ refetch, setUpdate }) => {
     t("status"),
     t("active"),
     t("priority"),
-    t("action"),
+    role == "admin" ? t("action") : null,
   ];
 
   return (
@@ -297,7 +305,7 @@ const CategoryPage = ({ refetch, setUpdate }) => {
           <table className="block w-full overflow-x-scroll sm:min-w-0 scrollPage">
             <thead className="w-full">
               <tr className="w-full border-b-2">
-                {headers.map((name, index) => (
+                {headers.filter(name => name !== null).map((name, index) => (
                   <th
                     className="min-w-[120px] sm:w-[8%] lg:w-[5%] text-mainColor text-center font-TextFontLight sm:text-sm lg:text-base xl:text-lg pb-3"
                     key={index}
@@ -311,7 +319,7 @@ const CategoryPage = ({ refetch, setUpdate }) => {
               {categories.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={13} // Updated colSpan to 13
+                    colSpan={headers.filter(name => name !== null).length}
                     className="text-xl text-center text-mainColor font-TextFontMedium "
                   >
                     {t("Not find categories")}
