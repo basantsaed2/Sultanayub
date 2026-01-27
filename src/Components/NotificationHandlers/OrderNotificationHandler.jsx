@@ -5,10 +5,12 @@ import { useGet } from '../../Hooks/useGet';
 import { usePost } from '../../Hooks/usePostJson';
 import { setNewOrders, triggerRefresh } from '../../Store/CreateSlices';
 import { NewOrdersComponent } from '../Components';
+import { useNotificationSound } from './NotificationListener';
 
-const OrderNotificationHandler = ({ hasInteracted, soundNotification, apiUrl, role }) => {
+const OrderNotificationHandler = ({ apiUrl, role }) => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
+    const { playNotificationSound } = useNotificationSound();
     const [isOpen, setIsOpen] = useState(false);
     const [allCount, setAllCount] = useState(0);
     const prevCountRef = useRef(0);
@@ -53,11 +55,8 @@ const OrderNotificationHandler = ({ hasInteracted, soundNotification, apiUrl, ro
         }
     }, [dataCountOrders]);
 
-    const playNotificationSound = (soundUrl, uniqueId = null) => {
-        const audio = new Audio(soundUrl);
-        audio.volume = 1.0;
-
-        const playPromise = audio.play();
+    const notifyUser = (uniqueId = null) => {
+        playNotificationSound();
 
         if (document.hidden && Notification.permission === 'granted') {
             try {
@@ -69,12 +68,6 @@ const OrderNotificationHandler = ({ hasInteracted, soundNotification, apiUrl, ro
             } catch (e) {
                 console.error("Notification error:", e);
             }
-        }
-
-        if (playPromise !== undefined) {
-            playPromise.catch(error => {
-                console.error('Playback failed:', error);
-            });
         }
     };
 
@@ -100,14 +93,8 @@ const OrderNotificationHandler = ({ hasInteracted, soundNotification, apiUrl, ro
             // CRITICAL: The total count for the badge should be the length of the unread list
             const total_unread_count = all_orders.length;
 
-            // The "new_orders" from API tells us if there are *new* items to alert about
-            const new_orders_flag = Number(actualData.new_orders || 0);
-
             // Use the first ID in the list as the "primary" ID for deep linking
             const main_id = all_orders.length > 0 ? all_orders[0] : null;
-
-            const prevCount = Number(prevCountRef.current);
-            const prevOrderId = prevOrderIdNotifyRef.current ? String(prevOrderIdNotifyRef.current) : null;
 
             // Session Storage Interaction to prevent repeats on refresh
             let notifiedSession = new Set();
@@ -124,7 +111,6 @@ const OrderNotificationHandler = ({ hasInteracted, soundNotification, apiUrl, ro
             const hasNewUnnotifiedId = all_orders.some(id => !notifiedSession.has(id));
 
             // Only trigger if we actually have new unnotified IDs. 
-            // We ignore new_orders_flag and count increases if the IDs are already known.
             const shouldTrigger = total_unread_count > 0 && hasNewUnnotifiedId;
 
             // Trigger alert if there are new orders or unnotified IDs
@@ -135,12 +121,9 @@ const OrderNotificationHandler = ({ hasInteracted, soundNotification, apiUrl, ro
                     orders: all_orders
                 }));
 
-                // TRIGGER REFRESH: Only trigger the global refetch ONCE when we detect a new notification
                 dispatch(triggerRefresh());
 
-                if (soundNotification && soundNotification.data && hasInteracted) {
-                    playNotificationSound(soundNotification.data, main_id);
-                }
+                notifyUser(main_id);
 
                 setIsOpen(true); // Open modal
 
@@ -163,7 +146,7 @@ const OrderNotificationHandler = ({ hasInteracted, soundNotification, apiUrl, ro
                 prevCountRef.current = total_unread_count;
             }
         }
-    }, [dataNotifications, soundNotification, hasInteracted, dispatch, t]);
+    }, [dataNotifications, playNotificationSound, dispatch, t]);
 
     useEffect(() => {
         const interval = setInterval(() => {

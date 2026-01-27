@@ -29,4 +29,5 @@ export { default as NewOrdersComponent } from "./AnotherComponents/NewOrdersComp
 export { default as NewCancellationOrderComponent } from "./AnotherComponents/NewCancellationOrderComponent";
 export { default as OrderNotificationHandler } from "./NotificationHandlers/OrderNotificationHandler";
 export { default as CancellationNotificationHandler } from "./NotificationHandlers/CancellationNotificationHandler";
+export { default as NotificationListener } from "./NotificationHandlers/NotificationListener";
 export { default as MapPreview } from "./Map/MapPreview";
