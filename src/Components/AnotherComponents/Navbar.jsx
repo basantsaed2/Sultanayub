@@ -7,7 +7,7 @@ import { IoIosArrowDown, IoMdNotificationsOutline } from 'react-icons/io';
 import RedLogo from '../../Assets/Images/RedLogo.jsx';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { removeCategory, removeUser, setGlobalSearch } from '../../Store/CreateSlices.jsx';
+import { removeCategory, removeUser, setGlobalSearch, setNewOrders } from '../../Store/CreateSlices.jsx';
 import { removeCanceledOrder } from '../../Store/CreateSlices';
 import { useChangeState } from '../../Hooks/useChangeState.jsx';
 import { useGet } from '../../Hooks/useGet.jsx';
@@ -245,6 +245,27 @@ const Navbar = () => {
   };
 
   const canceledOrders = useSelector((state) => state.canceledOrders);
+  const newOrders = useSelector((state) => state.newOrders);
+
+  const { postData: markAsRead } = usePost({
+    url: `${apiUrl}/admin/order/is_read`,
+  });
+
+  const handleMarkAsRead = (orderId) => {
+    if (orderId) {
+      const formData = new FormData();
+      formData.append('order_id', orderId);
+      markAsRead(formData, { params: { order_id: orderId } });
+
+      // Update local state immediately for better UX
+      const currentOrders = Array.isArray(newOrders.orders) ? newOrders.orders : Object.values(newOrders.orders || {});
+      const updatedOrders = currentOrders.filter(id => String(id) !== String(orderId));
+      dispatch(setNewOrders({
+        count: updatedOrders.length,
+        orders: updatedOrders
+      }));
+    }
+  };
 
   const handleRemoveOrder = (orderId) => {
     dispatch(removeCanceledOrder(orderId));
@@ -393,21 +414,21 @@ const Navbar = () => {
               className="relative p-1"
             >
               <IoMdNotificationsOutline className="text-xl md:text-3xl text-mainColor" />
-              {canceledOrders.count > 0 && (
+              {newOrders.count > 0 && (
                 <span className="absolute flex items-center justify-center w-5 h-5 text-xs text-white bg-red-600 rounded-full -top-1 -right-1">
-                  {canceledOrders.count}
+                  {newOrders.count}
                 </span>
               )}
             </button>
             {/* Notification Dropdown Content */}
             {notificationOpen && (
               <div className="absolute right-0 top-8 z-40 w-64 py-1 mt-2 overflow-y-auto bg-white rounded-md shadow-lg max-h-80">
-                {canceledOrders.orders.length === 0 ? (
+                {(!newOrders.orders || (Array.isArray(newOrders.orders) ? newOrders.orders.length === 0 : Object.keys(newOrders.orders).length === 0)) ? (
                   <div className="px-4 py-2 text-gray-700">{t("No Waiting Orders")}</div>
                 ) : (
                   <>
                     <div className="px-4 py-2 font-semibold border-b">{t("Waiting Orders")}</div>
-                    {canceledOrders.orders.map((orderId) => (
+                    {(Array.isArray(newOrders.orders) ? newOrders.orders : Object.values(newOrders.orders)).map((orderId) => (
                       <div
                         key={orderId}
                         className="flex items-center justify-between px-4 py-2 hover:bg-gray-100"
@@ -416,22 +437,12 @@ const Navbar = () => {
                           to={`/dashboard/orders/details/${orderId}`}
                           onClick={() => {
                             setNotificationOpen(false);
-                            dispatch(removeCanceledOrder(orderId));
+                            handleMarkAsRead(orderId);
                           }}
                           className="flex-1 text-left"
                         >
                           Order #{orderId}
                         </Link>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveOrder(orderId);
-                          }}
-                          className="ml-2 text-red-600 hover:text-red-800"
-                          aria-label="Remove Order"
-                        >
-                          ×
-                        </button>
                       </div>
                     ))}
                   </>

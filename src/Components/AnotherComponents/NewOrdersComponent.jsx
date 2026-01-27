@@ -7,7 +7,7 @@ import { addCanceledOrder } from "../../Store/CreateSlices";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 
-const NewOrdersComponent = ({ isOpen, onClose }) => {
+const NewOrdersComponent = ({ isOpen, onClose, onCheckOrders }) => {
   const popUpRef = useRef();
   const newOrders = useSelector((state) => state.newOrders);
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ const NewOrdersComponent = ({ isOpen, onClose }) => {
 
   const handleClickOutside = (event) => {
     if (popUpRef.current && !popUpRef.current.contains(event.target)) {
-      handleCancelOrder(newOrders?.id); // Use newOrders.id from Redux
+      onClose();
     }
   };
   useEffect(() => {
@@ -25,12 +25,7 @@ const NewOrdersComponent = ({ isOpen, onClose }) => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  const handleCancelOrder = (orderId) => {
-    dispatch(addCanceledOrder(orderId));
-    onClose(); // Assuming this closes a modal or notification
-  };
-    const count = newOrders?.count || 0;
+  const count = newOrders?.count || 0;
 
 
   return (
@@ -54,7 +49,7 @@ const NewOrdersComponent = ({ isOpen, onClose }) => {
             {/* Footer */}
             <div className="flex justify-between px-4 py-3 mx-auto border-t-4 sm:px-6">
               <button
-                onClick={() => handleCancelOrder(newOrders?.id)}
+                onClick={onClose}
                 className="inline-flex justify-center px-6 py-3 mt-3 text-xl text-white bg-red-600 rounded-md shadow-sm font-TextFontMedium hover:bg-red-700 sm:mt-0 sm:w-auto"
               >
                 {t("Close")}
@@ -63,6 +58,7 @@ const NewOrdersComponent = ({ isOpen, onClose }) => {
                 to={`/dashboard/orders/details/${newOrders?.id}`}
                 onClick={(e) => {
                   e.preventDefault();
+                  if (onCheckOrders) onCheckOrders(newOrders?.id);
                   onClose();
                   navigate(`/dashboard/orders/details/${newOrders?.id}`);
                 }}

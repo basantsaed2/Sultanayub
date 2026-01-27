@@ -10,6 +10,7 @@ const initialCategoryState = null;
 
 const initialNewOrders = {
        count: 0,
+       orders: [],
 };
 const initialSoundNotification = { data: null };
 

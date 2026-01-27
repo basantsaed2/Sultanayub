@@ -27,4 +27,6 @@ export { default as DropDown } from "./AnotherComponents/DropDown";
 export { default as Cart } from "./AnotherComponents/Cart";
 export { default as NewOrdersComponent } from "./AnotherComponents/NewOrdersComponent";
 export { default as NewCancellationOrderComponent } from "./AnotherComponents/NewCancellationOrderComponent";
+export { default as OrderNotificationHandler } from "./NotificationHandlers/OrderNotificationHandler";
+export { default as CancellationNotificationHandler } from "./NotificationHandlers/CancellationNotificationHandler";
 export { default as MapPreview } from "./Map/MapPreview";

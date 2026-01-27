@@ -226,13 +226,12 @@
 import './index.css';
 import { Outlet } from 'react-router-dom';
 import { useAuth } from './Context/Auth';
-import { Navbar, NewOrdersComponent, Sidebar, NewCancellationOrderComponent } from './Components/Components';
+import { Navbar, Sidebar, OrderNotificationHandler, CancellationNotificationHandler } from './Components/Components';
 import { PrimeReactProvider } from 'primereact/api';
 import 'primereact/resources/themes/lara-light-blue/theme.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState, useRef } from 'react';
-import { setNewOrders, setSoundNotification, setNewCanceledOrder } from './Store/CreateSlices';
-import { usePost } from './Hooks/usePostJson';
+import { setSoundNotification } from './Store/CreateSlices';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useGet } from './Hooks/useGet';
 import { useTranslation } from 'react-i18next';
@@ -255,23 +254,8 @@ const App = () => {
   const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
   const auth = useAuth();
   const hideSide = auth.hideSidebar;
-  const [allCount, setAllCount] = useState(0);
-  const prevCountRef = useRef(0); // Track previous count to prevent duplicate sounds
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
-
   const role = localStorage.getItem("role"); // read role
-
-  // Count orders endpoint depends on role
-  const branchesUrl =
-    role === "branch"
-      ? `${apiUrl}/branch/online_order/count_orders`
-      : `${apiUrl}/admin/order/count`;
-
-  // Notification endpoint depends on role
-  const notificationUrl =
-    role === "branch"
-      ? `${apiUrl}/branch/online_order/notification`
-      : `${apiUrl}/admin/order/notification`;
 
   // Sound notification is always admin (no branch endpoint given)
   const notificationSoundUrl =
@@ -279,49 +263,16 @@ const App = () => {
       ? `${apiUrl}/admin/settings/notification_sound`
       : null;// No sound for branch role
 
-  // Cancellation endpoint
-  const cancellationUrl =
-    role === "admin" ? `${apiUrl}/admin/settings/cancelation` : null;
-
-  const {
-    refetch: refetchCountOrders,
-    loading,
-    data: dataCountOrders,
-  } = useGet({
-    url: branchesUrl,
-  });
-
   const {
     refetch: refetchSong,
-    loading: loadingSong,
     data: dataSong,
   } = useGet({
     url: notificationSoundUrl,
   });
 
-  const { postData, loadingPost, response } = usePost({
-    url: notificationUrl,
-  });
-
-  const {
-    refetch: refetchCancellations,
-    data: dataCancellations,
-  } = useGet({
-    url: cancellationUrl,
-  });
-
-  const newOrders = useSelector((state) => state.newOrders);
-  const canceledOrders = useSelector((state) => state.canceledOrders);
   const soundNotification = useSelector((state) => state.soundNotification);
 
   const dispatch = useDispatch();
-  const [isOpen, setIsOpen] = useState(false);
-  const [orderCounts, setOrderCounts] = useState(0);
-  const [orderId, setOrderId] = useState('');
-  const [isCancelOpen, setIsCancelOpen] = useState(false);
-  const [newOrder, setNewOrder] = useState([]);
-
-  // Track if user has interacted with the page
   const [hasInteracted, setHasInteracted] = useState(false);
 
   useEffect(() => {
@@ -340,54 +291,9 @@ const App = () => {
     };
   }, []);
 
-  const playNotificationSound = (soundUrl, uniqueId = null) => {
-    const audio = new Audio(soundUrl);
-    audio.volume = 1.0;
-
-    const playPromise = audio.play();
-
-    // If app is in background, show system notification
-    if (document.hidden && Notification.permission === 'granted') {
-      try {
-        const tag = uniqueId;
-        new Notification(t("New Order Received"), {
-          body: t("Check your dashboard for details"),
-          tag: tag,
-          renotify: true
-        });
-      } catch (e) {
-        console.error("Notification error:", e);
-      }
-    }
-
-    if (playPromise !== undefined) {
-      playPromise
-        .then(_ => {
-          console.log('Audio played successfully');
-        })
-        .catch(error => {
-          console.error('Playback failed:', error);
-          if (error.name === 'NotAllowedError' && !hasInteracted) {
-            console.warn('Autoplay blocked. Waiting for user interaction.');
-            // Optionally show a "Click to enable sound" toast here
-          } else {
-            // Simple retry logic only if it wasn't a permission error
-            setTimeout(() => {
-              audio.play().catch(e => console.error('Retry failed:', e));
-            }, 1000);
-          }
-        });
-    }
-  };
-
-  // Fetch data from the API
   useEffect(() => {
     refetchSong();
   }, [refetchSong]);
-
-  useEffect(() => {
-    refetchCountOrders();
-  }, [refetchCountOrders]);
 
   // Update song source when API data is received
   useEffect(() => {
@@ -396,123 +302,20 @@ const App = () => {
     }
   }, [dataSong, dispatch]);
 
-  const handleClose = () => setIsOpen(false);
-  const handleCloseCancel = () => setIsCancelOpen(false);
-
-  // Update `orderCounts` when a response is received
-  useEffect(() => {
-    if (response?.data?.new_orders !== undefined) {
-      setOrderCounts(response.data.new_orders);
-      setOrderId(response.data.order_id)
-    }
-  }, [response]);
-
-  const prevCancelOrderIdRef = useRef(null);
-
-  // Handle cancellation data
-  useEffect(() => {
-    if (dataCancellations && dataCancellations.orders && dataCancellations.orders.length > 0) {
-      const latestOrder = dataCancellations.orders[0];
-      // Check if this order is already known and not the one we just notified for
-      if (!canceledOrders?.orders.includes(latestOrder.id) && latestOrder.id !== prevCancelOrderIdRef.current) {
-        dispatch(setNewCanceledOrder(latestOrder.id));
-        prevCancelOrderIdRef.current = latestOrder.id;
-        // Optionally play sound
-        if (soundNotification && soundNotification.data) {
-          playNotificationSound(soundNotification.data, `cancel-${latestOrder.id}`);
-        }
-      }
-    }
-  }, [dataCancellations, canceledOrders, soundNotification, dispatch]);
-
-  // Update `newOrders` in Redux store and play sound
-  useEffect(() => {
-    // Only play if count is > 0 AND it has changed since the last play
-    if (orderCounts > 0 && orderCounts !== prevCountRef.current) {
-      dispatch(setNewOrders({ count: orderCounts, id: orderId }));
-
-      if (soundNotification && soundNotification.data) {
-        const uniqueTag = orderId
-        playNotificationSound(soundNotification.data, uniqueTag);
-      }
-      prevCountRef.current = orderCounts;
-    }
-  }, [orderCounts, soundNotification, dispatch]);
-
-  // Handle visibility changes
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (
-        document.visibilityState === 'visible' &&
-        newOrders?.count > 0 &&
-        newOrders.count !== prevCountRef.current
-      ) {
-        if (soundNotification && soundNotification.data) {
-          const uniqueTag = orderId
-          playNotificationSound(soundNotification.data, uniqueTag);
-          prevCountRef.current = newOrders.count;
-        }
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [newOrders, soundNotification]);
-
-  // Open/close modal based on `newOrders` count
-  useEffect(() => {
-    setIsOpen(newOrders?.count > 0);
-  }, [newOrders]);
-
-  useEffect(() => {
-    setIsCancelOpen(!!canceledOrders?.newOrder);
-  }, [canceledOrders?.newOrder]);
-
-  useEffect(() => {
-    if (dataCountOrders) {
-      setAllCount(dataCountOrders.orders);
-    }
-  }, [dataCountOrders]);
-
-  // Poll the notification endpoint every 8 seconds
-  useEffect(() => {
-    if (!allCount) return;
-    const interval = setInterval(() => {
-      const formData = new FormData();
-      formData.append('orders', allCount || 0);
-      postData(formData);
-
-      // Poll cancellation orders if admin
-      // if (role === "admin") {
-        refetchCancellations();
-      // }
-    }, 8000);
-
-    return () => clearInterval(interval);
-  }, [postData, loading, dataCountOrders]);
-
-  useEffect(() => {
-    if (loadingPost && response) return;
-    refetchCountOrders();
-  }, [response]);
-
   return (
     <PrimeReactProvider>
-      {isOpen && (
-        <NewOrdersComponent
-          isOpen={isOpen}
-          onClose={handleClose}
-        />
-      )}
-      {isCancelOpen && (
-        <NewCancellationOrderComponent
-          isOpen={isCancelOpen}
-          onClose={handleCloseCancel}
-        />
-      )}
+      <OrderNotificationHandler
+        hasInteracted={hasInteracted}
+        soundNotification={soundNotification}
+        apiUrl={apiUrl}
+        role={role}
+      />
+      <CancellationNotificationHandler
+        hasInteracted={hasInteracted}
+        soundNotification={soundNotification}
+        apiUrl={apiUrl}
+        role={role}
+      />
       <div className="relative flex w-full min-h-screen overflow-hidden bg-secoundBgColor">
         {/* Sidebar */}
         <div className={`${hideSide ? 'w-60' : 'w-16'} ${direction === "ltr" ? 'left-0' : 'right-0'} fixed left-0 z-10 duration-300 overflow-hidden ${location.pathname === '/dashboard' || location.pathname === '/dashboard/home-overview' ? 'hidden' : ''}`}>
