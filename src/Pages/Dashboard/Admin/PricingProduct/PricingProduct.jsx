@@ -78,8 +78,6 @@ const PricingProduct = () => {
         if (activeTab === "all") {
             if (selectedModules.length === 0) return;
 
-            console.log(selectedModules)
-
             // Check if selectedModules contains all three
             const allModules = ["take_away", "delivery", "dine_in"];
             const hasAll = allModules.every(m => selectedModules.includes(m));

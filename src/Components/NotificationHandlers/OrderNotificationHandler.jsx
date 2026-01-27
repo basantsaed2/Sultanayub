@@ -82,7 +82,6 @@ const OrderNotificationHandler = ({ hasInteracted, soundNotification, apiUrl, ro
         if (dataNotifications) {
             // Check if data is nested in .data (Laravel standard) or direct
             const actualData = dataNotifications.data ? dataNotifications.data : dataNotifications;
-            console.log("[NotificationHandler] Received data:", actualData);
 
             // Mapping based on user feedback:
             // "new_orders": 3, "order_id": [3677, 3676, 3675]
@@ -128,14 +127,8 @@ const OrderNotificationHandler = ({ hasInteracted, soundNotification, apiUrl, ro
             // We ignore new_orders_flag and count increases if the IDs are already known.
             const shouldTrigger = total_unread_count > 0 && hasNewUnnotifiedId;
 
-            console.log("[NotificationHandler] Checks:", {
-                total_unread_count, prevCount,
-                main_id, prevOrderId, hasNewUnnotifiedId, shouldTrigger
-            });
-
             // Trigger alert if there are new orders or unnotified IDs
             if (shouldTrigger) {
-                console.log("[NotificationHandler] Triggering notification!");
                 dispatch(setNewOrders({
                     count: total_unread_count,
                     id: main_id,
