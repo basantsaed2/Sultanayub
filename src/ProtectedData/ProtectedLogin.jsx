@@ -13,8 +13,13 @@ const ProtectedLogin = () => {
               const isAuthRoute = currentPath === '/' || currentPath === '/forget_password';
 
               if (auth?.userState && isAuthRoute) {
-                     // If logged in and accessing public route, redirect to dashboard
-                     navigate('/dashboard', { replace: true });
+                     // If logged in and accessing public route, redirect based on role
+                     const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
+                     if (role === 'branch') {
+                            navigate('/branch', { replace: true });
+                     } else {
+                            navigate('/dashboard', { replace: true });
+                     }
               } else if (!auth?.userState && !isAuthRoute) {
                      // If not logged in and accessing a protected route, redirect to login
                      // navigate('/login', { state: { from: location }, replace: true });
