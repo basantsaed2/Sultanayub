@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { useGet } from "../Hooks/useGet";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 // Initial states
@@ -302,6 +302,21 @@ const canceledOrdersSlice = createSlice({
        },
 });
 
+// Global Trigger Slice
+const initialGlobalTriggerState = {
+       value: 0
+};
+
+const globalTriggerSlice = createSlice({
+       name: "globalTrigger",
+       initialState: initialGlobalTriggerState,
+       reducers: {
+              triggerRefresh: (state) => {
+                     state.value += 1;
+              }
+       }
+});
+
 // Search slice
 const searchSlice = createSlice({
        name: "search",
@@ -341,6 +356,8 @@ const branchesUrl =
 // Fetch and dispatch orders
 export const OrdersComponent = () => {
        const dispatch = useDispatch();
+       const trigger = useSelector((state) => state.globalTrigger.value);
+
        const { refetch: refetchOrders, data: dataOrders, loading } = useGet({
               url: branchesUrl
        });
@@ -348,7 +365,7 @@ export const OrdersComponent = () => {
 
        useEffect(() => {
               refetchOrders();
-       }, [refetchOrders]);
+       }, [refetchOrders, trigger]);
 
        // Log data to debug
        useEffect(() => {
@@ -424,6 +441,7 @@ export const { setOrdersCanceled } = ordersCanceledSlice.actions;
 export const { setOrdersSchedule } = ordersScheduleSlice.actions;
 export const { setLanguage, setLanguageData } = languageSlice.actions;
 export const { setGlobalSearch, clearGlobalSearch } = searchSlice.actions;
+export const { triggerRefresh } = globalTriggerSlice.actions;
 
 // Export reducers
 export const newOrdersReducer = newOrdersSlice.reducer;
@@ -444,6 +462,7 @@ export const ordersCanceledReducer = ordersCanceledSlice.reducer;
 export const ordersScheduleReducer = ordersScheduleSlice.reducer;
 export const languageReducer = languageSlice.reducer;
 export const searchReducer = searchSlice.reducer;
+export const globalTriggerReducer = globalTriggerSlice.reducer;
 
 
 // Add to your exports

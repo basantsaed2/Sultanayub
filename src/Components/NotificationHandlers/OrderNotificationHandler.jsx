@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useGet } from '../../Hooks/useGet';
 import { usePost } from '../../Hooks/usePostJson';
-import { setNewOrders } from '../../Store/CreateSlices';
+import { setNewOrders, triggerRefresh } from '../../Store/CreateSlices';
 import { NewOrdersComponent } from '../Components';
 
 const OrderNotificationHandler = ({ hasInteracted, soundNotification, apiUrl, role }) => {
@@ -141,6 +141,9 @@ const OrderNotificationHandler = ({ hasInteracted, soundNotification, apiUrl, ro
                     id: main_id,
                     orders: all_orders
                 }));
+
+                // TRIGGER REFRESH: Only trigger the global refetch ONCE when we detect a new notification
+                dispatch(triggerRefresh());
 
                 if (soundNotification && soundNotification.data && hasInteracted) {
                     playNotificationSound(soundNotification.data, main_id);
