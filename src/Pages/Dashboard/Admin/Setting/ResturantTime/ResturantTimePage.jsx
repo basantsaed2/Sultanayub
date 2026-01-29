@@ -8,6 +8,10 @@ import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
 import { useAuth } from '../../../../../Context/Auth';
 import { useTranslation } from 'react-i18next';
+import { useDelete } from '../../../../../Hooks/useDelete';
+import { DeleteIcon } from '../../../../../Assets/Icons/AllIcons';
+import Warning from '../../../../../Assets/Icons/AnotherIcons/WarningIcon';
+import { Dialog as HuiDialog, DialogBackdrop, DialogPanel } from '@headlessui/react';
 
 const RestaurantTimeSlotPage = ({ refetch }) => {
   const auth = useAuth();
@@ -25,6 +29,9 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
   const [editingSlot, setEditingSlot] = useState(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedTime, setSelectedTime] = useState('');
+  const [openDelete, setOpenDelete] = useState(null);
+
+  const { deleteData, loadingDelete } = useDelete();
 
   const { refetch: refetchTimeSlot, loading: loadingTime, data: dataSlot } = useGet({
     url: `${apiUrl}/admin/settings/business_setup/time_slot`
@@ -252,6 +259,27 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
     setSelectedTime('');
   };
 
+  const handleOpenDelete = (id) => {
+    setOpenDelete(id);
+  };
+
+  const handleCloseDelete = () => {
+    setOpenDelete(null);
+  };
+
+  const handleDelete = async (id) => {
+    if (!id) return;
+    const success = await deleteData(
+      `${apiUrl}/admin/settings/business_setup/time_slot/delete_times/${id}`,
+      t('Branch Time deleted successfully')
+    );
+    if (success) {
+      setTimeSlots(timeSlots.filter((slot) => slot.id !== id));
+      handleCloseDelete();
+      refetchTimeSlot();
+    }
+  };
+
   return (
     <>
       <Toast ref={toast} />
@@ -300,9 +328,17 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
                             type="button"
                             onClick={() => handleEditSlot(slot)}
                             className="text-red-500 hover:text-red-700"
-                            disabled={isSubmittingTimeSlots || loadingTimeSlot}
+                            disabled={isSubmittingTimeSlots || loadingTimeSlot || loadingDelete}
                           >
                             {t("Edit")}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenDelete(slot.id)}
+                            className="text-red-500 hover:text-red-700"
+                            disabled={isSubmittingTimeSlots || loadingTimeSlot || loadingDelete}
+                          >
+                            <DeleteIcon />
                           </button>
                         </div>
                       </div>
@@ -498,6 +534,40 @@ const RestaurantTimeSlotPage = ({ refetch }) => {
               </div>
             )}
           </Dialog>
+
+          {openDelete && (
+            <HuiDialog open={true} onClose={handleCloseDelete} className="relative z-10">
+              <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+              <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                  <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg">
+                    <div className="flex flex-col items-center justify-center px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
+                      <Warning width="28" height="28" aria-hidden="true" />
+                      <div className="mt-2 text-center">
+                        {t("You will delete this branch time slot")}
+                      </div>
+                    </div>
+                    <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                      <button
+                        className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto"
+                        onClick={() => handleDelete(openDelete)}
+                      >
+                        {t("Delete")}
+                      </button>
+                      <button
+                        type="button"
+                        data-autofocus
+                        onClick={handleCloseDelete}
+                        className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
+                      >
+                        {t("Cancel")}
+                      </button>
+                    </div>
+                  </DialogPanel>
+                </div>
+              </div>
+            </HuiDialog>
+          )}
         </div>
       )}
     </>
