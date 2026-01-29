@@ -1220,7 +1220,7 @@ const resources = {
                     "Select Usage Type": "Select Usage Type",
                     "Select Products Options": 'Select Products Options',
                     "Payment": "Payment",
-                    "InvoiceNumber": "Invoice #",
+                    "InvoiceNumber": "Order #",
                     "Client": "Client",
                     "DeliveryAddress": "Delivery Address",
                     "Cashier": "POS",
@@ -1252,7 +1252,7 @@ const resources = {
                     "variation": "Variation",
                     "Notes": "Notes"
                },
-               "InvoiceNumber": "Invoice #",
+               "InvoiceNumber": "Order #",
                "Client": "Client",
                "DeliveryAddress": "Delivery Address",
                "Cashier": "POS",

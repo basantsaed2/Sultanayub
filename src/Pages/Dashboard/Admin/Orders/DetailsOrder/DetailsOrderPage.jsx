@@ -23,13 +23,15 @@ import { prepareReceiptData, printReceiptSilently } from "../InvoiceOrder/Kitche
 
 const DetailsOrderPage = () => {
   const StatusRef = useRef(null);
+  const auth = useAuth();
   const { orderId } = useParams();
   const location = useLocation();
   const pathOrder = location.pathname;
   const orderNumPath = pathOrder.split("/").pop();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const selectedLanguage = useSelector(state => state.language?.selected ?? 'en'); // Default to 'en' if no language is selected
-  const role = localStorage.getItem("role");
+  const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
+  const route = role === "branch" ? "/branch/orders" : "/dashboard/orders";
 
   // ✅ Details Order endpoint
   const detailsOrderUrl =
@@ -85,8 +87,6 @@ const DetailsOrderPage = () => {
   const [orderNumber, setOrderNumber] = useState("");
 
   const [showStatusModal, setShowStatusModal] = useState(false);
-
-  const auth = useAuth();
 
   const [openReceipt, setOpenReceipt] = useState(null);
   const [openOrderNumber, setOpenOrderNumber] = useState(null);
@@ -533,13 +533,13 @@ const DetailsOrderPage = () => {
                                 role !== "branch" ? (
                                   <div className="flex items-center justify-center gap-2 sm:w-full lg:w-6/12">
                                     <Link
-                                      to={`/dashboard/orders/details/${Number(orderNumPath) - 1}`}
+                                      to={`${route}/details/${Number(orderNumPath) - 1}`}
                                       className="w-6/12 px-1 py-1 text-sm text-center text-white transition-all duration-300 ease-in-out border-2 rounded-lg md:text-md bg-mainColor border-mainColor hover:bg-white hover:text-mainColor"
                                     >
                                       {"<<"} {t("PrevOrder")}
                                     </Link>
                                     <Link
-                                      to={`/dashboard/orders/details/${Number(orderNumPath) + 1}`}
+                                      to={`${route}/details/${Number(orderNumPath) + 1}`}
                                       className="w-6/12 px-1 py-1 text-sm text-center text-white transition-all duration-300 ease-in-out border-2 rounded-lg md:text-md bg-mainColor border-mainColor hover:bg-white hover:text-mainColor"
                                     >
                                       {t("NextOrder")} {">>"}
@@ -582,7 +582,7 @@ const DetailsOrderPage = () => {
                             <div className="absolute top-1/2 -translate-y-1/2 right-0 rtl:right-auto rtl:left-0
                     hidden sm:block"> {/* Hidden on mobile, appears from sm+ */}
                               <Link
-                                to={`/dashboard/orders/invoice/${detailsData?.id}`}
+                                to={`${route}/invoice/${detailsData?.id}`}
                                 className="flex items-center gap-2.5 px-5 py-3 text-sm font-medium text-white 
                    bg-gradient-to-r from-red-500 to-red-600 rounded-full shadow-lg 
                    hover:shadow-xl hover:scale-105 transition-all duration-300 
@@ -597,7 +597,7 @@ const DetailsOrderPage = () => {
                             {/* Mobile fallback – small floating button at top-right (same as original but prettier) */}
                             <div className="absolute top-2 right-2 sm:hidden">
                               <Link
-                                to={`/dashboard/orders/invoice/${detailsData?.id}`}
+                                to={`${route}/invoice/${detailsData?.id}`}
                                 className="flex items-center justify-center w-10 h-10 text-white bg-green-500 rounded-full shadow-md hover:bg-green-600 hover:scale-110 transition-all duration-300"
                                 aria-label={t("ViewInvoice")}
                               >

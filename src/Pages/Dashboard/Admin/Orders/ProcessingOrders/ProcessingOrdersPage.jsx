@@ -10,7 +10,8 @@ import { useTranslation } from "react-i18next";
 
 const ProcessingOrdersPage = () => {
   const auth = useAuth();
-
+  const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
+  const route = role === "branch" ? "/branch/orders" : "/dashboard/orders";
   const ordersProcessing = useSelector((state) => state.ordersConfirmed);
   const [textSearch, setTextSearch] = useState('');
   const [filteredOrders, setFilteredOrders] = useState([]);
@@ -36,7 +37,7 @@ const ProcessingOrdersPage = () => {
   useEffect(() => {
     if (Array.isArray(ordersProcessing.data)) {
       setFilteredOrders(ordersProcessing.data)
-    } 
+    }
   }, [ordersProcessing.data]);
 
   const handleFilterData = (e) => {
@@ -228,7 +229,7 @@ const ProcessingOrdersPage = () => {
                         {/* Order ID */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           <Link
-                            to={`/dashboard/orders/details/${order.id}`}
+                            to={`${route}/details/${order.id}`}
                             className="text-xl underline transition duration-200 ease-in-out text-secoundColor hover:text-mainColor font-TextFontMedium"
                           >
                             {order.id}
@@ -336,14 +337,14 @@ const ProcessingOrdersPage = () => {
                         <td className="px-4 py-2 text-center">
                           <div className="flex items-center justify-center gap-2">
                             <Link
-                              to={`/dashboard/orders/details/${order.id}`}
+                              to={`${route}/details/${order.id}`}
                               aria-label="View Details"
                               className="p-2 border-2 rounded-md border-mainColor "
                             >
                               <BiSolidShow className="text-xl text-mainColor" />
                             </Link>
                             <Link
-                              to={`/dashboard/orders/invoice/${order.id}`}
+                              to={`${route}/invoice/${order.id}`}
                               aria-label="View Invoice"
                               className="p-2 border-2 border-green-400 rounded-md "
                             >

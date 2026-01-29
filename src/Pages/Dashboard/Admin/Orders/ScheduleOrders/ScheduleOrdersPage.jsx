@@ -9,6 +9,8 @@ import { useAuth } from "../../../../../Context/Auth"; // Make sure to import us
 
 const ScheduleOrdersPage = () => {
        const auth = useAuth();
+       const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
+       const route = role === "branch" ? "/branch/orders" : "/dashboard/orders";
 
        const ordersSchedule = useSelector((state) => state.ordersSchedule);
        const [textSearch, setTextSearch] = useState('');
@@ -226,7 +228,7 @@ const ScheduleOrdersPage = () => {
                                                                                     {/* Order ID */}
                                                                                     <td className="px-4 py-2 text-center text-thirdColor text-sm lg:text-base">
                                                                                            <Link
-                                                                                                  to={`/dashboard/orders/details/${order.id}`}
+                                                                                                  to={`${route}/details/${order.id}`}
                                                                                                   className="text-secoundColor underline hover:text-mainColor text-xl font-TextFontMedium transition ease-in-out duration-200"
                                                                                            >
                                                                                                   {order.id}
@@ -273,7 +275,7 @@ const ScheduleOrdersPage = () => {
                                                                                                   )}
                                                                                            </div>
                                                                                     </td>
-                                                                                    
+
                                                                                     {/* Branch */}
                                                                                     <td className="px-4 py-2 text-center text-sm lg:text-base">
                                                                                            <span className="text-cyan-500 bg-cyan-200 rounded-md px-2 py-1">
@@ -334,14 +336,14 @@ const ScheduleOrdersPage = () => {
                                                                                     <td className="px-4 py-2 text-center">
                                                                                            <div className="flex items-center justify-center gap-2">
                                                                                                   <Link
-                                                                                                         to={`/dashboard/orders/details/${order.id}`}
+                                                                                                         to={`${route}/details/${order.id}`}
                                                                                                          aria-label="View Details"
                                                                                                          className="border-mainColor border-2 p-2 rounded-md "
                                                                                                   >
                                                                                                          <BiSolidShow className="text-xl text-mainColor" />
                                                                                                   </Link>
                                                                                                   <Link
-                                                                                                         to={`/dashboard/orders/invoice/${order.id}`}
+                                                                                                         to={`${route}/invoice/${order.id}`}
                                                                                                          aria-label="View Invoice"
                                                                                                          className="border-green-400 border-2 p-2 rounded-md "
                                                                                                   >
