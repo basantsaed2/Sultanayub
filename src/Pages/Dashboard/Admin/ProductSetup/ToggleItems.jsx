@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
+import { Switch } from "../../../../Components/Components";
 
 export default function ToggleItems({ id, type }) {
   const [branches, setBranches] = useState([]);
@@ -37,7 +38,7 @@ export default function ToggleItems({ id, type }) {
           const initialStatuses = {};
           response.data.branches.forEach((branch) => {
             initialStatuses[branch.id] =
-             type === "category"
+              type === "category"
                 ? branch.category_status
                 : branch.product_status;
           });
@@ -69,7 +70,7 @@ export default function ToggleItems({ id, type }) {
           : `${apiUrl}/admin/branch/branch_product_status/${id}`;
       const payload =
         type === "category"
-          ? {branch_id , status: newStatus}
+          ? { branch_id, status: newStatus }
           : { branch_id, status: newStatus, product_id: id };
 
       await axios.put(endpoint, payload, {
@@ -109,14 +110,10 @@ export default function ToggleItems({ id, type }) {
               className="flex items-center justify-between px-6 py-4 bg-white border rounded-lg shadow-sm"
             >
               <span className="text-lg font-medium text-mainColor">{branch.name}</span>
-              <button
-                onClick={() => toggleStatus(branch.id)}
-                className={`px-5 py-2 rounded-md font-bold text-white transition duration-300 ${
-                  status ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
-                }`}
-              >
-                {status ? t("ON") : t("OFF")}
-              </button>
+              <Switch
+                checked={status === 1}
+                handleClick={() => toggleStatus(branch.id)}
+              />
             </li>
           );
         })}
