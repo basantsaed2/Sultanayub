@@ -13,6 +13,7 @@ import { useChangeState } from "../../../../Hooks/useChangeState";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { FaFileExcel } from "react-icons/fa6";
+import { useAuth } from "../../../../Context/Auth";
 
 const ProductPage = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -21,6 +22,8 @@ const ProductPage = () => {
   const { changeState } = useChangeState();
   const navigate = useNavigate();
   const location = useLocation();
+  const auth = useAuth();
+  const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
 
   // State for main tabs
   const [activeTab, setActiveTab] = useState(location.state?.activeTab || "products"); // "products", "category", or "sub_category"
@@ -35,7 +38,10 @@ const ProductPage = () => {
     loading: loadingProducts,
     data: dataProducts,
   } = useGet({
-    url: `${apiUrl}/admin/product?locale=${selectedLanguage}`,
+    url:
+      role === "branch"
+        ? `${apiUrl}/branch/branch_products?locale=${selectedLanguage}`
+        : `${apiUrl}/admin/product?locale=${selectedLanguage}`,
   });
 
   // Fetch categories
@@ -44,7 +50,7 @@ const ProductPage = () => {
     loading: loadingCategories,
     data: dataCategories,
   } = useGet({
-    url: `${apiUrl}/admin/category?locale=${selectedLanguage}`,
+    url: role === "admin" ? `${apiUrl}/admin/category?locale=${selectedLanguage}` : null,
   });
 
   const { changeState: changeFavoritePos, loadingChange, responseChange } = useChangeState();
@@ -201,8 +207,13 @@ const ProductPage = () => {
   };
 
   const handleProductStatusChange = async (id, name, status) => {
+    const url =
+      role === "branch"
+        ? `${apiUrl}/branch/branch_products_status/${id}`
+        : `${apiUrl}/admin/product/status/${id}`;
+
     const response = await changeState(
-      `${apiUrl}/admin/product/status/${id}`,
+      url,
       `${name} ${status === 1 ? t("Activated") : t("Deactivated")}.`,
       { status: status }
     );
@@ -407,18 +418,27 @@ const ProductPage = () => {
   };
 
   const handleDownloadExcel = () => {
-    const dataToExport = products.map((product, index) => ({
-      [t("#")]: index + 1,
-      [t("Name")]: product.name,
-      [t("Description")]: product.description || "-",
-      [t("Price")]: product.price || 0,
-      [t("Category")]: product.category?.name || product.sub_category?.name || "-",
-      [t("Code")]: product.product_code || "-",
-      [t("Priority")]: product.order || 0,
-      [t("Discount")]: product.discount || 0,
-      [t("Favorite POS")]: product.favourite === 1 ? t("Yes") : t("No"),
-      [t("Status")]: product.status === 1 ? t("Active") : t("Inactive"),
-    }));
+    const dataToExport = products.map((product, index) => {
+      if (role === "branch") {
+        return {
+          [t("#")]: index + 1,
+          [t("Name")]: product.name,
+          [t("Status")]: product.status === 1 ? t("Active") : t("Inactive"),
+        };
+      }
+      return {
+        [t("#")]: index + 1,
+        [t("Name")]: product.name,
+        [t("Description")]: product.description || "-",
+        [t("Price")]: product.price || 0,
+        [t("Category")]: product.category?.name || product.sub_category?.name || "-",
+        [t("Code")]: product.product_code || "-",
+        [t("Priority")]: product.order || 0,
+        [t("Discount")]: product.discount || 0,
+        [t("Favorite POS")]: product.favourite === 1 ? t("Yes") : t("No"),
+        [t("Status")]: product.status === 1 ? t("Active") : t("Inactive"),
+      };
+    });
 
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
@@ -465,67 +485,72 @@ const ProductPage = () => {
       });
     }
   };
-  const headers = [
-    t("#"),
-    t("Name"),
-    t("Price"),
-    t("Image"),
-    t("Category"),
-    t("Sub Category"),
-    t("variation"),
-    t("Favorite POS"),
-    t("Status"),
-    t("Code"),
-    t("priority"),
-    t("Recipes"),
-    t("Discount"),
-    t("Action"),
-  ];
+  const headers =
+    role === "branch"
+      ? [t("#"), t("Name"), t("Status")]
+      : [
+        t("#"),
+        t("Name"),
+        t("Price"),
+        t("Image"),
+        t("Category"),
+        t("Sub Category"),
+        t("variation"),
+        t("Favorite POS"),
+        t("Status"),
+        t("Code"),
+        t("priority"),
+        t("Recipes"),
+        t("Discount"),
+        t("Action"),
+      ];
 
   return (
     <>
       <div className="relative flex flex-col w-full gap-y-3">
         {/* Main Tabs */}
-        <div className="w-full flex gap-4 mb-4">
-          <button
-            className={`px-4 py-2 text-lg font-TextFontMedium rounded-md ${activeTab === "products"
-              ? "bg-mainColor text-white"
-              : "bg-gray-100 text-mainColor"
-              }`}
-            onClick={() => {
-              setActiveTab("products");
-              setExpandedCategories({});
-              setFilteredProducts(products);
-              setCurrentPage(1);
-            }}
-          >
-            {t("Products")}
-          </button>
-          <button
-            className={`px-4 py-2 text-lg font-TextFontMedium rounded-md ${activeTab === "category"
-              ? "bg-mainColor text-white"
-              : "bg-gray-100 text-mainColor"
-              }`}
-            onClick={() => {
-              setActiveTab("category");
-              setCurrentPage(1);
-            }}
-          >
-            {t("Category")}
-          </button>
-          <button
-            className={`px-4 py-2 text-lg font-TextFontMedium rounded-md ${activeTab === "sub_category"
-              ? "bg-mainColor text-white"
-              : "bg-gray-100 text-mainColor"
-              }`}
-            onClick={() => {
-              setActiveTab("sub_category");
-              setCurrentPage(1);
-            }}
-          >
-            {t("subcategory")}
-          </button>
-        </div>
+        {role !== "branch" && (
+          <div className="w-full flex gap-4 mb-4">
+            <button
+              className={`px-4 py-2 text-lg font-TextFontMedium rounded-md ${activeTab === "products"
+                ? "bg-mainColor text-white"
+                : "bg-gray-100 text-mainColor"
+                }`}
+              onClick={() => {
+                setActiveTab("products");
+                setExpandedCategories({});
+                setFilteredProducts(products);
+                setCurrentPage(1);
+              }}
+            >
+              {t("Products")}
+            </button>
+            <button
+              className={`px-4 py-2 text-lg font-TextFontMedium rounded-md ${activeTab === "category"
+                ? "bg-mainColor text-white"
+                : "bg-gray-100 text-mainColor"
+                }`}
+              onClick={() => {
+                setActiveTab("category");
+                setCurrentPage(1);
+              }}
+            >
+              {t("Category")}
+            </button>
+            <button
+              className={`px-4 py-2 text-lg font-TextFontMedium rounded-md ${activeTab === "sub_category"
+                ? "bg-mainColor text-white"
+                : "bg-gray-100 text-mainColor"
+                }`}
+              onClick={() => {
+                setActiveTab("sub_category");
+                setCurrentPage(1);
+              }}
+            >
+              {t("subcategory")}
+            </button>
+          </div>
+        )}
 
         {/* Search Bar & Export Button */}
         <div className="flex flex-wrap items-center justify-between w-full gap-4 mt-4">
@@ -677,7 +702,7 @@ const ProductPage = () => {
               {activeTab === "products" ? (
                 <>
                   {/* Product Table */}
-                  <table className="w-full min-w-[1200px]" ref={tableRef}>
+                  <table className={`w-full ${role !== "branch" ? "min-w-[1200px]" : ""}`} ref={tableRef}>
                     <thead className="sticky top-0 z-10 bg-white">
                       <tr className="border-b-2">
                         {headers.map((name, index) => (
@@ -716,42 +741,46 @@ const ProductPage = () => {
                             >
                               {product.name}
                             </td>
-                            <td
-                              className="px-4 py-2 text-sm text-center text-red-800 lg:text-base underline cursor-pointer"
-                              onClick={() => handleOpenPriceEdit(product)}
-                            >
-                              {product?.price || "-"}
-                            </td>
-                            <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
-                              <div className="flex justify-center">
-                                <img
-                                  src={product.image_link}
-                                  className="rounded-full bg-mainColor min-w-14 min-h-14 max-w-14 max-h-14"
-                                  alt="Photo"
-                                />
-                              </div>
-                            </td>
-                            <td onClick={() => handleOpenCategoryToggle(product.category_id)} className={`px-4 py-2 text-sm text-center text-red-800 lg:text-base ${product.category?.name ? "underline cursor-pointer" : ""} `}>
-                              {product.category?.name || "-"}
-                            </td>
-                            <td onClick={() => handleOpenCategoryToggle(product.sub_category_id)} className={`px-4 py-2 text-sm text-center text-red-800 lg:text-base ${product.sub_category?.name ? "underline cursor-pointer" : ""} `}>
-                              {product.sub_category?.name || "-"}
-                            </td>
-                            <td onClick={() => navigate(`product_variation/${product.id}`, { state: { product_name: product.name } })} className="px-4 py-2 text-sm text-center text-red-800 lg:text-base cursor-pointer underline">
-                              {product.variations?.length || "0"}
-                            </td>
-                            <td className="min-w-[150px] py-2 text-center overflow-hidden">
-                              <Switch
-                                checked={product.favourite === 1}
-                                handleClick={() => {
-                                  handleChangeStatus(
-                                    product.id,
-                                    product?.name,
-                                    product.favourite == 1 ? 0 : 1
-                                  );
-                                }}
-                              />
-                            </td>
+                            {role !== "branch" && (
+                              <>
+                                <td
+                                  className="px-4 py-2 text-sm text-center text-red-800 lg:text-base underline cursor-pointer"
+                                  onClick={() => handleOpenPriceEdit(product)}
+                                >
+                                  {product?.price || "-"}
+                                </td>
+                                <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
+                                  <div className="flex justify-center">
+                                    <img
+                                      src={product.image_link}
+                                      className="rounded-full bg-mainColor min-w-14 min-h-14 max-w-14 max-h-14"
+                                      alt="Photo"
+                                    />
+                                  </div>
+                                </td>
+                                <td onClick={() => handleOpenCategoryToggle(product.category_id)} className={`px-4 py-2 text-sm text-center text-red-800 lg:text-base ${product.category?.name ? "underline cursor-pointer" : ""} `}>
+                                  {product.category?.name || "-"}
+                                </td>
+                                <td onClick={() => handleOpenCategoryToggle(product.sub_category_id)} className={`px-4 py-2 text-sm text-center text-red-800 lg:text-base ${product.sub_category?.name ? "underline cursor-pointer" : ""} `}>
+                                  {product.sub_category?.name || "-"}
+                                </td>
+                                <td onClick={() => navigate(`product_variation/${product.id}`, { state: { product_name: product.name } })} className="px-4 py-2 text-sm text-center text-red-800 lg:text-base cursor-pointer underline">
+                                  {product.variations?.length || "0"}
+                                </td>
+                                <td className="min-w-[150px] py-2 text-center overflow-hidden">
+                                  <Switch
+                                    checked={product.favourite === 1}
+                                    handleClick={() => {
+                                      handleChangeStatus(
+                                        product.id,
+                                        product?.name,
+                                        product.favourite == 1 ? 0 : 1
+                                      );
+                                    }}
+                                  />
+                                </td>
+                              </>
+                            )}
                             <td className="min-w-[150px] py-2 text-center overflow-hidden">
                               <Switch
                                 checked={product.status === 1}
@@ -764,53 +793,57 @@ const ProductPage = () => {
                                 }}
                               />
                             </td>
-                            <td
-                              className="px-4 py-2 text-sm text-center text-red-800 lg:text-base"
-                            >
-                              {product?.product_code || "-"}
-                            </td>
-                            <td className="relative min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
-                              <span
-                                className="text-xl border-b-2 cursor-pointer text-mainColor border-mainColor font-TextFontSemiBold"
-                                onClick={() => handleOpenPriority(product.id, product.name, product.order)}
-                              >
-                                {product.order}
-                              </span>
-                            </td>
-                            <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                              <button
-                                type="button"
-                                onClick={() => handleViewRecipes(product.id, product.name)}
-                                className="text-mainColor hover:text-red-700 transition-colors underline text-sm sm:text-base"
-                              >
-                                {t("View Recipes")}
-                              </button>
-                            </td>
-                            <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
-                              {product.discount?.name || "-"}
-                            </td>
-                            <td className="px-4 py-2 text-center">
-                              <div className="flex items-center justify-center gap-2">
-                                <Link
-                                  to={`edit/${product.id}`}
-                                  state={{
-                                    activeTab,
-                                    currentPage,
-                                    textSearch,
-                                    expandedCategories,
-                                    scrollToProductId: product.id
-                                  }}
+                            {role !== "branch" && (
+                              <>
+                                <td
+                                  className="px-4 py-2 text-sm text-center text-red-800 lg:text-base"
                                 >
-                                  <EditIcon />
-                                </Link>
-                                <button
-                                  type="button"
-                                  onClick={() => handleOpenDelete(product.id)}
-                                >
-                                  <DeleteIcon />
-                                </button>
-                              </div>
-                            </td>
+                                  {product?.product_code || "-"}
+                                </td>
+                                <td className="relative min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
+                                  <span
+                                    className="text-xl border-b-2 cursor-pointer text-mainColor border-mainColor font-TextFontSemiBold"
+                                    onClick={() => handleOpenPriority(product.id, product.name, product.order)}
+                                  >
+                                    {product.order}
+                                  </span>
+                                </td>
+                                <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleViewRecipes(product.id, product.name)}
+                                    className="text-mainColor hover:text-red-700 transition-colors underline text-sm sm:text-base"
+                                  >
+                                    {t("View Recipes")}
+                                  </button>
+                                </td>
+                                <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
+                                  {product.discount?.name || "-"}
+                                </td>
+                                <td className="px-4 py-2 text-center">
+                                  <div className="flex items-center justify-center gap-2">
+                                    <Link
+                                      to={`edit/${product.id}`}
+                                      state={{
+                                        activeTab,
+                                        currentPage,
+                                        textSearch,
+                                        expandedCategories,
+                                        scrollToProductId: product.id
+                                      }}
+                                    >
+                                      <EditIcon />
+                                    </Link>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenDelete(product.id)}
+                                    >
+                                      <DeleteIcon />
+                                    </button>
+                                  </div>
+                                </td>
+                              </>
+                            )}
                           </tr>
                         ))
                       )}
@@ -841,7 +874,7 @@ const ProductPage = () => {
                         </div>
                         {expandedCategories[category.id] && (
                           <div className="p-4">
-                            <table className="w-full min-w-[1200px]">
+                            <table className={`w-full ${role !== "branch" ? "min-w-[1200px]" : ""}`}>
                               <thead className="bg-white">
                                 <tr className="border-b-2">
                                   {headers.map((name, index) => (

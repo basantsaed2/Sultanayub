@@ -537,7 +537,23 @@ export const router = createBrowserRouter([
                 element: <CategoryLayout />,
               },
             ],
-          }
+          },
+          {
+            path: "setup_product",
+            element: <ProductSetupLayout />,
+            children: [
+              {
+                path: "product",
+                element: <Outlet />,
+                children: [
+                  {
+                    path: "",
+                    element: <ProductLayout />,
+                  },
+                ],
+              },
+            ],
+          },
         ],
       },
     ],

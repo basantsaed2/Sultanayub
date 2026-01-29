@@ -434,6 +434,12 @@ export const branchRoutes = [
         icon: TbCategory,
     },
     {
+        name: "Product",
+        path: "/dashboard/setup_product/product",
+        permission: "Product",
+        icon: FiPackage,
+    },
+    {
         name: "Branches Deal",
         path: "/branch/deals",
         permission: "Branch",

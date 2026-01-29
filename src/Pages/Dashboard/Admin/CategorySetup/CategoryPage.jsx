@@ -29,7 +29,7 @@ const CategoryPage = ({ refetch, setUpdate }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const categoryUrl =
     role === "branch"
-      ? `branch/category`
+      ? `branch/branch_categories`
       : `admin/category`;
 
   const {
@@ -149,10 +149,15 @@ const CategoryPage = ({ refetch, setUpdate }) => {
   };
   // Change categories status
   const handleChangeStaus = async (id, name, status) => {
+    const url =
+      role === "branch"
+        ? `${apiUrl}/branch/branch_category_status/${id}`
+        : `${apiUrl}/${categoryUrl}/status/${id}`;
+
     const response = await changeState(
-      `${apiUrl}/${categoryUrl}/status/${id}`,
+      url,
       `${name} Changed Status.`,
-      { status } // Pass status as an object if changeState expects an object
+      { status }
     );
 
     if (response) {
@@ -251,6 +256,10 @@ const CategoryPage = ({ refetch, setUpdate }) => {
     if (dataCategory && dataCategory.categories) {
       // setCategories(dataCategory.categories);
       setCategories(dataCategory.parent_categories || []);
+
+      if (role === "branch") {
+        setCategories(dataCategory.categories || []);
+      }
       // dispatch(setCategory)
       setCategoryAddons(dataCategory.addons);
     }
@@ -281,18 +290,21 @@ const CategoryPage = ({ refetch, setUpdate }) => {
     };
   }, []);
 
-  const headers = [
-    t("serialNumber"),
-    t("image"),
-    t("banner"),
-    t("name"),
-    t("subcategory"),
-    t("products"), // Added products column
-    t("status"),
-    t("active"),
-    t("priority"),
-    role == "admin" ? t("action") : null,
-  ];
+  const headers =
+    role === "branch"
+      ? [t("serialNumber"), t("name"), t("status")]
+      : [
+        t("serialNumber"),
+        t("image"),
+        t("banner"),
+        t("name"),
+        t("subcategory"),
+        t("products"), // Added products column
+        t("status"),
+        t("active"),
+        t("priority"),
+        t("action"),
+      ];
 
   return (
     <div className="flex items-start justify-start w-full overflow-x-scroll pb-28 scrollSection">
@@ -335,229 +347,237 @@ const CategoryPage = ({ refetch, setUpdate }) => {
                       <td className="min-w-[80px] sm:min-w-[50px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                         {(currentPage - 1) * categoriesPerPage + index + 1}
                       </td>
-                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 overflow-hidden">
-                        <div className="flex justify-center">
-                          <img
-                            src={category.image_link}
-                            className="border-2 rounded-full bg-mainColor border-mainColor min-w-14 min-h-14 max-w-14 max-h-14"
-                            alt="Photo"
-                          />
-                        </div>
-                      </td>
-                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 overflow-hidden">
-                        <div className="flex justify-center">
-                          <img
-                            src={category.banner_link}
-                            className="border-2 rounded-full bg-mainColor border-mainColor min-w-14 min-h-14 max-w-14 max-h-14"
-                            loading="lazy"
-                            alt="Photo"
-                          />
-                        </div>
-                      </td>
+                      {role !== "branch" && (
+                        <>
+                          <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 overflow-hidden">
+                            <div className="flex justify-center">
+                              <img
+                                src={category.image_link}
+                                className="border-2 rounded-full bg-mainColor border-mainColor min-w-14 min-h-14 max-w-14 max-h-14"
+                                alt="Photo"
+                              />
+                            </div>
+                          </td>
+                          <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 overflow-hidden">
+                            <div className="flex justify-center">
+                              <img
+                                src={category.banner_link}
+                                className="border-2 rounded-full bg-mainColor border-mainColor min-w-14 min-h-14 max-w-14 max-h-14"
+                                loading="lazy"
+                                alt="Photo"
+                              />
+                            </div>
+                          </td>
+                        </>
+                      )}
                       <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                         {category.name}
                       </td>
-                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                        <span
-                          className="text-xl border-b-2 cursor-pointer text-mainColor border-mainColor font-TextFontSemiBold"
-                          onClick={() => handleOpenSupCategory(category.id)}
-                        >
-                          {t("View")}
-                        </span>
+                      {role !== "branch" && (
+                        <>
+                          <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                            <span
+                              className="text-xl border-b-2 cursor-pointer text-mainColor border-mainColor font-TextFontSemiBold"
+                              onClick={() => handleOpenSupCategory(category.id)}
+                            >
+                              {t("View")}
+                            </span>
 
-                        {openSupCategory === category.id && (
-                          <Dialog
-                            open={true}
-                            onClose={handleCloseSupCategory}
-                            className="relative z-10"
-                          >
-                            <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
-                            <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                              <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
-                                <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-4xl">
-                                  {/* Permissions List */}
-                                  <div className="flex flex-wrap items-center justify-center w-full gap-4 px-4 my-4 sm:p-6 sm:pb-4">
-                                    {category.sub_categories.length === 0 ? (
-                                      <div className="w-full my-4 text-lg text-center text-gray-500 font-TextFontSemiBold">
-                                        {t("No subcategory available for this category")}
-                                      </div>
-                                    ) : (
-                                      category.sub_categories.map(
-                                        (supcategory, index) => {
-                                          const displayIndex = index + 1;
-                                          return (
-                                            <div
-                                              key={index}
-                                              className="flex items-center justify-between px-3 py-3 duration-300 shadow-md hover:shadow-none rounded-xl bg-gray-50 gap-x-2"
-                                            >
-                                              <span className="text-lg capitalize text-mainColor lg:text-xl font-TextFontSemiBold">
-                                                {displayIndex}.{" "}
-                                                {supcategory.name}
-                                              </span>
-                                              <Link
-                                                to={`edit/${supcategory.id}`}
-                                              >
-                                                <EditIcon />
-                                              </Link>
-                                              <button
-                                                type="button"
-                                                onClick={() =>
-                                                  handleOpenSupDelete(
-                                                    supcategory.id
-                                                  )
-                                                }
-                                              >
-                                                <DeleteIcon />
-                                              </button>
-                                              {openSupDelete ===
-                                                supcategory.id && (
-                                                  <Dialog
-                                                    open={true}
-                                                    onClose={handleCloseSupDelete}
-                                                    className="relative z-10"
+                            {openSupCategory === category.id && (
+                              <Dialog
+                                open={true}
+                                onClose={handleCloseSupCategory}
+                                className="relative z-10"
+                              >
+                                <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                                <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                                  <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                                    <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-4xl">
+                                      {/* Permissions List */}
+                                      <div className="flex flex-wrap items-center justify-center w-full gap-4 px-4 my-4 sm:p-6 sm:pb-4">
+                                        {category.sub_categories.length === 0 ? (
+                                          <div className="w-full my-4 text-lg text-center text-gray-500 font-TextFontSemiBold">
+                                            {t("No subcategory available for this category")}
+                                          </div>
+                                        ) : (
+                                          category.sub_categories.map(
+                                            (supcategory, index) => {
+                                              const displayIndex = index + 1;
+                                              return (
+                                                <div
+                                                  key={index}
+                                                  className="flex items-center justify-between px-3 py-3 duration-300 shadow-md hover:shadow-none rounded-xl bg-gray-50 gap-x-2"
+                                                >
+                                                  <span className="text-lg capitalize text-mainColor lg:text-xl font-TextFontSemiBold">
+                                                    {displayIndex}.{" "}
+                                                    {supcategory.name}
+                                                  </span>
+                                                  <Link
+                                                    to={`edit/${supcategory.id}`}
                                                   >
-                                                    <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
-                                                    <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                                                      <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
-                                                        <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg">
-                                                          <div className="flex flex-col items-center justify-center px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
-                                                            <Warning
-                                                              width="28"
-                                                              height="28"
-                                                              aria-hidden="true"
-                                                            />
-                                                            <div className="flex items-center">
-                                                              <div className="mt-2 text-center">
-                                                                {t("You will delete supcategory")}{" "}
-                                                                {supcategory?.name ||
-                                                                  "-"}
+                                                    <EditIcon />
+                                                  </Link>
+                                                  <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                      handleOpenSupDelete(
+                                                        supcategory.id
+                                                      )
+                                                    }
+                                                  >
+                                                    <DeleteIcon />
+                                                  </button>
+                                                  {openSupDelete ===
+                                                    supcategory.id && (
+                                                      <Dialog
+                                                        open={true}
+                                                        onClose={handleCloseSupDelete}
+                                                        className="relative z-10"
+                                                      >
+                                                        <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                                                        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                                                          <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                                                            <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg">
+                                                              <div className="flex flex-col items-center justify-center px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
+                                                                <Warning
+                                                                  width="28"
+                                                                  height="28"
+                                                                  aria-hidden="true"
+                                                                />
+                                                                <div className="flex items-center">
+                                                                  <div className="mt-2 text-center">
+                                                                    {t("You will delete supcategory")}{" "}
+                                                                    {supcategory?.name ||
+                                                                      "-"}
+                                                                  </div>
+                                                                </div>
                                                               </div>
-                                                            </div>
+                                                              <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                                                                <button
+                                                                  className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto"
+                                                                  onClick={() =>
+                                                                    handleSupDelete(
+                                                                      supcategory.id,
+                                                                      supcategory.name
+                                                                    )
+                                                                  }
+                                                                >
+                                                                  {t("Delete")}
+                                                                </button>
+
+                                                                <button
+                                                                  type="button"
+                                                                  data-autofocus
+                                                                  onClick={
+                                                                    handleCloseSupDelete
+                                                                  }
+                                                                  className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
+                                                                >
+                                                                  {t("Cancel")}
+                                                                </button>
+                                                              </div>
+                                                            </DialogPanel>
                                                           </div>
-                                                          <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                                                            <button
-                                                              className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto"
-                                                              onClick={() =>
-                                                                handleSupDelete(
-                                                                  supcategory.id,
-                                                                  supcategory.name
-                                                                )
-                                                              }
-                                                            >
-                                                              {t("Delete")}
-                                                            </button>
+                                                        </div>
+                                                      </Dialog>
+                                                    )}
+                                                </div>
+                                              );
+                                            }
+                                          )
+                                        )}
+                                      </div>
 
-                                                            <button
-                                                              type="button"
-                                                              data-autofocus
-                                                              onClick={
-                                                                handleCloseSupDelete
-                                                              }
-                                                              className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
-                                                            >
-                                                              {t("Cancel")}
-                                                            </button>
-                                                          </div>
-                                                        </DialogPanel>
-                                                      </div>
-                                                    </div>
-                                                  </Dialog>
-                                                )}
+                                      {/* Dialog Footer */}
+                                      <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                                        <button
+                                          type="button"
+                                          onClick={handleCloseSupCategory}
+                                          className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontMedium sm:mt-0 sm:w-auto hover:bg-mainColor-dark focus:outline-none"
+                                        >
+                                          {t("Close")}
+                                        </button>
+                                      </div>
+                                    </DialogPanel>
+                                  </div>
+                                </div>
+                              </Dialog>
+                            )}
+                          </td>
+                          {/* Products Column */}
+                          <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                            <span
+                              className="text-xl border-b-2 cursor-pointer text-mainColor border-mainColor font-TextFontSemiBold"
+                              onClick={() => handleOpenProducts(category.id)}
+                            >
+                              {t("View")}
+                            </span>
+
+                            {openProducts === category.id && (
+                              <Dialog
+                                open={true}
+                                onClose={handleCloseProducts}
+                                className="relative z-10"
+                              >
+                                <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                                <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                                  <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                                    <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-4xl">
+                                      <div className="px-6 py-4 border-b border-gray-200">
+                                        <h3 className="text-lg font-medium text-gray-900 font-TextFontSemiBold">
+                                          {t("Products in")}: {category.name}
+                                        </h3>
+                                      </div>
+
+                                      {/* Products List */}
+                                      <div className="max-h-96 overflow-y-auto">
+                                        {loadingProducts ? (
+                                          <div className="flex items-center justify-center py-8">
+                                            <StaticLoader />
+                                          </div>
+                                        ) : categoryProducts.length === 0 ? (
+                                          <div className="w-full my-4 text-lg text-center text-gray-500 font-TextFontSemiBold py-8">
+                                            {t("No products available for this category")}
+                                          </div>
+                                        ) : (
+                                          <div className="p-6">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                              {categoryProducts.map((product, index) => (
+                                                <div
+                                                  key={product.id}
+                                                  className="flex flex-col items-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+                                                >
+                                                  <button
+                                                    onClick={() => navigate('/dashboard/setup_product/product', { state: { scrollToProductId: product.id } })}
+                                                    className="text-lg font-TextFontMedium text-mainColor text-center hover:underline focus:outline-none"
+                                                  >
+                                                    {index + 1}. {product.name}
+                                                  </button>
+                                                </div>
+                                              ))}
                                             </div>
-                                          );
-                                        }
-                                      )
-                                    )}
-                                  </div>
-
-                                  {/* Dialog Footer */}
-                                  <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                                    <button
-                                      type="button"
-                                      onClick={handleCloseSupCategory}
-                                      className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontMedium sm:mt-0 sm:w-auto hover:bg-mainColor-dark focus:outline-none"
-                                    >
-                                      {t("Close")}
-                                    </button>
-                                  </div>
-                                </DialogPanel>
-                              </div>
-                            </div>
-                          </Dialog>
-                        )}
-                      </td>
-                      {/* Products Column */}
-                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                        <span
-                          className="text-xl border-b-2 cursor-pointer text-mainColor border-mainColor font-TextFontSemiBold"
-                          onClick={() => handleOpenProducts(category.id)}
-                        >
-                          {t("View")}
-                        </span>
-
-                        {openProducts === category.id && (
-                          <Dialog
-                            open={true}
-                            onClose={handleCloseProducts}
-                            className="relative z-10"
-                          >
-                            <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
-                            <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                              <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
-                                <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-4xl">
-                                  <div className="px-6 py-4 border-b border-gray-200">
-                                    <h3 className="text-lg font-medium text-gray-900 font-TextFontSemiBold">
-                                      {t("Products in")}: {category.name}
-                                    </h3>
-                                  </div>
-
-                                  {/* Products List */}
-                                  <div className="max-h-96 overflow-y-auto">
-                                    {loadingProducts ? (
-                                      <div className="flex items-center justify-center py-8">
-                                        <StaticLoader />
+                                          </div>
+                                        )}
                                       </div>
-                                    ) : categoryProducts.length === 0 ? (
-                                      <div className="w-full my-4 text-lg text-center text-gray-500 font-TextFontSemiBold py-8">
-                                        {t("No products available for this category")}
-                                      </div>
-                                    ) : (
-                                      <div className="p-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                          {categoryProducts.map((product, index) => (
-                                            <div
-                                              key={product.id}
-                                              className="flex flex-col items-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
-                                            >
-                                              <button
-                                                onClick={() => navigate('/dashboard/setup_product/product', { state: { scrollToProductId: product.id } })}
-                                                className="text-lg font-TextFontMedium text-mainColor text-center hover:underline focus:outline-none"
-                                              >
-                                                {index + 1}. {product.name}
-                                              </button>
-                                            </div>
-                                          ))}
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
 
-                                  {/* Dialog Footer */}
-                                  <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 border-t border-gray-200">
-                                    <button
-                                      type="button"
-                                      onClick={handleCloseProducts}
-                                      className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontMedium sm:mt-0 sm:w-auto hover:bg-mainColor-dark focus:outline-none"
-                                    >
-                                      {t("Close")}
-                                    </button>
+                                      {/* Dialog Footer */}
+                                      <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 border-t border-gray-200">
+                                        <button
+                                          type="button"
+                                          onClick={handleCloseProducts}
+                                          className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontMedium sm:mt-0 sm:w-auto hover:bg-mainColor-dark focus:outline-none"
+                                        >
+                                          {t("Close")}
+                                        </button>
+                                      </div>
+                                    </DialogPanel>
                                   </div>
-                                </DialogPanel>
-                              </div>
-                            </div>
-                          </Dialog>
-                        )}
-                      </td>
+                                </div>
+                              </Dialog>
+                            )}
+                          </td>
+                        </>
+                      )}
                       <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                         <Switch
                           checked={category.status === 1}
@@ -570,143 +590,149 @@ const CategoryPage = ({ refetch, setUpdate }) => {
                           }}
                         />
                       </td>
-                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                        <Switch
-                          checked={category.active === 1}
-                          handleClick={() => {
-                            handleChangeActive(
-                              category.id,
-                              category.name,
-                              category.active === 1 ? 0 : 1
-                            );
-                          }}
-                        />
-                      </td>
-                      <td className="relative min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
-                        <span
-                          className="text-xl border-b-2 cursor-pointer text-mainColor border-mainColor font-TextFontSemiBold"
-                          onClick={() => handleOpenPriority(category.id)}
-                        >
-                          {category.priority}
-                        </span>
-                        {openPriority === category.id && (
-                          <Dialog
-                            open={true}
-                            onClose={handleClosePriority}
-                            className="relative z-10"
-                          >
-                            <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
-                            <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                              <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
-                                <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-4xl">
-                                  {/* Permissions List */}
-                                  <div className="flex items-baseline justify-center w-8/12 gap-4 px-4 mx-auto my-4 sm:p-6 sm:pb-4">
-                                    <span className="text-2xl font-TextFontRegular text-thirdColor">
-                                      {t("Priority")}:
-                                    </span>
-                                    <NumberInput
-                                      value={priorityChange} // Access category_name property
-                                      onChange={(e) =>
-                                        setPriorityChange(e.target.value)
-                                      }
-                                      placeholder={
-                                        category.priority || t("Priority Num")
-                                      }
-                                    />
-                                  </div>
-
-                                  {/* Dialog Footer */}
-                                  <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-x-2">
-                                    {/* <AddButton /> */}
-                                    <button
-                                      type="button"
-                                      onClick={handleClosePriority}
-                                      className="inline-flex justify-center w-full px-6 py-3 text-sm text-white shadow-sm rounded-xl bg-mainColor font-TextFontMedium sm:mt-0 sm:w-auto hover:bg-mainColor-dark focus:outline-none"
-                                    >
-                                      {t("Close")}
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        handleChangePriority(
-                                          category.id,
-                                          category.name
-                                        )
-                                      } // Renamed 'handleClick' to 'onClick'
-                                      className="inline-flex justify-center w-full px-6 py-3 text-sm bg-white border-2 shadow-sm rounded-xl font-TextFontMedium text-mainColor sm:mt-0 sm:w-auto hover:bg-mainColor-dark focus:outline-none"
-                                    >
-                                      {t("Change Priority")}
-                                    </button>
-                                  </div>
-                                </DialogPanel>
-                              </div>
-                            </div>
-                          </Dialog>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          <Link to={`edit/${category.id}`}>
-                            <EditIcon />
-                          </Link>
-                          <button
-                            type="button"
-                            onClick={() => handleOpenDelete(category.id)}
-                          >
-                            <DeleteIcon />
-                          </button>
-                          {openDelete === category.id && (
-                            <Dialog
-                              open={true}
-                              onClose={handleCloseDelete}
-                              className="relative z-10"
+                      {role !== "branch" && (
+                        <>
+                          <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                            <Switch
+                              checked={category.active === 1}
+                              handleClick={() => {
+                                handleChangeActive(
+                                  category.id,
+                                  category.name,
+                                  category.active === 1 ? 0 : 1
+                                );
+                              }}
+                            />
+                          </td>
+                          <td className="relative min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
+                            <span
+                              className="text-xl border-b-2 cursor-pointer text-mainColor border-mainColor font-TextFontSemiBold"
+                              onClick={() => handleOpenPriority(category.id)}
                             >
-                              <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
-                              <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                                <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
-                                  <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg">
-                                    <div className="flex flex-col items-center justify-center px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
-                                      <Warning
-                                        width="28"
-                                        height="28"
-                                        aria-hidden="true"
-                                      />
-                                      <div className="flex items-center">
-                                        <div className="mt-2 text-center">
-                                          {t("youwilldeletecategory")}{" "}
-                                          {category?.name || "-"}
+                              {category.priority}
+                            </span>
+                            {openPriority === category.id && (
+                              <Dialog
+                                open={true}
+                                onClose={handleClosePriority}
+                                className="relative z-10"
+                              >
+                                <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                                <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                                  <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                                    <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-4xl">
+                                      {/* Permissions List */}
+                                      <div className="flex items-baseline justify-center w-8/12 gap-4 px-4 mx-auto my-4 sm:p-6 sm:pb-4">
+                                        <span className="text-2xl font-TextFontRegular text-thirdColor">
+                                          {t("Priority")}:
+                                        </span>
+                                        <NumberInput
+                                          value={priorityChange} // Access category_name property
+                                          onChange={(e) =>
+                                            setPriorityChange(e.target.value)
+                                          }
+                                          placeholder={
+                                            category.priority || t("Priority Num")
+                                          }
+                                        />
+                                      </div>
+
+                                      {/* Dialog Footer */}
+                                      <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-x-2">
+                                        {/* <AddButton /> */}
+                                        <button
+                                          type="button"
+                                          onClick={handleClosePriority}
+                                          className="inline-flex justify-center w-full px-6 py-3 text-sm text-white shadow-sm rounded-xl bg-mainColor font-TextFontMedium sm:mt-0 sm:w-auto hover:bg-mainColor-dark focus:outline-none"
+                                        >
+                                          {t("Close")}
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            handleChangePriority(
+                                              category.id,
+                                              category.name
+                                            )
+                                          } // Renamed 'handleClick' to 'onClick'
+                                          className="inline-flex justify-center w-full px-6 py-3 text-sm bg-white border-2 shadow-sm rounded-xl font-TextFontMedium text-mainColor sm:mt-0 sm:w-auto hover:bg-mainColor-dark focus:outline-none"
+                                        >
+                                          {t("Change Priority")}
+                                        </button>
+                                      </div>
+                                    </DialogPanel>
+                                  </div>
+                                </div>
+                              </Dialog>
+                            )}
+                          </td>
+                        </>
+                      )}
+                      {role == "admin" && (
+                        <td className="px-4 py-3 text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <Link to={`edit/${category.id}`}>
+                              <EditIcon />
+                            </Link>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenDelete(category.id)}
+                            >
+                              <DeleteIcon />
+                            </button>
+                            {openDelete === category.id && (
+                              <Dialog
+                                open={true}
+                                onClose={handleCloseDelete}
+                                className="relative z-10"
+                              >
+                                <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                                <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                                  <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                                    <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg">
+                                      <div className="flex flex-col items-center justify-center px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
+                                        <Warning
+                                          width="28"
+                                          height="28"
+                                          aria-hidden="true"
+                                        />
+                                        <div className="flex items-center">
+                                          <div className="mt-2 text-center">
+                                            {t("youwilldeletecategory")}{" "}
+                                            {category?.name || "-"}
+                                          </div>
                                         </div>
                                       </div>
-                                    </div>
-                                    <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                                      <button
-                                        className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto"
-                                        onClick={() =>
-                                          handleDelete(
-                                            category.id,
-                                            category.name
-                                          )
-                                        }
-                                      >
-                                        {t("Delete")}
-                                      </button>
+                                      <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                                        <button
+                                          className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontSemiBold sm:ml-3 sm:w-auto"
+                                          onClick={() =>
+                                            handleDelete(
+                                              category.id,
+                                              category.name
+                                            )
+                                          }
+                                        >
+                                          {t("Delete")}
+                                        </button>
 
-                                      <button
-                                        type="button"
-                                        data-autofocus
-                                        onClick={handleCloseDelete}
-                                        className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
-                                      >
-                                        {t("Cancel")}
-                                      </button>
-                                    </div>
-                                  </DialogPanel>
+                                        <button
+                                          type="button"
+                                          data-autofocus
+                                          onClick={handleCloseDelete}
+                                          className="inline-flex justify-center w-full px-6 py-3 mt-3 text-sm text-gray-900 bg-white rounded-md shadow-sm font-TextFontMedium ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
+                                        >
+                                          {t("Cancel")}
+                                        </button>
+                                      </div>
+                                    </DialogPanel>
+                                  </div>
                                 </div>
-                              </div>
-                            </Dialog>
-                          )}
-                        </div>
-                      </td>
+                              </Dialog>
+                            )}
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   )
                 )
