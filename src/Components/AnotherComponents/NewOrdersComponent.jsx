@@ -6,6 +6,7 @@ import { MdOutlineShoppingCart } from "react-icons/md";
 import { addCanceledOrder } from "../../Store/CreateSlices";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "../../Context/Auth.jsx";
 
 const NewOrdersComponent = ({ isOpen, onClose, onCheckOrders }) => {
   const popUpRef = useRef();
@@ -13,6 +14,9 @@ const NewOrdersComponent = ({ isOpen, onClose, onCheckOrders }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { t, i18n } = useTranslation();
+  const auth = useAuth();
+  const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
+  const route = role === "branch" ? "/branch/orders" : "/dashboard/orders";
 
   const handleClickOutside = (event) => {
     if (popUpRef.current && !popUpRef.current.contains(event.target)) {
@@ -55,12 +59,12 @@ const NewOrdersComponent = ({ isOpen, onClose, onCheckOrders }) => {
                 {t("Close")}
               </button>
               <Link
-                to={`/dashboard/orders/details/${newOrders?.id}`}
+                to={`${route}/details/${newOrders?.id}`}
                 onClick={(e) => {
                   e.preventDefault();
                   if (onCheckOrders) onCheckOrders(newOrders?.id);
                   onClose();
-                  navigate(`/dashboard/orders/details/${newOrders?.id}`);
+                  navigate(`${route}/details/${newOrders?.id}`);
                 }}
                 className="inline-flex justify-center px-6 py-3 mt-3 text-xl text-white rounded-md shadow-sm bg-mainColor font-TextFontMedium sm:mt-0 sm:w-auto hover:bg-mainColor-dark"
               >

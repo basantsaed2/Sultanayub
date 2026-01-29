@@ -18,6 +18,8 @@ const OrdersReports = () => {
     url: `${apiUrl}/admin/reports/lists_report`
   });
   const auth = useAuth();
+  const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
+  const route = role === "branch" ? "/branch/orders" : "/dashboard/orders";
 
   const [cashierMans, setCashierMans] = useState([]);
   const [cashiers, setCashiers] = useState([]);
@@ -578,7 +580,7 @@ const OrdersReports = () => {
                     </td>
                     <td className="px-4 py-3 text-center border-b">
                       <Link
-                        to={`/dashboard/orders/details/${order.id}`}
+                        to={`${route}/details/${order.id}`}
                         className="inline-flex items-center px-3 py-1 text-sm font-medium text-white transition-colors duration-200 rounded-md bg-mainColor hover:bg-opacity-90"
                       >
                         View Order

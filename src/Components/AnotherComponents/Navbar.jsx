@@ -31,6 +31,8 @@ const Navbar = () => {
   const dropdownRef = useRef(null);
   const notificationRef = useRef(null);
   const cancelationDropdownRef = useRef(null);
+  const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
+  const route = role === "branch" ? "/branch/orders" : "/dashboard/orders";
 
   const [cancelationStatuses, setCancelationStatuses] = useState([]);
   const [selectedCancelId, setSelectedCancelId] = useState('');
@@ -91,8 +93,6 @@ const Navbar = () => {
       setImagePreview(profileData.image || '');
     }
   }, [profileData]);
-
-  const role = localStorage.getItem("role");
 
   const cancelationUrl =
     role === "admin" ? `${apiUrl}/admin/settings/cancelation` : null;
@@ -374,7 +374,7 @@ const Navbar = () => {
                         className="flex items-center justify-between px-4 py-2 hover:bg-gray-100"
                       >
                         <Link
-                          to={`/dashboard/orders/details/${status.id}`}
+                          to={`${route}/details/${status.id}`}
                           onClick={() => setSelectedCancelId(status.id)}
                           className="flex-1 text-left"
                         >
@@ -434,7 +434,7 @@ const Navbar = () => {
                         className="flex items-center justify-between px-4 py-2 hover:bg-gray-100"
                       >
                         <Link
-                          to={`/dashboard/orders/details/${orderId}`}
+                          to={`${route}/details/${orderId}`}
                           onClick={() => {
                             setNotificationOpen(false);
                             handleMarkAsRead(orderId);

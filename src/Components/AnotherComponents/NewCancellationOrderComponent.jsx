@@ -6,6 +6,7 @@ import { IoWarningOutline } from "react-icons/io5";
 import { useTranslation } from "react-i18next";
 import { setNewCanceledOrder, removeCanceledOrder } from "../../Store/CreateSlices";
 import { useChangeState } from "../../Hooks/useChangeState.jsx";
+import { useAuth } from "../../Context/Auth.jsx";
 
 const NewCancellationOrderComponent = ({ isOpen, onClose }) => {
     const popUpRef = useRef();
@@ -13,6 +14,9 @@ const NewCancellationOrderComponent = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
     const { t } = useTranslation();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const auth = useAuth();
+    const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
+    const route = role === "branch" ? "/branch/orders" : "/dashboard/orders";
 
     const newCanceledOrder = useSelector((state) => state.canceledOrders.newOrder);
     const { changeState, loading } = useChangeState();
@@ -80,7 +84,7 @@ const NewCancellationOrderComponent = ({ isOpen, onClose }) => {
                             <div className="flex flex-col w-full gap-4">
                                 <div className="flex flex-col w-full gap-3 md:flex-row">
                                     <Link
-                                        to={`/dashboard/orders/details/${newCanceledOrder}`}
+                                        to={`${route}/details/${newCanceledOrder}`}
                                         onClick={() => handleClose()}
                                         className="flex-1 flex items-center justify-center px-4 py-2.5 text-base font-semibold text-white transition-all bg-red-600 rounded-xl hover:bg-red-700 active:scale-95 shadow-lg shadow-red-100"
                                     >
