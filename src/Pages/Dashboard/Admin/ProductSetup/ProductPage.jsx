@@ -168,10 +168,10 @@ const ProductPage = () => {
     }
   }, [dataCategories]);
 
-  useEffect(() => {
-    refetchProducts();
-    refetchCategories();
-  }, [refetchProducts, refetchCategories, selectedLanguage]);
+  // useEffect(() => {
+  //   refetchProducts();
+  //   refetchCategories();
+  // }, [refetchProducts, refetchCategories, selectedLanguage]);
 
   // Apply filter if textSearch is restored from state
   useEffect(() => {

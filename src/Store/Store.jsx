@@ -33,7 +33,7 @@ const reducers = combineReducers({
 const persistConfig = {
        key: 'root',
        storage,
-       whitelist: ['userProject', 'canceledOrders'], // Add canceledOrders to persisted state
+       whitelist: ['userProject', 'canceledOrders', 'language'], // Add canceledOrders and language to persisted state
 };
 
 const persistedReducer = persistReducer(persistConfig, reducers);

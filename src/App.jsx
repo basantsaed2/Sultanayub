@@ -20,11 +20,16 @@ const App = () => {
     document.title = t('projectName');
   }, [t, i18n.language]);
 
+  const selectedLanguage = useSelector((state) => state.language?.selected ?? "en");
+
   useEffect(() => {
-    const dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
+    const dir = selectedLanguage === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.dir = dir;
-    document.documentElement.lang = i18n.language;
-  }, [i18n.language]);
+    document.documentElement.lang = selectedLanguage;
+    if (i18n.language !== selectedLanguage) {
+      i18n.changeLanguage(selectedLanguage);
+    }
+  }, [i18n, selectedLanguage]);
 
   const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
   const auth = useAuth();
