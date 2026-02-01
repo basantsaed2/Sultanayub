@@ -50,6 +50,7 @@ const EditFinacialAccountPage = () => {
   const [discount, setDiscount] = useState(0);
   const [selectedBranch, setSelectedBranch] = useState(null); // State for selected branch
   const [openMenu, setOpenMenu] = useState(false); // State for dropdown open/close
+  const [main, setMain] = useState(0);
 
   useEffect(() => {
     refetchBranches();
@@ -73,6 +74,7 @@ const EditFinacialAccountPage = () => {
       setStatus(data?.status || 0)
       setVisaStatus(data?.description_status || 0)
       setDiscount(data?.discount || 0)
+      setMain(data?.main || 0)
       setSelectedBranch(data?.branch)
     }
   }, [dataFinancialAccount]);
@@ -103,6 +105,10 @@ const EditFinacialAccountPage = () => {
     setDiscount((prev) => (prev === 0 ? 1 : 0));
   };
 
+  const handleMainStatus = () => {
+    setMain((prev) => (prev === 0 ? 1 : 0));
+  };
+
   useEffect(() => {
     if (!loadingPost && response) {
       navigate(-1)
@@ -118,6 +124,7 @@ const EditFinacialAccountPage = () => {
     setStatus(0);
     setVisaStatus(0);
     setDiscount(0);
+    setMain(0);
     setSelectedBranch(null);
     setOpenMenu(false);
   };
@@ -150,16 +157,18 @@ const EditFinacialAccountPage = () => {
     formData.append("name", name);
     formData.append("details", description);
     formData.append("balance", balance || 0);
-    if(imageFile){
-    formData.append("logo", imageFile);
+    if (imageFile) {
+      formData.append("logo", imageFile);
     }
     formData.append("status", status);
     formData.append("discount", discount);
     formData.append("description_status", visaStatus);
-    if(role === 'admin'){
-    selectedBranch.forEach((branch, index) => {
-      formData.append(`branch_id[${index}]`, branch.id); // Append each ID as an array element in FormData
-    });}
+    formData.append("main", main);
+    if (role === 'admin') {
+      selectedBranch.forEach((branch, index) => {
+        formData.append(`branch_id[${index}]`, branch.id); // Append each ID as an array element in FormData
+      });
+    }
     postData(formData, t("Financial Account Updated Success")); // Updated to use t() for success message
   };
 
@@ -203,22 +212,22 @@ const EditFinacialAccountPage = () => {
                 </div>
                 {/* Branch Dropdown */}
                 {role === "admin" && (
-                <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                  <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("BranchName")}:
-                  </span>
-                  <MultiSelect
-                    value={selectedBranch}
-                    onChange={(e) => setSelectedBranch(e.value)}
-                    options={branches}
-                    optionLabel="name"
-                    display="chip"
-                    placeholder={t("selectBranch")}
-                    // maxSelectedLabels={3}
-                    className="w-full p-1 md:w-20rem text-mainColor"
-                    filter
-                  />
-                </div>
+                  <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                      {t("BranchName")}:
+                    </span>
+                    <MultiSelect
+                      value={selectedBranch}
+                      onChange={(e) => setSelectedBranch(e.value)}
+                      options={branches}
+                      optionLabel="name"
+                      display="chip"
+                      placeholder={t("selectBranch")}
+                      // maxSelectedLabels={3}
+                      className="w-full p-1 md:w-20rem text-mainColor"
+                      filter
+                    />
+                  </div>
                 )}
                 <div className="w-full flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
@@ -283,6 +292,17 @@ const EditFinacialAccountPage = () => {
                     <Switch
                       handleClick={handlefinancialAccountStatus}
                       checked={status}
+                    />
+                  </div>
+                </div>
+                <div className="w-full flex items-start justify-start gap-x-1 pt-8">
+                  <div className="flex items-center justify-start w-2/4 gap-x-1">
+                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                      {t("Main")}:
+                    </span>
+                    <Switch
+                      handleClick={handleMainStatus}
+                      checked={main}
                     />
                   </div>
                 </div>

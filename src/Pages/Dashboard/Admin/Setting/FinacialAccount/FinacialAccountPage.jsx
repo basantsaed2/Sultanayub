@@ -17,9 +17,9 @@ const FinancialAccountPage = ({ refetch }) => {
   const auth = useAuth();
   const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
   const financialAccountUrl =
-  role === "branch"
-    ? `branch`
-    : `admin/settings`;
+    role === "branch"
+      ? `branch`
+      : `admin/settings`;
 
 
   const { refetch: refetchFinancialAccount, loading: loadingFinancialAccount, data: dataFinancialAccount } = useGet({
@@ -139,6 +139,7 @@ const FinancialAccountPage = ({ refetch }) => {
     t('Balance'),
     t('Description'),
     t('Discount'),
+    t('Main'),
     t('Status'),
     t('Action'),
   ];
@@ -266,6 +267,9 @@ const FinancialAccountPage = ({ refetch }) => {
                     </td>
                     <td className="min-w-[120px] sm:min-w-[80px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {financialAccount.discount === 1 ? t('Active') : t('Inactive')}
+                    </td>
+                    <td className="min-w-[120px] sm:min-w-[80px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                      {financialAccount.main === 1 ? t('Active') : t('Inactive')}
                     </td>
                     <td className="min-w-[120px] sm:min-w-[80px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       <Switch

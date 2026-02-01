@@ -48,6 +48,7 @@ const AddFinacialAccountPage = () => {
   const [discount, setDiscount] = useState(0);
   const [selectedBranch, setSelectedBranch] = useState(null); // State for selected branch
   const [openMenu, setOpenMenu] = useState(false); // State for dropdown open/close
+  const [main, setMain] = useState(0);
 
   useEffect(() => {
     refetchBranches();
@@ -85,6 +86,10 @@ const AddFinacialAccountPage = () => {
     setDiscount((prev) => (prev === 0 ? 1 : 0));
   };
 
+  const handleMainStatus = () => {
+    setMain((prev) => (prev === 0 ? 1 : 0));
+  };
+
   useEffect(() => {
     if (!loadingPost && response) {
       navigate(-1)
@@ -100,6 +105,7 @@ const AddFinacialAccountPage = () => {
     setStatus(0);
     setVisaStatus(0);
     setDiscount(0);
+    setMain(0);
     setSelectedBranch(null);
     setOpenMenu(false);
   };
@@ -132,12 +138,13 @@ const AddFinacialAccountPage = () => {
     formData.append("name", name);
     formData.append("details", description);
     formData.append("balance", balance || 0);
-    if(imageFile){
-    formData.append("logo", imageFile);
+    if (imageFile) {
+      formData.append("logo", imageFile);
     }
     formData.append("status", status);
     formData.append("discount", discount);
     formData.append("description_status", visaStatus);
+    formData.append("main", main);
     if (role === 'admin') {
       selectedBranch.forEach((branch, index) => {
         formData.append(`branch_id[${index}]`, branch.id); // Append each ID as an array element in FormData
@@ -266,6 +273,17 @@ const AddFinacialAccountPage = () => {
                     <Switch
                       handleClick={handlefinancialAccountStatus}
                       checked={status}
+                    />
+                  </div>
+                </div>
+                <div className="w-full flex items-start justify-start gap-x-1 pt-8">
+                  <div className="flex items-center justify-start w-2/4 gap-x-1">
+                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                      {t("Main")}:
+                    </span>
+                    <Switch
+                      handleClick={handleMainStatus}
+                      checked={main}
                     />
                   </div>
                 </div>
