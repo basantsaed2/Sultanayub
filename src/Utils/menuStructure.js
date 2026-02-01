@@ -387,6 +387,7 @@ export const adminRoutes = [
             { name: "Product Reports", path: "/dashboard/reports/product_reports" },
             { name: "Dine Reports", path: "/dashboard/reports/dine_reports" },
             { name: "Invoices Reports", path: "/dashboard/reports/invoices_reports" },
+            { name: "Hall Reports", path: "/dashboard/reports/hall_reports" },
             { name: "Cashier Shortage", path: "/dashboard/reports/cashier_shortage" },
         ],
         redirectTo: "/dashboard/reports/cashier_report",
