@@ -57,6 +57,8 @@ const EditCashierMan = () => {
   const [serviceFees, setServiceFees] = useState(0);
   const [totalTax, setTotalTax] = useState(0);
   const [enterAmount, setEnterAmount] = useState(0);
+  const [freeDiscount, setFreeDiscount] = useState(0);
+  const [hallOrders, setHallOrders] = useState(0);
 
   // Role options for react-select
   const roleOptions = [
@@ -125,6 +127,8 @@ const EditCashierMan = () => {
       setServiceFees(cashier.service_fees || 0);
       setTotalTax(cashier.total_tax || 0);
       setEnterAmount(cashier.enter_amount || 0);
+      setFreeDiscount(cashier.free_discount || 0);
+      setHallOrders(cashier.hall_orders || 0);
       setExistingImage(cashier.image_link || null);
 
       // Set branch
@@ -170,6 +174,8 @@ const EditCashierMan = () => {
   const handleServiceFees = () => setServiceFees((prev) => (prev === 0 ? 1 : 0));
   const handleTotalTax = () => setTotalTax((prev) => (prev === 0 ? 1 : 0));
   const handleEnterAmount = () => setEnterAmount((prev) => (prev === 0 ? 1 : 0));
+  const handleFreeDiscount = () => setFreeDiscount((prev) => (prev === 0 ? 1 : 0));
+  const handleHallOrders = () => setHallOrders((prev) => (prev === 0 ? 1 : 0));
 
   const handleReportPermission = (selectedOption) => {
     setSelectedReportPermission(selectedOption);
@@ -194,6 +200,8 @@ const EditCashierMan = () => {
       setServiceFees(cashier.service_fees || 0);
       setTotalTax(cashier.total_tax || 0);
       setEnterAmount(cashier.enter_amount || 0);
+      setFreeDiscount(cashier.free_discount || 0);
+      setHallOrders(cashier.hall_orders || 0);
       setImage(null);
       setExistingImage(cashier.image_link || null);
 
@@ -258,6 +266,8 @@ const EditCashierMan = () => {
     formData.append("service_fees", serviceFees);
     formData.append("total_tax", totalTax);
     formData.append("enter_amount", enterAmount);
+    formData.append("free_discount", freeDiscount);
+    formData.append("hall_orders", hallOrders);
 
     // Append report permission if selected
     if (selectedReportPermission) {
@@ -563,6 +573,22 @@ const EditCashierMan = () => {
                   {t("allowAmountEntry")}:
                 </span>
                 <Switch handleClick={handleEnterAmount} checked={enterAmount} />
+              </div>
+
+              {/* Free Discount */}
+              <div className="flex items-start justify-start pt-8 gap-x-3">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Free Discount")}:
+                </span>
+                <Switch handleClick={handleFreeDiscount} checked={freeDiscount} />
+              </div>
+
+              {/* Hall Orders */}
+              <div className="flex items-start justify-start pt-8 gap-x-3">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Hall Orders")}:
+                </span>
+                <Switch handleClick={handleHallOrders} checked={hallOrders} />
               </div>
             </div>
 

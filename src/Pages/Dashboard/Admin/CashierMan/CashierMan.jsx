@@ -12,7 +12,7 @@ import { useChangeState } from "../../../../Hooks/useChangeState";
 import { useDelete } from "../../../../Hooks/useDelete";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../Assets/Icons/AnotherIcons/WarningIcon";
-import { t } from "i18next";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../../Context/Auth";
 
 const CashierMan = () => {
@@ -29,10 +29,12 @@ const CashierMan = () => {
   const { deleteData, loadingDelete } = useDelete();
   const { changeState, loadingChange } = useChangeState();
   const { changeState: changeLogoutStatus, loadingChange: loadingChangeLogout } = useChangeState();
+  const { t } = useTranslation();
 
   const [cashiersMan, setCashiersMan] = useState([]);
   const [openDelete, setOpenDelete] = useState(null);
   const [openRoles, setOpenRoles] = useState(null);
+  const [openPermissions, setOpenPermissions] = useState(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const cashiersManPerPage = 20;
@@ -117,28 +119,40 @@ const CashierMan = () => {
     setOpenRoles(null);
   };
 
+  const handleOpenPermissions = (cashier) => {
+    setOpenPermissions(cashier);
+  };
+  const handleClosePermissions = () => {
+    setOpenPermissions(null);
+  };
+
   const headers = [
     t("SL"),
     t("Name"),
-    t("Cashier"), // Changed from "Name" to "Cashier"
+    t("Cashier"),
     t("Manager"),
     role == "admin" ? t("Branch") : null,
     t("Image"),
     t("Shift Number"),
     t("Report Permission"),
-    t("Take Away"),
-    t("Dine In"),
-    t("Delivery"),
-    t("Real Order"),
-    t("Online Order"),
-    t("Discount Perimission"),
-    t("Void Order"),
-    t("Service Fees"),
-    t("Total Tax"),
-    t("allowAmountEntry"),
     t("Status"),
-    t("Roles"),
+    t("Permissions"),
     t("Action"),
+  ];
+
+  const permissionsList = [
+    { key: "take_away", label: t("Take Away") },
+    { key: "dine_in", label: t("Dine In") },
+    { key: "delivery", label: t("Delivery") },
+    { key: "real_order", label: t("Real Order") },
+    { key: "online_order", label: t("Online Order") },
+    { key: "discount_perimission", label: t("Discount Perimission") },
+    { key: "void_order", label: t("Void Order") },
+    { key: "service_fees", label: t("Service Fees") },
+    { key: "total_tax", label: t("Total Tax") },
+    { key: "enter_amount", label: t("allowAmountEntry") },
+    { key: "free_discount", label: t("Free Discount") },
+    { key: "hall_orders", label: t("Hall Orders") },
   ];
 
   return (
@@ -230,36 +244,6 @@ const CashierMan = () => {
                     <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {cashier?.report || "-"}
                     </td>
-                    <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
-                      {cashier.take_away === 1 ? "✔" : "✘"}
-                    </td>
-                    <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
-                      {cashier.dine_in === 1 ? "✔" : "✘"}
-                    </td>
-                    <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
-                      {cashier.delivery === 1 ? "✔" : "✘"}
-                    </td>
-                    <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
-                      {cashier.real_order === 1 ? "✔" : "✘"}
-                    </td>
-                    <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
-                      {cashier.online_order === 1 ? "✔" : "✘"}
-                    </td>
-                    <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
-                      {cashier.discount_perimission === 1 ? "✔" : "✘"}
-                    </td>
-                    <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
-                      {cashier.void_order === 1 ? "✔" : "✘"}
-                    </td>
-                    <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
-                      {cashier.service_fees === 1 ? "✔" : "✘"}
-                    </td>
-                    <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
-                      {cashier.total_tax === 1 ? "✔" : "✘"}
-                    </td>
-                    <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
-                      {cashier.enter_amount === 1 ? "✔" : "✘"}
-                    </td>
                     <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       <Switch
                         checked={cashier.status === 1}
@@ -275,10 +259,10 @@ const CashierMan = () => {
                     <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl">
                       <button
                         type="button"
-                        onClick={() => handleOpenRoles(cashier)}
-                        className="text-mainColor hover:text-red-700 transition-colors underline"
+                        onClick={() => handleOpenPermissions(cashier)}
+                        className="text-mainColor hover:text-red-700 transition-colors underline font-TextFontSemiBold"
                       >
-                        {t("View Roles")}
+                        {t("View")}
                       </button>
                     </td>
                     <td className="min-w-[120px] sm:min-w-[100px] px-4 py-3 text-center">
@@ -340,54 +324,43 @@ const CashierMan = () => {
                         </div>
                       </Dialog>
                     )}
-                    {/* Roles Dialog */}
-                    {openRoles && openRoles.id === cashier.id && (
+
+                    {/* Permissions Dialog */}
+                    {openPermissions && openPermissions.id === cashier.id && (
                       <Dialog
                         open={true}
-                        onClose={handleCloseRoles}
+                        onClose={handleClosePermissions}
                         className="relative z-10"
                       >
                         <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
-                        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                        <div className="fixed inset-0 z-10 w-screen overflow-y-auto p-2">
                           <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
                             <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-md">
-                              <div className="flex flex-col items-center justify-center px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
-                                <h2 className="text-xl font-TextFontSemiBold text-mainColor mb-4">
-                                  {t("Roles for")} {cashier.user_name}
+                              <div className="p-6">
+                                <h2 className="text-xl font-TextFontSemiBold text-mainColor mb-6 text-center border-b pb-4">
+                                  {t("Permissions for")} {cashier.user_name}
                                 </h2>
-                                <div className="w-full">
-                                  {cashier.roles && cashier.roles.length > 0 ? (
-                                    <ul className="space-y-2">
-                                      {cashier.roles.map((role, idx) => (
-                                        <li
-                                          key={idx}
-                                          className="flex items-center justify-between p-3 bg-gray-100 rounded-md text-base font-TextFontRegular text-thirdColor"
-                                        >
-                                          <span>
-                                            {role.roles
-                                              ? t(
-                                                role.roles
-                                                  .replace("_", " ")
-                                                  .toLowerCase()
-                                              )
-                                              : "-"}
-                                          </span>
-                                          <span className="text-green-600">✔</span>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  ) : (
-                                    <p className="text-base font-TextFontRegular text-thirdColor">
-                                      {t("No Roles Assigned")}
-                                    </p>
-                                  )}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                  {permissionsList.map((perm) => (
+                                    <div
+                                      key={perm.key}
+                                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors shadow-sm"
+                                    >
+                                      <span className="text-base font-TextFontMedium text-thirdColor">
+                                        {perm.label}
+                                      </span>
+                                      <span className={`text-xl font-bold ${cashier[perm.key] === 1 ? 'text-green-600' : 'text-red-600'}`}>
+                                        {cashier[perm.key] === 1 ? "✔" : "✘"}
+                                      </span>
+                                    </div>
+                                  ))}
                                 </div>
                               </div>
-                              <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                              <div className="px-6 py-4 bg-gray-100 flex justify-end">
                                 <button
                                   type="button"
-                                  onClick={handleCloseRoles}
-                                  className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md shadow-sm bg-mainColor font-TextFontMedium sm:w-auto"
+                                  onClick={handleClosePermissions}
+                                  className="px-6 py-2 text-sm font-bold text-white bg-mainColor rounded-lg hover:bg-opacity-90 shadow-sm transition-all"
                                 >
                                   {t("Close")}
                                 </button>
@@ -410,7 +383,7 @@ const CashierMan = () => {
                   className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
                   onClick={() => setCurrentPage(currentPage - 1)}
                 >
-                  Prev
+                  {t("Prev")}
                 </button>
               )}
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -429,7 +402,7 @@ const CashierMan = () => {
                   className="px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium"
                   onClick={() => setCurrentPage(currentPage + 1)}
                 >
-                  Next
+                  {t("Next")}
                 </button>
               )}
             </div>

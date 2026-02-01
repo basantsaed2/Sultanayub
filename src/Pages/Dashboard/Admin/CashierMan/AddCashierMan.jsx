@@ -50,6 +50,8 @@ const AddCashierMan = () => {
   const [serviceFees, setServiceFees] = useState(0);
   const [totalTax, setTotalTax] = useState(0);
   const [enterAmount, setEnterAmount] = useState(0);
+  const [freeDiscount, setFreeDiscount] = useState(0);
+  const [hallOrders, setHallOrders] = useState(0);
 
   // Role options for react-select
   const roleOptions = [
@@ -82,7 +84,7 @@ const AddCashierMan = () => {
   // Update branches state when dataBranch is available
   useEffect(() => {
     if (dataBranch) {
-      if (role === "admin") { 
+      if (role === "admin") {
         const branchOptions = dataBranch.branches.map((branch) => ({
           value: branch.id,
           label: branch.name,
@@ -116,6 +118,8 @@ const AddCashierMan = () => {
   const handleServiceFees = () => setServiceFees((prev) => (prev === 0 ? 1 : 0));
   const handleTotalTax = () => setTotalTax((prev) => (prev === 0 ? 1 : 0));
   const handleEnterAmount = () => setEnterAmount((prev) => (prev === 0 ? 1 : 0));
+  const handleFreeDiscount = () => setFreeDiscount((prev) => (prev === 0 ? 1 : 0));
+  const handleHallOrders = () => setHallOrders((prev) => (prev === 0 ? 1 : 0));
 
   // Reset form
   const handleReset = () => {
@@ -138,6 +142,8 @@ const AddCashierMan = () => {
     setServiceFees(0);
     setTotalTax(0);
     setEnterAmount(0);
+    setFreeDiscount(0);
+    setHallOrders(0);
   };
 
   const handleReportPermission = (selectedOption) => {
@@ -187,6 +193,8 @@ const AddCashierMan = () => {
     formData.append("service_fees", serviceFees);
     formData.append("total_tax", totalTax);
     formData.append("enter_amount", enterAmount);
+    formData.append("free_discount", freeDiscount);
+    formData.append("hall_orders", hallOrders);
 
     // Append roles if any selected
     selectedRoles.forEach((role, index) => {
@@ -321,7 +329,7 @@ const AddCashierMan = () => {
                 />
               </div>
 
-{role === "admin" && (
+              {role === "admin" && (
                 <div className="flex flex-col items-start justify-center gap-y-1">
                   <span className="text-xl font-TextFontRegular text-thirdColor">
                     {t("Branch")}:
@@ -336,7 +344,7 @@ const AddCashierMan = () => {
                     className="w-full"
                   />
                 </div>
-                )}
+              )}
 
               {/* Roles Multi-Select */}
               <div className="flex flex-col items-start justify-center gap-y-1">
@@ -482,6 +490,22 @@ const AddCashierMan = () => {
                   {t("allowAmountEntry")}:
                 </span>
                 <Switch handleClick={handleEnterAmount} checked={enterAmount} />
+              </div>
+
+              {/* Free Discount */}
+              <div className="flex items-start justify-start pt-8 gap-x-3">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Free Discount")}:
+                </span>
+                <Switch handleClick={handleFreeDiscount} checked={freeDiscount} />
+              </div>
+
+              {/* Hall Orders */}
+              <div className="flex items-start justify-start pt-8 gap-x-3">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Hall Orders")}:
+                </span>
+                <Switch handleClick={handleHallOrders} checked={hallOrders} />
               </div>
             </div>
 
