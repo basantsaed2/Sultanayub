@@ -7,15 +7,17 @@ import { StaticLoader } from "../../../../Components/Components";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
 
 const AddonsPage = ({ refetch }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const selectedLanguage = useSelector((state) => state.language?.selected ?? "en");
   const {
     refetch: refetchAddons,
     loading: loadingAddons,
     data: dataAddons,
   } = useGet({
-    url: `${apiUrl}/admin/addons`,
+    url: `${apiUrl}/admin/addons?locale=${selectedLanguage}`,
   });
   const { deleteData, loadingDelete, responseDelete } = useDelete();
   const [addons, setAddons] = useState([]);
@@ -216,11 +218,10 @@ const AddonsPage = ({ refetch }) => {
                   <button
                     key={page}
                     onClick={() => handlePageChange(page)}
-                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${
-                      currentPage === page
-                        ? "bg-mainColor text-white"
-                        : " text-mainColor"
-                    }`}
+                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
+                      ? "bg-mainColor text-white"
+                      : " text-mainColor"
+                      }`}
                   >
                     {page}
                   </button>
