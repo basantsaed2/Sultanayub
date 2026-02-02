@@ -8,23 +8,25 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { useAuth } from "../../../../Context/Auth";
+import { useSelector } from "react-redux";
 
 const TaxesPage = ({ refetch, setUpdate }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const auth = useAuth();
   const { t } = useTranslation();
+  const selectedLanguage = useSelector((state) => state.language?.selected ?? "en");
 
   // 1. Data Fetching
   const { refetch: refetchTaxes, loading: loadingTaxes, data: dataTaxes } = useGet({
-    url: `${apiUrl}/admin/settings/tax`,
+    url: `${apiUrl}/admin/settings/tax?locale=${selectedLanguage}`,
   });
 
   const { data: allListsData } = useGet({
-    url: `${apiUrl}/admin/tax_product/lists`,
+    url: `${apiUrl}/admin/tax_product/lists?locale=${selectedLanguage}`,
   });
 
   const { data: branchListsData } = useGet({
-    url: `${apiUrl}/admin/tax_module/lists`,
+    url: `${apiUrl}/admin/tax_module/lists?locale=${selectedLanguage}`,
   });
 
   // 2. Local State
@@ -70,7 +72,7 @@ const TaxesPage = ({ refetch, setUpdate }) => {
     if (!taxId) return;
     setLoadingAssigned(true);
     try {
-      const response = await axios.get(`${apiUrl}/admin/tax_product/view_products/${taxId}`, {
+      const response = await axios.get(`${apiUrl}/admin/tax_product/view_products/${taxId}?locale=${selectedLanguage}`, {
         headers: { 'Authorization': `Bearer ${auth?.userState?.token}` }
       });
       const products = response.data.products || [];
@@ -113,7 +115,7 @@ const TaxesPage = ({ refetch, setUpdate }) => {
 
   const handleSubmitSelection = async () => {
     if (!selectedBranch) {
-      alert(t("Please select a branch"));
+      auth.toastError(t("Please select a branch"));
       return;
     }
 
@@ -176,7 +178,7 @@ const TaxesPage = ({ refetch, setUpdate }) => {
   useEffect(() => { refetchTaxes(); }, [refetchTaxes, refetch]);
   useEffect(() => { if (dataTaxes?.taxes) setTaxes(dataTaxes.taxes); }, [dataTaxes]);
 
-  const headers = [t("sl"), t("name"), t("amount"), t("products"), t("action")];
+  const headers = [t("sl"), t("name"), t("amount"), t("Products"), t("action")];
 
   return (
     <div className="flex flex-col w-full p-2 md:p-4">
@@ -250,13 +252,13 @@ const TaxesPage = ({ refetch, setUpdate }) => {
                 ) : (
                   <>
                     <div className="flex flex-col md:flex-row justify-between md:items-center mb-2 md:mb-6 gap-3">
-                      <h3 className="text-2xl font-bold text-mainColor">{t("Tax Product Assignment")}</h3>
+                      <h3 className="text-2xl font-bold text-mainColor">{t("TaxProducts")}</h3>
                       <select
                         className="border p-2 rounded-lg"
-                        value={filterCategory} // Force select to show "all" on reset
+                        value={filterCategory}
                         onChange={(e) => setFilterCategory(e.target.value)}
                       >
-                        <option value="all">{t("Filter by Category")}</option>
+                        <option value="all">{t("FilterbyCategory")}</option>
                         {allListsData?.categories?.map(cat => (
                           <option key={cat.id} value={cat.id}>{cat.name}</option>
                         ))}
@@ -264,7 +266,7 @@ const TaxesPage = ({ refetch, setUpdate }) => {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-[450px]">
                       <div className="border rounded-xl flex flex-col overflow-hidden bg-white">
-                        <div className="bg-gray-100 p-3 font-bold border-b">{t("Available Products")}</div>
+                        <div className="bg-gray-100 p-3 font-bold border-b">{t("AvailableProducts")}</div>
                         <div className="overflow-y-auto flex-1 p-2">
                           {availableProducts.length > 0 ? availableProducts.map(p => (
                             <div key={p.id} className="flex justify-between items-center p-2 border-b">

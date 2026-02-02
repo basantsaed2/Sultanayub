@@ -299,7 +299,7 @@ const CategoryPage = ({ refetch, setUpdate }) => {
         t("banner"),
         t("name"),
         t("subcategory"),
-        t("products"), // Added products column
+        t("Products"), // Added products column
         t("status"),
         t("active"),
         t("priority"),

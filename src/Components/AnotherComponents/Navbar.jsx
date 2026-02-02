@@ -63,17 +63,17 @@ const Navbar = () => {
   });
 
 
-  // useEffect(() => {
-  //   const savedLanguage = localStorage.getItem("language") || "en";
-  //   i18n.changeLanguage(savedLanguage);
-  //   dispatch(setLanguage(savedLanguage));
-  // }, [i18n]);
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("language") || "en";
+    i18n.changeLanguage(savedLanguage);
+    dispatch(setLanguage(savedLanguage));
+  }, [i18n]);
 
   // Replace handleLanguage with this:
   const handleLanguageChange = (e) => {
     const lang = e.target.value;
-    // i18n.changeLanguage(lang);
-    // localStorage.setItem("language", lang);
+    i18n.changeLanguage(lang);
+    localStorage.setItem("language", lang);
     dispatch(setLanguage(lang));
   };
 

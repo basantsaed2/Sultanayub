@@ -23,6 +23,7 @@ import Warning from "../../../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { useTranslation } from "react-i18next";
 import { MultiSelect } from "primereact/multiselect";
 import { IoAddCircleOutline } from "react-icons/io5";
+import { useSelector } from "react-redux";
 
 const KitchenType = () => {
     const { branchId } = useParams();
@@ -30,7 +31,7 @@ const KitchenType = () => {
     const navigate = useNavigate();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const { t } = useTranslation();
-
+    const selectedLanguage = useSelector((state) => state.language?.selected ?? "en");
     const [branchType, setBranchType] = useState([]);
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -51,7 +52,7 @@ const KitchenType = () => {
 
     const { refetch: refetchType, loading: loadingType, data: dataType } = useGet({ url: endpoint });
     const { refetch: refetchList, loading: loadingList, data: dataList } = useGet({
-        url: `${apiUrl}/admin/pos/kitchens/lists`,
+        url: `${apiUrl}/admin/pos/kitchens/lists?locale=${selectedLanguage}`,
     });
 
     const { deleteData, loadingDelete } = useDelete();
@@ -79,7 +80,7 @@ const KitchenType = () => {
     useEffect(() => {
         refetchType();
         refetchList();
-    }, []);
+    }, [selectedLanguage]);
 
     useEffect(() => {
         if (dataType && (dataType.kitchens || dataType.brista)) {
@@ -99,9 +100,10 @@ const KitchenType = () => {
     useEffect(() => {
         if (selectedCategories.length > 0) {
             const catIds = selectedCategories.map((c) => c.id);
-            const filtered = products.filter(
-                (product) =>
-                    catIds.some((id) => id == product.category_id)
+            const filtered = products.filter((product) =>
+                catIds.some((id) =>
+                    id == product.category_id || id == product.sub_category_id
+                )
             );
             setFilteredProducts(filtered);
         } else {
@@ -216,14 +218,14 @@ const KitchenType = () => {
     ];
 
     return (
-        <div className="flex items-start justify-start w-full overflow-x-scroll pb-28 scrollSection">
+        <div className="w-full pb-28">
             {loadingType || loadingList || loadingDelete || loadingPost ? (
                 <div className="w-full mt-40">
                     <StaticLoader />
                 </div>
             ) : (
                 <div className="flex flex-col w-full gap-5">
-                    <div className="flex justify-between mt-5">
+                    <div className="w-full flex justify-between mt-5">
                         <TitleSection text={t(isBirsta ? "Birsta Table" : "Kitchen Table")} />
                         <AddButton handleClick={() => navigate("add")} />
                     </div>
@@ -234,7 +236,7 @@ const KitchenType = () => {
                         </div>
                     ) : (
                         <>
-                            <table className="block w-full overflow-x-scroll sm:min-w-0 scrollPage">
+                            <table className="w-full overflow-x-scroll sm:min-w-0 scrollPage">
                                 <thead>
                                     <tr className="w-full border-b-2">
                                         {headers.map((name, i) => (
@@ -473,7 +475,7 @@ const KitchenType = () => {
 
                             <div className="flex gap-3 mt-8">
                                 <StaticButton
-                                    text={loadingPost ? t("Submitting") : t("Save")}
+                                    text={loadingPost ? t("Submitting") : t("save")}
                                     handleClick={handleAddProducts}
                                     disabled={loadingPost || selectedProducts.length === 0}
                                 />
