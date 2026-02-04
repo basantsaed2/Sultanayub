@@ -12,8 +12,9 @@ import { useSelector } from "react-redux";
 import { useChangeState } from "../../../../Hooks/useChangeState";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { FaFileExcel } from "react-icons/fa6";
+import { FaFileExcel, FaCloudUploadAlt, FaDownload } from "react-icons/fa";
 import { useAuth } from "../../../../Context/Auth";
+import { usePost } from "../../../../Hooks/usePostJson";
 
 const ProductPage = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -43,6 +44,12 @@ const ProductPage = () => {
         ? `${apiUrl}/branch/branch_products?locale=${selectedLanguage}`
         : `${apiUrl}/admin/product?locale=${selectedLanguage}`,
   });
+
+  const { postData: importExcel, loadingPost: loadingImport } = usePost({
+    url: `${apiUrl}/admin/product/create_product_excel`,
+  });
+
+  const fileInputRef = useRef(null);
 
   // Fetch categories
   const {
@@ -448,6 +455,58 @@ const ProductPage = () => {
     saveAs(data, `Products_${new Date().toLocaleDateString()}.xlsx`);
   };
 
+  const handleDownloadTemplate = () => {
+    const templateData = [
+      {
+        "name": "",
+        "description": "",
+        "item Type": "",
+        "stock Type": "",
+        "number": "",
+        "price": "",
+        "product Time Status": "",
+        "from": "",
+        "to": "",
+        "points": "",
+        "order": "",
+        "recipe Status": "",
+        "weight Point": "",
+        "favourite": "",
+        "recommended": "",
+        "status": "",
+        "weight Status": "",
+        "product Code": "",
+        "ar Name": ""
+      }
+    ];
+
+    const worksheet = XLSX.utils.json_to_sheet(templateData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Template");
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(data, `Product_Template.xlsx`);
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const success = await importExcel(formData, t("File Imported Successfully"));
+      if (success) {
+        refetchProducts();
+      }
+      // Reset input
+      event.target.value = '';
+    }
+  };
+
   const tableContainerRef = useRef(null);
   const tableRef = useRef(null);
   const [showScrollHint, setShowScrollHint] = useState(false);
@@ -563,13 +622,43 @@ const ProductPage = () => {
               />
             </div>
           )}
-          <button
-            onClick={handleDownloadExcel}
-            className="flex items-center gap-2 px-6 py-2 text-lg text-white transition-all duration-300 rounded-md bg-mainColor font-TextFontMedium hover:bg-opacity-90 active:scale-95"
-          >
-            <FaFileExcel className="text-xl" />
-            {t("Download Excel")}
-          </button>
+          <div className="w-full flex flex-col items-center md:items-end">
+            <div className="flex flex-col md:flex-row  gap-2">
+            <button
+              onClick={handleDownloadTemplate}
+              className="flex items-center gap-2 px-2 py-2 text-sm text-white transition-all duration-300 rounded-md bg-mainColor font-TextFontMedium hover:bg-opacity-90 active:scale-95"
+            >
+              <FaDownload className="text-lg" />
+              {t("Download Template")}
+            </button>
+            <button
+              onClick={handleImportClick}
+              disabled={loadingImport}
+              className="flex items-center gap-2 px-2 py-2 text-sm text-white transition-all duration-300 rounded-md bg-mainColor font-TextFontMedium hover:bg-opacity-90 active:scale-95 disabled:opacity-50"
+            >
+              {loadingImport ? (
+                <span className="w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin"></span>
+              ) : (
+                <FaCloudUploadAlt className="text-lg" />
+              )}
+              {t("Import Excel")}
+            </button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept=".xlsx, .xls"
+              className="hidden"
+            />
+            <button
+              onClick={handleDownloadExcel}
+              className="flex items-center gap-2 px-2 py-2 text-sm text-white transition-all duration-300 rounded-md bg-mainColor font-TextFontMedium hover:bg-opacity-90 active:scale-95"
+            >
+              <FaFileExcel className="text-lg" />
+              {t("Download Excel")}
+            </button>
+            </div>
+          </div>
         </div>
 
         {/* Scroll Controls */}
