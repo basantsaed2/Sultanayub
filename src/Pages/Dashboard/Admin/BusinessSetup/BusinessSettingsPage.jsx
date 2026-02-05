@@ -176,6 +176,7 @@ const BusinessSettingsPage = () => {
   const [formDataMaintenance, setFormDataMaintenance] = useState({});
 
   const [scale, setScale] = useState('')
+  const [reportTime, setReportTime] = useState('')
 
   const { postData, loadingPost, response } = usePost({
     url: `${apiUrl}/admin/settings/business_setup/company/add`,
@@ -231,6 +232,7 @@ const BusinessSettingsPage = () => {
       setWebsiteLink(dataCompany?.website || '')
       setQrCode(dataCompany?.qr_code || '')
       setScale(dataCompany?.scale || '')
+      setReportTime(dataCompany?.company_info?.report_time || '')
 
       if (dataCompany.company_info.currency_id) {
         const matchedCurrency = dataCompany.currency.find(
@@ -368,6 +370,10 @@ const BusinessSettingsPage = () => {
 
     if (scale) {
       formData.append("scale", scale);
+    }
+
+    if (reportTime) {
+      formData.append("report_time", reportTime);
     }
 
     for (const [key, value] of Object.entries(updatedData)) {
@@ -655,6 +661,7 @@ const BusinessSettingsPage = () => {
     setWebsiteLink("");
     setMapActive(0);
     setScale("");
+    setReportTime("");
   };
 
   return (
@@ -835,6 +842,17 @@ const BusinessSettingsPage = () => {
               value={scale}
               onChange={(e) => setScale(e.target.value)}
               placeholder={t("Scale")}
+            />
+          </div>
+           {/* Report Time */}
+          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+            <span className="text-xl font-TextFontRegular text-thirdColor">
+              {t("Report Time")}:
+            </span>
+            <TextInput
+              value={reportTime}
+              onChange={(e) => setReportTime(e.target.value)}
+              placeholder={t("Report Time")}
             />
           </div>
           {/* {qrCode && (
