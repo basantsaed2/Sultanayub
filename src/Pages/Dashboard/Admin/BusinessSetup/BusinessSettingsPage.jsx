@@ -232,7 +232,7 @@ const BusinessSettingsPage = () => {
       setWebsiteLink(dataCompany?.website || '')
       setQrCode(dataCompany?.qr_code || '')
       setScale(dataCompany?.scale || '')
-      setReportTime(dataCompany?.company_info?.report_time || '')
+      setReportTime(dataCompany?.company_info?.report_time || 0)
 
       if (dataCompany.company_info.currency_id) {
         const matchedCurrency = dataCompany.currency.find(
