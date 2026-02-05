@@ -340,9 +340,8 @@ const ProductsReports = () => {
             [t("#")]: index + 1,
             [t("Category")]: item.category_name,
             [t("Product Name")]: item.name || item.product_name,
-            [t("Price")]: parseFloat(item.price || 0).toFixed(2),
             [t("Count")]: item.count,
-            [t("Total")]: (parseFloat(item.price || 0) * parseInt(item.count || 0)).toFixed(2),
+            [t("Total Price")]: parseFloat(item.price || 0).toFixed(2),
         }));
 
         const worksheet = XLSX.utils.json_to_sheet(dataToExport);
@@ -545,9 +544,8 @@ const ProductsReports = () => {
                                     <th className="px-6 py-4 border-b">#</th>
                                     <th className="px-6 py-4 border-b">{t("Category")}</th>
                                     <th className="px-6 py-4 border-b">{t("Product Name")}</th>
-                                    <th className="px-6 py-4 border-b">{t("Price")}</th>
                                     <th className="px-6 py-4 border-b">{t("Count")}</th>
-                                    <th className="px-6 py-4 border-b">{t("Total")}</th>
+                                    <th className="px-6 py-4 border-b">{t("Total Price")}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
@@ -556,14 +554,13 @@ const ProductsReports = () => {
                                         <td className="px-6 py-4 font-medium text-gray-500">{startIndex + index + 1}</td>
                                         <td className="px-6 py-4 font-semibold text-gray-600">{item.category_name}</td>
                                         <td className="px-6 py-4 font-bold text-gray-800">{item.name || item.product_name}</td>
-                                        <td className="px-6 py-4 font-mono text-gray-600">{parseFloat(item.price || 0).toFixed(2)}</td>
                                         <td className="px-6 py-4">
                                             <span className="bg-gray-100 px-3 py-1 rounded-full text-sm font-medium">
                                                 {item.count}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 font-mono font-medium text-mainColor">
-                                            {(parseFloat(item.price || 0) * parseInt(item.count || 0)).toFixed(2)}
+                                            {parseFloat(item.price || 0).toFixed(2)}
                                         </td>
                                     </tr>
                                 ))}
