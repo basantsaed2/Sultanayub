@@ -10,7 +10,7 @@ export const useNotificationSound = () => {
     return context;
 };
 
-const FALLBACK_URL = "https://www.soundjay.com/buttons/sounds/button-1.mp3";
+const FALLBACK_URL = "/notificationsound.mp3";
 
 const NotificationListener = ({ children, soundUrl }) => {
     const audioRef = useRef(null);
