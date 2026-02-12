@@ -109,6 +109,12 @@ export const adminRoutes = [
         icon: MdPriceChange,
     },
     {
+        name: "Product Offers",
+        path: "/dashboard/product_offers",
+        permission: "Product",
+        icon: TbBasketDiscount,
+    },
+    {
         name: "Addons",
         path: "/dashboard/addons",
         permission: "Addons",
@@ -167,7 +173,7 @@ export const adminRoutes = [
         ],
         redirectTo: "/dashboard/inventory/inventory_products",
     },
-      {
+    {
         name: "Material",
         path: "/dashboard/material",
         permission: "material",
@@ -178,7 +184,7 @@ export const adminRoutes = [
         ],
         redirectTo: "/dashboard/material/material_category",
     },
-     {
+    {
         name: "Recipe",
         path: "/dashboard/recipe_products",
         permission: "recipe",
@@ -553,6 +559,7 @@ export const ADMIN_MENU_CATEGORIES = [
             "Product",
             "Category Setup",
             "Product Pricing",
+            "Product Offers",
             "Addons",
             "Upselling",
             "Menu",

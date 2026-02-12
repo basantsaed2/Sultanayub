@@ -242,6 +242,10 @@ import PrinterModule from "./Pages/Dashboard/Admin/Setting/Branches/KitchenType/
 import AddPrinterModule from "./Pages/Dashboard/Admin/Setting/Branches/KitchenType/PrinterModule/AddPrinterModule";
 import EditPrinterModule from "./Pages/Dashboard/Admin/Setting/Branches/KitchenType/PrinterModule/EditPrinterModule";
 
+import ProductOffers from "./Pages/Dashboard/Admin/ProductOffers/ProductOffers";
+import AddProductOffer from "./Pages/Dashboard/Admin/ProductOffers/AddProductOffer";
+import EditProductOffer from "./Pages/Dashboard/Admin/ProductOffers/EditProductOffer";
+
 const ProductSetupLayout = () => {
   return <Outlet />;
 };
@@ -698,6 +702,23 @@ export const router = createBrowserRouter([
               {
                 path: "pricing_product", // /dashboard/setup_product/pricing_product
                 element: <PricingProduct />,
+              },
+            ],
+          },
+          {
+            path: "product_offers",
+            children: [
+              {
+                path: "",
+                element: <ProductOffers />,
+              },
+              {
+                path: "add",
+                element: <AddProductOffer />,
+              },
+              {
+                path: "edit/:id",
+                element: <EditProductOffer />,
               },
             ],
           },
