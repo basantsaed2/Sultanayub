@@ -138,28 +138,6 @@ export const adminRoutes = [
         permission: "GroupModules",
         icon: TbBorderAll,
     },
-    {
-        name: "Recipe",
-        path: "/dashboard/recipe_products",
-        permission: "recipe",
-        icon: FaReceipt,
-        subRoutes: [
-            { name: "Recipe Category", path: "/dashboard/recipe_products/category", permission: "recipe" },
-            { name: "Recipe Product", path: "/dashboard/recipe_products/product", permission: "recipe" },
-        ],
-        redirectTo: "/dashboard/recipe_products/category",
-    },
-    {
-        name: "Material",
-        path: "/dashboard/material",
-        permission: "material",
-        icon: SiMaterialformkdocs,
-        subRoutes: [
-            { name: "Material Category", path: "/dashboard/material/material_category", permission: "material" },
-            { name: "Material Product", path: "/dashboard/material/material_products", permission: "material" },
-        ],
-        redirectTo: "/dashboard/material/material_category",
-    },
     // --- Inventory & Supply chain ---
     {
         name: "Stock",
@@ -188,6 +166,28 @@ export const adminRoutes = [
             { name: "Material Inventory", path: "/dashboard/inventory/inventory_materials", permission: "inventory" },
         ],
         redirectTo: "/dashboard/inventory/inventory_products",
+    },
+      {
+        name: "Material",
+        path: "/dashboard/material",
+        permission: "material",
+        icon: SiMaterialformkdocs,
+        subRoutes: [
+            { name: "Material Category", path: "/dashboard/material/material_category", permission: "material" },
+            { name: "Material Product", path: "/dashboard/material/material_products", permission: "material" },
+        ],
+        redirectTo: "/dashboard/material/material_category",
+    },
+     {
+        name: "Recipe",
+        path: "/dashboard/recipe_products",
+        permission: "recipe",
+        icon: FaReceipt,
+        subRoutes: [
+            { name: "Recipe Category", path: "/dashboard/recipe_products/category", permission: "recipe" },
+            { name: "Recipe Product", path: "/dashboard/recipe_products/product", permission: "recipe" },
+        ],
+        redirectTo: "/dashboard/recipe_products/category",
     },
     {
         name: "Manufacturing",
@@ -558,8 +558,6 @@ export const ADMIN_MENU_CATEGORIES = [
             "Menu",
             "Extra Groups",
             "Group Modules",
-            "Recipe",
-            "Material",
         ],
     },
     {
@@ -573,6 +571,8 @@ export const ADMIN_MENU_CATEGORIES = [
             "Inventory",
             "Manufacturing",
             "Purchase",
+            "Recipe",
+            "Material",
         ],
     },
     {
