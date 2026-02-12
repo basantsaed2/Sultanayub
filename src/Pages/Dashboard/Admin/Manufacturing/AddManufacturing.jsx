@@ -381,6 +381,13 @@ const AddManufacturing = () => {
                             </div>
                         )}
 
+                        {/* No Recipe Message */}
+                        {!loadingProductRecipe && responseProductRecipe && recipes.length === 0 && (
+                            <div className="mt-6 p-4 bg-orange-50 border border-orange-200 text-orange-700 rounded-lg text-center font-TextFontRegular">
+                                {t("This product has no recipe. Please set up a recipe before manufacturing.")}
+                            </div>
+                        )}
+
                         {/* Recipe Materials */}
                         {updatedRecipes.length > 0 && (
                             <div className="mt-6">
