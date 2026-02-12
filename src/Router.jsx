@@ -238,7 +238,9 @@ import PricingProduct from "./Pages/Dashboard/Admin/PricingProduct/PricingProduc
 import ProductsReports from "./Pages/Dashboard/Admin/Reports/ProductsReports/ProductsReports";
 import DineReports from "./Pages/Dashboard/Admin/Reports/DineReports/DineReports";
 import CashierShortage from "./Pages/Dashboard/Admin/Reports/CashierShortage/CashierShortage";
-
+import PrinterModule from "./Pages/Dashboard/Admin/Setting/Branches/KitchenType/PrinterModule/PrinterModule";
+import AddPrinterModule from "./Pages/Dashboard/Admin/Setting/Branches/KitchenType/PrinterModule/AddPrinterModule";
+import EditPrinterModule from "./Pages/Dashboard/Admin/Setting/Branches/KitchenType/PrinterModule/EditPrinterModule";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -730,6 +732,24 @@ export const router = createBrowserRouter([
                     path: "edit/:kitchenId",
                     element: <EditKitchenType />,
                   },
+                  {
+                    path: "printer_module/:kitchenId",
+                    element: <Outlet />,
+                    children: [
+                      {
+                        path: "",
+                        element: <PrinterModule />,
+                      },
+                      {
+                        path: "add",
+                        element: <AddPrinterModule />,
+                      },
+                      {
+                        path: "edit/:printerId",
+                        element: <EditPrinterModule />,
+                      },
+                    ],
+                  },
                 ],
               },
               {
@@ -747,6 +767,24 @@ export const router = createBrowserRouter([
                   {
                     path: "edit/:birstaId",
                     element: <EditKitchenType />,
+                  },
+                  {
+                    path: "printer_module/:birstaId",
+                    element: <Outlet />,
+                    children: [
+                      {
+                        path: "",
+                        element: <PrinterModule />,
+                      },
+                      {
+                        path: "add",
+                        element: <AddPrinterModule />,
+                      },
+                      {
+                        path: "edit/:printerId",
+                        element: <EditPrinterModule />,
+                      },
+                    ],
                   },
                 ],
               },

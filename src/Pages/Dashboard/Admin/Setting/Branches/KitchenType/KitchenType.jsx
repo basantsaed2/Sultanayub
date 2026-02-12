@@ -208,11 +208,8 @@ const KitchenType = () => {
         t("Name"),
         t("Branch"),
         t("Preparing Time"),
-        t("Print Type"),
-        t("Print Status"),
-        t("Print Name"),
-        t("Print IP"),
         t("Products"),
+        t("Printer Module"),
         t("Status"),
         t("Action"),
     ];
@@ -260,19 +257,6 @@ const KitchenType = () => {
                                             <td className="text-center py-2">
                                                 {formatTimeDisplay(type.preparing_time)}
                                             </td>
-                                            <td className="text-center py-2">{type.print_type || "-"}</td>
-                                            <td className="text-center py-2">
-                                                <span
-                                                    className={`px-3 py-1 rounded-full text-xs ${type.print_status === 1
-                                                        ? "bg-green-100 text-green-800"
-                                                        : "bg-red-100 text-red-800"
-                                                        }`}
-                                                >
-                                                    {type.print_status === 1 ? t("Active") : t("Inactive")}
-                                                </span>
-                                            </td>
-                                            <td className="text-center py-2">{type.print_name || "-"}</td>
-                                            <td className="text-center py-2">{type.print_ip || "-"}</td>
                                             <td className="text-center py-2">
                                                 <button
                                                     onClick={() => handleOpenProductsModal(type)}
@@ -280,6 +264,14 @@ const KitchenType = () => {
                                                 >
                                                     {type.products?.length || 0} {t("Products")}
                                                 </button>
+                                            </td>
+                                            <td className="px-4 py-4 text-center">
+                                                <Link
+                                                    to={`printer_module/${type.id}`} state={{ kitchenName: type?.name }}
+                                                    className="text-mainColor font-bold hover:underline"
+                                                >
+                                                    {t("View")}
+                                                </Link>
                                             </td>
                                             <td className="text-center py-2">
                                                 <Switch
