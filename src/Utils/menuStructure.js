@@ -109,12 +109,6 @@ export const adminRoutes = [
         icon: MdPriceChange,
     },
     {
-        name: "Product Offers",
-        path: "/dashboard/product_offers",
-        permission: "Product",
-        icon: TbBasketDiscount,
-    },
-    {
         name: "Addons",
         path: "/dashboard/addons",
         permission: "Addons",
@@ -365,6 +359,7 @@ export const adminRoutes = [
         permission: "Deal",
         icon: GiTeamIdea,
         subRoutes: [
+            { name: "Product Offers", path: "/dashboard/product_offers", permission: "Product" },
             { name: "Deals", path: "/dashboard/deals", permission: "Deal" },
             { name: "Offers", path: "/dashboard/offers", permission: "PointOffers" },
             { name: "Coupon", path: "/dashboard/coupon", permission: "Coupon" },
@@ -559,7 +554,6 @@ export const ADMIN_MENU_CATEGORIES = [
             "Product",
             "Category Setup",
             "Product Pricing",
-            "Product Offers",
             "Addons",
             "Upselling",
             "Menu",
@@ -638,7 +632,7 @@ export const ADMIN_MENU_CATEGORIES = [
     {
         id: "marketing",
         name: "Marketing",
-        description: "Deals, offers, coupons, and more",
+        description: "Deals, offers, coupons, product offers and more",
         icon: GiTeamIdea,
         routes: ["Marketing"],
     },
