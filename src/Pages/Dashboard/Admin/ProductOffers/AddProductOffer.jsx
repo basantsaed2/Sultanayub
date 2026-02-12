@@ -16,6 +16,7 @@ import { useGet } from "../../../../Hooks/useGet";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import Select from 'react-select';
+import { IoArrowBack } from "react-icons/io5";
 
 const AddProductOffer = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -130,7 +131,12 @@ const AddProductOffer = () => {
                 </div>
             ) : (
                 <section className="flex flex-col mb-20">
-                    <TitlePage text={t("Add Product Offer")} />
+                    <div className="flex items-center gap-4">
+                        <button onClick={() => navigate(-1)} className="p-2 bg-white rounded-xl shadow-sm text-mainColor hover:bg-mainColor hover:text-white transition-all">
+                            <IoArrowBack size={24} />
+                        </button>
+                        <TitlePage text={t("Add Product Offer")} />
+                    </div>
                     <form onSubmit={handleSubmit}>
                         <div className="py-3">
                             <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">

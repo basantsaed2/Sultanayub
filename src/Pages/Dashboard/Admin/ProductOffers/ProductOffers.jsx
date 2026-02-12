@@ -94,7 +94,6 @@ const ProductOffers = () => {
     const headers = [
         "#",
         t("Name"),
-        t("Module"),
         t("Discount"),
         t("StartDate"),
         t("EndDate"),
@@ -150,7 +149,6 @@ const ProductOffers = () => {
                                                     {(currentPage - 1) * itemsPerPage + index + 1}
                                                 </td>
                                                 <td className="text-center py-2">{item.name || "-"}</td>
-                                                <td className="text-center py-2">{item.modules?.map(m => t(m)).join(", ") || t(item.module) || "-"}</td>
                                                 <td className="text-center py-2">{item.discount ? `${item.discount}%` : "-"}</td>
                                                 <td className="text-center py-2">{item.start_date || "-"}</td>
                                                 <td className="text-center py-2">{item.end_date || "-"}</td>
@@ -249,7 +247,7 @@ const ProductOffers = () => {
 
                             <div className="space-y-2">
                                 <DetailItem label={t("Name")} value={openDetails.name} />
-                                <DetailItem label={t("Modules")} value={openDetails.modules?.map(m => t(m)).join(", ") || t(openDetails.module)} />
+                                <DetailItem label={t("Modules")} value={openDetails.module?.map(m => t(m)).join(", ") || t(openDetails.module)} />
                                 <DetailItem label={t("Discount")} value={openDetails.discount ? `${openDetails.discount}%` : "-"} />
                                 <DetailItem label={t("Delay")} value={openDetails.delay ? `${openDetails.delay} ${t("minutes")}` : "-"} />
                                 <DetailItem label={t("Start Date")} value={openDetails.start_date} />
