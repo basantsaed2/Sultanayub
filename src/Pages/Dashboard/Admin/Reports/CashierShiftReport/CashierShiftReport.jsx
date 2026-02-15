@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { DateInput } from "../../../../../Components/Components";
 import { usePost } from "../../../../../Hooks/usePostJson";
 import { useAuth } from "../../../../../Context/Auth";
-import { FaChevronDown, FaChevronUp, FaCalendarAlt, FaMoneyBillWave, FaShoppingCart, FaWallet, FaExclamationCircle } from "react-icons/fa";
+import { FaChevronDown, FaChevronUp, FaCalendarAlt, FaMoneyBillWave, FaShoppingCart, FaWallet, FaExclamationCircle, FaPrint } from "react-icons/fa";
 
 /**
  * CashierShiftReport Component
@@ -102,6 +102,265 @@ const CashierShiftReport = () => {
         }
     };
 
+    /**
+     * handlePrintDay
+     * Fetches shifts for the date if missing, and then prints the full day report.
+     */
+    const handlePrintDay = async (report) => {
+        const date = report.date;
+        let dayShifts = shiftsByDate[date];
+
+        if (!dayShifts) {
+            // Toast notification to let user know it's fetching before printing
+            const loadingToast = auth.toastSuccess?.(t("Fetching shifts for printing...")) || null;
+
+            // Call fetchShifts and wait for response
+            const res = await fetchShifts({ date });
+
+            if (res?.data?.data) {
+                dayShifts = res.data.data;
+                // Update local state so it's cached
+                setShiftsByDate(prev => ({
+                    ...prev,
+                    [date]: dayShifts
+                }));
+            }
+        }
+
+        if (dayShifts) {
+            handlePrint("day_full", { summary: report, shifts: dayShifts });
+        } else {
+            auth.toastError(t("Could not fetch shifts for this day"));
+        }
+    };
+
+    const handlePrint = (type, data) => {
+        const printWindow = window.open("", "_blank", "width=900,height=700");
+        if (!printWindow) {
+            auth.toastError(t("Please allow popups to print"));
+            return;
+        }
+
+        const isSingle = type === "single";
+        const isDayFull = type === "day_full";
+        let content = "";
+
+        if (isSingle) {
+            // Detailed Shift Voucher
+            content = `
+                <div class="voucher">
+                    <div class="header">
+                        <h1>${t("Shift Receipt")}</h1>
+                        <p class="subtitle">${t("ID")} #${data.id}</p>
+                    </div>
+                    <div class="content">
+                        <div class="row"><strong>${t("Start Time")}:</strong> <span>${data.start_time || data.start_shift || "-"}</span></div>
+                        <div class="row"><strong>${t("End Time")}:</strong> <span>${data.end_time || data.end_shift || t("Ongoing")}</span></div>
+                        <div class="row"><strong>${t("Orders Count")}:</strong> <span>${data.count_orders || 0}</span></div>
+                        <hr/>
+                        <div class="row"><strong>${t("Opening Amount")}:</strong> <span>${Number(data.start_amount || 0).toFixed(2)} ${t("EGP")}</span></div>
+                        <div class="row"><strong>${t("Total Orders")}:</strong> <span class="income">${Number(data.total_orders || 0).toFixed(2)} ${t("EGP")}</span></div>
+                        <div class="row"><strong>${t("Expenses")}:</strong> <span class="expense">${Number(data.expenses || 0).toFixed(2)} ${t("EGP")}</span></div>
+                        <div class="total-row">
+                            <strong>${t("Shift Net Total")}:</strong>
+                            <span class="net-val">${Number(data.actual_total || 0).toFixed(2)} ${t("EGP")}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (isDayFull) {
+            // Full Day Report: Summary Card + All Shift Voucher Cards
+            const summaryCard = `
+                <div class="voucher summary-card">
+                    <div class="header">
+                        <h2>${t("Day Summary")}</h2>
+                        <p class="subtitle">${data.summary.date}</p>
+                    </div>
+                    <div class="content">
+                        <div class="row"><strong>${t("Start Amount")}:</strong> <span>${Number(data.summary.start_amount || 0).toFixed(2)} ${t("EGP")}</span></div>
+                        <div class="row"><strong>${t("Total Orders")}:</strong> <span class="income">${Number(data.summary.total_orders || 0).toFixed(2)} ${t("EGP")}</span></div>
+                        <div class="row"><strong>${t("Expenses")}:</strong> <span class="expense">${Number(data.summary.expenses || 0).toFixed(2)} ${t("EGP")}</span></div>
+                        <div class="total-row">
+                            <strong>${t("Day Actual Total")}:</strong>
+                            <span class="net-val">${Number(data.summary.actual_total || 0).toFixed(2)} ${t("EGP")}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const vouchers = (data.shifts || []).map(shift => `
+                <div class="voucher shift-card">
+                    <div class="header-small">
+                        <h3>${t("Shift")} #${shift.id}</h3>
+                    </div>
+                    <div class="content">
+                        <div class="row"><strong>${t("Start Time")}:</strong> <span>${shift.start_time || shift.start_shift || "-"}</span></div>
+                        <div class="row"><strong>${t("End Time")}:</strong> <span>${shift.end_time || shift.end_shift || t("Ongoing")}</span></div>
+                        <div class="row"><strong>${t("Orders Count")}:</strong> <span>${shift.count_orders || 0}</span></div>
+                        <hr/>
+                        <div class="row"><strong>${t("Opening Amount")}:</strong> <span>${Number(shift.start_amount || 0).toFixed(2)} ${t("EGP")}</span></div>
+                        <div class="row"><strong>${t("Total Orders")}:</strong> <span class="income">${Number(shift.total_orders || 0).toFixed(2)} ${t("EGP")}</span></div>
+                        <div class="row"><strong>${t("Expenses")}:</strong> <span class="expense">${Number(shift.expenses || 0).toFixed(2)} ${t("EGP")}</span></div>
+                        <div class="total-row-small">
+                            <strong>${t("Shift Net Total")}:</strong>
+                            <span class="net-val-small">${Number(shift.actual_total || 0).toFixed(2)} ${t("EGP")}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join("");
+
+            content = `
+                <div class="report">
+                    <div class="report-header">
+                        <h1>${t("Daily Shift Detailed Report")}</h1>
+                        <p>${data.summary.date}</p>
+                    </div>
+                    ${summaryCard}
+                    <div class="divider text-center">
+                        <span class="divider-text">${t("Individual Shifts")}</span>
+                    </div>
+                    <div class="vouchers-grid">
+                        ${vouchers}
+                    </div>
+                </div>
+            `;
+        } else {
+            // "Print All" Mode: List of Summary Cards
+            const summaryCards = (data || []).map(rep => `
+                <div class="voucher summary-card">
+                    <div class="header-small">
+                        <h2>${t("Summary for")} ${rep.date}</h2>
+                    </div>
+                    <div class="content">
+                        <div class="row"><strong>${t("Start Amount")}:</strong> <span>${Number(rep.start_amount || 0).toFixed(2)} ${t("EGP")}</span></div>
+                        <div class="row"><strong>${t("Total Orders")}:</strong> <span class="income">${Number(rep.total_orders || 0).toFixed(2)} ${t("EGP")}</span></div>
+                        <div class="row"><strong>${t("Expenses")}:</strong> <span class="expense">${Number(rep.expenses || 0).toFixed(2)} ${t("EGP")}</span></div>
+                        <div class="total-row-small">
+                            <strong>${t("Actual Total")}:</strong>
+                            <span class="net-val-small">${Number(rep.actual_total || 0).toFixed(2)} ${t("EGP")}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join("");
+
+            content = `
+                <div class="report">
+                    <div class="report-header">
+                        <h1>${t("Cashier Shifts Summary Report")}</h1>
+                        <p>${fromDate || "..."} ${t("To")} ${toDate || "..."}</p>
+                    </div>
+                    <div class="vouchers-grid">
+                        ${summaryCards}
+                    </div>
+                </div>
+            `;
+        }
+
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>${isSingle ? t("Shift") + " #" + data.id : t("Cashier Report")}</title>
+                    <style>
+                        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+                        body { font-family: 'Inter', sans-serif; padding: 20px; color: #1e293b; background: #fff; line-height: 1.5; }
+                        
+                        .report-header { text-align: center; margin-bottom: 40px; border-bottom: 4px solid #1e293b; padding-bottom: 20px; }
+                        .report-header h1 { margin: 0; font-size: 24px; font-weight: 900; color: #0f172a; text-transform: uppercase; letter-spacing: -0.01em; }
+                        .report-header p { margin: 5px 0 0; color: #64748b; font-weight: 700; font-size: 16px; }
+
+                        .vouchers-grid { display: block; width: 100%; }
+                        
+                        .voucher { 
+                            max-width: 600px; 
+                            margin: 20px auto; 
+                            border: 2px solid #334155; 
+                            padding: 25px; 
+                            border-radius: 12px; 
+                            background: #fff; 
+                            page-break-inside: avoid;
+                            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+                        }
+                        
+                        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; }
+                        .header h1, .header h2 { margin: 0; font-size: 22px; font-weight: 900; color: #0f172a; text-transform: uppercase; }
+                        .header h2 { font-size: 18px; }
+                        .subtitle { color: #64748b; font-weight: 700; font-size: 14px; margin-top: 4px; }
+                        
+                        .header-small { margin-bottom: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+                        .header-small h2, .header-small h3 { margin: 0; font-size: 16px; font-weight: 800; color: #1e293b; text-transform: uppercase; }
+
+                        .content { margin: 20px 0; }
+                        .row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: #334155; }
+                        .row strong { font-weight: 800; color: #475569; }
+                        .row span { font-weight: 600; }
+                        
+                        hr { border: none; border-top: 2px dashed #e2e8f0; margin: 15px 0; }
+                        
+                        .income { color: #059669; font-weight: 900; }
+                        .expense { color: #dc2626; font-weight: 900; }
+                        
+                        .total-row { 
+                            margin-top: 20px; 
+                            background: #f8fafc; 
+                            padding: 15px; 
+                            border-radius: 10px; 
+                            display: flex; 
+                            justify-content: space-between; 
+                            align-items: center; 
+                            border: 2px solid #334155; 
+                        }
+                        .total-row strong { font-size: 15px; color: #1e293b; text-transform: uppercase; font-weight: 900; }
+                        .net-val { font-size: 24px; font-weight: 950; color: #0f172a; }
+
+                        .total-row-small { 
+                            margin-top: 15px; 
+                            background: #f1f5f9; 
+                            padding: 12px; 
+                            border-radius: 8px; 
+                            display: flex; 
+                            justify-content: space-between; 
+                            align-items: center; 
+                            border: 1.5px solid #475569; 
+                        }
+                        .total-row-small strong { font-size: 13px; color: #1e293b; text-transform: uppercase; font-weight: 800; }
+                        .net-val-small { font-size: 18px; font-weight: 900; color: #0f172a; }
+
+                        .divider { position: relative; text-align: center; margin: 40px 0; border-top: 2px solid #e2e8f0; }
+                        .divider-text { 
+                            position: relative; 
+                            top: -12px; 
+                            background: #fff; 
+                            padding: 0 15px; 
+                            font-weight: 900; 
+                            text-transform: uppercase; 
+                            color: #94a3b8; 
+                            font-size: 12px; 
+                            letter-spacing: 2px;
+                        }
+
+                        @media print {
+                            body { padding: 0; }
+                            .voucher { box-shadow: none !important; border: 2px solid #000 !important; }
+                            .total-row, .total-row-small { border-color: #000 !important; }
+                            .divider { border-top-color: #000 !important; }
+                            @page { margin: 10mm; }
+                        }
+                    </style>
+                </head>
+                <body dir="${auth.language === "ar" ? "rtl" : "ltr"}">
+                    ${content}
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                            setTimeout(() => { window.close(); }, 500);
+                        };
+                    </script>
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+    };
+
     return (
         <div className="w-full min-h-screen p-2 md:p-4 space-y-8 bg-[#f8fafc]/50">
             {/* Header with Glassmorphism */}
@@ -136,7 +395,7 @@ const CashierShiftReport = () => {
                         />
                     </div>
                 </div>
-                <div className="w-full flex mt-6">
+                <div className="w-full flex flex-col sm:flex-row gap-4 mt-6">
                     <button
                         onClick={handleGenerateReport}
                         disabled={loadingReports}
@@ -157,6 +416,15 @@ const CashierShiftReport = () => {
                             </span>
                         )}
                     </button>
+                    {reports.length > 0 && (
+                        <button
+                            onClick={() => handlePrint("all", reports)}
+                            className="flex items-center justify-center gap-3 px-10 py-3.5 text-white bg-gradient-to-r from-red-600 to-red-700 rounded-xl font-bold hover:from-red-700 hover:to-red-800 transition-all duration-300 shadow-lg shadow-red-200 hover:-translate-y-0.5 active:scale-95"
+                        >
+                            <FaPrint size={20} />
+                            <span>{t("Print")}</span>
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -232,8 +500,21 @@ const CashierShiftReport = () => {
                                             </td>
                                             <td className="px-8 py-5 text-start">
                                                 {report.date ? (
-                                                    <div className="flex justify-start items-center">
-                                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-sm ${expandedDate === report.date ? 'bg-mainColor text-white rotate-180' : 'bg-gray-100 text-gray-400 group-hover:bg-mainColor group-hover:text-white'}`}>
+                                                    <div className="flex justify-start items-center gap-2">
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handlePrintDay(report);
+                                                            }}
+                                                            className="p-2 text-red-600 hover:text-white hover:bg-red-600 rounded-lg transition-all border border-red-100 hover:border-red-600 shadow-sm"
+                                                            title={t("Print Full Day Report")}
+                                                        >
+                                                            <FaPrint size={14} />
+                                                        </button>
+                                                        <div
+                                                            onClick={() => toggleRow(report.date)}
+                                                            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-sm cursor-pointer ${expandedDate === report.date ? 'bg-mainColor text-white rotate-180' : 'bg-gray-100 text-gray-400 group-hover:bg-mainColor group-hover:text-white'} `}
+                                                        >
                                                             <FaChevronDown size={14} className="transition-transform duration-300" />
                                                         </div>
                                                     </div>
@@ -291,6 +572,7 @@ const CashierShiftReport = () => {
                                                                             <th className="px-5 py-4 font-bold uppercase tracking-tighter text-xs text-start">{t("Total Orders")}</th>
                                                                             <th className="px-5 py-4 font-bold uppercase tracking-tighter text-xs text-start">{t("Expenses")}</th>
                                                                             <th className="px-6 py-4 font-bold uppercase tracking-tighter text-xs text-start">{t("Actual Total")}</th>
+                                                                            <th className="px-6 py-4 font-bold uppercase tracking-tighter text-xs text-start">{t("Actions")}</th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody className="divide-y divide-gray-100">
@@ -335,6 +617,15 @@ const CashierShiftReport = () => {
                                                                                 <td className="px-6 py-4 font-black text-gray-900 text-sm tabular-nums text-start">
                                                                                     {Number(shift.actual_total || 0).toLocaleString()}
                                                                                     <span className="text-mainColor mx-1">{t("EGP")}</span>
+                                                                                </td>
+                                                                                <td className="px-6 py-4 text-start">
+                                                                                    <button
+                                                                                        onClick={() => handlePrint("single", shift)}
+                                                                                        className="p-2 text-red-600 hover:text-white hover:bg-red-600 rounded-full transition-all duration-200"
+                                                                                        title={t("Print Shift Voucher")}
+                                                                                    >
+                                                                                        <FaPrint size={18} />
+                                                                                    </button>
                                                                                 </td>
                                                                             </tr>
                                                                         ))}
@@ -400,7 +691,7 @@ const CashierShiftReport = () => {
                                         className={`w-10 h-10 rounded-xl font-bold text-sm transition-all duration-300 ${currentPage === page
                                             ? "bg-mainColor text-white shadow-lg shadow-mainColor/25 scale-110 z-10"
                                             : "bg-white text-gray-500 border border-gray-100 hover:border-mainColor/30 hover:text-mainColor"
-                                            }`}
+                                            } `}
                                     >
                                         {page}
                                     </button>
@@ -428,8 +719,8 @@ const CashierShiftReport = () => {
                 }
                 .tracking-tighter { letter-spacing: -0.05em; }
                 .tracking-widest { letter-spacing: 0.1em; }
-                .letter-spacing-\[1px\] { letter-spacing: 1px; }
-            `}} />
+                .letter-spacing-[1px] { letter-spacing: 1px; }
+`}} />
         </div>
     );
 };
