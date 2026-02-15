@@ -293,8 +293,8 @@ const FinacialReports = () => {
 
             <div class="total-box">
                 <div class="total-label">${t('Net Profit')}</div>
-                <div class="${((reportData.total_amount || 0) - (reportData.expenses_total || 0)) >= 0 ? "total-value-green" : "total-value-red"}">
-                    ${((reportData.total_amount || 0) - (reportData.expenses_total || 0)).toFixed(2)} ${t('EGP')}
+                <div class="${((reportData.total_amount || 0)) >= 0 ? "total-value-green" : "total-value-red"}">
+                    ${((reportData.total_amount || 0)).toFixed(2)} ${t('EGP')}
                 </div>
             </div>
             
