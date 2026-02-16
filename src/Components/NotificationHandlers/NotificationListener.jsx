@@ -15,6 +15,8 @@ const FALLBACK_URL = "/notificationsound.mp3";
 const NotificationListener = ({ children, soundUrl }) => {
     const audioRef = useRef(null);
     const [isUnlocked, setIsUnlocked] = useState(false);
+    const [showEnableButton, setShowEnableButton] = useState(false);
+
     const hasPendingPlayRef = useRef(false);
 
     // Dynamic resolution of the sound to use
@@ -41,6 +43,7 @@ const NotificationListener = ({ children, soundUrl }) => {
             .catch(err => {
                 console.warn("❌ Auto-playback blocked. Queuing for interaction.", err.message);
                 hasPendingPlayRef.current = true;
+                setShowEnableButton(true);
             });
     }, [getActiveSound]);
 
@@ -56,6 +59,7 @@ const NotificationListener = ({ children, soundUrl }) => {
         audioRef.current.play()
             .then(() => {
                 setIsUnlocked(true);
+                setShowEnableButton(false);
                 audioRef.current.pause();
                 audioRef.current.currentTime = 0;
                 console.log("✅ Audio System Unlocked & Ready");
@@ -91,7 +95,27 @@ const NotificationListener = ({ children, soundUrl }) => {
     return (
         <NotificationContext.Provider value={{ playNotificationSound, isUnlocked }}>
             {children}
-            {/* Extremely subtle "Status indicator" if sound is blocked? No, keeping it invisible as requested. */}
+            {showEnableButton && (
+                <button
+                    onClick={unlockAudio}
+                    style={{
+                        position: 'fixed',
+                        bottom: '20px',
+                        right: '20px',
+                        zIndex: 9999,
+                        padding: '10px 20px',
+                        backgroundColor: '#f44336',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '5px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                    }}
+                >
+                    Enable Notification Sound 🔊
+                </button>
+            )}
         </NotificationContext.Provider>
     );
 };
