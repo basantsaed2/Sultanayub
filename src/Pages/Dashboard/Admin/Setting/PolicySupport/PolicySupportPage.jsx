@@ -25,6 +25,8 @@ const PolicySupportPage = () => {
 
     const [policy, setPolicy] = useState("");
     const [support, setSupport] = useState("");
+    const [returnPolicy, setReturnPolicy] = useState("");
+    const [deliveryPolicy, setDeliveryPolicy] = useState("");
 
     const { t, i18n } = useTranslation();
 
@@ -36,6 +38,8 @@ const PolicySupportPage = () => {
         if (dataPolicySupport && dataPolicySupport.data) {
             setPolicy(dataPolicySupport.data?.policy || "");
             setSupport(dataPolicySupport.data?.support || "");
+            setReturnPolicy(dataPolicySupport.data?.return_policy || "");
+            setDeliveryPolicy(dataPolicySupport.data?.delivery_policy || "");
         }
     }, [dataPolicySupport]); // Only run this effect when `data` changes
 
@@ -46,6 +50,8 @@ const PolicySupportPage = () => {
 
         formData.append("policy", policy);
         formData.append("support", support);
+        formData.append("return_policy", returnPolicy);
+        formData.append("delivery_policy", deliveryPolicy);
 
         postData(formData, t("Support and policy Changed Success"));
     };
@@ -86,6 +92,38 @@ const PolicySupportPage = () => {
                                     value={support}
                                     onChange={(e) => setSupport(e.target.value)}
                                     placeholder="Enter The Support"
+                                    rows="4" cols="50"
+                                    className={
+                                        "w-full border-2 rounded-2xl outline-none px-2 py-3 shadow text-2xl text-thirdColor border-mainColor"
+                                    }
+                                />
+                            </div>
+
+                            {/* Return Policy */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Return Policy")}:
+                                </span>
+                                <textarea
+                                    value={returnPolicy}
+                                    onChange={(e) => setReturnPolicy(e.target.value)}
+                                    placeholder="Enter The Return Policy"
+                                    rows="4" cols="50"
+                                    className={
+                                        "w-full border-2 rounded-2xl outline-none px-2 py-3 shadow text-2xl text-thirdColor border-mainColor"
+                                    }
+                                />
+                            </div>
+
+                            {/* Delivery Policy */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Delivery Policy")}:
+                                </span>
+                                <textarea
+                                    value={deliveryPolicy}
+                                    onChange={(e) => setDeliveryPolicy(e.target.value)}
+                                    placeholder="Enter The Delivery Policy"
                                     rows="4" cols="50"
                                     className={
                                         "w-full border-2 rounded-2xl outline-none px-2 py-3 shadow text-2xl text-thirdColor border-mainColor"
