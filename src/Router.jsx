@@ -163,6 +163,7 @@ import CashierShiftReport from "./Pages/Dashboard/Admin/Reports/CashierShiftRepo
 import FinacialReports from "./Pages/Dashboard/Admin/Reports/FinacialReports/FinacialReports";
 import InvoicesReports from "./Pages/Dashboard/Admin/Reports/InvoicesReports/InvoicesReports";
 import HallReports from "./Pages/Dashboard/Admin/Reports/HallReports/HallReports";
+import EndShifts from "./Pages/Dashboard/Admin/Reports/EndShifts/EndShifts";
 
 import ExpensesList from "./Pages/Dashboard/Admin/Expenses/ExpensesList/ExpensesList";
 import AddExpensesList from "./Pages/Dashboard/Admin/Expenses/ExpensesList/AddExpensesList";
@@ -1961,6 +1962,10 @@ export const router = createBrowserRouter([
               {
                 path: "cashier_shortage",
                 element: <CashierShortage />,
+              },
+              {
+                path: "end_shifts",
+                element: <EndShifts />,
               }
             ],
           },

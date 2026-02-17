@@ -390,6 +390,7 @@ export const adminRoutes = [
             { name: "Invoices Reports", path: "/dashboard/reports/invoices_reports" },
             { name: "Hall Reports", path: "/dashboard/reports/hall_reports" },
             { name: "Cashier Shortage", path: "/dashboard/reports/cashier_shortage" },
+            { name: "End Shifts", path: "/dashboard/reports/end_shifts" },
         ],
         redirectTo: "/dashboard/reports/cashier_report",
     },
