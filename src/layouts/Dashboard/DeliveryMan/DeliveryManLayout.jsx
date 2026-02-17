@@ -12,7 +12,7 @@ const DeliveryManLayout = () => {
        const { refetch: refetchDeliveries, loading: loadingDeliveries, data: dataDeliveries } = useGet({
               url: `${apiUrl}/${role}/delivery`
        });
-           const { t, i18n } = useTranslation();
+       const { t, i18n } = useTranslation();
 
        const [refetch, setRefetch] = useState(false)
 
@@ -29,21 +29,21 @@ const DeliveryManLayout = () => {
        useEffect(() => {
               if (dataDeliveries && dataDeliveries.deliveries) {
                      setDeliveries(dataDeliveries.deliveries);
-                     if(role === "admin"){
-                     setBranches([{ id: '', name: t('Select Branche') }, ...dataDeliveries.branches] || []);
+                     if (role === "admin") {
+                            setBranches([{ id: '', name: t('Select Branche') }, ...dataDeliveries?.branches] || []);
                      }
               }
        }, [dataDeliveries]); // Only run this effect when `data` changes
 
 
-     
+
        return (
               <>
                      <TitlePage text={t('AddDelivery')} />
                      {role === "admin" ? (
-                     <AddDeliveryManSection data={branches} refetch={refetch} setRefetch={setRefetch} />
+                            <AddDeliveryManSection data={branches} refetch={refetch} setRefetch={setRefetch} />
                      ) : (
-                     <AddDeliveryManSection refetch={refetch} setRefetch={setRefetch} />
+                            <AddDeliveryManSection refetch={refetch} setRefetch={setRefetch} />
                      )}
                      <TitleSection text={t('DeliveriesTable')} />
                      <DeliveryManPage data={deliveries} setDeliveries={setDeliveries} loading={loadingDeliveries} />

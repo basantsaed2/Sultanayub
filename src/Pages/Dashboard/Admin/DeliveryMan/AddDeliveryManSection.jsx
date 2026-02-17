@@ -230,8 +230,8 @@ const AddDeliveryManSection = ({ data, refetch, setRefetch }) => {
     formData.append("image", deliveryImageFile);
     formData.append("email", deliveryEmail);
     formData.append("password", deliveryPassword);
-    if(role === "admin"){
-    formData.append("branch_id", deliveryBranchId);
+    if (role === "admin") {
+      formData.append("branch_id", deliveryBranchId);
     }
     formData.append("identity_type", identityTypeName);
     formData.append("identity_number", identityNumber);
@@ -289,22 +289,22 @@ const AddDeliveryManSection = ({ data, refetch, setRefetch }) => {
               />
             </div>
             {/* Branches */}
-            {data === 0 && (
-            <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
-              <span className="text-xl font-TextFontRegular text-thirdColor">
-                {t("Branches")}:
-              </span>
-              <DropDown
-                ref={BranchesRef}
-                handleOpen={handleOpenBranch}
-                stateoption={deliveryBranchState}
-                openMenu={isOpenBranch}
-                handleOpenOption={handleOpenOptionBranch}
-                options={data}
-                onSelectOption={handleSelectBranch}
-                border={false}
-              />
-            </div>
+            {role === "admin" && (
+              <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Branches")}:
+                </span>
+                <DropDown
+                  ref={BranchesRef}
+                  handleOpen={handleOpenBranch}
+                  stateoption={deliveryBranchState}
+                  openMenu={isOpenBranch}
+                  handleOpenOption={handleOpenOptionBranch}
+                  options={data}
+                  onSelectOption={handleSelectBranch}
+                  border={false}
+                />
+              </div>
             )}
             {/* Delivery Image */}
             <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
