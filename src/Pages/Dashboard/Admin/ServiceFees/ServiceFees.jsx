@@ -25,7 +25,8 @@ const ServiceFees = () => {
 
     const [serviceFees, setServiceFees] = useState([]);
     const [openDelete, setOpenDelete] = useState(null);
-    const [openView, setOpenView] = useState(null);
+    const [openViewBranches, setOpenViewBranches] = useState(null);
+    const [openViewModules, setOpenViewModules] = useState(null);
 
     const [currentPage, setCurrentPage] = useState(1);
     const serviceFeesPerPage = 15;
@@ -46,10 +47,14 @@ const ServiceFees = () => {
         refetchServiceFees();
     }, [refetchServiceFees]);
 
+    const handleOpenViewBranches = (fee) => setOpenViewBranches(fee);
+    const handleCloseViewBranches = () => setOpenViewBranches(null);
+
+    const handleOpenViewModules = (fee) => setOpenViewModules(fee);
+    const handleCloseViewModules = () => setOpenViewModules(null);
+
     const handleOpenDelete = (id) => setOpenDelete(id);
     const handleCloseDelete = () => setOpenDelete(null);
-    const handleOpenView = (item) => setOpenView(item);
-    const handleCloseView = () => setOpenView(null);
 
     const handleDelete = async (id) => {
         const success = await deleteData(
@@ -91,6 +96,7 @@ const ServiceFees = () => {
         t("Type"),
         t("Module"),
         t("Online Type"),
+        t("Order Modules"),
         t("Branches"),
         t("Action"),
     ];
@@ -150,22 +156,20 @@ const ServiceFees = () => {
 
                                             {/* Type */}
                                             <td className="px-4 py-4 text-center">
-                                                <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                                                    fee.type === "precentage"
-                                                        ? "bg-purple-100 text-purple-800"
-                                                        : "bg-blue-100 text-blue-800"
-                                                }`}>
+                                                <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${fee.type === "precentage"
+                                                    ? "bg-purple-100 text-purple-800"
+                                                    : "bg-blue-100 text-blue-800"
+                                                    }`}>
                                                     {getTypeLabel(fee.type)}
                                                 </span>
                                             </td>
 
                                             {/* Module */}
                                             <td className="px-4 py-4 text-center">
-                                                <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                                                    fee.module === "pos"
-                                                        ? "bg-green-100 text-green-800"
-                                                        : "bg-orange-100 text-orange-800"
-                                                }`}>
+                                                <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${fee.module === "pos"
+                                                    ? "bg-green-100 text-green-800"
+                                                    : "bg-orange-100 text-orange-800"
+                                                    }`}>
                                                     {getModuleLabel(fee.module)}
                                                 </span>
                                             </td>
@@ -181,10 +185,20 @@ const ServiceFees = () => {
                                                 )}
                                             </td>
 
+                                            {/* Order Modules */}
+                                            <td className="px-4 py-4 text-center">
+                                                <button
+                                                    onClick={() => handleOpenViewModules(fee)}
+                                                    className="text-mainColor underline hover:text-red-700 text-sm"
+                                                >
+                                                    {fee.modules?.length || 0} {t("module", { count: fee.modules?.length || 0 })}
+                                                </button>
+                                            </td>
+
                                             {/* Branches */}
                                             <td className="px-4 py-4 text-center">
                                                 <button
-                                                    onClick={() => handleOpenView(fee)}
+                                                    onClick={() => handleOpenViewBranches(fee)}
                                                     className="text-mainColor underline hover:text-red-700 text-sm"
                                                 >
                                                     {fee.branches?.length || 0} {t("branch", { count: fee.branches?.length || 0 })}
@@ -223,11 +237,10 @@ const ServiceFees = () => {
                                 <button
                                     key={page}
                                     onClick={() => setCurrentPage(page)}
-                                    className={`px-4 py-2 rounded-full font-medium transition ${
-                                        currentPage === page
-                                            ? "bg-mainColor text-white"
-                                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                                    }`}
+                                    className={`px-4 py-2 rounded-full font-medium transition ${currentPage === page
+                                        ? "bg-mainColor text-white"
+                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                        }`}
                                 >
                                     {page}
                                 </button>
@@ -242,19 +255,54 @@ const ServiceFees = () => {
                         </div>
                     )}
 
-                    {/* View Branches Modal */}
-                    {openView && (
-                        <Dialog open={true} onClose={handleCloseView} className="relative z-50">
+                    {/* View Modules Modal */}
+                    {openViewModules && (
+                        <Dialog open={true} onClose={handleCloseViewModules} className="relative z-50">
                             <DialogBackdrop className="fixed inset-0 bg-black bg-opacity-30" />
                             <div className="fixed inset-0 flex items-center justify-center p-4">
                                 <DialogPanel className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
                                     <h3 className="text-xl font-bold text-mainColor mb-4">
-                                        {t("Branches")} ({openView.branches?.length || 0})
+                                        {t("Order Modules")} ({openViewModules.modules?.length || 0})
                                     </h3>
                                     <div className="max-h-96 overflow-y-auto border rounded-lg">
-                                        {openView.branches?.length > 0 ? (
+                                        {openViewModules.modules?.length > 0 ? (
                                             <ul className="divide-y divide-gray-200">
-                                                {openView.branches.map(branch => (
+                                                {openViewModules.modules.map((module, idx) => (
+                                                    <li key={idx} className="px-4 py-3 hover:bg-gray-50">
+                                                        {t(module)}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <p className="text-center text-gray-500 py-8">{t("No modules assigned")}</p>
+                                        )}
+                                    </div>
+                                    <div className="mt-6 text-right">
+                                        <button
+                                            onClick={handleCloseViewModules}
+                                            className="px-6 py-2 bg-mainColor text-white rounded-lg hover:bg-red-700 transition"
+                                        >
+                                            {t("Close")}
+                                        </button>
+                                    </div>
+                                </DialogPanel>
+                            </div>
+                        </Dialog>
+                    )}
+
+                    {/* View Branches Modal */}
+                    {openViewBranches && (
+                        <Dialog open={true} onClose={handleCloseViewBranches} className="relative z-50">
+                            <DialogBackdrop className="fixed inset-0 bg-black bg-opacity-30" />
+                            <div className="fixed inset-0 flex items-center justify-center p-4">
+                                <DialogPanel className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+                                    <h3 className="text-xl font-bold text-mainColor mb-4">
+                                        {t("Branches")} ({openViewBranches.branches?.length || 0})
+                                    </h3>
+                                    <div className="max-h-96 overflow-y-auto border rounded-lg">
+                                        {openViewBranches.branches?.length > 0 ? (
+                                            <ul className="divide-y divide-gray-200">
+                                                {openViewBranches.branches.map(branch => (
                                                     <li key={branch.id} className="px-4 py-3 hover:bg-gray-50">
                                                         {branch.name}
                                                     </li>
@@ -266,7 +314,7 @@ const ServiceFees = () => {
                                     </div>
                                     <div className="mt-6 text-right">
                                         <button
-                                            onClick={handleCloseView}
+                                            onClick={handleCloseViewBranches}
                                             className="px-6 py-2 bg-mainColor text-white rounded-lg hover:bg-red-700 transition"
                                         >
                                             {t("Close")}

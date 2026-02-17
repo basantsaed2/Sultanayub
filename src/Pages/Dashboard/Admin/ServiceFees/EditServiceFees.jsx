@@ -60,6 +60,14 @@ const EditServiceFees = () => {
     const [onlineType, setOnlineType] = useState("all"); // "all", "app", "web"
     const [title, setTitle] = useState("");
 
+    const [selectedWebModules, setSelectedWebModules] = useState([]);
+    const [webModuleOptions, setWebModuleOptions] = useState([
+        { value: "all", label: "All" },
+        { value: "take_away", label: "Take Away" },
+        { value: "dine_in", label: "Dine In" },
+        { value: "delivery", label: "Delivery" },
+    ]);
+
     // Options
     const moduleOptions = [
         { value: "pos", label: t("POS") },
@@ -86,7 +94,11 @@ const EditServiceFees = () => {
             }));
             setBranches(branchOptions);
         }
-    }, [data]);
+        if (data?.web_modules) {
+            const options = data.web_modules.map(m => ({ value: m, label: t(m) }));
+            setWebModuleOptions(options);
+        }
+    }, [data, t]);
 
     // Load service fee data into form
     useEffect(() => {
@@ -110,6 +122,26 @@ const EditServiceFees = () => {
                 setOnlineType("all");
             }
 
+            // Web modules
+            if (fee.modules && fee.modules.length > 0) {
+                // Check if "all" is in the modules array
+                const hasAll = fee.modules.includes("all");
+
+                if (hasAll) {
+                    // If "all" is present, select all available options
+                    setSelectedWebModules(webModuleOptions);
+                } else {
+                    // Otherwise, map the specific modules
+                    const selectedModules = fee.modules.map(m => {
+                        const found = webModuleOptions.find(o => o.value === m);
+                        return found || { value: m, label: t(m) };
+                    });
+                    setSelectedWebModules(selectedModules);
+                }
+            } else {
+                setSelectedWebModules([]);
+            }
+
             // Branches
             if (fee.branches && fee.branches.length > 0) {
                 const selected = branches.filter(branch =>
@@ -118,7 +150,7 @@ const EditServiceFees = () => {
                 setSelectedBranches(selected);
             }
         }
-    }, [dataServiceFeeItem, branches]);
+    }, [dataServiceFeeItem, branches, webModuleOptions, t]);
 
     // Navigate back on success
     useEffect(() => {
@@ -128,6 +160,21 @@ const EditServiceFees = () => {
     }, [response, loadingPost]);
 
     const handleBranchChange = (selected) => setSelectedBranches(selected || []);
+
+    const handleWebModulesChange = (selectedOptions) => {
+        const selected = selectedOptions || [];
+
+        // Check if "all" was just selected
+        const hasAll = selected.some(opt => opt.value === "all");
+
+        if (hasAll) {
+            // If "all" is selected, select all options
+            setSelectedWebModules(webModuleOptions);
+        } else {
+            setSelectedWebModules(selected);
+        }
+    };
+
     const handleTypeChange = (val) => setType(val);
 
     const handleReset = () => {
@@ -138,6 +185,25 @@ const EditServiceFees = () => {
             setType(fee.type === "precentage" ? "percentage" : "fixed");
             setModule(fee.module || "pos");
             setOnlineType(fee.online_type || "all");
+
+            if (fee.modules && fee.modules.length > 0) {
+                // Check if "all" is in the modules array
+                const hasAll = fee.modules.includes("all");
+
+                if (hasAll) {
+                    // If "all" is present, select all available options
+                    setSelectedWebModules(webModuleOptions);
+                } else {
+                    // Otherwise, map the specific modules
+                    const selectedModules = fee.modules.map(m => {
+                        const found = webModuleOptions.find(o => o.value === m);
+                        return found || { value: m, label: t(m) };
+                    });
+                    setSelectedWebModules(selectedModules);
+                }
+            } else {
+                setSelectedWebModules([]);
+            }
 
             if (fee.branches && branches.length > 0) {
                 const selected = branches.filter(branch =>
@@ -176,6 +242,19 @@ const EditServiceFees = () => {
         selectedBranches.forEach((branch, i) => {
             formData.append(`branches[${i}]`, branch.value);
         });
+
+        // Check if "all" is selected in web modules
+        const hasAllModule = selectedWebModules.some(wm => wm.value === "all");
+
+        if (hasAllModule) {
+            // If "all" is selected, send only "all"
+            formData.append(`modules[0]`, "all");
+        } else {
+            // Otherwise send the selected modules
+            selectedWebModules.forEach((wm, index) => {
+                formData.append(`modules[${index}]`, wm.value);
+            });
+        }
 
         postData(formData, t("Service Fee Updated Successfully"));
     };
@@ -262,6 +341,23 @@ const EditServiceFees = () => {
                                 </div>
                             )}
 
+                            {/* Web Modules - Multi Select */}
+                            <div className="flex flex-col gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Order Modules")}:
+                                </span>
+                                <Select
+                                    options={webModuleOptions}
+                                    value={selectedWebModules}
+                                    onChange={handleWebModulesChange}
+                                    placeholder={t("Select Order Modules")}
+                                    styles={customStyles}
+                                    isMulti
+                                    isSearchable
+                                    className="w-full"
+                                />
+                            </div>
+
                             {/* Type: Percentage / Fixed */}
                             <div className="flex flex-col gap-y-3">
                                 <span className="text-xl font-TextFontRegular text-thirdColor">{t("Type")}:</span>
@@ -324,7 +420,7 @@ const EditServiceFees = () => {
                             </div>
                         </div>
 
-                      <div className="flex items-center justify-end w-full gap-x-4 mt-6">
+                        <div className="flex items-center justify-end w-full gap-x-4 mt-6">
                             <div>
                                 <StaticButton
                                     text={t("Reset")}

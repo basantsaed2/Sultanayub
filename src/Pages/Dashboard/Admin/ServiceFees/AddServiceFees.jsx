@@ -52,11 +52,19 @@ const AddServiceFees = () => {
   const [amount, setAmount] = useState("");
   const [selectedBranches, setSelectedBranches] = useState([]);
   const [type, setType] = useState("percentage"); // "percentage" or "value"
-  const [title , setTitle]=useState("")
+  const [title, setTitle] = useState("")
 
   // NEW STATES
   const [module, setModule] = useState("pos"); // "pos" or "online"
   const [onlineType, setOnlineType] = useState("all"); // "all", "app", "web"
+
+  const [selectedWebModules, setSelectedWebModules] = useState([]);
+  const [webModuleOptions, setWebModuleOptions] = useState([
+    { value: "all", label: "All" },
+    { value: "take_away", label: "Take Away" },
+    { value: "dine_in", label: "Dine In" },
+    { value: "delivery", label: "Delivery" },
+  ]);
 
   // Options from your data
   const moduleOptions = [
@@ -83,8 +91,13 @@ const AddServiceFees = () => {
         }));
         setBranches(branchOptions);
       }
+
+      if (data.web_modules) {
+        const options = data.web_modules.map(m => ({ value: m, label: t(m) }));
+        setWebModuleOptions(options);
+      }
     }
-  }, [data]);
+  }, [data, t]);
 
   useEffect(() => {
     if (!loadingPost && response) {
@@ -94,6 +107,20 @@ const AddServiceFees = () => {
 
   const handleBranchChange = (selectedOptions) => {
     setSelectedBranches(selectedOptions || []);
+  };
+
+  const handleWebModulesChange = (selectedOptions) => {
+    const selected = selectedOptions || [];
+
+    // Check if "all" was just selected
+    const hasAll = selected.some(opt => opt.value === "all");
+
+    if (hasAll) {
+      // If "all" is selected, select all options
+      setSelectedWebModules(webModuleOptions);
+    } else {
+      setSelectedWebModules(selected);
+    }
   };
 
   const handleTypeChange = (selectedType) => {
@@ -108,6 +135,7 @@ const AddServiceFees = () => {
     setModule("pos");
     setOnlineType("all");
     setTitle("")
+    setSelectedWebModules([])
   };
 
   const handleAdd = (e) => {
@@ -153,6 +181,19 @@ const AddServiceFees = () => {
       formData.append(`branches[${index}]`, branch.value);
     });
 
+    // Check if "all" is selected in web modules
+    const hasAllModule = selectedWebModules.some(wm => wm.value === "all");
+
+    if (hasAllModule) {
+      // If "all" is selected, send only "all"
+      formData.append(`modules[0]`, "all");
+    } else {
+      // Otherwise send the selected modules
+      selectedWebModules.forEach((wm, index) => {
+        formData.append(`modules[${index}]`, wm.value);
+      });
+    }
+
     postData(formData, t("Service Fee Added Success"));
   };
 
@@ -174,8 +215,8 @@ const AddServiceFees = () => {
       backgroundColor: state.isSelected
         ? "#9E090F"
         : state.isFocused
-        ? "#E6F0FA"
-        : "white",
+          ? "#E6F0FA"
+          : "white",
       color: state.isSelected ? "white" : "black",
     }),
   };
@@ -259,6 +300,23 @@ const AddServiceFees = () => {
                   />
                 </div>
               )}
+
+              {/* Web Modules - Multi Select */}
+              <div className="flex flex-col gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Order Modules")}:
+                </span>
+                <Select
+                  options={webModuleOptions}
+                  value={selectedWebModules}
+                  onChange={handleWebModulesChange}
+                  placeholder={t("Select Order Modules")}
+                  styles={customStyles}
+                  isMulti
+                  isSearchable
+                  className="w-full"
+                />
+              </div>
 
               {/* Type: Percentage or Value */}
               <div className="flex flex-col gap-y-3">
