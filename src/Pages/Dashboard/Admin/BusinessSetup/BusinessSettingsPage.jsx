@@ -25,6 +25,7 @@ const BusinessSettingsPage = () => {
   const LogoRef = useRef();
   const coverImageRef = useRef();
   const IconRef = useRef();
+  const qrCodeRef = useRef();
   const { t, i18n } = useTranslation();
 
   const auth = useAuth();
@@ -147,6 +148,7 @@ const BusinessSettingsPage = () => {
 
   const [websiteLink, setWebsiteLink] = useState("");
   const [qrCode, setQrCode] = useState("");
+  const [qrCodeFile, setQrCodeFile] = useState(null);
 
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const {
@@ -357,6 +359,8 @@ const BusinessSettingsPage = () => {
     formData.append("time_format", stateTimeFormat);
     formData.append("currency_id", currencyId);
     formData.append("country", selectedCountry);
+
+    formData.append("qr_code", qrCodeFile);
 
     if (leftCurrency === 0 && rightCurrency === 0) {
       formData.append("currency_position", "");
@@ -580,6 +584,16 @@ const BusinessSettingsPage = () => {
     }
   };
 
+  const handleQrCode = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setQrCodeFile(file); // Assuming setQrCodeFile is defined elsewhere
+      setQrCode(file.name); // Set the file name as the value for qrCode
+    } else {
+      setQrCode(''); // Reset qrCode value if no file is selected
+    }
+  };
+
   const handleLogoClick = (ref) => {
     if (ref.current) {
       ref.current.click();
@@ -591,6 +605,12 @@ const BusinessSettingsPage = () => {
     }
   };
   const handleIconClick = (ref) => {
+    if (ref.current) {
+      ref.current.click();
+    }
+  };
+
+  const handleQrCodeClick = (ref) => {
     if (ref.current) {
       ref.current.click();
     }
@@ -662,6 +682,8 @@ const BusinessSettingsPage = () => {
     setMapActive(0);
     setScale("");
     setReportTime("");
+    setQrCode("");
+    setQrCodeFile("");
   };
 
   return (
@@ -844,7 +866,7 @@ const BusinessSettingsPage = () => {
               placeholder={t("Scale")}
             />
           </div>
-           {/* Report Time */}
+          {/* Report Time */}
           <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">
               {t("Report Time")}:
@@ -855,8 +877,21 @@ const BusinessSettingsPage = () => {
               placeholder={t("Report Time")}
             />
           </div>
-          {/* {qrCode && (
-          <div className="sm:w-full lg:w-[30%] flex flex-col items-center justify-center gap-y-1">
+          {/* qrCode */}
+          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+            <span className="text-xl font-TextFontRegular text-thirdColor">{t("QR Code")}:</span>
+            <UploadInput
+              value={qrCode}
+              uploadFileRef={qrCodeRef}
+              placeholder={t("QR Code")}
+              handleFileChange={handleQrCode}
+              onChange={(e) => setQrCode(e.target.value)}
+              onClick={() => handleQrCodeClick(qrCodeRef)}
+            />
+          </div>
+
+          {qrCode !== null && (
+            <div className="sm:w-full lg:w-[30%] flex flex-col items-center justify-center gap-y-1 mt-5">
               <img
                 src={qrCode}
                 alt="QR Code"
@@ -866,7 +901,7 @@ const BusinessSettingsPage = () => {
                 {t("Current QR Code")}
               </p>
             </div>
-          )} */}
+          )}
           <div className="sm:w-full lg:w-[30%] flex items-center gap-2 mt-8 justify-center gap-y-1">
             <span className="text-xl font-TextFontRegular text-thirdColor">{t("Order Active")}  </span>
             <div>
@@ -916,19 +951,6 @@ const BusinessSettingsPage = () => {
               />
             </div>
           </div>
-
-          {qrCode !== null && (
-            <div className="sm:w-full lg:w-[30%] flex flex-col items-center justify-center gap-y-1 mt-5">
-              <img
-                src={qrCode}
-                alt="QR Code"
-                className="object-contain w-48 h-48 mx-auto"
-              />
-              <p className="text-sm text-center text-gray-600">
-                {t("Current QR Code")}
-              </p>
-            </div>
-          )}
 
           <TitleSection text={t("BusinessInformation")} />
 
