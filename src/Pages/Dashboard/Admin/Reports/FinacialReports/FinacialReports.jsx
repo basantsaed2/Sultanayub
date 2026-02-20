@@ -87,6 +87,9 @@ const FinacialReports = () => {
       const branchName = branches.find(b => b.id === selectedBranchId)?.name;
       if (branchName) text += ` | ${t("Branch")}: ${branchName}`;
     }
+    if (reportData?.start && reportData?.end) {
+      text += ` | ${t("Report Period")}: ${reportData.start} - ${reportData.end}`;
+    }
     return text;
   };
 
@@ -223,6 +226,22 @@ const FinacialReports = () => {
                     <span class="item-name">${t('Void Orders Count')}</span>
                     <span class="item-value">${reportData.void_order_count || 0}</span>
                 </div>
+                 <div class="item-row">
+                    <span class="item-name">${t('Total Discount')}</span>
+                    <span class="item-value">${(reportData.total_discount || 0).toFixed(2)} ${t('EGP')}</span>
+                </div>
+                <div class="item-row">
+                    <span class="item-name">${t('Service Fees')}</span>
+                    <span class="item-value">${(reportData.service_fees || 0).toFixed(2)} ${t('EGP')}</span>
+                </div>
+                <div class="item-row">
+                    <span class="item-name">${t('Due Module')}</span>
+                    <span class="item-value">${(reportData.due_module || 0).toFixed(2)} ${t('EGP')}</span>
+                </div>
+                <div class="item-row">
+                    <span class="item-name">${t('Due User')}</span>
+                    <span class="item-value">${(reportData.due_user || 0).toFixed(2)} ${t('EGP')}</span>
+                </div>
             </div>
 
             <div class="section">
@@ -249,6 +268,10 @@ const FinacialReports = () => {
                          <div class="item-row">
                             <span class="item-name">${t('Net Total')}</span>
                             <span class="item-value">${net.toFixed(2)} ${t('EGP')}</span>
+                        </div>
+                        <div class="item-row">
+                            <span class="item-name">${t('Total Out Delivery')}</span>
+                            <span class="item-value">${(acc.total_amount_out_delivery || 0).toFixed(2)} ${t('EGP')}</span>
                         </div>
                     </div>
                     `;
@@ -338,7 +361,11 @@ const FinacialReports = () => {
       [t("Total Expenses"), `${(reportData.expenses_total || 0)} ${t('EGP')}`],
       [t("Total Tax"), `${(reportData.total_tax || 0).toFixed(2)} ${t('EGP')}`],
       [t("Void Orders Value"), `${(reportData.void_order_sum || 0).toFixed(2)} ${t('EGP')}`],
-      [t("Void Orders Count"), reportData.void_order_count || 0]
+      [t("Void Orders Count"), reportData.void_order_count || 0],
+      [t("Total Discount"), `${(reportData.total_discount || 0).toFixed(2)} ${t('EGP')}`],
+      [t("Service Fees"), `${(reportData.service_fees || 0).toFixed(2)} ${t('EGP')}`],
+      [t("Due Module"), `${(reportData.due_module || 0).toFixed(2)} ${t('EGP')}`],
+      [t("Due User"), `${(reportData.due_user || 0).toFixed(2)} ${t('EGP')}`]
     ];
 
     autoTable(doc, {
@@ -357,13 +384,14 @@ const FinacialReports = () => {
         acc.total_amount_delivery.toFixed(2),
         acc.total_amount_take_away.toFixed(2),
         acc.total_amount_dine_in.toFixed(2),
-        net.toFixed(2)
+        net.toFixed(2),
+        (acc.total_amount_out_delivery || 0).toFixed(2)
       ];
     });
 
     autoTable(doc, {
       startY: doc.lastAutoTable.finalY + 10,
-      head: [[t("Account"), t("Delivery"), t("Take Away"), t("Dine In"), t("Net Total")]],
+      head: [[t("Account"), t("Delivery"), t("Take Away"), t("Dine In"), t("Net Total"), t("Total Out Delivery")]],
       body: accountsBody,
       headStyles: { fillColor: [22, 163, 74] } // Green
     });
@@ -380,6 +408,36 @@ const FinacialReports = () => {
         head: [[t("Expense Account"), t("Amount")]],
         body: expensesBody,
         headStyles: { fillColor: [220, 38, 38] } // Red
+      });
+    }
+
+    // 4. Paid Online Orders
+    if (reportData.online_order && reportData.online_order.paid && reportData.online_order.paid.length > 0) {
+      const paidOnlineBody = reportData.online_order.paid.map(item => [
+        item.payment_method,
+        item.amount.toFixed(2)
+      ]);
+
+      autoTable(doc, {
+        startY: doc.lastAutoTable.finalY + 10,
+        head: [[t("Paid Online Orders Payment Method"), t("Amount")]],
+        body: paidOnlineBody,
+        headStyles: { fillColor: [22, 163, 74] } // Green
+      });
+    }
+
+    // 5. Unpaid / Cash on Delivery
+    if (reportData.online_order && reportData.online_order.un_paid && reportData.online_order.un_paid.length > 0) {
+      const unpaidOnlineBody = reportData.online_order.un_paid.map(item => [
+        item.payment_method,
+        item.amount.toFixed(2)
+      ]);
+
+      autoTable(doc, {
+        startY: doc.lastAutoTable.finalY + 10,
+        head: [[t("Unpaid / Cash on Delivery Payment Method"), t("Amount")]],
+        body: unpaidOnlineBody,
+        headStyles: { fillColor: [234, 88, 12] } // Orange
       });
     }
 
@@ -403,11 +461,15 @@ const FinacialReports = () => {
       { A: t("Total Tax"), B: reportData.total_tax || 0 },
       { A: t("Void Orders Value"), B: reportData.void_order_sum || 0 },
       { A: t("Void Orders Count"), B: reportData.void_order_count || 0 },
+      { A: t("Total Discount"), B: reportData.total_discount || 0 },
+      { A: t("Service Fees"), B: reportData.service_fees || 0 },
+      { A: t("Due Module"), B: reportData.due_module || 0 },
+      { A: t("Due User"), B: reportData.due_user || 0 },
       { A: "" },
 
       // Accounts
       { A: t("Financial Accounts Details") },
-      { A: t("Account"), B: t("Delivery"), C: t("Take Away"), D: t("Dine In"), E: t("Net Total") },
+      { A: t("Account"), B: t("Delivery"), C: t("Take Away"), D: t("Dine In"), E: t("Net Total"), F: t("Total Out Delivery") },
       ...reportData.financial_accounts.map(acc => {
         const net = (acc.total_amount_delivery || 0) + (acc.total_amount_take_away || 0) + (acc.total_amount_dine_in || 0);
         return {
@@ -415,7 +477,8 @@ const FinacialReports = () => {
           B: acc.total_amount_delivery || 0,
           C: acc.total_amount_take_away || 0,
           D: acc.total_amount_dine_in || 0,
-          E: net
+          E: net,
+          F: acc.total_amount_out_delivery || 0
         };
       }),
       { A: "" },
@@ -426,7 +489,25 @@ const FinacialReports = () => {
       ...(reportData.expenses || []).map(exp => ({
         A: exp.financial_account,
         B: exp.total || 0
-      }))
+      })),
+      { A: "" },
+
+      // Paid Online Orders
+      { A: t("Paid Online Orders") },
+      { A: t("Payment Method"), B: t("Amount") },
+      ...(reportData.online_order && reportData.online_order.paid ? reportData.online_order.paid.map(item => ({
+        A: item.payment_method,
+        B: item.amount || 0
+      })) : []),
+      { A: "" },
+
+      // Unpaid / Cash on Delivery
+      { A: t("Unpaid / Cash on Delivery") },
+      { A: t("Payment Method"), B: t("Amount") },
+      ...(reportData.online_order && reportData.online_order.un_paid ? reportData.online_order.un_paid.map(item => ({
+        A: item.payment_method,
+        B: item.amount || 0
+      })) : [])
     ];
 
     const worksheet = XLSX.utils.json_to_sheet(data, { skipHeader: true });
@@ -438,7 +519,14 @@ const FinacialReports = () => {
   return (
     <div className="w-full p-2 md:p-4 xl:p-6 pb-32 space-y-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <h1 className="text-3xl font-bold text-mainColor">{t("Financial Report")}</h1>
+        <div className="flex flex-col">
+          <h1 className="text-3xl font-bold text-mainColor">{t("Financial Report")}</h1>
+          {reportData?.start && reportData?.end && (
+            <p className="text-sm text-gray-500 mt-1">
+              {t("Report Period")}: {reportData.start} - {reportData.end}
+            </p>
+          )}
+        </div>
         {reportData && (
           <div className="flex flex-row gap-2">
             <button
@@ -536,6 +624,22 @@ const FinacialReports = () => {
                 <h3 className="text-sm font-medium text-red-800">{t("Void Orders Count")}</h3>
                 <p className="text-3xl font-bold text-red-900">{reportData.void_order_count || 0}</p>
               </div>
+              <div className="p-6 border border-blue-200 rounded-lg bg-blue-50">
+                <h3 className="text-sm font-medium text-blue-800">{t("Total Discount")}</h3>
+                <p className="text-3xl font-bold text-blue-900">{(reportData.total_discount || 0).toFixed(2)} {t("EGP")}</p>
+              </div>
+              <div className="p-6 border border-teal-200 rounded-lg bg-teal-50">
+                <h3 className="text-sm font-medium text-teal-800">{t("Service Fees")}</h3>
+                <p className="text-3xl font-bold text-teal-900">{(reportData.service_fees || 0).toFixed(2)} {t("EGP")}</p>
+              </div>
+              <div className="p-6 border border-purple-200 rounded-lg bg-purple-50">
+                <h3 className="text-sm font-medium text-purple-800">{t("Due Module")}</h3>
+                <p className="text-3xl font-bold text-purple-900">{(reportData.due_module || 0).toFixed(2)} {t("EGP")}</p>
+              </div>
+              <div className="p-6 border border-pink-200 rounded-lg bg-pink-50">
+                <h3 className="text-sm font-medium text-pink-800">{t("Due User")}</h3>
+                <p className="text-3xl font-bold text-pink-900">{(reportData.due_user || 0).toFixed(2)} {t("EGP")}</p>
+              </div>
             </div>
 
             {/* Financial Accounts Breakdown */}
@@ -550,6 +654,7 @@ const FinacialReports = () => {
                       <th className="px-4 py-3 text-sm font-semibold text-right text-gray-700">{t("Take Away")}</th>
                       <th className="px-4 py-3 text-sm font-semibold text-right text-gray-700">{t("Dine In")}</th>
                       <th className="px-4 py-3 text-sm font-semibold text-right text-gray-700">{t("Net Total")}</th>
+                      <th className="px-4 py-3 text-sm font-semibold text-right text-gray-700">{t("Total Out Delivery")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -569,6 +674,9 @@ const FinacialReports = () => {
                           </td>
                           <td className={`px-4 py-3 text-right font-bold ${net < 0 ? 'text-red-700' : 'text-green-700'}`}>
                             {net.toFixed(2)} {t("EGP")}
+                          </td>
+                          <td className={`px-4 py-3 text-right font-bold ${acc.total_amount_out_delivery < 0 ? 'text-red-700' : 'text-green-700'}`}>
+                            {(acc.total_amount_out_delivery || 0).toFixed(2)} {t("EGP")}
                           </td>
                         </tr>
                       );
