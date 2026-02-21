@@ -84,6 +84,8 @@ const RealTimeSalesReports = () => {
                             <div class="item-row"><span class="item-name">${t("Out For Delivery")}</span><span class="item-value">${b.out_of_delivery}</span></div>
                             <div class="item-row"><span class="item-name">${t("Delivery Fees")}</span><span class="item-value">${(b.delivery_fees || 0).toLocaleString()}</span></div>
                             <div class="item-row"><span class="item-name">${t("Service Fees")}</span><span class="item-value">${(b.service_fees || 0).toLocaleString()}</span></div>
+                            <div class="item-row"><span class="item-name">${t("Due Module")}</span><span class="item-value">${(b.due_module || 0).toLocaleString()}</span></div>
+                            <div class="item-row"><span class="item-name">${t("Due User")}</span><span class="item-value">${(b.due_user || 0).toLocaleString()}</span></div>
                         </div>
                     `,
           )
@@ -227,6 +229,14 @@ const RealTimeSalesReports = () => {
                         <span class="item-name">${t("Service Fees")}</span>
                         <span class="item-value">${(salesData.service_fees || 0).toLocaleString()} ${t("EGP")}</span>
                     </div>
+                    <div class="item-row">
+                        <span class="item-name">${t("Due Module")}</span>
+                        <span class="item-value">${(salesData.due_module || 0).toLocaleString()} ${t("EGP")}</span>
+                    </div>
+                    <div class="item-row">
+                        <span class="item-name">${t("Due User")}</span>
+                        <span class="item-value">${(salesData.due_user || 0).toLocaleString()} ${t("EGP")}</span>
+                    </div>
                 </div>
 
                 <div class="section">
@@ -327,6 +337,8 @@ const RealTimeSalesReports = () => {
       [t("Discount"), salesData.discount || 0],
       [t("Delivery Fees"), salesData.delivery_fees || 0],
       [t("Service Fees"), salesData.service_fees || 0],
+      [t("Due Module"), salesData.due_module || 0],
+      [t("Due User"), salesData.due_user || 0],
     ];
 
     // Header for breakdown
@@ -362,6 +374,8 @@ const RealTimeSalesReports = () => {
         b.out_of_delivery || 0,
         b.delivery_fees || 0,
         b.service_fees || 0,
+        b.due_module || 0,
+        b.due_user || 0,
       ]);
 
       autoTable(doc, {
@@ -384,6 +398,8 @@ const RealTimeSalesReports = () => {
             t("Out Del"),
             t("Del Fees"),
             t("Svc Fees"),
+            t("Due Mod"),
+            t("Due Usr"),
           ],
         ],
         body: branchRows,
@@ -428,6 +444,8 @@ const RealTimeSalesReports = () => {
       [t("Discount"), salesData.discount || 0],
       [t("Delivery Fees"), salesData.delivery_fees || 0],
       [t("Service Fees"), salesData.service_fees || 0],
+      [t("Due Module"), salesData.due_module || 0],
+      [t("Due User"), salesData.due_user || 0],
     ];
 
     // 2. Append Branch Breakdown Table if data exists
@@ -457,6 +475,8 @@ const RealTimeSalesReports = () => {
         t("Out For Delivery"),
         t("Delivery Fees"),
         t("Service Fees"),
+        t("Due Module"),
+        t("Due User"),
       ]);
 
       // Table Rows
@@ -479,6 +499,8 @@ const RealTimeSalesReports = () => {
           b.out_of_delivery || 0,
           b.delivery_fees || 0,
           b.service_fees || 0,
+          b.due_module || 0,
+          b.due_user || 0,
         ]);
       });
     }
@@ -661,6 +683,18 @@ const RealTimeSalesReports = () => {
                 colorClass="bg-green-50 border-green-100"
                 textClass="text-green-700"
               />
+              <Card
+                title="Due Module"
+                value={salesData.due_module}
+                colorClass="bg-red-50 border-red-100"
+                textClass="text-red-700"
+              />
+              <Card
+                title="Due User"
+                value={salesData.due_user}
+                colorClass="bg-red-50 border-red-100"
+                textClass="text-red-700"
+              />
             </div>
 
             {/* Branch Breakdown Table (Only visible when viewing all branches) */}
@@ -686,6 +720,8 @@ const RealTimeSalesReports = () => {
                           <th className="px-6 py-3">{t("Web")}</th>
                           <th className="px-6 py-3">{t("App")}</th>
                           <th className="px-6 py-3">{t("Delivery Fees")}</th>
+                          <th className="px-6 py-3">{t("Service Fees")}</th>
+                          <th className="px-6 py-3">{t("Total Discount")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -728,6 +764,14 @@ const RealTimeSalesReports = () => {
                             </td>
                             <td className="px-6 py-4">
                               {(branch.delivery_fees || 0).toLocaleString()}{" "}
+                              {t("EGP")}
+                            </td>
+                            <td className="px-6 py-4">
+                              {(branch.service_fees || 0).toLocaleString()}{" "}
+                              {t("EGP")}
+                            </td>
+                            <td className="px-6 py-4">
+                              {(branch.total_discount || 0).toLocaleString()}{" "}
                               {t("EGP")}
                             </td>
                           </tr>
