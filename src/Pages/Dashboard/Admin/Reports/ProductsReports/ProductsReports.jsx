@@ -3,7 +3,9 @@ import * as XLSX from 'xlsx';
 import { useTranslation } from 'react-i18next';
 import { useGet } from '../../../../../Hooks/useGet';
 import { DateInput, StaticLoader, TextInput } from '../../../../../Components/Components';
-import { FaFileExcel, FaPrint, FaSearch } from 'react-icons/fa';
+import { FaFileExcel, FaFilePdf, FaPrint, FaSearch, FaShoppingCart, FaMoneyBillWave } from 'react-icons/fa';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { useSelector } from 'react-redux';
 import Select from 'react-select';
 
@@ -130,6 +132,9 @@ const ProductsReports = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentItems = flatProducts.slice(startIndex, startIndex + itemsPerPage);
 
+    const grandTotalCount = useMemo(() => flatProducts.reduce((sum, item) => sum + (parseInt(item.count) || 0), 0), [flatProducts]);
+    const grandTotalPrice = useMemo(() => flatProducts.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0), [flatProducts]);
+
     const handlePageChange = (page) => {
         if (page >= 1 && page <= totalPages) {
             setCurrentPage(page);
@@ -164,13 +169,8 @@ const ProductsReports = () => {
         const printWindow = window.open('', '_blank');
         const date = new Date().toLocaleDateString();
 
-        let totalProducts = 0;
-        let totalPrice = 0;
-
-        filteredReportData.forEach(item => {
-            totalProducts += parseInt(item.products_count) || 0;
-            totalPrice += parseFloat(item.products_price) || 0;
-        });
+        const totalProducts = grandTotalCount;
+        const totalPrice = grandTotalPrice;
 
         const receiptContent = `
             <!DOCTYPE html>
@@ -344,11 +344,60 @@ const ProductsReports = () => {
             [t("Total Price")]: parseFloat(item.price || 0).toFixed(2),
         }));
 
+        // Add Total Row
+        dataToExport.push({
+            [t("#")]: "",
+            [t("Category")]: "",
+            [t("Product Name")]: t("Total"),
+            [t("Count")]: grandTotalCount,
+            [t("Total Price")]: grandTotalPrice.toFixed(2),
+        });
+
         const worksheet = XLSX.utils.json_to_sheet(dataToExport);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Products Report");
 
         XLSX.writeFile(workbook, "Products_Report.xlsx");
+    };
+
+    const handlePrintPdf = () => {
+        if (flatProducts.length === 0) return;
+
+        const doc = new jsPDF();
+        const date = new Date().toLocaleDateString();
+
+        doc.setFontSize(20);
+        doc.text(t("Products Report"), 14, 22);
+
+        doc.setFontSize(10);
+        doc.text(`${t("Date")}: ${date}`, 14, 30);
+
+        const tableBody = flatProducts.map((item, index) => [
+            index + 1,
+            item.category_name,
+            item.name || item.product_name,
+            item.count,
+            parseFloat(item.price || 0).toFixed(2)
+        ]);
+
+        // Add Total Row to Body
+        tableBody.push([
+            "",
+            "",
+            { content: t("Total"), styles: { fontStyle: 'bold' } },
+            { content: grandTotalCount, styles: { fontStyle: 'bold' } },
+            { content: grandTotalPrice.toFixed(2) + " " + t("EGP"), styles: { fontStyle: 'bold' } }
+        ]);
+
+        autoTable(doc, {
+            startY: 40,
+            head: [[t("#"), t("Category"), t("Product Name"), t("Count"), t("Total Price")]],
+            body: tableBody,
+            theme: 'grid',
+            headStyles: { fillColor: [41, 128, 185] }
+        });
+
+        doc.save(`Products_Report_${date.replace(/\//g, '-')}.pdf`);
     };
 
     const selectStyles = {
@@ -373,6 +422,13 @@ const ProductsReports = () => {
                             <FaFileExcel size={18} />
                             {t("Excel")}
                         </button>
+                        {/* <button
+                            onClick={handlePrintPdf}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all shadow-sm font-bold"
+                        >
+                            <FaFilePdf size={18} />
+                            {t("PDF")}
+                        </button> */}
                         <button
                             onClick={handlePrint}
                             className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-sm font-bold"
@@ -566,6 +622,31 @@ const ProductsReports = () => {
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+
+                    {/* Compact Grand Totals Summary */}
+                    <div className="flex flex-wrap gap-4 items-center justify-end">
+                        <div className="flex items-center gap-3 px-4 py-2 bg-blue-50 border border-blue-100 rounded-lg shadow-sm">
+                            <div className="p-2 bg-blue-500/10 rounded-lg text-blue-600">
+                                <FaShoppingCart size={14} />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold text-blue-800 uppercase tracking-tight leading-none">{t("Total Items")}</p>
+                                <p className="text-lg font-black text-blue-900 leading-none mt-0.5">{grandTotalCount}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 px-4 py-2 bg-mainColor/5 border border-mainColor/10 rounded-lg shadow-sm">
+                            <div className="p-2 bg-mainColor/10 rounded-lg text-mainColor">
+                                <FaMoneyBillWave size={14} />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold text-mainColor/80 uppercase tracking-tight leading-none">{t("Total Value")}</p>
+                                <p className="text-lg font-black text-mainColor leading-none mt-0.5">
+                                    {grandTotalPrice.toFixed(2)} <span className="text-xs font-bold opacity-70">{t("EGP")}</span>
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Pagination Controls */}
