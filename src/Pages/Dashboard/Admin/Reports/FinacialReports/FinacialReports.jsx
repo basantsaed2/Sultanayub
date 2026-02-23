@@ -33,6 +33,7 @@ const FinacialReports = () => {
 
   // Extract full report data
   const reportData = response?.data || null;
+  const netProfit = reportData ? (reportData.total_amount || 0) + (reportData.total_discount || 0) : 0;
 
   useEffect(() => {
     refetchList();
@@ -316,8 +317,8 @@ const FinacialReports = () => {
 
             <div class="total-box">
                 <div class="total-label">${t('Net Profit')}</div>
-                <div class="${((reportData.total_amount || 0)) >= 0 ? "total-value-green" : "total-value-red"}">
-                    ${((reportData.total_amount || 0)).toFixed(2)} ${t('EGP')}
+                <div class="${netProfit >= 0 ? "total-value-green" : "total-value-red"}">
+                    ${netProfit.toFixed(2)} ${t('EGP')}
                 </div>
             </div>
             
@@ -365,7 +366,8 @@ const FinacialReports = () => {
       [t("Total Discount"), `${(reportData.total_discount || 0).toFixed(2)} ${t('EGP')}`],
       [t("Service Fees"), `${(reportData.service_fees || 0).toFixed(2)} ${t('EGP')}`],
       [t("Due Module"), `${(reportData.due_module || 0).toFixed(2)} ${t('EGP')}`],
-      [t("Due User"), `${(reportData.due_user || 0).toFixed(2)} ${t('EGP')}`]
+      [t("Due User"), `${(reportData.due_user || 0).toFixed(2)} ${t('EGP')}`],
+      [t("Net Profit"), `${netProfit.toFixed(2)} ${t('EGP')}`]
     ];
 
     autoTable(doc, {
@@ -465,6 +467,7 @@ const FinacialReports = () => {
       { A: t("Service Fees"), B: reportData.service_fees || 0 },
       { A: t("Due Module"), B: reportData.due_module || 0 },
       { A: t("Due User"), B: reportData.due_user || 0 },
+      { A: t("Net Profit"), B: netProfit },
       { A: "" },
 
       // Accounts
@@ -611,6 +614,10 @@ const FinacialReports = () => {
               <div className="p-6 border border-red-200 rounded-lg bg-red-50">
                 <h3 className="text-sm font-medium text-red-800">{t("Total Expenses")}</h3>
                 <p className="text-3xl font-bold text-red-900">{reportData.expenses_total} {t("EGP")}</p>
+              </div>
+              <div className={`p-6 border rounded-lg ${netProfit >= 0 ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                <h3 className={`text-sm font-medium ${netProfit >= 0 ? 'text-green-800' : 'text-red-800'}`}>{t("Net Profit")}</h3>
+                <p className={`text-3xl font-bold ${netProfit >= 0 ? 'text-green-900' : 'text-red-900'}`}>{netProfit.toFixed(2)} {t("EGP")}</p>
               </div>
               <div className="p-6 border border-orange-200 rounded-lg bg-orange-50">
                 <h3 className="text-sm font-medium text-orange-800">{t("Total Tax")}</h3>
