@@ -132,13 +132,38 @@ const ProductsReports = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentItems = flatProducts.slice(startIndex, startIndex + itemsPerPage);
 
-    const grandTotalCount = useMemo(() => flatProducts.reduce((sum, item) => sum + (parseInt(item.count) || 0), 0), [flatProducts]);
+    const grandTotalCount = useMemo(() => flatProducts.reduce((sum, item) => sum + (parseFloat(item.count) || 0), 0), [flatProducts]);
     const grandTotalPrice = useMemo(() => flatProducts.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0), [flatProducts]);
 
-    const handlePageChange = (page) => {
-        if (page >= 1 && page <= totalPages) {
-            setCurrentPage(page);
+    // Generate pagination numbers with ellipsis
+    const getPaginationNumbers = () => {
+        const delta = 2; // Number of pages to show on each side of current page
+        const range = [];
+        const rangeWithDots = [];
+
+        for (
+            let i = Math.max(2, currentPage - delta);
+            i <= Math.min(totalPages - 1, currentPage + delta);
+            i++
+        ) {
+            range.push(i);
         }
+
+        if (currentPage - delta > 2) {
+            rangeWithDots.push(1, '...');
+        } else {
+            rangeWithDots.push(1);
+        }
+
+        rangeWithDots.push(...range);
+
+        if (currentPage + delta < totalPages - 1) {
+            rangeWithDots.push('...', totalPages);
+        } else {
+            rangeWithDots.push(totalPages);
+        }
+
+        return rangeWithDots;
     };
 
     const handleApplyFilters = () => {
@@ -160,7 +185,7 @@ const ProductsReports = () => {
         // Reset URL to default (empty params)
         const defaultUrl = `${apiUrl}/admin/reports/product_report?sort=desc&locale=${selectedLanguage}`;
         setFetchUrl(defaultUrl);
-        setTimeout(() => refetch(), 50);
+        setTimeout(() => refetch(), 500);
     };
 
     const handlePrint = () => {
@@ -632,7 +657,7 @@ const ProductsReports = () => {
                             </div>
                             <div>
                                 <p className="text-[10px] font-bold text-blue-800 uppercase tracking-tight leading-none">{t("Total Items")}</p>
-                                <p className="text-lg font-black text-blue-900 leading-none mt-0.5">{grandTotalCount}</p>
+                                <p className="text-lg font-black text-blue-900 leading-none mt-0.5">{grandTotalCount.toFixed(2)}</p>
                             </div>
                         </div>
 
@@ -649,37 +674,57 @@ const ProductsReports = () => {
                         </div>
                     </div>
 
-                    {/* Pagination Controls */}
+                    {/* Professional Pagination - Compact View */}
                     {totalPages > 1 && (
-                        <div className="flex justify-center items-center gap-2 mt-4">
-                            <button
-                                onClick={() => handlePageChange(currentPage - 1)}
-                                disabled={currentPage === 1}
-                                className="px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            >
-                                {t("Previous")}
-                            </button>
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-4 py-3 bg-white border border-gray-100 rounded-xl shadow-sm">
+                            {/* Page Info */}
+                            <div className="text-sm text-gray-500 font-medium">
+                                {t("Showing")}{" "}
+                                <span className="text-gray-900">{startIndex + 1}</span>
+                                {" - "}
+                                <span className="text-gray-900">{Math.min(startIndex + itemsPerPage, flatProducts.length)}</span>
+                                {" / "}
+                                <span className="text-gray-900">{flatProducts.length}</span>
+                            </div>
 
-                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                            {/* Pagination Controls */}
+                            <div className="flex items-center gap-1.5">
                                 <button
-                                    key={page}
-                                    onClick={() => handlePageChange(page)}
-                                    className={`w-10 h-10 rounded-lg border transition-all font-medium ${currentPage === page
-                                        ? 'bg-mainColor text-white border-mainColor shadow-sm'
-                                        : 'border-gray-200 hover:bg-gray-50 text-gray-600'
-                                        }`}
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    className="flex items-center justify-center min-w-[36px] h-9 px-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-gray-600 hover:text-mainColor"
                                 >
-                                    {page}
+                                    <svg className="w-5 h-5 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                    </svg>
                                 </button>
-                            ))}
 
-                            <button
-                                onClick={() => handlePageChange(currentPage + 1)}
-                                disabled={currentPage === totalPages}
-                                className="px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            >
-                                {t("Next")}
-                            </button>
+                                {getPaginationNumbers().map((page, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => typeof page === 'number' && handlePageChange(page)}
+                                        disabled={page === '...'}
+                                        className={`min-w-[36px] h-9 px-2 rounded-lg border transition-all font-semibold text-sm ${currentPage === page
+                                            ? 'bg-mainColor text-white border-mainColor shadow-md scale-105'
+                                            : page === '...'
+                                                ? 'border-transparent text-gray-400 cursor-default'
+                                                : 'border-gray-200 hover:bg-gray-50 text-gray-600 hover:text-mainColor'
+                                            }`}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+
+                                <button
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                    className="flex items-center justify-center min-w-[36px] h-9 px-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-gray-600 hover:text-mainColor"
+                                >
+                                    <svg className="w-5 h-5 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>
