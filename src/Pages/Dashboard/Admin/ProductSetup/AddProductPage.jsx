@@ -757,6 +757,11 @@ const AddProductPage = () => {
   const handleproductAdd = (e) => {
     e.preventDefault();
 
+    if(!selectedCategoryId){
+      auth.toastError(t("Pleaseselectcategory"));
+      return;
+    }
+
     const formData = new FormData();
     formData.append("category_id", selectedCategoryId);
     formData.append("sub_category_id", selectedSubCategoryId);
