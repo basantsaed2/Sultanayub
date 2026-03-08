@@ -1488,6 +1488,14 @@ const resources = {
                "Please enter a role name.": "Please enter a role name.",
                "Please select at least one permission.": "Please select at least one permission.",
                "FeeStatus": "Fee Status",
+
+               "OrderKey": "Order Key",
+               "enterValidOrderKey": "Please enter a valid order key",
+               "orderKeyRequired": "Order key is required",
+               "order": "Order",
+               "Order Number": "Order Number",
+               "Order Index": "Order Index",
+               "Order Position": "Order Position",
                "Fee Amount": "Fee Amount",
 
 
@@ -2669,6 +2677,14 @@ const resources = {
                "Please enter a role name.": "يرجى إدخال اسم الصلاحية.",
                "Please select at least one permission.": "يرجى اختيار صلاحية واحدة على الأقل.",
                "FeeStatus": "حالة الرسوم",
+
+               "OrderKey": "مفتاح الترتيب",
+               "enterValidOrderKey": "يرجى إدخال مفتاح ترتيب صحيح",
+               "orderKeyRequired": "مفتاح الترتيب مطلوب",
+               "order": "ترتيب",
+               "Order Number": "رقم الترتيب",
+               "Order Index": "فهرس الترتيب",
+               "Order Position": "موضع الترتيب",
                "Fee Amount": "قيمة الرسوم",
                "No stopped products found": "لم يتم العثور على منتجات متوقفة"
                ,

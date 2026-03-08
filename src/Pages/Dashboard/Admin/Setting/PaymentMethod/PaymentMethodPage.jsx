@@ -99,9 +99,9 @@ const PaymentMethodPage = ({ refetch }) => {
     }
   }, [dataPaymentMethods]); // Only run this effect when `data` changes
 
-  // Updated headers to include Fee Amount column
-  const headers = ['#', t('Name'), t("Image"), t('Description'), t('Fee Amount'), t('Status'), t('Action')];
-
+  // Updated headers to include Fee Amount and Order Key column
+  const headers = ['#', t('Name'), t("Image"), t('Description'), t('OrderKey'), t('Fee Amount'), t('Status'), t('Action')];
+  
   return (
     <div className="flex items-start justify-start w-full overflow-x-scroll pb-28 scrollSection">
       {loadingPaymentMethods || loadingChange || loadingDelete ? (
@@ -144,6 +144,10 @@ const PaymentMethodPage = ({ refetch }) => {
                     </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {paymentMethod.description}
+                    </td>
+                    {/* Order Key Column */}
+                    <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                      {paymentMethod.order || "-"}
                     </td>
                     {/* Fee Amount Column */}
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">

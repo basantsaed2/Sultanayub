@@ -25,6 +25,7 @@ const EditPaymentMethodPage = () => {
   const [paymentMethodStatus, setPaymentMethodStatus] = useState(0);
   const [feeStatus, setFeeStatus] = useState(0);
   const [feeAmount, setFeeAmount] = useState('');
+  const [order, setOrder] = useState("");
 
   useEffect(() => {
     refetchPaymentMethod();
@@ -40,6 +41,7 @@ const EditPaymentMethodPage = () => {
       setPaymentMethodStatus(data?.status || 0)
       setFeeStatus(data?.feez_status || 0)
       setFeeAmount(data?.feez_amount?.toString() || '')
+      setOrder(data?.order?.toString() || "");
     }
   }, [dataPaymentMethod]);
 
@@ -101,6 +103,10 @@ const EditPaymentMethodPage = () => {
       auth.toastError(t('enterValidFeeAmount'))
       return;
     }
+    if (!order || isNaN(order)) {
+      auth.toastError(t("enterValidOrderNumber"));
+      return;
+    }
 
     const formData = new FormData();
 
@@ -110,6 +116,7 @@ const EditPaymentMethodPage = () => {
     formData.append('status', paymentMethodStatus);
     formData.append('feez_status', feeStatus);
     formData.append('feez_amount', feeAmount || 0);
+    formData.append('order', order);
 
     postData(formData, t('Payment Method Updated Success'));
   };
@@ -134,6 +141,17 @@ const EditPaymentMethodPage = () => {
                     value={paymentMethodName}
                     onChange={(e) => setPaymentMethodName(e.target.value)}
                     placeholder={t("paymentMethodName")}
+                  />
+                </div>
+                {/* Order Key Input */}
+                <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                    {t("OrderNumber")}:
+                  </span>
+                  <NumberInput
+                    value={order}
+                    onChange={(e) => setOrder(e.target.value)}
+                    placeholder={t("OrderNumber")}
                   />
                 </div>
                 <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">

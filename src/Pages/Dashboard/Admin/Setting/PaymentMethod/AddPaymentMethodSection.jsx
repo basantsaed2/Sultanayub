@@ -29,6 +29,7 @@ const AddPaymentMethodSection = ({ update, setUpdate }) => {
   const [paymentMethodStatus, setPaymentMethodStatus] = useState(0);
   const [feeStatus, setFeeStatus] = useState(0);
   const [feeAmount, setFeeAmount] = useState("");
+  const [order, setOrder] = useState("");
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -78,6 +79,7 @@ const AddPaymentMethodSection = ({ update, setUpdate }) => {
     setPaymentMethodStatus(0);
     setFeeStatus(0);
     setFeeAmount("");
+    setOrder("");
   };
 
   const handlePaymentMethodAdd = (e) => {
@@ -99,6 +101,10 @@ const AddPaymentMethodSection = ({ update, setUpdate }) => {
       auth.toastError(t("enterValidFeeAmount"));
       return;
     }
+    if (!order || isNaN(order)) {
+      auth.toastError(t("enterValidOrderNumber"));
+      return;
+    }
 
     const formData = new FormData();
 
@@ -108,6 +114,7 @@ const AddPaymentMethodSection = ({ update, setUpdate }) => {
     formData.append("status", paymentMethodStatus);
     formData.append("feez_status", feeStatus);
     formData.append("feez_amount", feeAmount || 0);
+    formData.append("order", order);
 
     postData(formData, "Payment Method Added Success");
   };
@@ -134,6 +141,17 @@ const AddPaymentMethodSection = ({ update, setUpdate }) => {
                     value={paymentMethodName}
                     onChange={(e) => setPaymentMethodName(e.target.value)}
                     placeholder={t("paymentMethodName")}
+                  />
+                </div>
+                {/* Order Key Input */}
+                <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                    {t("OrderNumber")}:
+                  </span>
+                  <NumberInput
+                    value={order}
+                    onChange={(e) => setOrder(e.target.value)}
+                    placeholder={t("OrderNumber")}
                   />
                 </div>
                 <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
