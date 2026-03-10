@@ -21,6 +21,8 @@ import {
 } from "react-icons/io5";
 import { useGet } from "../../../../../Hooks/useGet";
 import Select from "react-select";
+import * as XLSX from 'xlsx';
+import { IoFileTrayFull } from "react-icons/io5";
 
 const ExpensesPayment = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -383,6 +385,29 @@ const ExpensesPayment = () => {
     printWindow.document.close();
   };
 
+  const handleExportToExcel = () => {
+    if (expenses.length === 0) return;
+
+    const dataToExport = expenses.map((exp) => ({
+      [t("ID")]: exp.id,
+      [t("Expense")]: exp.expense,
+      [t("Category")]: exp.category?.name || "-",
+      [t("Amount")]: exp.amount,
+      [t("Branch")]: exp.branch?.name || "-",
+      [t("Cashier")]: exp.cashier?.name || "-",
+      [t("Cashier Man")]: exp.cahier_man?.user_name || "-",
+      [t("Financial Account")]: exp.financial_account?.name || "-",
+      [t("Admin")]: exp.admin?.name || "-",
+      [t("Note")]: exp.note || "-",
+      [t("Created At")]: new Date(exp.created_at).toLocaleString(),
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, t("Expenses"));
+    XLSX.writeFile(workbook, `Expenses_Report_${new Date().toLocaleDateString()}.xlsx`);
+  };
+
   return (
     <>
       {/* Header */}
@@ -403,6 +428,14 @@ const ExpensesPayment = () => {
           >
             <IoCash size={22} />
             <span className="text-lg font-bold">{t("Pay")}</span>
+          </button>
+          <button
+            onClick={handleExportToExcel}
+            className="flex items-center gap-3 px-6 py-2.5 text-white bg-gradient-to-r from-green-600 to-green-700 rounded-full hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:scale-95"
+            title={t("Export to Excel")}
+          >
+            <IoFileTrayFull size={22} />
+            <span className="text-lg font-bold">{t("Excel")}</span>
           </button>
           <button
             onClick={() => handlePrint("all", expenses)}
@@ -690,99 +723,99 @@ const ExpensesPayment = () => {
 
       {/* EDIT MODAL */}
       {showEditModal && selectedExpense && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 no-print">
-            <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between p-5 border-b">
-                <h3 className="text-2xl font-bold text-mainColor">
-                  {t("EditExpense")}
-                </h3>
-                <button
-                  onClick={() => setShowEditModal(false)}
-                  className="text-3xl"
-                >
-                  ×
-                </button>
-              </div>
-              <form onSubmit={handleUpdate} className="p-6 space-y-6">
-                <div className="grid gap-5 md:grid-cols-2">
-                  <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      {t("ExpenseName")} *
-                    </label>
-                    <TextInput
-                      value={editExpenseName}
-                      onChange={(e) => setEditExpenseName(e.target.value)}
-                      placeholder={t("Enter expense name")}
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      {t("Category")} *
-                    </label>
-                    <Select
-                      options={categoryOptions}
-                      value={categoryOptions.find(
-                        (o) => o.value === editCategoryId
-                      )}
-                      onChange={(o) => setEditCategoryId(o?.value || "")}
-                      styles={customStyles}
-                      isSearchable
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      {t("Financial Account")} *
-                    </label>
-                    <Select
-                      options={financialOptions}
-                      value={financialOptions.find(
-                        (o) => o.value === editFinancialAccountId
-                      )}
-                      onChange={(o) => setEditFinancialAccountId(o?.value || "")}
-                      styles={customStyles}
-                      isSearchable
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      {t("Amount")} *
-                    </label>
-                    <TextInput
-                      type="number"
-                      value={editAmount}
-                      onChange={(e) => setEditAmount(e.target.value)}
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                      {t("Note")}
-                    </label>
-                    <textarea
-                      value={editNote}
-                      onChange={(e) => setEditNote(e.target.value)}
-                      rows={3}
-                      className="w-full p-3 border-2 border-gray-300 rounded-lg outline-none focus:border-mainColor"
-                      placeholder={t("Optionalnote")}
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end gap-4 pt-4 border-t">
-                  <StaticButton
-                    text={t("Cancel")}
-                    handleClick={() => setShowEditModal(false)}
-                    bgColor="bg-gray-300"
-                    Color="text-gray-700"
-                  />
-                  <SubmitButton
-                    text={t("UpdateExpense")}
-                    loading={loadingUpdate}
-                  />
-                </div>
-              </form>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 no-print">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-5 border-b">
+              <h3 className="text-2xl font-bold text-mainColor">
+                {t("EditExpense")}
+              </h3>
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="text-3xl"
+              >
+                ×
+              </button>
             </div>
+            <form onSubmit={handleUpdate} className="p-6 space-y-6">
+              <div className="grid gap-5 md:grid-cols-2">
+                <div>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                    {t("ExpenseName")} *
+                  </label>
+                  <TextInput
+                    value={editExpenseName}
+                    onChange={(e) => setEditExpenseName(e.target.value)}
+                    placeholder={t("Enter expense name")}
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                    {t("Category")} *
+                  </label>
+                  <Select
+                    options={categoryOptions}
+                    value={categoryOptions.find(
+                      (o) => o.value === editCategoryId
+                    )}
+                    onChange={(o) => setEditCategoryId(o?.value || "")}
+                    styles={customStyles}
+                    isSearchable
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                    {t("Financial Account")} *
+                  </label>
+                  <Select
+                    options={financialOptions}
+                    value={financialOptions.find(
+                      (o) => o.value === editFinancialAccountId
+                    )}
+                    onChange={(o) => setEditFinancialAccountId(o?.value || "")}
+                    styles={customStyles}
+                    isSearchable
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                    {t("Amount")} *
+                  </label>
+                  <TextInput
+                    type="number"
+                    value={editAmount}
+                    onChange={(e) => setEditAmount(e.target.value)}
+                    placeholder="0.00"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
+                    {t("Note")}
+                  </label>
+                  <textarea
+                    value={editNote}
+                    onChange={(e) => setEditNote(e.target.value)}
+                    rows={3}
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg outline-none focus:border-mainColor"
+                    placeholder={t("Optionalnote")}
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-4 pt-4 border-t">
+                <StaticButton
+                  text={t("Cancel")}
+                  handleClick={() => setShowEditModal(false)}
+                  bgColor="bg-gray-300"
+                  Color="text-gray-700"
+                />
+                <SubmitButton
+                  text={t("UpdateExpense")}
+                  loading={loadingUpdate}
+                />
+              </div>
+            </form>
           </div>
-        )
+        </div>
+      )
       }
 
       {/* DETAILS MODAL */}
