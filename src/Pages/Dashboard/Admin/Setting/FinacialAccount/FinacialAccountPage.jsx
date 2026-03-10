@@ -40,6 +40,9 @@ const FinancialAccountPage = ({ refetch }) => {
     url: `${apiUrl}/${financialAccountUrl}/financial_transfer/transfer`,
   });
 
+  const [editingOrderId, setEditingOrderId] = useState(null);
+  const [tempOrder, setTempOrder] = useState("");
+
   const [currentPage, setCurrentPage] = useState(1);
   const financialAccountsPerPage = 20;
 
@@ -76,6 +79,23 @@ const FinancialAccountPage = ({ refetch }) => {
         )
       );
     }
+  };
+
+  const handleChangeOrder = async (id, name, newOrder) => {
+    const orderUrl = role === "branch" ? `branch/financial/order/${id}` : `admin/settings/financial/order/${id}`;
+    const response = await changeState(
+      `${apiUrl}/${orderUrl}`,
+      `${name} Order Changed Success`,
+      { order: newOrder }
+    );
+    if (response) {
+      setFinancialAccounts((prev) =>
+        prev.map((account) =>
+          account.id === id ? { ...account, order: newOrder } : account
+        )
+      );
+    }
+    setEditingOrderId(null);
   };
 
   const handleOpenDelete = (id) => {
@@ -138,6 +158,7 @@ const FinancialAccountPage = ({ refetch }) => {
     t('Image'),
     t('Balance'),
     t('Description'),
+    t('OrderNumber'),
     t('Discount'),
     t('Main'),
     t('Status'),
@@ -264,6 +285,40 @@ const FinancialAccountPage = ({ refetch }) => {
                     </td>
                     <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {financialAccount.details}
+                    </td>
+                    <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                      {editingOrderId === financialAccount.id ? (
+                        <div className="flex items-center justify-center gap-1">
+                          <input
+                            type="number"
+                            className="w-16 p-1 text-center border rounded-md focus:outline-none focus:ring-1 focus:ring-mainColor"
+                            value={tempOrder}
+                            onChange={(e) => setTempOrder(e.target.value)}
+                            autoFocus
+                          />
+                          <button
+                            type="button"
+                            className="text-xs px-2 py-1 bg-mainColor text-white rounded-md"
+                            onClick={() => handleChangeOrder(financialAccount.id, financialAccount.name, tempOrder)}
+                          >
+                            {t("Save")}
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center gap-2">
+                          <span>{financialAccount.order || "-"}</span>
+                          <button
+                            type="button"
+                            className="text-xs text-mainColor font-TextFontMedium underline"
+                            onClick={() => {
+                              setEditingOrderId(financialAccount.id);
+                              setTempOrder(financialAccount.order || "");
+                            }}
+                          >
+                            {t("Change")}
+                          </button>
+                        </div>
+                      )}
                     </td>
                     <td className="min-w-[120px] sm:min-w-[80px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                       {financialAccount.discount === 1 ? t('Active') : t('Inactive')}

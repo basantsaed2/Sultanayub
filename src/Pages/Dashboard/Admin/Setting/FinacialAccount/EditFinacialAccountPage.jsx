@@ -51,6 +51,7 @@ const EditFinacialAccountPage = () => {
   const [selectedBranch, setSelectedBranch] = useState(null); // State for selected branch
   const [openMenu, setOpenMenu] = useState(false); // State for dropdown open/close
   const [main, setMain] = useState(0);
+  const [order, setOrder] = useState("");
 
   useEffect(() => {
     refetchBranches();
@@ -75,6 +76,7 @@ const EditFinacialAccountPage = () => {
       setVisaStatus(data?.description_status || 0)
       setDiscount(data?.discount || 0)
       setMain(data?.main || 0)
+      setOrder(data?.order || "")
       setSelectedBranch(data?.branch)
     }
   }, [dataFinancialAccount]);
@@ -127,6 +129,7 @@ const EditFinacialAccountPage = () => {
     setMain(0);
     setSelectedBranch(null);
     setOpenMenu(false);
+    setOrder("");
   };
 
   const handlefinancialAccountAdd = (e) => {
@@ -144,12 +147,12 @@ const EditFinacialAccountPage = () => {
       toastError(t("enterfinancialAccountBalance"));
       return;
     }
-    // if (!imageFile) {
-    //   toastError(t("setfinancialAccountImage"));
-    //   return;
-    // }
     if (!selectedBranch) {
       toastError(t("selectBranch")); // Add new translation key for branch validation
+      return;
+    }
+    if (!order || isNaN(order)) {
+      toastError(t("enterValidOrderNumber"));
       return;
     }
 
@@ -164,6 +167,7 @@ const EditFinacialAccountPage = () => {
     formData.append("discount", discount);
     formData.append("description_status", visaStatus);
     formData.append("main", main);
+    formData.append("order", order);
     if (role === 'admin') {
       selectedBranch.forEach((branch, index) => {
         formData.append(`branch_id[${index}]`, branch.id); // Append each ID as an array element in FormData
@@ -247,6 +251,16 @@ const EditFinacialAccountPage = () => {
                     value={balance}
                     onChange={(e) => setBalance(e.target.value)}
                     placeholder={t("Balance")} // Fixed placeholder
+                  />
+                </div>
+                <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                    {t("OrderNumber")}:
+                  </span>
+                  <NumberInput
+                    value={order}
+                    onChange={(e) => setOrder(e.target.value)}
+                    placeholder={t("OrderNumber")}
                   />
                 </div>
                 <div className="w-full flex flex-col items-start justify-center gap-y-1">
