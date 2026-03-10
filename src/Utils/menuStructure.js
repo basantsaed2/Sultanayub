@@ -388,6 +388,7 @@ export const adminRoutes = [
             { name: "Product Reports", path: "/dashboard/reports/product_reports" },
             { name: "Dine Reports", path: "/dashboard/reports/dine_reports" },
             { name: "Invoices Reports", path: "/dashboard/reports/invoices_reports" },
+            { name: "Products Movements", path: "/dashboard/reports/products_movements" },
             { name: "Hall Reports", path: "/dashboard/reports/hall_reports" },
             { name: "Cashier Shortage", path: "/dashboard/reports/cashier_shortage" },
             { name: "End Shifts", path: "/dashboard/reports/end_shifts" },

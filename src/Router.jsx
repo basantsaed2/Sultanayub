@@ -237,6 +237,7 @@ import EditVariationRecipe from "./Pages/Dashboard/Admin/ProductSetup/VariationR
 import RealTimeSalesReports from "./Pages/Dashboard/Admin/Reports/SalesReport/RealTimeSalesReports";
 import PricingProduct from "./Pages/Dashboard/Admin/PricingProduct/PricingProduct";
 import ProductsReports from "./Pages/Dashboard/Admin/Reports/ProductsReports/ProductsReports";
+import ProductsMovements from "./Pages/Dashboard/Admin/Reports/ProductsMovements/ProductsMovements";
 import DineReports from "./Pages/Dashboard/Admin/Reports/DineReports/DineReports";
 import CashierShortage from "./Pages/Dashboard/Admin/Reports/CashierShortage/CashierShortage";
 import PrinterModule from "./Pages/Dashboard/Admin/Setting/Branches/KitchenType/PrinterModule/PrinterModule";
@@ -1946,6 +1947,10 @@ export const router = createBrowserRouter([
               {
                 path: "product_reports",
                 element: <ProductsReports />,
+              },
+              {
+                path: "products_movements",
+                element: <ProductsMovements />,
               },
               {
                 path: "dine_reports",
