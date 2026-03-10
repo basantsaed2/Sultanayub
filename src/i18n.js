@@ -2792,7 +2792,7 @@ const resources = {
                "Weight Status": "حالة الوزن",
                "Group Extra Names": "أسماء الإضافات للمجموعة",
                "Select Group": "اختر المجموعة",
-               "Recipes": "الوصفات",
+               "Recipes": "Recipes",
                "Search by Product Name": "البحث باسم المنتج",
                "View Recipes": "عرض الوصفات",
                "Favorite POS": "نقاط البيع المفضلة",
@@ -4004,7 +4004,7 @@ const resources = {
                "Stock": "المخزون",
                "Stock Man": "أمين المخزن",
                "Stock Transfer": "نقل المخزون",
-               "Recipe": "المقادير",
+               "Recipe": "Recipe",
 
                "street": "الشارع",
                "landmark": "العلامة المميزة",
