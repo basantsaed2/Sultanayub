@@ -421,7 +421,7 @@ const ExpensesPayment = () => {
           </button>
           <TitlePage text={t("Pay Expenses")} />
         </div>
-        <div className="flex flex-row items-center gap-2 mt-2">
+        <div className="flex flex-wrap flex-row items-center gap-2 mt-2">
           <button
             onClick={openAddModal}
             className="flex items-center gap-3 px-6 py-2.5 text-white bg-gradient-to-r from-red-600 to-red-700 rounded-full hover:from-red-700 hover:to-red-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:scale-95"
