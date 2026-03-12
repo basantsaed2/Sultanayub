@@ -3,12 +3,17 @@ import { AddCategorySection, CategoryPage } from '../../../Pages/Pages'
 import { TitlePage, TitleSection } from '../../../Components/Components'
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../Context/Auth';
+import BranchCategoryPage from '../../../DashboardBranches/BranchCategoryPage';
 
 const CategoryLayout = () => {
   const [update, setUpdate] = useState(false)
   const { t, i18n } = useTranslation();
   const auth = useAuth();
   const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
+
+  if (role === "branch") {
+    return <BranchCategoryPage />;
+  }
 
   return (
     <>
