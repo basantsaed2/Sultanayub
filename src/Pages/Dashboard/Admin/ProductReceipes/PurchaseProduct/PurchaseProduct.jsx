@@ -12,7 +12,7 @@ import { useChangeState } from "../../../../../Hooks/useChangeState";
 import { useDelete } from "../../../../../Hooks/useDelete";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../../Assets/Icons/AnotherIcons/WarningIcon";
-import { t } from "i18next";
+import i18n, { t } from "i18next";
 import { useNavigate } from "react-router-dom";
 import { LuView } from "react-icons/lu";
 
@@ -275,7 +275,10 @@ const PurchaseProduct = () => {
                                                         <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
                                                         <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                                                             <div className="flex items-center justify-center min-h-full p-4 text-center">
-                                                                <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-2xl shadow-xl w-full max-w-4xl p-6">
+                                                                <DialogPanel
+                                                                    dir={i18n.language === "ar" ? "rtl" : "ltr"}
+                                                                    className="relative overflow-hidden text-start transition-all transform bg-white rounded-2xl shadow-xl w-full max-w-4xl p-6"
+                                                                >
                                                                     <div className="flex justify-between items-center mb-6">
                                                                         <h2 className="text-2xl font-bold text-mainColor">{t("Product Details")}</h2>
                                                                         <button onClick={handleCloseView} className="text-gray-400 hover:text-gray-600">
@@ -303,10 +306,10 @@ const PurchaseProduct = () => {
                                                                             <table className="min-w-full divide-y divide-gray-200 border rounded-xl overflow-hidden">
                                                                                 <thead className="bg-gray-50">
                                                                                     <tr>
-                                                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Store")}</th>
-                                                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Unit")}</th>
-                                                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Start Stock")}</th>
-                                                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Cost")}</th>
+                                                                                        <th className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Store")}</th>
+                                                                                        <th className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Unit")}</th>
+                                                                                        <th className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Start Stock")}</th>
+                                                                                        <th className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Cost")}</th>
                                                                                     </tr>
                                                                                 </thead>
                                                                                 <tbody className="bg-white divide-y divide-gray-200">
