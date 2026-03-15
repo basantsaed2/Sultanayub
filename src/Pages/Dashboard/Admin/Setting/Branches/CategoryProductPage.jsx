@@ -147,7 +147,7 @@ const CategoryProductPage = ({ refetch }) => {
                           to={`/dashboard/branches/branch_category/${branchId}/product_variation/${product.id}`}
                           className="text-xl border-b-2 cursor-pointer text-mainColor border-mainColor font-TextFontSemiBold"
                         >
-                                                    {t("View")}
+                          {t("View")}
 
                         </Link>
                       </td>
@@ -185,11 +185,10 @@ const CategoryProductPage = ({ refetch }) => {
                   <button
                     key={page}
                     onClick={() => handlePageChange(page)}
-                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${
-                      currentPage === page
+                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
                         ? "bg-mainColor text-white"
                         : " text-mainColor"
-                    }`}
+                      }`}
                   >
                     {page}
                   </button>
