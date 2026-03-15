@@ -13,6 +13,7 @@ import { useDelete } from "../../../../../Hooks/useDelete";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Warning from "../../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { t } from "i18next";
+import { LuView } from "react-icons/lu";
 
 const MaterialList = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -28,6 +29,7 @@ const MaterialList = () => {
 
   const [MaterialProducts, setMaterialProducts] = useState([]);
   const [openDelete, setOpenDelete] = useState(null);
+  const [openView, setOpenView] = useState(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const MaterialProductsPerPage = 20;
@@ -81,6 +83,14 @@ const MaterialList = () => {
 
   const handleCloseDelete = () => {
     setOpenDelete(null);
+  };
+
+  const handleOpenView = (item) => {
+    setOpenView(item);
+  };
+
+  const handleCloseView = () => {
+    setOpenView(null);
   };
 
   // Delete MaterialProduct
@@ -176,6 +186,14 @@ const MaterialList = () => {
                     </td>
                     <td className="px-4 py-3 text-center">
                       <div className="flex items-center justify-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenView(MaterialProduct)}
+                          title={t("View")}
+                          className="text-mainColor"
+                        >
+                          <LuView />
+                        </button>
                         <Link to={`edit/${MaterialProduct.id}`}>
                           <EditIcon />
                         </Link>
@@ -235,6 +253,83 @@ const MaterialList = () => {
                             </div>
                           </Dialog>
                         )}
+
+                        {openView && openView.id === MaterialProduct.id && (
+                          <Dialog
+                            open={true}
+                            onClose={handleCloseView}
+                            className="relative z-10"
+                          >
+                            <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                            <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                              <div className="flex items-center justify-center min-h-full p-4 text-center">
+                                <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-2xl shadow-xl w-full max-w-4xl p-6">
+                                  <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-2xl font-bold text-mainColor">{t("Product Details")}</h2>
+                                    <button onClick={handleCloseView} className="text-gray-400 hover:text-gray-600">
+                                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                      </svg>
+                                    </button>
+                                  </div>
+
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                    <div className="space-y-2">
+                                      <p className="text-lg"><span className="font-bold text-gray-700">{t("Name")}:</span> {openView.name}</p>
+                                      <p className="text-lg"><span className="font-bold text-gray-700">{t("Category")}:</span> {openView.category}</p>
+                                      <p className="text-lg"><span className="font-bold text-gray-700">{t("Min Stock")}:</span> {openView.min_stock}</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <p className="text-lg"><span className="font-bold text-gray-700">{t("Description")}:</span> {openView.description || "-"}</p>
+                                      <p className="text-lg"><span className="font-bold text-gray-700">{t("Status")}:</span> {openView.status === 1 ? t("Active") : t("Inactive")}</p>
+                                    </div>
+                                  </div>
+
+                                  <div className="mt-6">
+                                    <h3 className="text-xl font-bold text-thirdColor mb-4">{t("Store-wise Stock & Cost")}</h3>
+                                    <div className="overflow-x-auto">
+                                      <table className="min-w-full divide-y divide-gray-200 border rounded-xl overflow-hidden">
+                                        <thead className="bg-gray-50">
+                                          <tr>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Store")}</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Unit")}</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Start Stock")}</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Cost")}</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-gray-200">
+                                          {openView.start_stock && openView.start_stock.length > 0 ? (
+                                            openView.start_stock.map((store, i) => (
+                                              <tr key={i}>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{store.store}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{store.unit}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{store.start_stock}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{store.cost} {t("egp")}</td>
+                                              </tr>
+                                            ))
+                                          ) : (
+                                            <tr>
+                                              <td colSpan="4" className="px-6 py-4 text-center text-gray-500">{t("No store data available")}</td>
+                                            </tr>
+                                          )}
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  </div>
+
+                                  <div className="mt-8 flex justify-end">
+                                    <button
+                                      onClick={handleCloseView}
+                                      className="px-6 py-2 bg-mainColor text-white rounded-lg hover:bg-mainColor/90 transition"
+                                    >
+                                      {t("Close")}
+                                    </button>
+                                  </div>
+                                </DialogPanel>
+                              </div>
+                            </div>
+                          </Dialog>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -259,11 +354,10 @@ const MaterialList = () => {
                   <button
                     key={page}
                     onClick={() => handlePageChange(page)}
-                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${
-                      currentPage === page
-                        ? "bg-mainColor text-white"
-                        : " text-mainColor"
-                    }`}
+                    className={`px-4 py-2 mx-1 text-lg font-TextFontSemiBold rounded-full duration-300 ${currentPage === page
+                      ? "bg-mainColor text-white"
+                      : " text-mainColor"
+                      }`}
                   >
                     {page}
                   </button>

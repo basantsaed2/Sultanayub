@@ -14,13 +14,20 @@ import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import { useGet } from "../../../../../Hooks/useGet";
 import Select from 'react-select';
+import { FiPlus, FiTrash2 } from "react-icons/fi";
 
 const AddPurchaseProduct = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const { refetch: refetchList, loading: loadingList, data: dataList } = useGet({ url: `${apiUrl}/admin/purchase_product`, });
     const { postData, loadingPost, response } = usePost({
         url: `${apiUrl}/admin/purchase_product/add`,
+        type: true, // Use JSON
     });
+
+    const {
+        data: dataLists,
+        loading: loadingLists,
+    } = useGet({ url: `${apiUrl}/admin/material_product/lists` });
     const { t } = useTranslation();
     const auth = useAuth();
     const navigate = useNavigate();
@@ -31,6 +38,11 @@ const AddPurchaseProduct = () => {
     const [description, setDescription] = useState("");
     const [minStock, setMinStock] = useState("");
     const [status, setStatus] = useState(1);
+    const [storeOptions, setStoreOptions] = useState([]);
+    const [unitOptions, setUnitOptions] = useState([]);
+    const [productStores, setProductStores] = useState([
+        { start_stock: "", cost: "", unit_id: "", store_id: "" },
+    ]);
 
     useEffect(() => {
         refetchList();
@@ -38,14 +50,24 @@ const AddPurchaseProduct = () => {
 
     useEffect(() => {
         if (dataList && dataList.categories) {
-            // Format categories for react-select
             const options = dataList.categories.map(category => ({
-                value: category.id, // category_id
+                value: category.id,
                 label: category.name
             }));
             setCategoryOptions(options);
         }
     }, [dataList]);
+
+    useEffect(() => {
+        if (dataLists) {
+            if (dataLists.stores) {
+                setStoreOptions(dataLists.stores.map(s => ({ value: s.id, label: s.name })));
+            }
+            if (dataLists.units) {
+                setUnitOptions(dataLists.units.map(u => ({ value: u.id, label: u.name })));
+            }
+        }
+    }, [dataLists]);
 
     // Navigate back after successful submission
     useEffect(() => {
@@ -66,6 +88,25 @@ const AddPurchaseProduct = () => {
         setStatus(1);
         setDescription("");
         setMinStock("");
+        setProductStores([{ start_stock: "", cost: "", unit_id: "", store_id: "" }]);
+    };
+
+    const handleAddStore = () => {
+        setProductStores([
+            ...productStores,
+            { start_stock: "", cost: "", unit_id: "", store_id: "" },
+        ]);
+    };
+
+    const handleRemoveStore = (index) => {
+        const updated = productStores.filter((_, i) => i !== index);
+        setProductStores(updated);
+    };
+
+    const handleStoreChange = (index, field, value) => {
+        const updated = [...productStores];
+        updated[index][field] = value;
+        setProductStores(updated);
     };
 
     // Handle form submission
@@ -82,14 +123,28 @@ const AddPurchaseProduct = () => {
             return;
         }
 
-        const formData = new FormData();
-        formData.append("category_id", selectedCategory.value); // category_id from select
-        formData.append("name", name);
-        formData.append("description", description);
-        formData.append("min_stock", minStock);
-        formData.append("status", status);
+        // Basic validation for stores
+        for (const store of productStores) {
+            if (!store.store_id || !store.unit_id || !store.start_stock || !store.cost) {
+                auth.toastError(t("Please fill all store details"));
+                return;
+            }
+        }
 
-        postData(formData, t("Recipe Product Added Success"));
+        const payload = {
+            category_id: selectedCategory.value,
+            name,
+            description,
+            min_stock: minStock,
+            status,
+            product_store: productStores.map(s => ({
+                ...s,
+                start_stock: Number(s.start_stock),
+                cost: Number(s.cost)
+            }))
+        };
+
+        postData(payload, t("Recipe Product Added Success"));
     };
 
     // Handle back navigation
@@ -208,6 +263,79 @@ const AddPurchaseProduct = () => {
                                     </span>
                                     <Switch handleClick={handleStatus} checked={status} />
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* Product Stores Section */}
+                        <div className="mt-8">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-2xl font-bold text-mainColor">{t("Product Stores")}</h3>
+                                <button
+                                    type="button"
+                                    onClick={handleAddStore}
+                                    className="flex items-center gap-2 px-4 py-2 bg-mainColor text-white rounded-lg hover:bg-mainColor/90 transition"
+                                >
+                                    <FiPlus /> {t("Add Store")}
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                {productStores.map((store, index) => (
+                                    <div key={index} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 relative">
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-sm font-medium text-gray-700">{t("Store")}</span>
+                                            <Select
+                                                options={storeOptions}
+                                                value={storeOptions.find(o => o.value === store.store_id)}
+                                                onChange={(val) => handleStoreChange(index, "store_id", val.value)}
+                                                placeholder={t("Select Store")}
+                                                styles={customStyles}
+                                                isLoading={loadingLists}
+                                            />
+                                        </div>
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-sm font-medium text-gray-700">{t("Unit")}</span>
+                                            <Select
+                                                options={unitOptions}
+                                                value={unitOptions.find(o => o.value === store.unit_id)}
+                                                onChange={(val) => handleStoreChange(index, "unit_id", val.value)}
+                                                placeholder={t("Select Unit")}
+                                                styles={customStyles}
+                                                isLoading={loadingLists}
+                                            />
+                                        </div>
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-sm font-medium text-gray-700">{t("Start Stock")}</span>
+                                            <TextInput
+                                                value={store.start_stock}
+                                                onChange={(e) => handleStoreChange(index, "start_stock", e.target.value)}
+                                                placeholder={t("0")}
+                                                type="number"
+                                            />
+                                        </div>
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-sm font-medium text-gray-700">{t("Cost")}</span>
+                                            <TextInput
+                                                value={store.cost}
+                                                onChange={(e) => handleStoreChange(index, "cost", e.target.value)}
+                                                placeholder={t("0.00")}
+                                                type="number"
+                                            />
+                                        </div>
+                                        <div className="flex items-end justify-center pb-2">
+                                            {productStores.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleRemoveStore(index)}
+                                                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
+                                                    title={t("Remove Store")}
+                                                >
+                                                    <FiTrash2 size={20} />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
 

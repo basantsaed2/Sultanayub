@@ -14,6 +14,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import { useGet } from "../../../../../Hooks/useGet";
 import Select from "react-select";
+import { FiPlus, FiTrash2 } from "react-icons/fi";
 
 const EditMaterialList = () => {
   const { materialId } = useParams();
@@ -37,7 +38,13 @@ const EditMaterialList = () => {
 
   const { postData, loadingPost, response } = usePost({
     url: `${apiUrl}/admin/material_product/update/${materialId}`,
+    type: true, // Use JSON
   });
+
+  const {
+    data: dataLists,
+    loading: loadingLists,
+  } = useGet({ url: `${apiUrl}/admin/material_product/lists` });
 
   const { t } = useTranslation();
   const auth = useAuth();
@@ -50,6 +57,11 @@ const EditMaterialList = () => {
   const [description, setDescription] = useState("");
   const [minStock, setMinStock] = useState("");
   const [status, setStatus] = useState(1);
+  const [storeOptions, setStoreOptions] = useState([]);
+  const [unitOptions, setUnitOptions] = useState([]);
+  const [materialStores, setMaterialStores] = useState([
+    { start_stock: "", cost: "", unit_id: "", store_id: "" },
+  ]);
 
   // Set form fields when product data is available
   useEffect(() => {
@@ -73,6 +85,16 @@ const EditMaterialList = () => {
           });
         }
       }
+
+      // Set material stores
+      if (product.matrial_store && product.matrial_store.length > 0) {
+        setMaterialStores(product.matrial_store.map(s => ({
+          start_stock: s.start_stock || "",
+          cost: s.cost || "",
+          unit_id: s.unit_id || "",
+          store_id: s.store_id || ""
+        })));
+      }
     }
   }, [dataMaterialProduct, categories]);
 
@@ -87,6 +109,17 @@ const EditMaterialList = () => {
       setCategoryOptions(options);
     }
   }, [dataList]);
+
+  useEffect(() => {
+    if (dataLists) {
+      if (dataLists.stores) {
+        setStoreOptions(dataLists.stores.map(s => ({ value: s.id, label: s.name })));
+      }
+      if (dataLists.units) {
+        setUnitOptions(dataLists.units.map(u => ({ value: u.id, label: u.name })));
+      }
+    }
+  }, [dataLists]);
 
   useEffect(() => {
     refetchList();
@@ -107,11 +140,13 @@ const EditMaterialList = () => {
 
   // Reset form to original values
   const handleReset = () => {
-    if (dataMaterialProduct && dataMaterialProduct.product) {
-      const product = dataMaterialProduct.product;
+    if (dataMaterialProduct && dataMaterialProduct.material) {
+      const product = dataMaterialProduct.material;
 
       setName(product.name || "");
+      setDescription(product.description || "");
       setStatus(product.status || 1);
+      setMinStock(product.min_stock || "");
 
       // Reset selected category
       if (product.category_id && categories.length > 0) {
@@ -125,7 +160,35 @@ const EditMaterialList = () => {
           });
         }
       }
+
+      // Reset stores
+      if (product.matrial_store && product.matrial_store.length > 0) {
+        setMaterialStores(product.matrial_store.map(s => ({
+          start_stock: s.start_stock || "",
+          cost: s.cost || "",
+          unit_id: s.unit_id || "",
+          store_id: s.store_id || ""
+        })));
+      }
     }
+  };
+
+  const handleAddStore = () => {
+    setMaterialStores([
+      ...materialStores,
+      { start_stock: "", cost: "", unit_id: "", store_id: "" },
+    ]);
+  };
+
+  const handleRemoveStore = (index) => {
+    const updated = materialStores.filter((_, i) => i !== index);
+    setMaterialStores(updated);
+  };
+
+  const handleStoreChange = (index, field, value) => {
+    const updated = [...materialStores];
+    updated[index][field] = value;
+    setMaterialStores(updated);
   };
 
   // Handle form submission
@@ -142,14 +205,28 @@ const EditMaterialList = () => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("category_id", selectedCategory.value);
-    formData.append("name", name);
-    formData.append("description", description);
-    formData.append("min_stock", minStock);
-    formData.append("status", status);
+    // Basic validation for stores
+    for (const store of materialStores) {
+      if (!store.store_id || !store.unit_id || !store.start_stock || !store.cost) {
+        auth.toastError(t("Please fill all store details"));
+        return;
+      }
+    }
 
-    postData(formData, t("Material Product Updated Success"));
+    const payload = {
+      category_id: selectedCategory.value,
+      name,
+      description,
+      min_stock: minStock,
+      status,
+      matrial_store: materialStores.map(s => ({
+        ...s,
+        start_stock: Number(s.start_stock),
+        cost: Number(s.cost)
+      }))
+    };
+
+    postData(payload, t("Material Product Updated Success"));
   };
 
   // Handle back navigation
@@ -179,8 +256,8 @@ const EditMaterialList = () => {
       backgroundColor: state.isSelected
         ? "#3b82f6"
         : state.isFocused
-        ? "#eff6ff"
-        : "white",
+          ? "#eff6ff"
+          : "white",
       color: state.isSelected ? "white" : "#374151",
       "&:hover": {
         backgroundColor: state.isSelected ? "#3b82f6" : "#eff6ff",
@@ -272,6 +349,79 @@ const EditMaterialList = () => {
                   </span>
                   <Switch handleClick={handleStatus} checked={status} />
                 </div>
+              </div>
+            </div>
+
+            {/* Material Stores Section */}
+            <div className="mt-8">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-2xl font-bold text-mainColor">{t("Material Stores")}</h3>
+                <button
+                  type="button"
+                  onClick={handleAddStore}
+                  className="flex items-center gap-2 px-4 py-2 bg-mainColor text-white rounded-lg hover:bg-mainColor/90 transition"
+                >
+                  <FiPlus /> {t("Add Store")}
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {materialStores.map((store, index) => (
+                  <div key={index} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 relative">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm font-medium text-gray-700">{t("Store")}</span>
+                      <Select
+                        options={storeOptions}
+                        value={storeOptions.find(o => o.value === store.store_id)}
+                        onChange={(val) => handleStoreChange(index, "store_id", val.value)}
+                        placeholder={t("Select Store")}
+                        styles={customStyles}
+                        isLoading={loadingLists}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm font-medium text-gray-700">{t("Unit")}</span>
+                      <Select
+                        options={unitOptions}
+                        value={unitOptions.find(o => o.value === store.unit_id)}
+                        onChange={(val) => handleStoreChange(index, "unit_id", val.value)}
+                        placeholder={t("Select Unit")}
+                        styles={customStyles}
+                        isLoading={loadingLists}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm font-medium text-gray-700">{t("Start Stock")}</span>
+                      <TextInput
+                        value={store.start_stock}
+                        onChange={(e) => handleStoreChange(index, "start_stock", e.target.value)}
+                        placeholder={t("0")}
+                        type="number"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm font-medium text-gray-700">{t("Cost")}</span>
+                      <TextInput
+                        value={store.cost}
+                        onChange={(e) => handleStoreChange(index, "cost", e.target.value)}
+                        placeholder={t("0.00")}
+                        type="number"
+                      />
+                    </div>
+                    <div className="flex items-end justify-center pb-2">
+                      {materialStores.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveStore(index)}
+                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
+                          title={t("Remove Store")}
+                        >
+                          <FiTrash2 size={20} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
