@@ -80,6 +80,10 @@ const ExpensesPayment = () => {
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
 
+  // Filter States
+  const [filterDate, setFilterDate] = useState("");
+  const [filterTime, setFilterTime] = useState("");
+
   // Edit Modal - Only these
   const [editExpenseName, setEditExpenseName] = useState("");
   const [editCategoryId, setEditCategoryId] = useState("");
@@ -131,9 +135,15 @@ const ExpensesPayment = () => {
   }, [dataLists]);
 
   // Pagination Logic
-  const totalItems = expenses.length;
+  const filteredExpenses = expenses.filter((exp) => {
+    const matchDate = filterDate ? exp.date === filterDate : true;
+    const matchTime = filterTime ? exp.time?.toLowerCase().includes(filterTime.toLowerCase()) : true;
+    return matchDate && matchTime;
+  });
+
+  const totalItems = filteredExpenses.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const currentExpenses = expenses.slice(
+  const currentExpenses = filteredExpenses.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -274,6 +284,8 @@ const ExpensesPayment = () => {
             <div class="row"><strong>${t("Cashier Man")}:</strong> <span>${data.cahier_man?.user_name || "-"}</span></div>
             <div class="row"><strong>${t("Financial Account")}:</strong> <span>${data.financial_account?.name || "-"}</span></div>
             <div class="row"><strong>${t("Admin")}:</strong> <span>${data.admin?.name || "-"}</span></div>
+            <div class="row"><strong>${t("Date")}:</strong> <span>${data.date || "-"}</span></div>
+            <div class="row"><strong>${t("Time")}:</strong> <span>${data.time || "-"}</span></div>
             <div class="notes">
               <strong>${t("Note")}:</strong>
               <p>${data.note || t("No notes")}</p>
@@ -293,6 +305,8 @@ const ExpensesPayment = () => {
             <div class="field"><strong>${t("Cashier Man")}:</strong> <span>${exp.cahier_man?.user_name || "-"}</span></div>
             <div class="field"><strong>${t("Financial Account")}:</strong> <span>${exp.financial_account?.name || "-"}</span></div>
             <div class="field"><strong>${t("Admin")}:</strong> <span>${exp.admin?.name || "-"}</span></div>
+            <div class="field"><strong>${t("Date")}:</strong> <span>${exp.date || "-"}</span></div>
+            <div class="field"><strong>${t("Time")}:</strong> <span>${exp.time || "-"}</span></div>
           </div>
           <div class="item-note">
             <strong>${t("Note")}:</strong> ${exp.note || "-"}
@@ -386,9 +400,9 @@ const ExpensesPayment = () => {
   };
 
   const handleExportToExcel = () => {
-    if (expenses.length === 0) return;
+    if (filteredExpenses.length === 0) return;
 
-    const dataToExport = expenses.map((exp) => ({
+    const dataToExport = filteredExpenses.map((exp) => ({
       [t("ID")]: exp.id,
       [t("Expense")]: exp.expense,
       [t("Category")]: exp.category?.name || "-",
@@ -398,8 +412,9 @@ const ExpensesPayment = () => {
       [t("Cashier Man")]: exp.cahier_man?.user_name || "-",
       [t("Financial Account")]: exp.financial_account?.name || "-",
       [t("Admin")]: exp.admin?.name || "-",
+      [t("Date")]: exp.date || "-",
+      [t("Time")]: exp.time || "-",
       [t("Note")]: exp.note || "-",
-      [t("Created At")]: new Date(exp.created_at).toLocaleString(),
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
@@ -438,11 +453,51 @@ const ExpensesPayment = () => {
             <span className="text-lg font-bold">{t("Excel")}</span>
           </button>
           <button
-            onClick={() => handlePrint("all", expenses)}
+            onClick={() => handlePrint("all", filteredExpenses)}
             className="flex items-center gap-3 px-6 py-2.5 text-white bg-gradient-to-r from-red-600 to-red-700 rounded-full hover:from-red-700 hover:to-red-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:scale-95"
           >
             <IoPrint size={22} />
             <span className="text-lg font-bold">{t("Print")}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-4 p-4 bg-white shadow-sm no-print mt-2 rounded-lg">
+        <div className="flex flex-col min-w-[200px]">
+          <label className="text-sm font-medium text-gray-700 mb-1">{t("Filter by Date")}</label>
+          <input
+            type="date"
+            value={filterDate}
+            onChange={(e) => {
+              setFilterDate(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="p-2 border-2 border-gray-200 rounded-lg outline-none focus:border-mainColor transition-all"
+          />
+        </div>
+        <div className="flex flex-col min-w-[200px]">
+          <label className="text-sm font-medium text-gray-700 mb-1">{t("Filter by Time")}</label>
+          <input
+            type="time"
+            value={filterTime}
+            onChange={(e) => {
+              setFilterTime(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="p-2 border-2 border-gray-200 rounded-lg outline-none focus:border-mainColor transition-all"
+          />
+        </div>
+        <div className="flex items-end flex-grow justify-end">
+          <button
+            onClick={() => {
+              setFilterDate("");
+              setFilterTime("");
+              setCurrentPage(1);
+            }}
+            className="px-4 py-2 text-sm font-bold text-white bg-gray-500 rounded-lg hover:bg-gray-600 transition-all"
+          >
+            {t("Clear Filters")}
           </button>
         </div>
       </div>
@@ -464,8 +519,9 @@ const ExpensesPayment = () => {
                     <th className="px-6 py-3 text-center">{t("Expense")}</th>
                     <th className="px-6 py-3 text-center">{t("Category")}</th>
                     <th className="px-6 py-3 text-center">{t("Amount")}</th>
+                    <th className="px-6 py-3 text-center">{t("Date")}</th>
+                    <th className="px-6 py-3 text-center">{t("Time")}</th>
                     <th className="px-6 py-3 text-center">{t("Branch")}</th>
-                    <th className="px-6 py-3 text-center">{t("Note")}</th>
                     <th className="px-6 py-3 text-center">{t("Actions")}</th>
                   </tr>
                 </thead>
@@ -483,10 +539,13 @@ const ExpensesPayment = () => {
                         {exp.amount}
                       </td>
                       <td className="px-6 py-4 text-center">
-                        {exp.branch?.name || "-"}
+                        {exp.date || "-"}
                       </td>
-                      <td className="px-6 py-4 text-center text-gray-600">
-                        {exp.note || "-"}
+                      <td className="px-6 py-4 text-center">
+                        {exp.time || "-"}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        {exp.branch?.name || "-"}
                       </td>
                       <td className="px-6 py-4 text-center">
                         <div className="flex justify-center gap-4">
@@ -870,8 +929,12 @@ const ExpensesPayment = () => {
                   value={selectedExpense.note || "-"}
                 />
                 <DetailItem
-                  label={t("CreatedAt")}
-                  value={new Date(selectedExpense.created_at).toLocaleString()}
+                  label={t("Date")}
+                  value={selectedExpense.date}
+                />
+                <DetailItem
+                  label={t("Time")}
+                  value={selectedExpense.time}
                 />
               </div>
               <div className="p-5 text-right border-t">
