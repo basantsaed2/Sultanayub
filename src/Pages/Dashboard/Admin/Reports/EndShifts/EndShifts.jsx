@@ -3,7 +3,10 @@ import { useTranslation } from "react-i18next";
 import { useGet } from "../../../../../Hooks/useGet";
 import { useAuth } from "../../../../../Context/Auth";
 import axios from "axios";
-import { FaClock, FaTimesCircle, FaCheckCircle, FaUserTie, FaExclamationCircle } from "react-icons/fa";
+import { FaClock, FaTimesCircle, FaCheckCircle, FaUserTie, FaExclamationCircle, FaPrint, FaFileExcel, FaFilePdf } from "react-icons/fa";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 import { DateInput } from "../../../../../Components/Components";
 import Select from "react-select";
 
@@ -135,6 +138,73 @@ const EndShifts = () => {
         }
     };
 
+    const handlePrint = (data) => {
+        const printWindow = window.open("", "_blank", "width=900,height=700");
+        if (!printWindow) {
+            auth.toastError(t("Please allow popups to print"));
+            return;
+        }
+
+        const content = (data || []).map((shift, idx) => `
+            <tr>
+                <td>${idx + 1}</td>
+                <td>${shift.start_time || "-"}</td>
+                <td>${shift.cashier_man || "-"}</td>
+                <td>${shift.cashier || t("N/A")}</td>
+                <td>${Number(shift.principle_price || 0).toLocaleString()} ${t("EGP")}</td>
+                <td>${Number(shift.price_after_discount || 0).toLocaleString()} ${t("EGP")}</td>
+            </tr>
+        `).join("");
+
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>${t("End Shifts Report")}</title>
+                    <style>
+                        body { font-family: sans-serif; padding: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+                        th { background-color: #f4f4f4; }
+                        h1 { text-align: center; }
+                    </style>
+                </head>
+                <body dir="${auth.language === "ar" ? "rtl" : "ltr"}">
+                    <h1>${t("End Shifts Report")}</h1>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>${t("Start Time")}</th>
+                                <th>${t("Cashier Man")}</th>
+                                <th>${t("Cashier")}</th>
+                                <th>${t("principle_price")}</th>
+                                <th>${t("price_after_discount")}</th>
+                            </tr>
+                        </thead>
+                        <tbody>${content}</tbody>
+                    </table>
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+    };
+
+    const handleExportExcel = () => {
+        const exportData = filteredShifts.map((shift) => ({
+            [t("Start Time")]: shift.start_time || "-",
+            [t("Cashier Man")]: shift.cashier_man || "-",
+            [t("Cashier")]: shift.cashier || t("N/A"),
+            [t("principle_price")]: shift.principle_price || 0,
+            [t("price_after_discount")]: shift.price_after_discount || 0,
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "End Shifts Report");
+        XLSX.writeFile(wb, `End_Shifts_Report_${new Date().toLocaleDateString()}.xlsx`);
+    };
+
     // Custom styles for React Select
     const customStyles = {
         control: (provided, state) => ({
@@ -207,6 +277,26 @@ const EndShifts = () => {
                         />
                     </div>
                 </div>
+                <div className="w-full flex flex-col sm:flex-row gap-4 mt-6">
+                    {filteredShifts.length > 0 && (
+                        <>
+                            <button
+                                onClick={() => handlePrint(filteredShifts)}
+                                className="flex items-center justify-center gap-3 px-10 py-3.5 text-white bg-gradient-to-r from-red-600 to-red-700 rounded-xl font-bold hover:from-red-700 hover:to-red-800 transition-all duration-300 shadow-lg shadow-red-200 hover:-translate-y-0.5 active:scale-95"
+                            >
+                                <FaPrint size={20} />
+                                <span>{t("Print")}</span>
+                            </button>
+                            <button
+                                onClick={handleExportExcel}
+                                className="flex items-center justify-center gap-3 px-10 py-3.5 text-white bg-gradient-to-r from-green-600 to-green-700 rounded-xl font-bold hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg shadow-green-200 hover:-translate-y-0.5 active:scale-95"
+                            >
+                                <FaFileExcel className="w-5 h-5" />
+                                <span>{t("Excel")}</span>
+                            </button>
+                        </>
+                    )}
+                </div>
             </div>
 
             {/* Table */}
@@ -219,6 +309,8 @@ const EndShifts = () => {
                                 <th className="px-6 py-6 font-bold text-gray-600 uppercase tracking-wider text-xs text-start">{t("Start Time")}</th>
                                 <th className="px-6 py-6 font-bold text-gray-600 uppercase tracking-wider text-xs text-start">{t("Cashier Man")}</th>
                                 <th className="px-6 py-6 font-bold text-gray-600 uppercase tracking-wider text-xs text-start">{t("Cashier")}</th>
+                                <th className="px-6 py-6 font-bold text-gray-600 uppercase tracking-wider text-xs text-start">{t("principle_price")}</th>
+                                <th className="px-6 py-6 font-bold text-gray-600 uppercase tracking-wider text-xs text-start">{t("price_after_discount")}</th>
                                 <th className="px-8 py-6 font-bold text-gray-600 uppercase tracking-wider text-xs text-start">{t("Action")}</th>
                             </tr>
                         </thead>
@@ -256,6 +348,12 @@ const EndShifts = () => {
                                             <span className={`font-semibold ${shift.cashier ? "text-gray-700" : "text-gray-400 italic"}`}>
                                                 {shift.cashier || t("N/A")}
                                             </span>
+                                        </td>
+                                        <td className="px-6 py-5 text-start font-bold text-gray-700 tabular-nums">
+                                            {Number(shift.principle_price || 0).toLocaleString()} <span className="text-[10px] text-gray-400 font-normal">{t("EGP")}</span>
+                                        </td>
+                                        <td className="px-6 py-5 text-start font-bold text-gray-700 tabular-nums">
+                                            {Number(shift.price_after_discount || 0).toLocaleString()} <span className="text-[10px] text-gray-400 font-normal">{t("EGP")}</span>
                                         </td>
                                         <td className="px-8 py-5 text-start">
                                             <button

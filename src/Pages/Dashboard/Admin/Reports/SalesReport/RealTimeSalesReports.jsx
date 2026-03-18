@@ -84,6 +84,8 @@ const RealTimeSalesReports = () => {
                             <div class="item-row"><span class="item-name">${t("Out For Delivery")}</span><span class="item-value">${b.out_of_delivery}</span></div>
                             <div class="item-row"><span class="item-name">${t("Delivery Fees")}</span><span class="item-value">${(b.delivery_fees || 0).toLocaleString()}</span></div>
                             <div class="item-row"><span class="item-name">${t("Service Fees")}</span><span class="item-value">${(b.service_fees || 0).toLocaleString()}</span></div>
+                            <div class="item-row"><span class="item-name">${t("principle_price")}</span><span class="item-value">${(b.principle_price || 0).toLocaleString()}</span></div>
+                            <div class="item-row"><span class="item-name">${t("price_after_discount")}</span><span class="item-value">${(b.price_after_discount || 0).toLocaleString()}</span></div>
                             <div class="item-row"><span class="item-name">${t("Due Module")}</span><span class="item-value">${(b.due_module || 0).toLocaleString()}</span></div>
                             <div class="item-row"><span class="item-name">${t("Due User")}</span><span class="item-value">${(b.due_user || 0).toLocaleString()}</span></div>
                         </div>
@@ -230,6 +232,14 @@ const RealTimeSalesReports = () => {
                         <span class="item-value">${(salesData.service_fees || 0).toLocaleString()} ${t("EGP")}</span>
                     </div>
                     <div class="item-row">
+                        <span class="item-name">${t("principle_price")}</span>
+                        <span class="item-value">${(salesData.principle_price || 0).toLocaleString()} ${t("EGP")}</span>
+                    </div>
+                    <div class="item-row">
+                        <span class="item-name">${t("price_after_discount")}</span>
+                        <span class="item-value">${(salesData.price_after_discount || 0).toLocaleString()} ${t("EGP")}</span>
+                    </div>
+                    <div class="item-row">
                         <span class="item-name">${t("Due Module")}</span>
                         <span class="item-value">${(salesData.due_module || 0).toLocaleString()} ${t("EGP")}</span>
                     </div>
@@ -337,6 +347,8 @@ const RealTimeSalesReports = () => {
       [t("Discount"), salesData.discount || 0],
       [t("Delivery Fees"), salesData.delivery_fees || 0],
       [t("Service Fees"), salesData.service_fees || 0],
+      [t("principle_price"), salesData.principle_price || 0],
+      [t("price_after_discount"), salesData.price_after_discount || 0],
       [t("Due Module"), salesData.due_module || 0],
       [t("Due User"), salesData.due_user || 0],
     ];
@@ -374,6 +386,8 @@ const RealTimeSalesReports = () => {
         b.out_of_delivery || 0,
         b.delivery_fees || 0,
         b.service_fees || 0,
+        b.principle_price || 0,
+        b.price_after_discount || 0,
         b.due_module || 0,
         b.due_user || 0,
       ]);
@@ -398,6 +412,8 @@ const RealTimeSalesReports = () => {
             t("Out Del"),
             t("Del Fees"),
             t("Svc Fees"),
+            t("principle_price"),
+            t("price_after_discount"),
             t("Due Mod"),
             t("Due Usr"),
           ],
@@ -475,6 +491,8 @@ const RealTimeSalesReports = () => {
         t("Out For Delivery"),
         t("Delivery Fees"),
         t("Service Fees"),
+        t("principle_price"),
+        t("price_after_discount"),
         t("Due Module"),
         t("Due User"),
       ]);
@@ -499,6 +517,8 @@ const RealTimeSalesReports = () => {
           b.out_of_delivery || 0,
           b.delivery_fees || 0,
           b.service_fees || 0,
+          b.principle_price || 0,
+          b.price_after_discount || 0,
           b.due_module || 0,
           b.due_user || 0,
         ]);
@@ -647,6 +667,8 @@ const RealTimeSalesReports = () => {
               <Card title="Online Mobile" value={salesData.online_mobile} />
               <Card title="Online Web" value={salesData.online_web} />
               <Card title="Out For Delivery" value={salesData.out_of_delivery || 0} />
+              <Card title="principle_price" value={salesData.principle_price} colorClass="bg-blue-50 border-blue-100" textClass="text-blue-700" />
+              <Card title="price_after_discount" value={salesData.price_after_discount} colorClass="bg-teal-50 border-teal-100" textClass="text-teal-700" />
               <Card
                 title="Total Tax"
                 value={salesData.total_tax}
@@ -721,6 +743,8 @@ const RealTimeSalesReports = () => {
                           <th className="px-6 py-3">{t("App")}</th>
                           <th className="px-6 py-3">{t("Delivery Fees")}</th>
                           <th className="px-6 py-3">{t("Service Fees")}</th>
+                          <th className="px-6 py-3">{t("principle_price")}</th>
+                          <th className="px-6 py-3">{t("price_after_discount")}</th>
                           <th className="px-6 py-3">{t("Total Discount")}</th>
                         </tr>
                       </thead>
@@ -768,6 +792,14 @@ const RealTimeSalesReports = () => {
                             </td>
                             <td className="px-6 py-4">
                               {(branch.service_fees || 0).toLocaleString()}{" "}
+                              {t("EGP")}
+                            </td>
+                            <td className="px-6 py-4">
+                              {(branch.principle_price || 0).toLocaleString()}{" "}
+                              {t("EGP")}
+                            </td>
+                            <td className="px-6 py-4">
+                              {(branch.price_after_discount || 0).toLocaleString()}{" "}
                               {t("EGP")}
                             </td>
                             <td className="px-6 py-4">
