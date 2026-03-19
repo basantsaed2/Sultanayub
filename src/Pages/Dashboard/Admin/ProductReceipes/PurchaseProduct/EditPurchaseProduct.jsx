@@ -87,8 +87,8 @@ const EditPurchaseProduct = () => {
       }
 
       // Set product stores
-      if (product.product_store && product.product_store.length > 0) {
-        setProductStores(product.product_store.map(s => ({
+      if (product.start_stock && product.start_stock.length > 0) {
+        setProductStores(product.start_stock.map(s => ({
           start_stock: s.start_stock || "",
           cost: s.cost || "",
           unit_id: s.unit_id || "",
@@ -162,8 +162,8 @@ const EditPurchaseProduct = () => {
       }
 
       // Reset stores
-      if (product.product_store && product.product_store.length > 0) {
-        setProductStores(product.product_store.map(s => ({
+      if (product.start_stock && product.start_stock.length > 0) {
+        setProductStores(product.start_stock.map(s => ({
           start_stock: s.start_stock || "",
           cost: s.cost || "",
           unit_id: s.unit_id || "",

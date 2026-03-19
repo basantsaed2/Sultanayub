@@ -87,8 +87,8 @@ const EditMaterialList = () => {
       }
 
       // Set material stores
-      if (product.matrial_store && product.matrial_store.length > 0) {
-        setMaterialStores(product.matrial_store.map(s => ({
+      if (product.start_stock && product.start_stock.length > 0) {
+        setMaterialStores(product.start_stock.map(s => ({
           start_stock: s.start_stock || "",
           cost: s.cost || "",
           unit_id: s.unit_id || "",
@@ -162,8 +162,8 @@ const EditMaterialList = () => {
       }
 
       // Reset stores
-      if (product.matrial_store && product.matrial_store.length > 0) {
-        setMaterialStores(product.matrial_store.map(s => ({
+      if (product.start_stock && product.start_stock.length > 0) {
+        setMaterialStores(product.start_stock.map(s => ({
           start_stock: s.start_stock || "",
           cost: s.cost || "",
           unit_id: s.unit_id || "",

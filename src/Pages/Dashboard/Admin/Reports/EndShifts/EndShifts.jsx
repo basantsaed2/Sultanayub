@@ -151,8 +151,6 @@ const EndShifts = () => {
                 <td>${shift.start_time || "-"}</td>
                 <td>${shift.cashier_man || "-"}</td>
                 <td>${shift.cashier || t("N/A")}</td>
-                <td>${Number(shift.principle_price || 0).toLocaleString()} ${t("EGP")}</td>
-                <td>${Number(shift.price_after_discount || 0).toLocaleString()} ${t("EGP")}</td>
             </tr>
         `).join("");
 
@@ -177,8 +175,6 @@ const EndShifts = () => {
                                 <th>${t("Start Time")}</th>
                                 <th>${t("Cashier Man")}</th>
                                 <th>${t("Cashier")}</th>
-                                <th>${t("principle_price")}</th>
-                                <th>${t("price_after_discount")}</th>
                             </tr>
                         </thead>
                         <tbody>${content}</tbody>
@@ -195,8 +191,6 @@ const EndShifts = () => {
             [t("Start Time")]: shift.start_time || "-",
             [t("Cashier Man")]: shift.cashier_man || "-",
             [t("Cashier")]: shift.cashier || t("N/A"),
-            [t("principle_price")]: shift.principle_price || 0,
-            [t("price_after_discount")]: shift.price_after_discount || 0,
         }));
 
         const ws = XLSX.utils.json_to_sheet(exportData);
@@ -309,8 +303,6 @@ const EndShifts = () => {
                                 <th className="px-6 py-6 font-bold text-gray-600 uppercase tracking-wider text-xs text-start">{t("Start Time")}</th>
                                 <th className="px-6 py-6 font-bold text-gray-600 uppercase tracking-wider text-xs text-start">{t("Cashier Man")}</th>
                                 <th className="px-6 py-6 font-bold text-gray-600 uppercase tracking-wider text-xs text-start">{t("Cashier")}</th>
-                                <th className="px-6 py-6 font-bold text-gray-600 uppercase tracking-wider text-xs text-start">{t("principle_price")}</th>
-                                <th className="px-6 py-6 font-bold text-gray-600 uppercase tracking-wider text-xs text-start">{t("price_after_discount")}</th>
                                 <th className="px-8 py-6 font-bold text-gray-600 uppercase tracking-wider text-xs text-start">{t("Action")}</th>
                             </tr>
                         </thead>
@@ -348,12 +340,6 @@ const EndShifts = () => {
                                             <span className={`font-semibold ${shift.cashier ? "text-gray-700" : "text-gray-400 italic"}`}>
                                                 {shift.cashier || t("N/A")}
                                             </span>
-                                        </td>
-                                        <td className="px-6 py-5 text-start font-bold text-gray-700 tabular-nums">
-                                            {Number(shift.principle_price || 0).toLocaleString()} <span className="text-[10px] text-gray-400 font-normal">{t("EGP")}</span>
-                                        </td>
-                                        <td className="px-6 py-5 text-start font-bold text-gray-700 tabular-nums">
-                                            {Number(shift.price_after_discount || 0).toLocaleString()} <span className="text-[10px] text-gray-400 font-normal">{t("EGP")}</span>
                                         </td>
                                         <td className="px-8 py-5 text-start">
                                             <button

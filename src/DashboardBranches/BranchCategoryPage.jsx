@@ -163,13 +163,13 @@ const BranchCategoryPage = () => {
                   <div className="grid grid-cols-1 gap-4">
                     {filteredProducts.map((product) => (
                       <div key={product.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col xl:flex-row items-center gap-6 hover:shadow-md transition">
-                        {/* <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 border border-gray-100">
+                        <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 border border-gray-100">
                           <img
                             src={product.image_link || "/placeholder.png"}
                             alt={product.name}
                             className="w-full h-full object-cover"
                           />
-                        </div> */}
+                        </div>
                         <div className="flex-1">
                           <h3 className="text-xl font-bold text-gray-800">{product.name}</h3>
                           <div className="mt-2 text-mainColor font-bold text-lg">
@@ -222,13 +222,13 @@ const BranchCategoryPage = () => {
                         ) : (
                           filteredProducts.map((product) => (
                             <div key={product.id} className="bg-white rounded-xl p-3 shadow-sm border border-gray-100 flex items-center gap-4">
-                              {/* <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0">
+                              <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0">
                                 <img
                                   src={product.image_link || "/placeholder.png"}
                                   alt={product.name}
                                   className="w-full h-full object-cover"
                                 />
-                              </div> */}
+                              </div>
                               <div className="flex-1 min-w-0">
                                 <h3 className="text-base font-bold text-gray-800 truncate">{product.name}</h3>
                                 <div className="text-mainColor font-bold text-sm">

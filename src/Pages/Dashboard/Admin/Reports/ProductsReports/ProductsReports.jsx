@@ -166,6 +166,12 @@ const ProductsReports = () => {
         return rangeWithDots;
     };
 
+    const handlePageChange = (page) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
+    };
+
     const handleApplyFilters = () => {
         setCurrentPage(1);
         setFetchUrl(generateUrl()); // Just update the URL
@@ -310,7 +316,12 @@ const ProductsReports = () => {
                         ${item.products && item.products.length > 0 ? `
                             ${item.products.map(product => `
                                 <div class="product-item">
-                                    <span class="product-name">${product.product_name || product.name}</span>
+                                    <div style="flex: 1;">
+                                        <div class="product-name">${product.product_name || product.name}</div>
+                                        <div style="font-size: 10px; color: #555; margin-top: 2px;">
+                                            ${t('element_price')}: ${(parseFloat(product.element_price || 0)).toFixed(2)} | ${t('principle_price')}: ${(parseFloat(product.principle_price || 0)).toFixed(2)} | ${t('price_after_discount')}: ${(parseFloat(product.price_after_discount || 0)).toFixed(2)}
+                                        </div>
+                                    </div>
                                     <span class="product-count">x${product.count || 0}</span>
                                     <span class="product-price">${(parseFloat(product.price || 0)).toFixed(2)}</span>
                                 </div>
@@ -366,6 +377,9 @@ const ProductsReports = () => {
             [t("Category")]: item.category_name,
             [t("Product Name")]: item.name || item.product_name,
             [t("Count")]: item.count,
+            [t("element_price")]: parseFloat(item.element_price || 0).toFixed(2),
+            [t("principle_price")]: parseFloat(item.principle_price || 0).toFixed(2),
+            [t("price_after_discount")]: parseFloat(item.price_after_discount || 0).toFixed(2),
             [t("Total Price")]: parseFloat(item.price || 0).toFixed(2),
         }));
 
@@ -375,6 +389,9 @@ const ProductsReports = () => {
             [t("Category")]: "",
             [t("Product Name")]: t("Total"),
             [t("Count")]: grandTotalCount,
+            [t("element_price")]: "",
+            [t("principle_price")]: "",
+            [t("price_after_discount")]: "",
             [t("Total Price")]: grandTotalPrice.toFixed(2),
         });
 
@@ -402,6 +419,9 @@ const ProductsReports = () => {
             item.category_name,
             item.name || item.product_name,
             item.count,
+            parseFloat(item.element_price || 0).toFixed(2),
+            parseFloat(item.principle_price || 0).toFixed(2),
+            parseFloat(item.price_after_discount || 0).toFixed(2),
             parseFloat(item.price || 0).toFixed(2)
         ]);
 
@@ -411,12 +431,15 @@ const ProductsReports = () => {
             "",
             { content: t("Total"), styles: { fontStyle: 'bold' } },
             { content: grandTotalCount, styles: { fontStyle: 'bold' } },
+            "",
+            "",
+            "",
             { content: grandTotalPrice.toFixed(2) + " " + t("EGP"), styles: { fontStyle: 'bold' } }
         ]);
 
         autoTable(doc, {
             startY: 40,
-            head: [[t("#"), t("Category"), t("Product Name"), t("Count"), t("Total Price")]],
+            head: [[t("#"), t("Category"), t("Product Name"), t("Count"), t("element_price"), t("principle_price"), t("price_after_discount"), t("Total Price")]],
             body: tableBody,
             theme: 'grid',
             headStyles: { fillColor: [41, 128, 185] }
@@ -626,6 +649,9 @@ const ProductsReports = () => {
                                     <th className="px-6 py-4 border-b">{t("Category")}</th>
                                     <th className="px-6 py-4 border-b">{t("Product Name")}</th>
                                     <th className="px-6 py-4 border-b">{t("Count")}</th>
+                                    <th className="px-6 py-4 border-b">{t("element_price")}</th>
+                                    <th className="px-6 py-4 border-b">{t("principle_price")}</th>
+                                    <th className="px-6 py-4 border-b">{t("price_after_discount")}</th>
                                     <th className="px-6 py-4 border-b">{t("Total Price")}</th>
                                 </tr>
                             </thead>
@@ -639,6 +665,15 @@ const ProductsReports = () => {
                                             <span className="bg-gray-100 px-3 py-1 rounded-full text-sm font-medium">
                                                 {item.count}
                                             </span>
+                                        </td>
+                                        <td className="px-6 py-4 font-mono font-medium text-mainColor">
+                                            {parseFloat(item.element_price || 0).toFixed(2)}
+                                        </td>
+                                        <td className="px-6 py-4 font-mono font-medium text-mainColor">
+                                            {parseFloat(item.principle_price || 0).toFixed(2)}
+                                        </td>
+                                        <td className="px-6 py-4 font-mono font-medium text-mainColor">
+                                            {parseFloat(item.price_after_discount || 0).toFixed(2)}
                                         </td>
                                         <td className="px-6 py-4 font-mono font-medium text-mainColor">
                                             {parseFloat(item.price || 0).toFixed(2)}
