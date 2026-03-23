@@ -39,6 +39,7 @@ const EditCashier = () => {
     const [translations, setTranslations] = useState([]);
     const [cashierNames, setCashierNames] = useState([]);
     const [active, setActive] = useState(0);
+    const [multiple, setMultiple] = useState(0);
     const [selectedBranch, setSelectedBranch] = useState(null);
     const [initialDataLoaded, setInitialDataLoaded] = useState(false);
     const [printType, setPrintType] = useState({ value: "usb", label: "USB" });
@@ -79,6 +80,7 @@ const EditCashier = () => {
             const selected = branches.find((branch) => branch.value === cashier?.cashier.branch_id);
             setSelectedBranch(selected || null);
             setActive(cashier?.cashier.status);
+            setMultiple(cashier?.cashier.multiple || 0);
 
             if (cashier?.cashier.print_type) {
                 setPrintType({
@@ -121,6 +123,11 @@ const EditCashier = () => {
         setActive((prev) => (prev === 0 ? 1 : 0));
     };
 
+    // Toggle multiple state
+    const handleMultiple = () => {
+        setMultiple((prev) => (prev === 0 ? 1 : 0));
+    };
+
     // Handle name change for a specific translation
     const handleNameChange = (index, value) => {
         const updatedNames = [...cashierNames];
@@ -135,6 +142,7 @@ const EditCashier = () => {
             const selected = branches.find((branch) => branch.value === cashier.branch_id);
             setSelectedBranch(selected || null);
             setActive(cashier.status);
+            setMultiple(cashier.multiple || 0);
 
             if (cashier.print_type) {
                 setPrintType({
@@ -181,6 +189,7 @@ const EditCashier = () => {
         const formData = new FormData();
         formData.append("branch_id", selectedBranch.value);
         formData.append("status", active);
+        formData.append("multiple", multiple);
         formData.append("print_type", printType.value);
         formData.append("print_name", printName);
         formData.append("print_port", printPort);
@@ -270,20 +279,20 @@ const EditCashier = () => {
 
                             {/* Branch Selection */}
                             {role === "admin" && (
-                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
-                                <span className="text-xl font-TextFontRegular text-thirdColor">
-                                    {t("Branch")} *
-                                </span>
-                                <Select
-                                    options={branches}
-                                    value={selectedBranch}
-                                    onChange={setSelectedBranch}
-                                    placeholder={t("SelectBranch")}
-                                    styles={customStyles}
-                                    isSearchable
-                                    className="w-full"
-                                />
-                            </div>
+                                <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                    <span className="text-xl font-TextFontRegular text-thirdColor">
+                                        {t("Branch")} *
+                                    </span>
+                                    <Select
+                                        options={branches}
+                                        value={selectedBranch}
+                                        onChange={setSelectedBranch}
+                                        placeholder={t("SelectBranch")}
+                                        styles={customStyles}
+                                        isSearchable
+                                        className="w-full"
+                                    />
+                                </div>
                             )}
 
                             {/* Print Type Selection */}
@@ -347,6 +356,16 @@ const EditCashier = () => {
                                 </span>
                                 <div className="flex items-center justify-start gap-x-3 mt-2">
                                     <Switch handleClick={handleActive} checked={active} />
+                                </div>
+                            </div>
+
+                            {/* Multiple Shift */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor mb-2">
+                                    {t("MultipleShift")}
+                                </span>
+                                <div className="flex items-center justify-start gap-x-3 mt-2">
+                                    <Switch handleClick={handleMultiple} checked={multiple} />
                                 </div>
                             </div>
 

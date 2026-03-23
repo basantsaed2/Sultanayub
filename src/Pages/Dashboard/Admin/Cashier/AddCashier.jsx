@@ -16,7 +16,7 @@ import { IoArrowBack } from "react-icons/io5";
 import Select from "react-select";
 
 const AddCashier = () => {
-    const apiUrl = import.meta.env.VITE_API_BASE_URL;   
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const auth = useAuth();
     const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
     const { refetch: refetchTranslation, loading: loadingTranslation, data: dataTranslation } = useGet({
@@ -35,6 +35,7 @@ const AddCashier = () => {
     const [translations, setTranslations] = useState([]);
     const [cashierNames, setCashierNames] = useState([]);
     const [active, setActive] = useState(0);
+    const [multiple, setMultiple] = useState(0);
     const [selectedBranch, setSelectedBranch] = useState(null);
     const [printType, setPrintType] = useState({ value: "usb", label: "USB" });
     const [printName, setPrintName] = useState("");
@@ -84,6 +85,11 @@ const AddCashier = () => {
         setActive((prev) => (prev === 0 ? 1 : 0));
     };
 
+    // Toggle multiple state
+    const handleMultiple = () => {
+        setMultiple((prev) => (prev === 0 ? 1 : 0));
+    };
+
     // Handle name change for a specific translation
     const handleNameChange = (index, value) => {
         const updatedNames = [...cashierNames];
@@ -101,6 +107,7 @@ const AddCashier = () => {
         setCashierNames(resetNames);
         setSelectedBranch(null);
         setActive(0);
+        setMultiple(0);
         setPrintType({ value: "usb", label: "USB" });
         setPrintName("");
         setPrintPort("");
@@ -128,6 +135,7 @@ const AddCashier = () => {
             formData.append("branch_id", selectedBranch.value);
         }
         formData.append("status", active);
+        formData.append("multiple", multiple);
         formData.append("print_type", printType.value);
         formData.append("print_name", printName);
         formData.append("print_port", printPort);
@@ -221,15 +229,15 @@ const AddCashier = () => {
                                         {t("Branch")} *
                                     </span>
                                     <Select
-                                    options={branches}
-                                    value={selectedBranch}
-                                    onChange={setSelectedBranch}
-                                    placeholder={t("SelectBranch")}
-                                    styles={customStyles}
-                                    isSearchable
-                                    className="w-full"
-                                />
-                            </div>
+                                        options={branches}
+                                        value={selectedBranch}
+                                        onChange={setSelectedBranch}
+                                        placeholder={t("SelectBranch")}
+                                        styles={customStyles}
+                                        isSearchable
+                                        className="w-full"
+                                    />
+                                </div>
                             )}
 
                             {/* Print Type Selection */}
@@ -293,6 +301,16 @@ const AddCashier = () => {
                                 </span>
                                 <div className="flex items-center justify-start gap-x-3 mt-2">
                                     <Switch handleClick={handleActive} checked={active} />
+                                </div>
+                            </div>
+
+                            {/* Multiple Shift */}
+                            <div className="w-full flex flex-col items-start justify-center gap-y-1">
+                                <span className="text-xl font-TextFontRegular text-thirdColor mb-2">
+                                    {t("MultipleShift")}
+                                </span>
+                                <div className="flex items-center justify-start gap-x-3 mt-2">
+                                    <Switch handleClick={handleMultiple} checked={multiple} />
                                 </div>
                             </div>
 

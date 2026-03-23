@@ -102,6 +102,7 @@ const Cashier = () => {
         t("Name"),
         t("Cashier Man"),
         role == "admin" ? t("Branch") : null,
+        t("Multiple Shift"),
         t("Status"),
         t("Action"),
     ];
@@ -161,12 +162,15 @@ const Cashier = () => {
                                             </td>
                                             <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                                 {Cashier?.cashier_man?.user_name || "-"}
-                                            </td>   
+                                            </td>
                                             {role === "admin" && (
                                                 <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                                     {Cashier?.branch?.name || "-"}
                                                 </td>
                                             )}
+                                            <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                                                {Cashier?.multiple === 1 ? t("Yes") : t("No")}
+                                            </td>
                                             <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                                                 <Switch
                                                     checked={Cashier.status === 1}
