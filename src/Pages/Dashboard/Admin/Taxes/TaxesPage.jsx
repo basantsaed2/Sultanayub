@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { useAuth } from "../../../../Context/Auth";
 import { useSelector } from "react-redux";
+import Select from "react-select";
 
 const TaxesPage = ({ refetch, setUpdate }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -41,9 +42,9 @@ const TaxesPage = ({ refetch, setUpdate }) => {
   const [addModal, setAddModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [filterCategory, setFilterCategory] = useState("all");
-  const [selectedBranch, setSelectedBranch] = useState("");
-  const [selectedModule, setSelectedModule] = useState("take_away"); // Default to 'take_away'
-  const [selectedOnlineType, setSelectedOnlineType] = useState("all"); // Default 'all'
+  const [selectedBranches, setSelectedBranches] = useState([]);
+  const [selectedModules, setSelectedModules] = useState([]);
+  const [selectedOnlineTypes, setSelectedOnlineTypes] = useState([]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const taxesPerPage = 10;
@@ -61,9 +62,9 @@ const TaxesPage = ({ refetch, setUpdate }) => {
     setAssignedProducts([]);
     setSelectedProductIds([]);
     setFilterCategory("all");
-    setSelectedBranch(""); // Reset branch
-    setSelectedModule("take_away"); // Reset module
-    setSelectedOnlineType("all"); // Reset type
+    setSelectedBranches([]); // Reset branch
+    setSelectedModules([]); // Reset module
+    setSelectedOnlineTypes([]); // Reset type
     setAddModal(true);
     fetchAssignedProducts(taxId);
   };
@@ -108,32 +109,49 @@ const TaxesPage = ({ refetch, setUpdate }) => {
     ];
 
   const onlineTypeOptions = [
-    { value: "all", label: t("All") },
     { value: "app", label: t("App") },
     { value: "web", label: t("Web") },
   ];
 
   const handleSubmitSelection = async () => {
-    if (!selectedBranch) {
-      auth.toastError(t("Please select a branch"));
+    if (selectedBranches.length === 0) {
+      auth.toastError(t("Please select at least one branch"));
+      return;
+    }
+    if (selectedModules.length === 0) {
+      auth.toastError(t("Please select at least one module"));
       return;
     }
 
     setLoadingAction(true);
     const formData = new FormData();
     formData.append("tax_id", targetTaxId);
-    selectedProductIds.forEach((id, index) => {
-      formData.append(`products[${index}]`, id);
-      formData.append(`branch_id[${index}]`, selectedBranch);
-      formData.append(`tax_modules[${index}]`, selectedModule);
+    
+    let submitIndex = 0;
 
-      const isOnlineModule = ["take_away", "delivery", "online"].includes(String(selectedModule))
-        || moduleOptions.find(m => m.value == selectedModule)?.is_online;
+    selectedProductIds.forEach((productId) => {
+      selectedBranches.forEach((branchId) => {
+        selectedModules.forEach((moduleId) => {
+          const isOnlineModule = ["take_away", "delivery", "online"].includes(String(moduleId))
+            || moduleOptions.find(m => m.value == moduleId)?.is_online;
 
-      if (isOnlineModule) {
-        formData.append(`type[${index}]`, selectedOnlineType);
-      }
-
+          if (isOnlineModule) {
+            const typesToUse = selectedOnlineTypes.length > 0 ? selectedOnlineTypes : ["all"];
+            typesToUse.forEach((onlineType) => {
+              formData.append(`products[${submitIndex}]`, productId);
+              formData.append(`branch_id[${submitIndex}]`, branchId);
+              formData.append(`tax_modules[${submitIndex}]`, moduleId);
+              formData.append(`type[${submitIndex}]`, onlineType);
+              submitIndex++;
+            });
+          } else {
+            formData.append(`products[${submitIndex}]`, productId);
+            formData.append(`branch_id[${submitIndex}]`, branchId);
+            formData.append(`tax_modules[${submitIndex}]`, moduleId);
+            submitIndex++;
+          }
+        });
+      });
     });
 
     try {
@@ -169,6 +187,23 @@ const TaxesPage = ({ refetch, setUpdate }) => {
   });
 
   const selectedProductsDetails = masterProductList.filter(p => selectedProductIds.includes(p.id));
+
+  const branchOptions = branchListsData?.branches?.map((branch) => ({
+    value: branch.id,
+    label: branch.name,
+  })) || [];
+
+  const handleMultiSelectChange = (selected, allOptions, setter) => {
+    if (selected && selected.some(opt => opt.value === 'all')) {
+      setter(allOptions.map(o => o.value));
+    } else {
+      setter(selected ? selected.map(o => o.value) : []);
+    }
+  };
+
+  const isSelectedHasOnline = selectedModules.some(moduleId => {
+    return ["take_away", "delivery", "online"].includes(String(moduleId)) || moduleOptions.find(m => m.value == moduleId)?.is_online;
+  });
 
   const indexOfLastTax = currentPage * taxesPerPage;
   const indexOfFirstTax = indexOfLastTax - taxesPerPage;
@@ -246,7 +281,7 @@ const TaxesPage = ({ refetch, setUpdate }) => {
           <Dialog open={addModal} onClose={() => setAddModal(false)} className="relative z-50">
             <DialogBackdrop className="fixed inset-0 bg-black/40" />
             <div className="fixed inset-0 flex items-center justify-center p-4">
-              <DialogPanel className="w-full max-w-4xl bg-white p-8 rounded-xl shadow-2xl">
+              <DialogPanel className="w-full max-w-4xl bg-white p-6 rounded-xl shadow-2xl">
                 {loadingAssigned ? (
                   <div className="h-96 flex items-center justify-center"><StaticLoader /></div>
                 ) : (
@@ -264,9 +299,17 @@ const TaxesPage = ({ refetch, setUpdate }) => {
                         ))}
                       </select>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-[450px]">
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-[250px]">
                       <div className="border rounded-xl flex flex-col overflow-hidden bg-white">
-                        <div className="bg-gray-100 p-3 font-bold border-b">{t("AvailableProducts")}</div>
+                        <div className="bg-gray-100 p-3 font-bold border-b flex justify-between items-center">
+                          <span>{t("AvailableProducts")}</span>
+                          <button onClick={() => {
+                             setSelectedProductIds(prev => [...new Set([...prev, ...availableProducts.map(p => p.id)])]);
+                          }} className="text-sm text-mainColor underline hover:text-green-600">
+                            {t("Select All")}
+                          </button>
+                        </div>
                         <div className="overflow-y-auto flex-1 p-2">
                           {availableProducts.length > 0 ? availableProducts.map(p => (
                             <div key={p.id} className="flex justify-between items-center p-2 border-b">
@@ -277,7 +320,12 @@ const TaxesPage = ({ refetch, setUpdate }) => {
                         </div>
                       </div>
                       <div className="border rounded-xl flex flex-col bg-gray-50 overflow-hidden">
-                        <div className="bg-mainColor text-white p-3 font-bold border-b">{t("Selected")} ({selectedProductIds.length})</div>
+                        <div className="bg-mainColor text-white p-3 font-bold border-b flex justify-between items-center">
+                          <span>{t("Selected")} ({selectedProductIds.length})</span>
+                          <button onClick={() => setSelectedProductIds([])} className="text-sm underline hover:text-red-200">
+                            {t("Clear All")}
+                          </button>
+                        </div>
                         <div className="overflow-y-auto flex-1 p-2">
                           {selectedProductsDetails.map(p => (
                             <div key={p.id} className="flex justify-between items-center p-2 border-b bg-white mb-1 shadow-sm rounded px-3">
@@ -290,55 +338,51 @@ const TaxesPage = ({ refetch, setUpdate }) => {
                     </div>
 
                     {/* Branch & Module Selection Section */}
-                    <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 min-h-[150px] border-t">
                       {/* Branch Select */}
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-2 z-30 relative">
                         <label className="font-bold text-gray-700">{t("Select Branch")}</label>
-                        <select
-                          className="border p-2 rounded-lg"
-                          value={selectedBranch}
-                          onChange={(e) => setSelectedBranch(e.target.value)}
-                        >
-                          <option value="">{t("Select Branch")}</option>
-                          {branchListsData?.branches?.map((branch) => (
-                            <option key={branch.id} value={branch.id}>
-                              {branch.name}
-                            </option>
-                          ))}
-                        </select>
+                        <Select
+                           isMulti
+                           options={[{ value: 'all', label: t('Select All') }, ...branchOptions]}
+                           value={branchOptions.filter(o => selectedBranches.includes(o.value))}
+                           onChange={(selected) => handleMultiSelectChange(selected, branchOptions, setSelectedBranches)}
+                           placeholder={t("Select Branches...")}
+                           className="w-full text-black"
+                           classNamePrefix="select"
+                           closeMenuOnSelect={false}
+                        />
                       </div>
 
                       {/* Module Select */}
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-2 z-20 relative">
                         <label className="font-bold text-gray-700">{t("Select Module")}</label>
-                        <select
-                          className="border p-2 rounded-lg"
-                          value={selectedModule}
-                          onChange={(e) => setSelectedModule(e.target.value)}
-                        >
-                          {moduleOptions.map((opt) => (
-                            <option key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </option>
-                          ))}
-                        </select>
+                        <Select
+                           isMulti
+                           options={[{ value: 'all', label: t('Select All') }, ...moduleOptions]}
+                           value={moduleOptions.filter(o => selectedModules.includes(o.value))}
+                           onChange={(selected) => handleMultiSelectChange(selected, moduleOptions, setSelectedModules)}
+                           placeholder={t("Select Modules...")}
+                           className="w-full text-black"
+                           classNamePrefix="select"
+                           closeMenuOnSelect={false}
+                        />
                       </div>
 
                       {/* Online Type Select (Conditional) */}
-                      {["take_away", "delivery"].includes(selectedModule) && (
-                        <div className="flex flex-col gap-2">
+                      {isSelectedHasOnline && (
+                        <div className="flex flex-col gap-2 z-10 relative">
                           <label className="font-bold text-gray-700">{t("Online Type")}</label>
-                          <select
-                            className="border p-2 rounded-lg"
-                            value={selectedOnlineType}
-                            onChange={(e) => setSelectedOnlineType(e.target.value)}
-                          >
-                            {onlineTypeOptions.map((opt) => (
-                              <option key={opt.value} value={opt.value}>
-                                {opt.label}
-                              </option>
-                            ))}
-                          </select>
+                          <Select
+                             isMulti
+                             options={[{ value: 'all', label: t('Select All') }, ...onlineTypeOptions]}
+                             value={onlineTypeOptions.filter(o => selectedOnlineTypes.includes(o.value))}
+                             onChange={(selected) => handleMultiSelectChange(selected, onlineTypeOptions, setSelectedOnlineTypes)}
+                             placeholder={t("Select Online Types...")}
+                             className="w-full text-black"
+                             classNamePrefix="select"
+                             closeMenuOnSelect={false}
+                          />
                         </div>
                       )}
                     </div>
