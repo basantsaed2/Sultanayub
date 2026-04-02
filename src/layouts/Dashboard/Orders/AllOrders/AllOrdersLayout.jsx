@@ -65,7 +65,7 @@ const AllOrdersLayout = () => {
       (order) => order.order_status === "refund"
     ).length,
     ordersFailed: ordersAllCount.filter(
-      (order) => order.order_status === "failed_to_deliver"
+      (order) => order.order_status === "faild_to_deliver"
     ).length,
     ordersCanceled: ordersAllCount.filter(
       (order) => order.order_status === "canceled"

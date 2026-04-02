@@ -79,7 +79,7 @@ const SelectDateRangeSection = ({ typPage }) => {
     { id: "delivered", name: t("delivered") },
     { id: "returned", name: t("returned") },
     { id: "refund", name: t("refund") },
-    { id: "faild_to_deliver", name: t("failed_to_deliver") },
+    { id: "faild_to_deliver", name: t("faild_to_deliver") },
     { id: "canceled", name: t("canceled") },
     { id: "scheduled", name: t("scheduled") },
   ];
