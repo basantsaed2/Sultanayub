@@ -59,7 +59,7 @@ const CustomerLoginPage = () => {
       } else if (dataLogin.customer_login?.login === "otp") {
         setOTPLogin(1);
         setManualLogin(0);
-        
+
         // Set verification based on API data
         if (dataLogin.customer_login?.verification === "email") {
           setEmailVerification(1);
@@ -104,7 +104,7 @@ const CustomerLoginPage = () => {
     const isChecked = e.target.checked;
     setEmailVerification(isChecked ? 1 : 0);
     setPhoneNumberVerification(isChecked ? 0 : 1);
-    
+
     // When switching to email, pre-fill with existing email data if available
     if (isChecked && dataLogin?.email_integration) {
       setEmail(dataLogin.email_integration.email || "");
@@ -116,7 +116,7 @@ const CustomerLoginPage = () => {
     const isChecked = e.target.checked;
     setPhoneNumberVerification(isChecked ? 1 : 0);
     setEmailVerification(isChecked ? 0 : 1);
-    
+
     // When switching to phone, pre-fill with existing phone data if available
     if (isChecked && dataLogin?.sms_integration) {
       setUser(dataLogin.sms_integration.user || '');
@@ -193,7 +193,7 @@ const CustomerLoginPage = () => {
     }
 
     // Post data with success message
-    postData(formData, t("Branch Added Successfully"));
+    postData(formData, t("Customer Login Added Successfully"));
   };
 
   return (

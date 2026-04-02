@@ -163,18 +163,18 @@ export const adminRoutes = [
         icon: TbReportSearch,
         subRoutes: [
             { name: "Product Inventory", path: "/dashboard/inventory/inventory_products", permission: "inventory" },
-            { name: "Material Inventory", path: "/dashboard/inventory/inventory_materials", permission: "inventory" },
+            { name: "Raw Material Inventory", path: "/dashboard/inventory/inventory_materials", permission: "inventory" },
         ],
         redirectTo: "/dashboard/inventory/inventory_products",
     },
     {
-        name: "Material",
+        name: "Raw Material",
         path: "/dashboard/material",
         permission: "material",
         icon: SiMaterialformkdocs,
         subRoutes: [
-            { name: "Material Category", path: "/dashboard/material/material_category", permission: "material" },
-            { name: "Material Product", path: "/dashboard/material/material_products", permission: "material" },
+            { name: "Raw Material Category", path: "/dashboard/material/material_category", permission: "material" },
+            { name: "Raw Material Product", path: "/dashboard/material/material_products", permission: "material" },
         ],
         redirectTo: "/dashboard/material/material_category",
     },
@@ -575,7 +575,7 @@ export const ADMIN_MENU_CATEGORIES = [
             "Manufacturing",
             "Purchase",
             "Recipe",
-            "Material",
+            "Raw Material",
         ],
     },
     {

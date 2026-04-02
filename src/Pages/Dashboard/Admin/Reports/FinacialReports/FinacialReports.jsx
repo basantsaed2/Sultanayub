@@ -52,7 +52,7 @@ const FinacialReports = () => {
       value: item.id,
       label: item[labelKey] || item.user_name || `ID: ${item.id}`
     }));
-    return [{ value: 'all', label: 'All' }, ...options];
+    return [{ value: 'all', label: t('All') }, ...options];
   };
 
   const cashierManOptions = prepareOptions(cashierMans, 'user_name');
@@ -214,6 +214,14 @@ const FinacialReports = () => {
                     <span class="item-name">${t('Total Expenses')}</span>
                     <span class="item-value">${(reportData.expenses_total || 0)} ${t('EGP')}</span>
                 </div>
+                <div class="item-row">
+                    <span class="item-name">${t('principle_price')}</span>
+                    <span class="item-value">${(reportData.principle_price || 0).toFixed(2)} ${t('EGP')}</span>
+                </div>
+                <div class="item-row">
+                    <span class="item-name">${t('price_after_discount')}</span>
+                    <span class="item-value">${(reportData.price_after_discount || 0).toFixed(2)} ${t('EGP')}</span>
+                </div>
                  <div class="item-row">
                     <span class="item-name">${t('Total Tax')}</span>
                     <span class="item-value">${(reportData.total_tax || 0).toFixed(2)} ${t('EGP')}</span>
@@ -252,6 +260,18 @@ const FinacialReports = () => {
                     <div class="account-block">
                         <div class="item-row">
                             <span class="item-name" style="text-decoration: underline;">${acc.financial_name}</span>
+                        </div>
+                        <div class="item-row">
+                            <span class="item-name">${t('Balance')}</span>
+                            <span class="item-value">${(acc.balance || 0).toFixed(2)} ${t('EGP')}</span>
+                        </div>
+                        <div class="item-row">
+                            <span class="item-name">${t('principle_price')}</span>
+                            <span class="item-value">${(acc.principle_price || 0).toFixed(2)} ${t('EGP')}</span>
+                        </div>
+                        <div class="item-row">
+                            <span class="item-name">${t('price_after_discount')}</span>
+                            <span class="item-value">${(acc.price_after_discount || 0).toFixed(2)} ${t('EGP')}</span>
                         </div>
                         <div class="item-row">
                             <span class="item-name">${t('Delivery')}</span>
@@ -359,6 +379,8 @@ const FinacialReports = () => {
       [t("Total Orders"), reportData.order_count || 0],
       [t("Total Revenue"), `${(reportData.total_amount || 0).toFixed(2)} ${t('EGP')}`],
       [t("Total Expenses"), `${(reportData.expenses_total || 0)} ${t('EGP')}`],
+      [t("Principle Price"), `${(reportData.principle_price || 0).toFixed(2)} ${t('EGP')}`],
+      [t("Price After Discount"), `${(reportData.price_after_discount || 0).toFixed(2)} ${t('EGP')}`],
       [t("Total Tax"), `${(reportData.total_tax || 0).toFixed(2)} ${t('EGP')}`],
       [t("Void Orders Value"), `${(reportData.void_order_sum || 0).toFixed(2)} ${t('EGP')}`],
       [t("Void Orders Count"), reportData.void_order_count || 0],
@@ -377,10 +399,14 @@ const FinacialReports = () => {
     });
 
     // 2. Financial Accounts
-    const accountsBody = reportData.financial_accounts.map(acc => {
+    const accountsBody = reportData.financial_accounts.map((acc, index) => {
       const net = (acc.total_amount_delivery || 0) + (acc.total_amount_take_away || 0) + (acc.total_amount_dine_in || 0);
       return [
+        index + 1,
         acc.financial_name,
+        (acc.balance || 0).toFixed(2),
+        (acc.principle_price || 0).toFixed(2),
+        (acc.price_after_discount || 0).toFixed(2),
         acc.total_amount_delivery.toFixed(2),
         acc.total_amount_take_away.toFixed(2),
         acc.total_amount_dine_in.toFixed(2),
@@ -391,7 +417,7 @@ const FinacialReports = () => {
 
     autoTable(doc, {
       startY: doc.lastAutoTable.finalY + 10,
-      head: [[t("Account"), t("Delivery"), t("Take Away"), t("Dine In"), t("Net Total"), t("Total Out Delivery")]],
+      head: [[t("No."), t("Account"), t("Balance"), t("principle_price"), t("price_after_discount"), t("Delivery"), t("Take Away"), t("Dine In"), t("Net Total"), t("Total Out Delivery")]],
       body: accountsBody,
       headStyles: { fillColor: [22, 163, 74] } // Green
     });
@@ -458,6 +484,8 @@ const FinacialReports = () => {
       { A: t("Total Orders"), B: reportData.order_count || 0 },
       { A: t("Total Revenue"), B: reportData.total_amount || 0 },
       { A: t("Total Expenses"), B: reportData.expenses_total || 0 },
+      { A: t("Principle Price"), B: reportData.principle_price || 0 },
+      { A: t("Price After Discount"), B: reportData.price_after_discount || 0 },
       { A: t("Total Tax"), B: reportData.total_tax || 0 },
       { A: t("Void Orders Value"), B: reportData.void_order_sum || 0 },
       { A: t("Void Orders Count"), B: reportData.void_order_count || 0 },
@@ -469,16 +497,19 @@ const FinacialReports = () => {
 
       // Accounts
       { A: t("Financial Accounts Details") },
-      { A: t("Account"), B: t("Delivery"), C: t("Take Away"), D: t("Dine In"), E: t("Net Total"), F: t("Total Out Delivery") },
+      { A: t("Account"), B: t("Balance"), C: t("principle_price"), D: t("price_after_discount"), E: t("Delivery"), F: t("Take Away"), G: t("Dine In"), H: t("Net Total"), I: t("Total Out Delivery") },
       ...reportData.financial_accounts.map(acc => {
         const net = (acc.total_amount_delivery || 0) + (acc.total_amount_take_away || 0) + (acc.total_amount_dine_in || 0);
         return {
           A: acc.financial_name,
-          B: acc.total_amount_delivery || 0,
-          C: acc.total_amount_take_away || 0,
-          D: acc.total_amount_dine_in || 0,
-          E: net,
-          F: acc.total_amount_out_delivery || 0
+          B: acc.balance || 0,
+          C: acc.principle_price || 0,
+          D: acc.price_after_discount || 0,
+          E: acc.total_amount_delivery || 0,
+          F: acc.total_amount_take_away || 0,
+          G: acc.total_amount_dine_in || 0,
+          H: net,
+          I: acc.total_amount_out_delivery || 0
         };
       }),
       { A: "" },
@@ -612,6 +643,14 @@ const FinacialReports = () => {
                 <h3 className="text-sm font-medium text-red-800">{t("Total Expenses")}</h3>
                 <p className="text-3xl font-bold text-red-900">{reportData.expenses_total} {t("EGP")}</p>
               </div>
+              <div className="p-6 border border-blue-200 rounded-lg bg-blue-50">
+                <h3 className="text-sm font-medium text-blue-800">{t("principle_price")}</h3>
+                <p className="text-3xl font-bold text-blue-900">{(reportData.principle_price || 0).toFixed(2)} {t("EGP")}</p>
+              </div>
+              <div className="p-6 border border-teal-200 rounded-lg bg-teal-50">
+                <h3 className="text-sm font-medium text-teal-800">{t("price_after_discount")}</h3>
+                <p className="text-3xl font-bold text-teal-900">{(reportData.price_after_discount || 0).toFixed(2)} {t("EGP")}</p>
+              </div>
               <div className="p-6 border border-orange-200 rounded-lg bg-orange-50">
                 <h3 className="text-sm font-medium text-orange-800">{t("Total Tax")}</h3>
                 <p className="text-3xl font-bold text-orange-900">{(reportData.total_tax || 0).toFixed(2)} {t("EGP")}</p>
@@ -649,7 +688,11 @@ const FinacialReports = () => {
                 <table className="w-full">
                   <thead className="bg-gray-100">
                     <tr>
+                      <th className="px-4 py-3 text-sm font-semibold text-left text-gray-700">{t("No.")}</th>
                       <th className="px-4 py-3 text-sm font-semibold text-left text-gray-700">{t("Account")}</th>
+                      <th className="px-4 py-3 text-sm font-semibold text-right text-gray-700">{t("Balance")}</th>
+                      <th className="px-4 py-3 text-sm font-semibold text-right text-gray-700">{t("principle_price")}</th>
+                      <th className="px-4 py-3 text-sm font-semibold text-right text-gray-700">{t("price_after_discount")}</th>
                       <th className="px-4 py-3 text-sm font-semibold text-right text-gray-700">{t("Delivery")}</th>
                       <th className="px-4 py-3 text-sm font-semibold text-right text-gray-700">{t("Take Away")}</th>
                       <th className="px-4 py-3 text-sm font-semibold text-right text-gray-700">{t("Dine In")}</th>
@@ -658,11 +701,21 @@ const FinacialReports = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {reportData.financial_accounts.map((acc) => {
+                    {reportData.financial_accounts.map((acc, index) => {
                       const net = (acc.total_amount_delivery || 0) + (acc.total_amount_take_away || 0) + (acc.total_amount_dine_in || 0);
                       return (
                         <tr key={acc.financial_id} className="border-t hover:bg-gray-50">
+                          <td className="px-4 py-3">{index + 1}</td>
                           <td className="px-4 py-3 font-medium">{acc.financial_name}</td>
+                          <td className={`px-4 py-3 text-right ${acc.balance < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                            {(acc.balance || 0).toFixed(2)} {t("EGP")}
+                          </td>
+                          <td className={`px-4 py-3 text-right ${acc.principle_price < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                            {(acc.principle_price || 0).toFixed(2)} {t("EGP")}
+                          </td>
+                          <td className={`px-4 py-3 text-right ${acc.price_after_discount < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                            {(acc.price_after_discount || 0).toFixed(2)} {t("EGP")}
+                          </td>
                           <td className={`px-4 py-3 text-right ${acc.total_amount_delivery < 0 ? 'text-red-600' : 'text-green-600'}`}>
                             {acc.total_amount_delivery.toFixed(2)}
                           </td>
@@ -693,7 +746,7 @@ const FinacialReports = () => {
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {reportData.expenses.map((exp, i) => (
                     <div key={i} className="p-4 border border-red-200 rounded-lg bg-red-50">
-                      <p className="text-sm text-gray-600">Account</p>
+                      <p className="text-sm text-gray-600">{t("Account")}</p>
                       <p className="text-lg font-semibold">{exp.financial_account}</p>
                       <p className="text-2xl font-bold text-red-700">{exp.total} {t("EGP")}</p>
                     </div>
@@ -706,7 +759,7 @@ const FinacialReports = () => {
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
               {/* Paid Online Orders */}
               <div className="bg-white rounded-lg shadow">
-                <h2 className="p-4 text-xl font-bold text-white bg-green-600">Paid Online Orders</h2>
+                <h2 className="p-4 text-xl font-bold text-white bg-green-600">{t("Paid Online Orders")}</h2>
                 <div className="p-6 space-y-4">
                   {reportData.online_order.paid.length > 0 ? (
                     reportData.online_order.paid.map((item, i) => (
