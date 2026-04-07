@@ -247,27 +247,27 @@ const EditBannerPage = () => {
     //        return;
     // }
 
-    if (!categoryId && !dealId) {
-      if (!categoryId) {
-        auth.toastError(t("please Select Category"));
-        return;
-      }
-      if (!productId) {
-        auth.toastError(t("please Select Product"));
-        return;
-      }
-      if (!dealId) {
-        auth.toastError(t("please Select Deal"));
-        return;
-      }
-    }
+    // if (!categoryId && !dealId) {
+    //   if (!categoryId) {
+    //     auth.toastError(t("please Select Category"));
+    //     return;
+    //   }
+    //   if (!productId) {
+    //     auth.toastError(t("please Select Product"));
+    //     return;
+    //   }
+    //   if (!dealId) {
+    //     auth.toastError(t("please Select Deal"));
+    //     return;
+    //   }
+    // }
 
-    if (categoryId && !productId) {
-      if (!productId) {
-        auth.toastError(t("please Select Product"));
-        return;
-      }
-    }
+    // if (categoryId && !productId) {
+    //   if (!productId) {
+    //     auth.toastError(t("please Select Product"));
+    //     return;
+    //   }
+    // }
 
     if (!bannerOrder) {
       auth.toastError(t("please Enter the Order"));

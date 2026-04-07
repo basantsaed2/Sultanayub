@@ -217,27 +217,27 @@ const AddBannerSection = ({ update, setUpdate }) => {
     //   return;
     // }
 
-    if (!categoryId && !dealId) {
-      if (!categoryId) {
-        auth.toastError(t("pleaseSelectCategory"));
-        return;
-      }
-      if (!productId) {
-        auth.toastError(t("pleaseSelectProduct"));
-        return;
-      }
-      if (!dealId) {
-        auth.toastError(t("pleaseSelectDeal"));
-        return;
-      }
-    }
+    // if (!categoryId && !dealId) {
+    //   if (!categoryId) {
+    //     auth.toastError(t("pleaseSelectCategory"));
+    //     return;
+    //   }
+    //   if (!productId) {
+    //     auth.toastError(t("pleaseSelectProduct"));
+    //     return;
+    //   }
+    //   if (!dealId) {
+    //     auth.toastError(t("pleaseSelectDeal"));
+    //     return;
+    //   }
+    // }
 
-    if (categoryId && !productId) {
-      if (!productId) {
-        auth.toastError(t("pleaseSelectProduct"));
-        return;
-      }
-    }
+    // if (categoryId && !productId) {
+    //   if (!productId) {
+    //     auth.toastError(t("pleaseSelectProduct"));
+    //     return;
+    //   }
+    // }
 
     if (!bannerOrder) {
       auth.toastError(t("pleaseEntertheOrder"));
