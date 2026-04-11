@@ -63,13 +63,30 @@ const AutomaticPaymentPage = ({ refetch }) => {
 
   useEffect(() => {
     if (dataAutomaticPayment && dataAutomaticPayment.payment_methods) {
-      const currentPayment = dataAutomaticPayment.payment_methods[currentTap];
-      setAutomaticPayments(dataAutomaticPayment.payment_methods);
+      let methods = [...dataAutomaticPayment.payment_methods];
+
+      // Always ensure Geidea is in the list even if API doesn't return it
+      const hasGeidea = methods.some((p) =>
+        p.name?.toLowerCase().includes("geidea")
+      );
+      if (!hasGeidea) {
+        methods.push({
+          id: "geidea-fallback",
+          name: "Geidea",
+          payment_method_data: null, // This triggers the GeideaPayment component logic
+          status: 0,
+          logo_link: "",
+        });
+      }
+
+      setAutomaticPayments(methods);
+
+      const currentPayment = methods[currentTap];
       if (currentPayment) {
         setLogo(currentPayment.logo_link || "");
         setLogoFile(currentPayment.logo_link || null);
 
-        // Only populate Paymob fields when payment_method_data exists (tab 0)
+        // Only populate Paymob fields when payment_method_data exists (tab 0/Paymob)
         if (currentPayment.payment_method_data) {
           setPaymobTitle(currentPayment.payment_method_data.title || "");
           setPaymobCallBackUrl(currentPayment.payment_method_data.callback || "");
