@@ -336,6 +336,7 @@ const AutomaticPaymentPage = ({ refetch }) => {
             {currentTap !== 0 && (
               <GeideaPayment
                 payment={automaticPayments[currentTap]}
+                refetch={refetchAutomaticPayment}
                 onStatusChange={(id, newStatus) => {
                   setAutomaticPayments((prev) =>
                     prev.map((p) =>

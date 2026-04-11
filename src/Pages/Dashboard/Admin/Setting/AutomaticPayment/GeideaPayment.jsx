@@ -12,7 +12,7 @@ import {
 import { useChangeState } from "../../../../../Hooks/useChangeState";
 import { useTranslation } from "react-i18next";
 
-const GeideaPayment = ({ payment, onStatusChange }) => {
+const GeideaPayment = ({ payment, onStatusChange, refetch }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const { t } = useTranslation();
 
@@ -115,7 +115,7 @@ const GeideaPayment = ({ payment, onStatusChange }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formData = new FormData();
@@ -128,7 +128,10 @@ const GeideaPayment = ({ payment, onStatusChange }) => {
       formData.append("logo", logoFile);
     }
 
-    postData(formData, t("GeideaUpdatedSuccess"));
+    const res = await postData(formData, t("GeideaUpdatedSuccess"));
+    if (res) {
+      if (refetch) refetch();
+    }
   };
 
   if (loadingGeidea || loadingPost || loadingChange) {
