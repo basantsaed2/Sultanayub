@@ -11,6 +11,7 @@ import {
 } from "../../../../../Components/Components";
 import { useChangeState } from "../../../../../Hooks/useChangeState";
 import { useTranslation } from "react-i18next";
+import GeideaPayment from "./GeideaPayment";
 
 const AutomaticPaymentPage = ({ refetch }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -25,9 +26,8 @@ const AutomaticPaymentPage = ({ refetch }) => {
   const [automaticPayments, setAutomaticPayments] = useState([]);
   const [currentTap, setCurrentTap] = useState(0);
   const { postData, loadingPost, response } = usePost({
-    url: `${apiUrl}/admin/settings/payment_methods_auto/update/${
-      automaticPayments[currentTap]?.id || 0
-    }`,
+    url: `${apiUrl}/admin/settings/payment_methods_auto/update/${automaticPayments[currentTap]?.id || 0
+      }`,
   });
 
   const { changeState, loadingChange, responseChange } = useChangeState();
@@ -68,25 +68,28 @@ const AutomaticPaymentPage = ({ refetch }) => {
       if (currentPayment) {
         setLogo(currentPayment.logo_link || "");
         setLogoFile(currentPayment.logo_link || null);
-        setPaymobTitle(currentPayment.payment_method_data.title || "");
-        // setPaymobType(currentPayment.payment_method_data.type || '');
-        setPaymobCallBackUrl(currentPayment.payment_method_data.callback || "");
-        setPaymobApiKey(currentPayment.payment_method_data.api_key || "");
-        setPaymobIframeId(currentPayment.payment_method_data.iframe_id || "");
-        setPaymobIntegrationId(
-          currentPayment.payment_method_data.integration_id || ""
-        );
-        setPaymobHmac(currentPayment.payment_method_data.Hmac || "");
 
-        if (currentPayment.payment_method_data.type === "test") {
-          setStatePaymentType("Test");
-          setPaymentTypeName("Test");
-        } else if (currentPayment.payment_method_data.type === "live") {
-          setStatePaymentType("Live");
-          setPaymentTypeName("Live");
-        } else {
-          setStatePaymentType("Select Payment Type");
-          setPaymentTypeName("Select Payment Type");
+        // Only populate Paymob fields when payment_method_data exists (tab 0)
+        if (currentPayment.payment_method_data) {
+          setPaymobTitle(currentPayment.payment_method_data.title || "");
+          setPaymobCallBackUrl(currentPayment.payment_method_data.callback || "");
+          setPaymobApiKey(currentPayment.payment_method_data.api_key || "");
+          setPaymobIframeId(currentPayment.payment_method_data.iframe_id || "");
+          setPaymobIntegrationId(
+            currentPayment.payment_method_data.integration_id || ""
+          );
+          setPaymobHmac(currentPayment.payment_method_data.Hmac || "");
+
+          if (currentPayment.payment_method_data.type === "test") {
+            setStatePaymentType("Test");
+            setPaymentTypeName("Test");
+          } else if (currentPayment.payment_method_data.type === "live") {
+            setStatePaymentType("Live");
+            setPaymentTypeName("Live");
+          } else {
+            setStatePaymentType("Select Payment Type");
+            setPaymentTypeName("Select Payment Type");
+          }
         }
       }
     }
@@ -173,58 +176,49 @@ const AutomaticPaymentPage = ({ refetch }) => {
           <StaticLoader />
         </div>
       ) : (
-        <section>
-          <form onSubmit={handleAutomaticPaymentEdit}>
-            {/* Tabs */}
-            <div className="flex items-center justify-start w-full py-2 gap-x-6">
-              {automaticPayments.map((payment, index) => (
-                <span
-                  key={payment.id}
-                  onClick={() => handleTap(index)}
-                  className={`${
-                    currentTap === index
-                      ? "text-mainColor border-b-4 border-mainColor"
-                      : "text-thirdColor"
-                  } pb-1 text - xl font - TextFontMedium transition - colors duration - 300 cursor - pointer hover: text - mainColor`}
-                >
-                  {payment.name}
-                </span>
-              ))}
-            </div>
-            {/* Content */}
-            <div className="w-full">
-              {[
-                "visa",
-                "paymob",
-                "master",
-                "mastercard",
-                "visa/mastercard",
-              ].some((keyword) =>
-                automaticPayments[currentTap]?.name
-                  ?.toLowerCase()
-                  .includes(keyword)
-              ) && (
+        <section className="w-full">
+          {/* Tabs */}
+          <div className="flex items-center justify-start w-full py-2 gap-x-6 border-b border-gray-200">
+            {automaticPayments.map((payment, index) => (
+              <span
+                key={payment.id}
+                onClick={() => handleTap(index)}
+                className={`${currentTap === index
+                  ? "text-mainColor border-b-4 border-mainColor"
+                  : "text-thirdColor"
+                  } pb-1 text-xl font-TextFontMedium transition-colors duration-300 cursor-pointer hover:text-mainColor`}
+              >
+                {payment.name}
+              </span>
+            ))}
+          </div>
+
+          {/* Content */}
+          <div className="w-full mt-4">
+            {/* Tab [0] — Paymob / Visa */}
+            {currentTap === 0 && (
+              <form onSubmit={handleAutomaticPaymentEdit}>
                 <div className="flex flex-wrap items-center justify-start w-full gap-4">
                   <div className="flex items-center w-full gap-x-4">
                     <div className="flex items-center">
                       <span className="p-2 text-2xl font-TextFontSemiBold text-mainColor">
-                        {automaticPayments[currentTap]?.name}:
+                        {automaticPayments[0]?.name}:
                       </span>
                       <Switch
-                        checked={automaticPayments[currentTap]?.status === 1}
+                        checked={automaticPayments[0]?.status === 1}
                         handleClick={() => {
                           handleChangeStaus(
-                            automaticPayments[currentTap]?.id,
-                            automaticPayments[currentTap]?.name,
-                            automaticPayments[currentTap]?.status === 1 ? 0 : 1
+                            automaticPayments[0]?.id,
+                            automaticPayments[0]?.name,
+                            automaticPayments[0]?.status === 1 ? 0 : 1
                           );
                         }}
                       />
                     </div>
                     <div className="flex justify-center">
                       <img
-                        src={automaticPayments[currentTap]?.logo_link}
-                        className="border-2 rounded-full bg-mainColor min-w-24 min-h-24 max-w-24 max-h-24"
+                        src={automaticPayments[0]?.logo_link}
+                        className="border-2 rounded-full bg-mainColor min-w-24 min-h-24 max-w-24 max-h-24 object-cover"
                         alt="Logo"
                       />
                     </div>
@@ -232,7 +226,7 @@ const AutomaticPaymentPage = ({ refetch }) => {
                   {/* Form Inputs */}
                   <div className="sm:w-full lg:w-[30%] flex flex-col items-start gap-y-1">
                     <span className="text-xl font-TextFontRegular text-thirdColor">
-{t("PaymobLogo")}              
+                      {t("PaymobLogo")}
                     </span>
                     <UploadInput
                       value={logo}
@@ -255,7 +249,7 @@ const AutomaticPaymentPage = ({ refetch }) => {
                   {/* Type Input */}
                   <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                     <span className="text-xl font-TextFontRegular text-thirdColor">
-                      {t('PaymentType')}:
+                      {t("PaymentType")}:
                     </span>
                     <DropDown
                       ref={dropDownPaymentType}
@@ -274,19 +268,18 @@ const AutomaticPaymentPage = ({ refetch }) => {
                       {t("PaymobCallBackUrl")}:
                     </span>
                     <TextInput
-                      value={paymobCallBackUrl} // Access category_name property
+                      value={paymobCallBackUrl}
                       onChange={(e) => setPaymobCallBackUrl(e.target.value)}
                       placeholder={t("PaymobCallBackUrl")}
                     />
                   </div>
-
                   {/* Api Key Input */}
                   <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
                     <span className="text-xl font-TextFontRegular text-thirdColor">
                       {t("PaymobApiKey")}:
                     </span>
                     <TextInput
-                      value={paymobApiKey} // Access category_name property
+                      value={paymobApiKey}
                       onChange={(e) => setPaymobApiKey(e.target.value)}
                       placeholder={t("PaymobApiKey")}
                     />
@@ -297,7 +290,7 @@ const AutomaticPaymentPage = ({ refetch }) => {
                       {t("PaymobIframeId")}:
                     </span>
                     <TextInput
-                      value={paymobIframeId} // Access category_name property
+                      value={paymobIframeId}
                       onChange={(e) => setPaymobIframeId(e.target.value)}
                       placeholder={t("PaymobIframeId")}
                     />
@@ -308,7 +301,7 @@ const AutomaticPaymentPage = ({ refetch }) => {
                       {t("PaymobIntegrationId")}:
                     </span>
                     <TextInput
-                      value={paymobIntegrationId} // Access category_name property
+                      value={paymobIntegrationId}
                       onChange={(e) => setPaymobIntegrationId(e.target.value)}
                       placeholder={t("PaymobIntegrationId")}
                     />
@@ -319,28 +312,40 @@ const AutomaticPaymentPage = ({ refetch }) => {
                       {t("PaymobHmac")}:
                     </span>
                     <TextInput
-                      value={paymobHmac} // Access category_name property
+                      value={paymobHmac}
                       onChange={(e) => setPaymobHmac(e.target.value)}
                       placeholder={t("PaymobHmac")}
                     />
                   </div>
                 </div>
-              )}
-            </div>
-            {/* Buttons*/}
-            <div className="flex items-center justify-end w-full gap-x-4">
-              {/* <div className="">
-                <StaticButton text={'Reset'} handleClick={handleReset} bgColor='bg-transparent' Color='text-mainColor' border={'border-2'} borderColor={'border-mainColor'} rounded='rounded-full' />
-                </div> */}
-              <div className="">
-                <SubmitButton
-                  text={t("Edit")}
-                  rounded="rounded-full"
-                  handleClick={handleAutomaticPaymentEdit}
-                />
-              </div>
-            </div>
-          </form>
+
+                {/* Submit button — only for Paymob tab */}
+                <div className="flex items-center justify-end w-full gap-x-4 mt-6">
+                  <div className="">
+                    <SubmitButton
+                      text={t("Edit")}
+                      rounded="rounded-full"
+                      handleClick={handleAutomaticPaymentEdit}
+                    />
+                  </div>
+                </div>
+              </form>
+            )}
+
+            {/* Tab [1+] — Geidea (has its own submit button) */}
+            {currentTap !== 0 && (
+              <GeideaPayment
+                payment={automaticPayments[currentTap]}
+                onStatusChange={(id, newStatus) => {
+                  setAutomaticPayments((prev) =>
+                    prev.map((p) =>
+                      p.id === id ? { ...p, status: newStatus } : p
+                    )
+                  );
+                }}
+              />
+            )}
+          </div>
         </section>
       )}
     </>
