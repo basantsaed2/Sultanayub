@@ -5,30 +5,26 @@ import OrderTypeDistributionChart from './Charts/OrderTypeDistributionChart';
 import HourlySalesBarChart from './Charts/HourlySalesBarChart';
 import TopProductsBarChart from './Charts/TopProductsBarChart';
 import SimplePieChart from './Charts/SimplePieChart';
-import { generateMockDashboardData } from './Charts/mockData';
 
-const ProfessionalDashboard = ({ realData }) => {
-    // Merge real data with mock data where real data is missing
+const ProfessionalDashboard = ({ realData = {} }) => {
+    // Process real data into charts formatting
     const data = useMemo(() => {
-        const mock = generateMockDashboardData();
-        const baseData = {
-            kpis: realData?.kpis || mock.kpis,
-            timeSeries: realData?.timeSeries || mock.timeSeries,
-            orderTypes: realData?.orderTypes || mock.orderTypes,
-            hourlySales: realData?.hourlySales || mock.hourlySales,
-            topProducts: realData?.topProducts || mock.topProducts,
-            topPayments: realData?.topPayments || mock.topPayments,
-            topBranches: realData?.topBranches || mock.topBranches,
-        };
-
+        const timeSeries = realData.timeSeries || { labels: [], orders: [], netSales: [], netPayments: [], returns: [], discounts: [] };
+        
         // Create enriched labels that include order counts for financial charts
-        const enrichedFinancialLabels = baseData.timeSeries.labels.map((label, index) => {
-            const count = baseData.timeSeries.orders[index] || 0;
+        const enrichedFinancialLabels = (timeSeries.labels || []).map((label, index) => {
+            const count = (timeSeries.orders || [])[index] || 0;
             return `${label} (${count} Orders)`;
         });
 
         return {
-            ...baseData,
+            kpis: realData.kpis || {},
+            timeSeries: timeSeries,
+            orderTypes: realData.orderTypes || { labels: [], dineIn: [], delivery: [], takeaway: [] },
+            hourlySales: realData.hourlySales || { labels: [], orders: [] },
+            topProducts: realData.topProducts || { labels: [], values: [] },
+            topPayments: realData.topPayments || { labels: [], values: [] },
+            topBranches: realData.topBranches || { labels: [], values: [] },
             enrichedFinancialLabels
         };
     }, [realData]);

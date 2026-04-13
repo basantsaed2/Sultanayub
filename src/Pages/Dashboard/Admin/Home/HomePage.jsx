@@ -47,6 +47,16 @@ const HomePage = () => {
     url: `${apiUrl}/admin/order/branches`,
   });
 
+  const {
+    refetch: refetchHomeData,
+    loading: loadingHomeData,
+    data: dataHomeData,
+  } = useGet({
+    url: role === "branch"
+      ? `${apiUrl}/branch/home/home_data`
+      : `${apiUrl}/admin/home/home_data`,
+  });
+
   const [order_statistics, setOrder_statistics] = useState({})
   const [earning_statistics, setEarning_statistics] = useState({})
   const [orders, setOrders] = useState({})
@@ -60,7 +70,8 @@ const HomePage = () => {
     refetchChart();
     refetchOrders();
     refetchBranches();
-  }, [refetchChart, refetchOrders, refetchBranches]);
+    refetchHomeData();
+  }, [refetchChart, refetchOrders, refetchBranches, refetchHomeData]);
 
   useEffect(() => {
     if (dataCharts) {
@@ -82,7 +93,7 @@ const HomePage = () => {
 
   // Map real data to the structure expected by ProfessionalDashboard
   const dashboardRealData = useMemo(() => {
-    if (!dataCharts || !dataOrders) return null;
+    if (!dataCharts || !dataOrders || !dataHomeData) return null;
 
     // Helper to format chart data if available
     const formatStats = (stats) => {
@@ -96,6 +107,55 @@ const HomePage = () => {
     const orderStats = formatStats(dataCharts.order_statistics);
     const earningStats = formatStats(dataCharts.earning_statistics);
 
+    // Extract unique hours across all hourly arrays
+    const allHoursStr = new Set();
+    [
+      ...(dataHomeData.sales_hourly || []),
+      ...(dataHomeData.return_hourly || []),
+      ...(dataHomeData.discount_hourly || []),
+      ...(dataHomeData.order_types || []),
+    ].forEach(item => {
+      if (item.hour) allHoursStr.add(item.hour);
+    });
+    
+    // Convert to array (we assume chronological order from backend is kept by Set)
+    const hourlyLabels = Array.from(allHoursStr);
+
+    const formatTimeLabel = (fullLabel) => {
+        if (!fullLabel) return "";
+        const parts = fullLabel.split(' ');
+        if (parts.length >= 3) {
+            return `${parts[1]} ${parts[2]}`; // e.g. "12 PM"
+        }
+        return fullLabel;
+    };
+    const formattedHourlyLabels = hourlyLabels.map(formatTimeLabel);
+
+    const getHourlyVal = (arr, hour, field) => {
+        if (!arr) return 0;
+        const item = arr.find(x => x.hour === hour);
+        return item ? Number(item[field] || 0) : 0;
+    };
+
+    const getHourlySum = (arr, hour, field) => {
+        if (!arr) return 0;
+        return arr.filter(x => x.hour === hour).reduce((sum, item) => sum + Number(item[field] || 0), 0);
+    };
+
+    const getOrderTypeCount = (arr, hour, type) => {
+        if (!arr) return 0;
+        const item = arr.find(x => x.hour === hour && x.order_type === type);
+        return item ? Number(item.order_count || 0) : 0;
+    };
+
+    const topBranchesArr = (dataHomeData.branch_sales || [])
+      .sort((a, b) => Number(b.total_amount) - Number(a.total_amount))
+      .slice(0, 5);
+
+    const topPaymentsArr = (dataHomeData.top_payment_method || [])
+      .sort((a, b) => Number(b.total_amount) - Number(a.total_amount))
+      .slice(0, 5);
+
     return {
       kpis: {
         activeOrders: dataOrders?.orders || 0,
@@ -103,29 +163,43 @@ const HomePage = () => {
         occupiedTables: dataCharts?.occupied_tables || 0,
         offlineCashiers: dataCharts?.offline_cashiers || 0
       },
-      topProducts: {
-        labels: ["Triple Burger", "Chicken Wrap", "Pizza Margherita", "Caesar Salad", "French Fries"],
-        orders_count: [450, 380, 320, 210, 180] // Static professional data
+      topProducts: dataHomeData.top_product ? {
+        labels: dataHomeData.top_product.map(p => p.product?.name || `Product ${p.product_id}`),
+        values: dataHomeData.top_product.map(p => Number(p.total_sales)),
+        orders_count: dataHomeData.top_product.map(p => Number(p.total_sales))
+      } : { labels: [], values: [], orders_count: [] },
+      topBranches: {
+        labels: topBranchesArr.map(b => b.branch?.name || t("Unknown")),
+        values: topBranchesArr.map(b => Number(b.total_amount))
       },
-      topBranches: dataBranches ? {
-        labels: dataBranches.branches.map(b => b.name),
-        values: dataBranches.branches.map(() => 10) // Default values as requested
-      } : {
-        labels: ["Main City", "West Mall", "Airport"], // Fallback
-        values: [40, 30, 20]
+      topPayments: {
+        labels: topPaymentsArr.map(p => p.payment_method?.name || t("Unknown")),
+        values: topPaymentsArr.map(p => Number(p.total_amount))
       },
-      // We'll keep the mock timeSeries labels if they asked for 3-hour intervals specifically, 
-      // but map the values from API if they exist.
-      timeSeries: orderStats && earningStats ? {
-        labels: orderStats.labels,
-        orders: orderStats.data,
-        netSales: earningStats.data,
-        netPayments: earningStats.data.map(v => Number(v) * 0.95), // Estimation
-        returns: orderStats.data.map(v => Number(v) * 0.05),
-        discounts: orderStats.data.map(v => Number(v) * 0.1)
-      } : null
+      orderTypes: {
+        labels: formattedHourlyLabels,
+        dineIn: hourlyLabels.map(h => getOrderTypeCount(dataHomeData.order_types, h, 'dine_in')),
+        delivery: hourlyLabels.map(h => getOrderTypeCount(dataHomeData.order_types, h, 'delivery')),
+        takeaway: hourlyLabels.map(h => getOrderTypeCount(dataHomeData.order_types, h, 'take_away')),
+      },
+      hourlySales: {
+        labels: formattedHourlyLabels,
+        orders: hourlyLabels.map(h => getHourlyVal(dataHomeData.sales_hourly, h, 'total_amount'))
+      },
+      timeSeries: {
+        labels: formattedHourlyLabels,
+        orders: hourlyLabels.map(h => getHourlySum(dataHomeData.order_types, h, 'order_count')), // Sum of order counts for the hour across types
+        netSales: hourlyLabels.map(h => getHourlyVal(dataHomeData.sales_hourly, h, 'total_amount')),
+        netPayments: hourlyLabels.map(h => {
+             // We can use earningStats if we don't have hourly payments
+             // For now, estimated netPayments based on 95% of sales
+             return getHourlyVal(dataHomeData.sales_hourly, h, 'total_amount') * 0.95; 
+        }),
+        returns: hourlyLabels.map(h => getHourlyVal(dataHomeData.return_hourly, h, 'total_amount')),
+        discounts: hourlyLabels.map(h => getHourlyVal(dataHomeData.discount_hourly, h, 'total_discount')) 
+      }
     };
-  }, [dataCharts, dataOrders, dataBranches]);
+  }, [dataCharts, dataOrders, dataHomeData, t]);
 
   const counters = useMemo(() => ({
     ordersAll: dataOrders?.orders || 0,

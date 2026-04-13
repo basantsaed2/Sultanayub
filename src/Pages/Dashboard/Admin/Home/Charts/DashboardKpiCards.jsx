@@ -24,7 +24,7 @@ const DashboardKpiCards = ({ kpis }) => {
             />
             <KpiCard
                 title="Active Amount"
-                value={`$${kpis.activeAmount}`}
+                value={`${kpis.activeAmount} EGP`}
                 icon={IoCash}
                 color="bg-green-500"
             />

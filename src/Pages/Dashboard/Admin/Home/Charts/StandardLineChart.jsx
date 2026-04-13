@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 
 const StandardLineChart = ({ title, labels, data, color = "#9E090F", unit = "" }) => {
+    const totalValue = useMemo(() => {
+        if (!data || !data.length) return 0;
+        const sum = data.reduce((acc, curr) => acc + Number(curr), 0);
+        return Number.isInteger(sum) ? sum : Number(sum.toFixed(2));
+    }, [data]);
+
     const chartData = {
         labels: labels,
         datasets: [
@@ -72,7 +78,12 @@ const StandardLineChart = ({ title, labels, data, color = "#9E090F", unit = "" }
 
     return (
         <div className="p-5 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full">
-            <h3 className="text-gray-500 font-TextFontRegular text-sm mb-4">{title}</h3>
+            <div className="mb-4">
+                <h3 className="text-gray-500 font-TextFontRegular text-sm">{title}</h3>
+                <h2 className="text-2xl font-bold mt-1 text-gray-800">
+                    {totalValue.toLocaleString()} <span className="text-sm font-normal text-gray-500">{unit}</span>
+                </h2>
+            </div>
             <div className="flex-grow min-h-[200px]">
                 <Line data={chartData} options={options} />
             </div>
