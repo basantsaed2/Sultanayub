@@ -14,7 +14,8 @@ import {
     MdDashboard,
     MdDynamicFeed,
     MdDiscount,
-    MdDeliveryDining as MdDeliveryDiningIcon
+    MdDeliveryDining as MdDeliveryDiningIcon,
+    MdTableRestaurant
 } from "react-icons/md";
 import { TbCategory, TbReportSearch, TbBasketDiscount, TbBorderAll, TbSocial } from "react-icons/tb";
 import { FiPackage, FiUsers } from "react-icons/fi";
@@ -58,6 +59,12 @@ export const adminRoutes = [
             { name: "Log", path: "/dashboard/orders/log" },
         ],
         redirectTo: "/dashboard/orders/all",
+    },
+    {
+        name: "Dine Orders",
+        path: "/dashboard/orders/dine_orders",
+        permission: "Order",
+        icon: MdTableRestaurant,
     },
     {
         name: "Delivery Orders",
@@ -545,6 +552,7 @@ export const ADMIN_MENU_CATEGORIES = [
             "Orders Payment",
             "Buy Offer",
             "Deal Order",
+            "Dine Orders",
         ],
     },
     {

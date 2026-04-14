@@ -247,6 +247,7 @@ import EditPrinterModule from "./Pages/Dashboard/Admin/Setting/Branches/KitchenT
 import ProductOffers from "./Pages/Dashboard/Admin/ProductOffers/ProductOffers";
 import AddProductOffer from "./Pages/Dashboard/Admin/ProductOffers/AddProductOffer";
 import EditProductOffer from "./Pages/Dashboard/Admin/ProductOffers/EditProductOffer";
+import DineOrders from "./Pages/Dashboard/Admin/Orders/DineOrders/DineOrders";
 
 const ProductSetupLayout = () => {
   return <Outlet />;
@@ -1415,6 +1416,10 @@ export const router = createBrowserRouter([
               {
                 path: "log",
                 element: <LogOrders />,
+              },
+              {
+                path: "dine_orders",
+                element: <DineOrders />,
               },
 
               /* Details Order */
