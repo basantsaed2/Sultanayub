@@ -193,7 +193,7 @@ const HomePage = () => {
         netPayments: hourlyLabels.map(h => {
              // We can use earningStats if we don't have hourly payments
              // For now, estimated netPayments based on 95% of sales
-             return getHourlyVal(dataHomeData.sales_hourly, h, 'total_amount') * 0.95; 
+             return getHourlyVal(dataHomeData.sales_hourly, h, 'total_amount'); 
         }),
         returns: hourlyLabels.map(h => getHourlyVal(dataHomeData.return_hourly, h, 'total_amount')),
         discounts: hourlyLabels.map(h => getHourlyVal(dataHomeData.discount_hourly, h, 'total_discount')) 

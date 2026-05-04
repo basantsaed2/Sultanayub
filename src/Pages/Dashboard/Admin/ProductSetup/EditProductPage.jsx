@@ -1696,6 +1696,7 @@ const EditProductPage = () => {
                                                     </span>
                                                     <NumberInput
                                                       value={option.price}
+                                                      allowNegative={true}
                                                       onChange={(e) => {
                                                         const updatedValue = e.target.value;
                                                         setProductVariations((prev) =>

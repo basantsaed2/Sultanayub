@@ -53,19 +53,33 @@ const NumberInput = ({
     paddingLeft = 'pl-2',  // Fixed spelling
     paddingRight = 'pr-2', // Fixed spelling
     className = '',
+    allowNegative = false,
     ...props
 }) => {
 
     const handleChange = (e) => {
         let val = e.target.value;
 
-        // 1. Remove any character that isn't a digit or a dot
-        val = val.replace(/[^0-9.]/g, '');
+        if (allowNegative) {
+            // Allow an optional leading minus, then digits and at most one dot
+            // Strip everything that isn't a digit, dot, or a leading minus
+            val = val.replace(/(?!^)-/g, '');        // remove minus signs that aren't at the start
+            val = val.replace(/[^0-9.-]/g, '');      // remove anything else that isn't digit/dot/minus
 
-        // 2. Prevent multiple decimal points (e.g., 1.2.3 becomes 1.23)
-        const parts = val.split('.');
-        if (parts.length > 2) {
-            val = parts[0] + '.' + parts.slice(1).join('');
+            // Prevent multiple decimal points
+            const parts = val.split('.');
+            if (parts.length > 2) {
+                val = parts[0] + '.' + parts.slice(1).join('');
+            }
+        } else {
+            // 1. Remove any character that isn't a digit or a dot
+            val = val.replace(/[^0-9.]/g, '');
+
+            // 2. Prevent multiple decimal points (e.g., 1.2.3 becomes 1.23)
+            const parts = val.split('.');
+            if (parts.length > 2) {
+                val = parts[0] + '.' + parts.slice(1).join('');
+            }
         }
 
         // Create a fake event object to pass back to the parent
