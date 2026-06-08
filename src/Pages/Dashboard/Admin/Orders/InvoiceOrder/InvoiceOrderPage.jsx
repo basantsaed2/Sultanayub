@@ -246,6 +246,7 @@ const formatCashierReceipt = (receiptData, t, isRtl, receiptDesign) => {
         ${shouldShowField('taxes', receiptDesign) ? `<div class="total-row"><span>${t("Tax")} %:</span><span>${Number(receiptData.tax).toFixed(2)}</span></div>` : ''}
         ${receiptData.delivery > 0 ? `<div class="total-row"><span>${t("DeliveryFee")}</span><span>${Number(receiptData.delivery).toFixed(2)}</span></div>` : ''}
         ${receiptData.discount > 0 ? `<div class="total-row"><span>${t("Discount")}</span><span>-${Number(receiptData.discount).toFixed(2)}</span></div>` : ''}
+        ${receiptData.coupon_discount > 0 ? `<div class="total-row"><span>${t("CouponDiscount")}</span><span>-${Number(receiptData.coupon_discount).toFixed(2)}</span></div>` : ''}
         ${shouldShowField('services', receiptDesign) && receiptData.service_fees > 0 ? `<div class="total-row"><span>${t("ServiceFee")} ${receiptData.service_fees_item?.type === "precentage" ? `(${receiptData.service_fees_item.amount}%)` : ""}</span><span>${Number(receiptData.service_fees).toFixed(2)}</span></div>` : ''}
         <div class="total-row grand-total"><span>${t("GrandTotal")}</span><span>${Number(receiptData.total).toFixed(2)}</span></div>
       </div>
@@ -328,7 +329,8 @@ const InvoiceOrderPage = () => {
       });
 
       const subtotal = productsTotal + addonsTotal;
-      const discount = parseFloat(order.total_discount || order.coupon_discount || 0);
+      const discount = parseFloat(order.total_discount || 0);
+      const coupon_discount = parseFloat(order.coupon_discount || 0);
       const tax = parseFloat(order.total_tax || 0);
       const total = parseFloat(order.amount || 0);
       const delivery = parseFloat(order.address?.zone?.price || 0);
@@ -404,6 +406,7 @@ const InvoiceOrderPage = () => {
         delivery,
         total,
         discount,
+        coupon_discount,
         service_fees: order.service_fees,
         service_fees_item: order.service_fees_item,
       };
