@@ -455,7 +455,7 @@ const EditCashierMan = () => {
                 <span className="text-xl font-TextFontRegular text-thirdColor">
                   {t("Image")}:
                 </span>
-                {existingImage && existingImage !== "https://bcknd.food2go.online/storage" ? (
+                {existingImage ? (
                   <img
                     src={existingImage}
                     alt="Current cashier"

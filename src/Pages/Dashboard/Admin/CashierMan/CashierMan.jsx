@@ -228,7 +228,7 @@ const CashierMan = () => {
                       </td>
                     ) : null}
                     <td className="min-w-[100px] sm:min-w-[80px] sm:w-1/12 lg:w-1/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                      {cashier.image_link && cashier.image_link !== "https://bcknd.food2go.online/storage" ? (
+                      {cashier.image_link ? (
                         <img
                           src={cashier.image_link}
                           alt={cashier.user_name}

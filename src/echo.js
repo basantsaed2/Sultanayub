@@ -10,8 +10,8 @@ const echo = new Echo({
     wsPort: import.meta.env.VITE_REVERB_PORT ?? 8080,
     wssPort: import.meta.env.VITE_REVERB_PORT ?? 8080,
     scheme: import.meta.env.VITE_REVERB_SCHEME ?? 'http',
-    forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'http') === 'https',
-    enabledTransports: ['ws', 'wss'],
+    forceTLS: false,
+    enabledTransports: ['ws'],
     disableStats: true,
 });
 
