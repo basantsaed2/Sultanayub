@@ -57,7 +57,7 @@ const CancellationNotificationHandler = ({ apiUrl, role }) => {
         if (role === "admin") {
             const interval = setInterval(() => {
                 refetchCancellations();
-            }, 8000);
+            }, 60000);
             return () => clearInterval(interval);
         }
     }, [role, refetchCancellations]);
