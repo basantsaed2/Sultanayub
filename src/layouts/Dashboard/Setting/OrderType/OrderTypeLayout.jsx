@@ -1,6 +1,6 @@
 import React from 'react'
 import { TitlePage } from '../../../../Components/Components'
-import { OrderTypePage } from '../../../../Pages/Pages'
+import OrderTypePage from "../../../../Pages/Dashboard/Admin/Setting/OrderType/OrderTypePage";
 import { useTranslation } from 'react-i18next';
 
 const OrderTypeLayout = () => {

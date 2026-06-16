@@ -1,6 +1,6 @@
 import React from 'react'
 import { TitlePage } from '../../../Components/Components'
-import { EditVoidReason } from '../../../Pages/Pages'
+import EditVoidReason from "../../../Pages/Dashboard/Admin/VoidReason/EditVoidReason";
 import { useTranslation } from 'react-i18next';
 
 const EditVoidReasonLayout = () => {

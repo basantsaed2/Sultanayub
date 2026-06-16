@@ -1,6 +1,6 @@
 import React from 'react'
 import { TitlePage } from '../../../Components/Components'
-import { EditDiscountPage } from '../../../Pages/Pages'
+import EditDiscountPage from "../../../Pages/Dashboard/Admin/Discount/EditDiscountPage";
 import { useTranslation } from 'react-i18next';
 
 const EditDiscountLayout = () => {

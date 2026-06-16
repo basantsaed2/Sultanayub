@@ -5,7 +5,7 @@ import { OrdersComponent } from "../../../../Store/CreateSlices";
 import { useGet } from "../../../../Hooks/useGet";
 import Chart from "./Charts/Chart";
 import FooterCard from "./FooterHome/FooterCard";
-import { SelectDateRangeSection } from '../../../../Pages/Pages'
+import SelectDateRangeSection from "../Orders/SelectDateRangeSection";
 import { useSelector } from 'react-redux';
 import { useTranslation } from "react-i18next";
 
@@ -66,12 +66,7 @@ const HomePage = () => {
   const [topCustomers, setTopCustomers] = useState({})
   const [showSMSMessage, setShowSMSMessage] = useState(false);
 
-  useEffect(() => {
-    refetchChart();
-    refetchOrders();
-    refetchBranches();
-    refetchHomeData();
-  }, [refetchChart, refetchOrders, refetchBranches, refetchHomeData]);
+  // React Query automatically fetches on mount and respects cache, so we don't need manual refetch() in useEffect
 
   useEffect(() => {
     if (dataCharts) {

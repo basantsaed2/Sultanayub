@@ -3,7 +3,7 @@ import { TitlePage } from '../../../Components/Components'
 import AddButton from '../../../Components/Buttons/AddButton'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next';
-import { CapitanOrder } from '../../../Pages/Pages';
+import CapitanOrder from "../../../Pages/Dashboard/Admin/CapitanOrder/CapitanOrder";
 
 const CaptianOrderLayout = () => {
     const [update, setUpdate] = useState(false)

@@ -1,6 +1,6 @@
 import React from 'react'
 import { AddButton, TitleSection } from '../../../Components/Components'
-import { ProductPage } from '../../../Pages/Pages'
+import ProductPage from "../../../Pages/Dashboard/Admin/ProductSetup/ProductPage";
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../Context/Auth';

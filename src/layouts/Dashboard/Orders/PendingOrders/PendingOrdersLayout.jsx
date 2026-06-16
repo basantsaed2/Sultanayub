@@ -1,9 +1,7 @@
 import React, { useEffect } from "react";
 import { TitlePage } from "../../../../Components/Components";
-import {
-  PendingOrdersPage,
-  SelectDateRangeSection,
-} from "../../../../Pages/Pages";
+import PendingOrdersPage from "../../../../Pages/Dashboard/Admin/Orders/PendingOrders/PendingOrdersPage";
+import SelectDateRangeSection from "../../../../Pages/Dashboard/Admin/Orders/SelectDateRangeSection";
 import { OrdersComponent } from "../../../../Store/CreateSlices";
 import { useTranslation } from "react-i18next";
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { TitlePage, TitleSection } from "../../../../Components/Components";
-import { ProductVariationPage } from "../../../../Pages/Pages";
+import ProductVariationPage from "../../../../Pages/Dashboard/Admin/Setting/Branches/ProductVariationPage";
 import { useTranslation } from "react-i18next";
 
 const ProductVariationLayout = () => {

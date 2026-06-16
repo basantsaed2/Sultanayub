@@ -1,37 +1,34 @@
 import axios from "axios";
-import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "../Context/Auth";
 import { useSelector } from "react-redux";
+import { useQuery } from "@tanstack/react-query";
 
-export const useGet = ({ url }) => {
+export const useGet = ({ url, params, queryKey, enabled = true }) => {
     const auth = useAuth();
-    const user = useSelector(state => state.userProject);
-    const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const token = auth?.userState?.token || '';
 
-    const fetchData = useCallback(async () => {
-        setLoading(true);
-        try {
-            const response = await axios.get(url, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${auth?.userState?.token || ''}`,
-                },
-            });
-            if (response.status === 200) {
-                setData(response.data);
-            }
-        } catch (error) {
-            console.error('errorGet', error);
-        } finally {
-            setLoading(false);
-        }
-    }, [url, auth?.userState?.token]);
+    // Generate a default queryKey if one is not provided
+    const defaultQueryKey = [url, params];
+    const finalQueryKey = queryKey || defaultQueryKey;
 
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+    const fetcher = async () => {
+        const response = await axios.get(url, {
+            params: params,
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'Authorization': `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    };
 
-    return { refetch: fetchData, loading, data };
+    const { data, isLoading, error, refetch } = useQuery({
+        queryKey: finalQueryKey,
+        queryFn: fetcher,
+        enabled: enabled && !!token && !!url, // Run if enabled is true AND we have a token and URL
+    });
+
+    // We alias isLoading to loading to maintain backward compatibility with existing components
+    return { refetch, loading: isLoading, data, error };
 };
 

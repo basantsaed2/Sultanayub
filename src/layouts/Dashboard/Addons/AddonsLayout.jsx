@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { TitlePage, TitleSection } from '../../../Components/Components'
-import { AddAddonsSection, AddonsPage } from '../../../Pages/Pages'
+import AddAddonsSection from "../../../Pages/Dashboard/Admin/Addons/AddAddonsSection";
+import AddonsPage from "../../../Pages/Dashboard/Admin/Addons/AddonsPage";
 import { useTranslation } from 'react-i18next';
 
 const AddonsLayout = () => {

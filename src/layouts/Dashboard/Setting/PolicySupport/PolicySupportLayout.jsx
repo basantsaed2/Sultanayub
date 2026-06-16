@@ -1,5 +1,5 @@
 import React from 'react'
-import { PolicySupportPage } from '../../../../Pages/Pages'
+import PolicySupportPage from "../../../../Pages/Dashboard/Admin/Setting/PolicySupport/PolicySupportPage";
 import { TitlePage } from '../../../../Components/Components'
 import { useTranslation } from 'react-i18next';
 

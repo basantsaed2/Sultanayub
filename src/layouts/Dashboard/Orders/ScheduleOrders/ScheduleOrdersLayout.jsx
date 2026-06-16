@@ -1,9 +1,7 @@
 import React, { useEffect } from "react";
 import { TitlePage } from "../../../../Components/Components";
-import {
-  ScheduleOrdersPage,
-  SelectDateRangeSection,
-} from "../../../../Pages/Pages";
+import ScheduleOrdersPage from "../../../../Pages/Dashboard/Admin/Orders/ScheduleOrders/ScheduleOrdersPage";
+import SelectDateRangeSection from "../../../../Pages/Dashboard/Admin/Orders/SelectDateRangeSection";
 import { OrdersComponent } from "../../../../Store/CreateSlices";
 import { useTranslation } from "react-i18next";
 

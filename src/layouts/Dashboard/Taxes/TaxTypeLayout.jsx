@@ -1,6 +1,6 @@
 import React from 'react'
 import { TitlePage } from '../../../Components/Components'
-import { TaxTypePage } from '../../../Pages/Pages'
+import TaxTypePage from "../../../Pages/Dashboard/Admin/Taxes/TaxTypePage";
 import { useTranslation } from 'react-i18next';
 
 const TaxTypeLayout = () => {

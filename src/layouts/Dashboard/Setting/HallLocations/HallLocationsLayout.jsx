@@ -3,7 +3,7 @@ import { TitlePage } from '../../../../Components/Components'
 import AddButton from '../../../../Components/Buttons/AddButton'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next';
-import { HallLocations } from '../../../../Pages/Pages';
+import HallLocations from "../../../../Pages/Dashboard/Admin/Setting/HallLocations/HallLocations";
 
 const HallLocationsLayout = () => {
     const [update, setUpdate] = useState(false)

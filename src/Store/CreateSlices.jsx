@@ -63,6 +63,24 @@ const initialSearchState = {
        query: '',
 };
 
+const initialFilterActiveState = {
+       active: false,
+};
+
+const initialOrderCountsState = {
+       orders: 0,
+       pending: 0,
+       processing: 0,
+       out_for_delivery: 0,
+       delivered: 0,
+       returned: 0,
+       refund: 0,
+       faild_to_deliver: 0,
+       canceled: 0,
+       scheduled: 0,
+       confirmed: 0,
+};
+
 const initialLanguage = { data: [], selected: 'en', }
 
 // New Orders slice
@@ -341,9 +359,29 @@ const languageSlice = createSlice({
               },
               setLanguageData: (state, action) => {
                      state.data = action.payload;
-              },
+              }
        }
 })
+
+const filterActiveSlice = createSlice({
+       name: "filterActive",
+       initialState: initialFilterActiveState,
+       reducers: {
+              setFilterActive: (state, action) => {
+                     state.active = action.payload;
+              },
+       },
+});
+
+const orderCountsSlice = createSlice({
+       name: "orderCounts",
+       initialState: initialOrderCountsState,
+       reducers: {
+              setOrderCounts: (state, action) => {
+                     return { ...state, ...action.payload };
+              },
+       },
+});
 
 
 
@@ -357,6 +395,7 @@ const branchesUrl =
 export const OrdersComponent = () => {
        const dispatch = useDispatch();
        const trigger = useSelector((state) => state.globalTrigger.value);
+       const isFilterActive = useSelector((state) => state.filterActive.active);
 
        const { refetch: refetchOrders, data: dataOrders, loading } = useGet({
               url: branchesUrl
@@ -386,7 +425,7 @@ export const OrdersComponent = () => {
 
 
        useEffect(() => {
-              if (dataOrders && Array.isArray(dataOrders.orders)) {
+              if (!isFilterActive && dataOrders && Array.isArray(dataOrders.orders)) {
                      dispatch(ordersAllSlice.actions.setOrdersAll(dataOrders.orders));
                      dispatch(ordersPendingSlice.actions.setOrdersPending(dataOrders.pending));
                      dispatch(ordersConfirmedSlice.actions.setOrdersConfirmed(dataOrders.confirmed));
@@ -399,28 +438,37 @@ export const OrdersComponent = () => {
                      dispatch(ordersCanceledSlice.actions.setOrdersCanceled(dataOrders.canceled));
                      dispatch(ordersScheduleSlice.actions.setOrdersSchedule(dataOrders.scheduled));
               }
-       }, [dataOrders, dispatch]);
+       }, [dataOrders, dispatch, isFilterActive]);
 
 
 
        return null; // No UI returned
 };
 
-// Fetch and dispatch orders
+// Fetch real-time order counts for sidebar badges
+export const OrderCountsComponent = () => {
+       const dispatch = useDispatch();
+       const trigger = useSelector((state) => state.globalTrigger.value);
+       const role = localStorage.getItem("role");
+       const countUrl =
+              role === "branch"
+                     ? `${apiUrl}/branch/online_order/count`
+                     : `${apiUrl}/admin/order/count`;
 
-// const dispatch = useDispatch();
-// const { refetch: refetchOrders, data: dataOrders, loading, error } = useGet({
-//        url: `${apiUrl} / admin / order`,
-// });
+       const { refetch: refetchCounts, data: countsData } = useGet({ url: countUrl });
 
-// useEffect(() => {
-//        if (dataOrders && Array.isArray(dataOrders.orders)) {
-//               dispatch(newOrdersSlice.actions.setNewOrders(dataOrders.orders));
-//        }
-// }, [dataOrders]);
+       useEffect(() => {
+              refetchCounts();
+       }, [refetchCounts, trigger]);
 
+       useEffect(() => {
+              if (countsData) {
+                     dispatch(orderCountsSlice.actions.setOrderCounts(countsData));
+              }
+       }, [countsData, dispatch]);
 
-
+       return null;
+};
 
 // Export actions
 export const { setNewOrders } = newOrdersSlice.actions;
@@ -442,6 +490,8 @@ export const { setOrdersSchedule } = ordersScheduleSlice.actions;
 export const { setLanguage, setLanguageData } = languageSlice.actions;
 export const { setGlobalSearch, clearGlobalSearch } = searchSlice.actions;
 export const { triggerRefresh } = globalTriggerSlice.actions;
+export const { setFilterActive } = filterActiveSlice.actions;
+export const { setOrderCounts } = orderCountsSlice.actions;
 
 // Export reducers
 export const newOrdersReducer = newOrdersSlice.reducer;
@@ -463,6 +513,8 @@ export const ordersScheduleReducer = ordersScheduleSlice.reducer;
 export const languageReducer = languageSlice.reducer;
 export const searchReducer = searchSlice.reducer;
 export const globalTriggerReducer = globalTriggerSlice.reducer;
+export const filterActiveReducer = filterActiveSlice.reducer;
+export const orderCountsReducer = orderCountsSlice.reducer;
 
 
 // Add to your exports

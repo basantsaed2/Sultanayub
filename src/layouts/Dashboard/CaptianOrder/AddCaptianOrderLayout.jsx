@@ -3,7 +3,7 @@ import { TitlePage } from '../../../Components/Components';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { IoArrowBack } from 'react-icons/io5';
-import { AddCaptianOrder } from '../../../Pages/Pages';
+import AddCaptianOrder from "../../../Pages/Dashboard/Admin/CapitanOrder/AddCapitanOrder";
 
 const AddCaptianOrderLayout = () => {
   const { t } = useTranslation();

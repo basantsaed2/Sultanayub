@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { TitlePage, TitleSection } from '../../../../Components/Components'
-import { AddCitySection, CitiesPage } from '../../../../Pages/Pages'
+import AddCitySection from "../../../../Pages/Dashboard/Admin/Setting/Cities/addCitySection";
+import CitiesPage from "../../../../Pages/Dashboard/Admin/Setting/Cities/CitiesPage";
 import { useTranslation } from 'react-i18next';
 
 const CitiesLayout = () => {

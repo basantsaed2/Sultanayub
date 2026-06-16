@@ -1,59 +1,85 @@
 import { useEffect, useState, useRef } from "react";
 import { LoaderLogin, SearchBar } from "../../../../../Components/Components";
-import { useSelector } from "react-redux";
 import { BiSolidShow } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import { FaFileInvoice, FaWhatsapp, FaRegCopy } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../../../Context/Auth";
+import { useGet } from "../../../../../Hooks/useGet";
+import { useSelector } from "react-redux";
+
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
 const AllOrdersPage = () => {
   const auth = useAuth();
   const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
   const route = role === "branch" ? "/branch/orders" : "/dashboard/orders";
 
-  const ordersAll = useSelector((state) => state.ordersAll);
   const [textSearch, setTextSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [filteredOrders, setFilteredOrders] = useState([]);
+  const filteredOrdersPerPage = 20;
 
-  const [currentPage, setCurrentPage] = useState(1); // Track the current page
-  const filteredOrdersPerPage = 20; // Limit to 20 filteredOrders per page
+  // Filter active flag (set by SelectDateRangeSection via Redux)
+  const filterActive = useSelector(state => state.filterActive?.active || false);
+  // Redux fallback data (used when filter is active or my_orders errors)
+  const reduxOrdersData = useSelector(state => state.ordersAll.data || []);
 
-  // Calculate total number of pages
-  const totalPages = Math.ceil(filteredOrders.length / filteredOrdersPerPage);
+  const branchesUrl = role === "branch" ? `${apiUrl}/branch/online_order` : `${apiUrl}/admin/order`;
 
-  // Get the filteredOrders for the current page
-  const currentFilteredOrders = filteredOrders.slice(
-    (currentPage - 1) * filteredOrdersPerPage,
-    currentPage * filteredOrdersPerPage
-  );
-  const { t, i18n } = useTranslation();
+  const { data: dataOrders, loading, error } = useGet({
+    url: `${apiUrl}/admin/order/my_orders`,
+    params: {
+      order_status: 'all',
+      page: currentPage,
+      per_page: filteredOrdersPerPage
+    }
+  });
 
-  // handle page change
+  // ONLY call this fallback API if the primary my_orders API fails
+  const { data: fallbackDataOrders, loading: fallbackLoading } = useGet({
+    url: branchesUrl,
+    params: {
+      order_status: 'all',
+      page: currentPage,
+      per_page: filteredOrdersPerPage
+    },
+    enabled: !!error 
+  });
+
+  // Use filter/Redux data if filter is active. Otherwise, use primary data, or fallback data if primary errors.
+  const ordersData = filterActive
+    ? (Array.isArray(reduxOrdersData) ? reduxOrdersData : [])
+    : error 
+        ? (Array.isArray(fallbackDataOrders?.orders?.data) ? fallbackDataOrders.orders.data : (Array.isArray(fallbackDataOrders?.orders) ? fallbackDataOrders.orders : []))
+        : (Array.isArray(dataOrders?.orders?.data) ? dataOrders.orders.data : []);
+
+  useEffect(() => {
+    setFilteredOrders(ordersData);
+  }, [dataOrders, fallbackDataOrders, filterActive, reduxOrdersData, error]);
+
+  const totalPages = filterActive ? 1 : error ? (fallbackDataOrders?.orders?.last_page || 1) : (dataOrders?.orders?.last_page || 1);
+  const isOrdersLoading = filterActive ? false : (loading || (error && fallbackLoading));
+
+  const { t } = useTranslation();
+
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
-
-  useEffect(() => {
-    if (Array.isArray(ordersAll.data)) {
-      setFilteredOrders(ordersAll.data);
-    }
-  }, [ordersAll.data]);
 
   const handleFilterData = (e) => {
     const text = e.target.value.trim();
     setTextSearch(text);
 
-    if (!ordersAll?.data || !Array.isArray(ordersAll.data)) {
-      console.error("Invalid orders data:", ordersAll.data);
+    if (!ordersData || !Array.isArray(ordersData)) {
+      console.error("Invalid orders data:", ordersData);
       return;
     }
 
     if (text === "") {
-      setFilteredOrders(ordersAll.data); // Reset if input is empty
+      setFilteredOrders(ordersData); // Reset if input is empty
     } else {
-
-      const filter = ordersAll.data.filter(
+      const filter = ordersData.filter(
         (order) =>
           order.id.toString().startsWith(text) || // Matches if order.id starts with the text
           (order.user?.name || "-")
@@ -63,17 +89,16 @@ const AllOrdersPage = () => {
             .toLowerCase()
             .includes(text.toLowerCase())
       );
-
       setFilteredOrders(filter); // Update state
     }
   };
+
   const handleCopy = (phone) => {
     if (!phone) return;
-
     navigator.clipboard
       .writeText(phone)
       .then(() => {
-        auth.toastSuccess("Phone number copied!"); // Use auth.toastSuccess()
+        auth.toastSuccess("Phone number copied!");
       })
       .catch((err) => console.error("Failed to copy:", err));
   };
@@ -115,21 +140,21 @@ const AllOrdersPage = () => {
       });
     }
   };
-  const headers = [
-    t("sl"),               // SL - الرقم التسلسلي
-    t("orderId"),          // Order ID - رقم الطلب
-    t("deliveryDate"),     // Delivery Date - تاريخ التوصيل
-    t("customerInfo"),     // Customer Info - معلومات العميل
-    t("branch"),           // Branch - الفرع
-    t("totalPrice"),       // Total Price - السعر الإجمالي
-    t("paymentMethod"),    // Payment Method - طريقة الدفع
-    t("orderStatus"),      // Order Status - حالة الطلب
-    t("operationsStatus"), // Operations Status - حالة العمليات
-    t("operationsAdmin"),  // Operations Admin - مسؤول العمليات
-    t("orderType"),        // Order Type - نوع الطلب
-    t("actions"),          // Actions - الإجراءات
-  ];
 
+  const headers = [
+    t("sl"),               
+    t("orderId"),          
+    t("deliveryDate"),     
+    t("customerInfo"),     
+    t("branch"),           
+    t("totalPrice"),       
+    t("paymentMethod"),    
+    t("orderStatus"),      
+    t("operationsStatus"), 
+    t("operationsAdmin"),  
+    t("orderType"),        
+    t("actions"),          
+  ];
 
   return (
     <>
@@ -158,7 +183,7 @@ const AllOrdersPage = () => {
 
             {filteredOrders.length > 0 && (
               <div className="flex flex-wrap items-center justify-center gap-x-4">
-                {currentPage !== 1 && (
+                {currentPage > 1 && (
                   <button type='button' className='px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium' onClick={() => setCurrentPage(currentPage - 1)}>{t("Prev")}</button>
                 )}
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -170,7 +195,7 @@ const AllOrdersPage = () => {
                     {page}
                   </button>
                 ))}
-                {totalPages !== currentPage && (
+                {totalPages > currentPage && (
                   <button type='button' className='px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium' onClick={() => setCurrentPage(currentPage + 1)}>{t("Next")}</button>
                 )}
               </div>
@@ -188,12 +213,12 @@ const AllOrdersPage = () => {
           </div>
         )}
 
-        {/* Table Container - Simplified structure */}
+        {/* Table Container */}
         <div
           className="relative w-full overflow-x-auto pb-28"
           ref={tableContainerRef}
         >
-          {ordersAll.loading ? (
+          {isOrdersLoading ? (
             <LoaderLogin />
           ) : (
             <>
@@ -223,16 +248,12 @@ const AllOrdersPage = () => {
                       </td>
                     </tr>
                   ) : (
-                    currentFilteredOrders.map((order, index) => (
+                    filteredOrders.map((order, index) => (
                       <tr key={index} className="border-b">
-                        {/* Row Index */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
-                          {(currentPage - 1) * filteredOrdersPerPage +
-                            index +
-                            1}
+                          {(currentPage - 1) * filteredOrdersPerPage + index + 1}
                         </td>
 
-                        {/* Order ID */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           <Link
                             to={`${route}/details/${order.id}`}
@@ -242,7 +263,6 @@ const AllOrdersPage = () => {
                           </Link>
                         </td>
 
-                        {/* Order Date */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order?.created_at
                             ? new Date(order.created_at).toLocaleDateString(
@@ -259,7 +279,6 @@ const AllOrdersPage = () => {
                             : "-"}
                         </td>
 
-                        {/* User Information */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           <div>{`${order.user?.f_name || "N/A"} ${order.user?.l_name || "-"}`}</div>
                           <div className="flex items-center justify-center gap-2">
@@ -286,24 +305,20 @@ const AllOrdersPage = () => {
                           </div>
                         </td>
 
-                        {/* Branch */}
                         <td className="px-4 py-2 text-sm text-center lg:text-base">
                           <span className="px-2 py-1 rounded-md text-cyan-500 bg-cyan-200">
                             {order.branch?.name || "-"} / {order.address?.zone.zone || "-"}
                           </span>
                         </td>
 
-                        {/* Order Amount */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order?.amount || 0}
                         </td>
 
-                        {/* Order Payment */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order?.payment_method?.name || 0}
                         </td>
 
-                        {/* Order Status */}
                         <td className="px-4 py-2 text-center">
                           <span
                             className={`rounded-md px-2 py-1 text-sm ${order?.order_status === "pending"
@@ -322,16 +337,13 @@ const AllOrdersPage = () => {
                             }                          </span>
                         </td>
 
-                        {/* Status Operations */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order.operation_status || "-"}
                         </td>
-                        {/* Admin Operations */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order.admin?.name || "-"}
                         </td>
 
-                        {/* Order Type */}
                         <td className="px-4 py-2 text-center">
                           <span
                             className={`rounded-md px-2 py-1 text-sm ${order?.order_type === "delivery"
@@ -345,7 +357,6 @@ const AllOrdersPage = () => {
                           </span>
                         </td>
 
-                        {/* Actions */}
                         <td className="px-4 py-2 text-center">
                           <div className="flex items-center justify-center gap-2">
                             <Link

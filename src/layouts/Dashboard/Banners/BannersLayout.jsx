@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { TitlePage, TitleSection } from '../../../Components/Components'
-import { AddBannerSection, BannersPage } from '../../../Pages/Pages'
+import AddBannerSection from "../../../Pages/Dashboard/Admin/Banners/addBannerSection";
+import BannersPage from "../../../Pages/Dashboard/Admin/Banners/BannersPage";
 import { useTranslation } from 'react-i18next';
 
 const BannersLayout = () => {

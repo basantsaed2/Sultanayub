@@ -1,56 +1,68 @@
 import { useEffect, useState, useRef } from "react";
-import { useSelector } from 'react-redux';
-import { LoaderLogin, SearchBar } from '../../../../../Components/Components';
-import { BiSolidShow } from 'react-icons/bi';
-import { FaFileInvoice } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
-import { FaRegCopy, FaWhatsapp } from "react-icons/fa";
-import { useAuth } from "../../../../../Context/Auth"; // Make sure to import useAuth if required
+import { LoaderLogin, SearchBar } from "../../../../../Components/Components";
+import { BiSolidShow } from "react-icons/bi";
+import { Link } from "react-router-dom";
+import { FaFileInvoice, FaWhatsapp, FaRegCopy } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "../../../../../Context/Auth";
+import { useGet } from "../../../../../Hooks/useGet";
+import { useSelector } from "react-redux";
+
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
 const RefundOrdersPage = () => {
   const auth = useAuth();
-  const { t, i18n } = useTranslation();
   const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
   const route = role === "branch" ? "/branch/orders" : "/dashboard/orders";
 
-  const ordersRefund = useSelector((state) => state.ordersRefund);
-  const [textSearch, setTextSearch] = useState('');
+  const [textSearch, setTextSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [filteredOrders, setFilteredOrders] = useState([]);
+  const filteredOrdersPerPage = 20;
 
-  const [currentPage, setCurrentPage] = useState(1); // Track the current page
-  const filteredOrdersPerPage = 20; // Limit to 20 filteredOrders per page
+  const filterActive = useSelector(state => state.filterActive?.active || false);
+  const reduxOrdersData = useSelector(state => state.ordersRefund.data || []);
 
-  // Calculate total number of pages
-  const totalPages = Math.ceil(filteredOrders.length / filteredOrdersPerPage);
+  const { data: dataOrders, loading, error } = useGet({
+    url: `${apiUrl}/admin/order/my_orders`,
+    params: {
+      order_status: 'refund',
+      page: currentPage,
+      per_page: filteredOrdersPerPage
+    }
+  });
 
-  // Get the filteredOrders for the current page
-  const currentFilteredOrders = filteredOrders.slice(
-    (currentPage - 1) * filteredOrdersPerPage,
-    currentPage * filteredOrdersPerPage
-  );
+  const ordersData = (filterActive || error)
+    ? (Array.isArray(reduxOrdersData) ? reduxOrdersData : [])
+    : (Array.isArray(dataOrders?.orders?.data) ? dataOrders.orders.data : []);
 
-  // handle page change
+  useEffect(() => {
+    setFilteredOrders(ordersData);
+  }, [dataOrders, filterActive, reduxOrdersData, error]);
+
+  const totalPages = (filterActive || error) ? 1 : (dataOrders?.orders?.last_page || 1);
+
+  const { t } = useTranslation();
+
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
-
-  useEffect(() => {
-    if (Array.isArray(ordersRefund.data)) {
-      setFilteredOrders(ordersRefund.data)
-    }
-  }, [ordersRefund.data]);
 
   const handleFilterData = (e) => {
     const text = e.target.value.trim();
     setTextSearch(text);
 
+    if (!ordersData || !Array.isArray(ordersData)) {
+      console.error("Invalid orders data:", ordersData);
+      return;
+    }
+
     if (text === "") {
-      setFilteredOrders(ordersAll.data); // Reset if input is empty
+      setFilteredOrders(ordersData); 
     } else {
-      const filter = ordersAll.data.filter(
+      const filter = ordersData.filter(
         (order) =>
-          order.id.toString().startsWith(text) || // Matches if order.id starts with the text
+          order.id.toString().startsWith(text) || 
           (order.user?.name || "-")
             .toLowerCase()
             .includes(text.toLowerCase()) ||
@@ -58,9 +70,18 @@ const RefundOrdersPage = () => {
             .toLowerCase()
             .includes(text.toLowerCase())
       );
-
-      setFilteredOrders(filter); // Update state
+      setFilteredOrders(filter); 
     }
+  };
+
+  const handleCopy = (phone) => {
+    if (!phone) return;
+    navigator.clipboard
+      .writeText(phone)
+      .then(() => {
+        auth.toastSuccess("Phone number copied!");
+      })
+      .catch((err) => console.error("Failed to copy:", err));
   };
 
   const tableContainerRef = useRef(null);
@@ -91,17 +112,6 @@ const RefundOrdersPage = () => {
     };
   }, [filteredOrders, currentPage]);
 
-  const handleCopy = (phone) => {
-    if (!phone) return;
-
-    navigator.clipboard
-      .writeText(phone)
-      .then(() => {
-        auth.toastSuccess("Phone number copied!"); // Use auth.toastSuccess()
-      })
-      .catch((err) => console.error("Failed to copy:", err));
-  };
-
   const scrollTable = (direction) => {
     if (tableContainerRef.current) {
       const scrollAmount = 300;
@@ -113,24 +123,23 @@ const RefundOrdersPage = () => {
   };
 
   const headers = [
-    t('sl'),
-    t('order_id'),
-    t('delivery_date'),
-    t('customer_info'),
-    t('branch'),
-    t('total_amount'),
-    t('payment_method'),
-    t('order_status'),
-    t('operations_status'),
-    t('operations_admin'),
-    t('order_type'),
-    t('actions')
+    t("sl"),               
+    t("orderId"),          
+    t("deliveryDate"),     
+    t("customerInfo"),     
+    t("branch"),           
+    t("totalPrice"),       
+    t("paymentMethod"),    
+    t("orderStatus"),      
+    t("operationsStatus"), 
+    t("operationsAdmin"),  
+    t("orderType"),        
+    t("actions"),          
   ];
 
   return (
     <>
-      <div className="relative flex flex-col w-full gap-y-3">
-        {/* Search Order */}
+      <div className="flex flex-col w-full gap-y-3">
         <div className="sm:w-full lg:w-[70%] xl:w-[30%] mt-4">
           <SearchBar
             placeholder={t("Search by Order ID, User Name,Phone")}
@@ -139,9 +148,8 @@ const RefundOrdersPage = () => {
           />
         </div>
 
-        {/* Scroll Controls */}
         {showScrollHint && (
-          <div className="sticky top-0 z-20 flex items-center justify-between py-2 mb-2 bg-white shadow-sm">
+          <div className="sticky top-0 z-10 flex items-center justify-between py-2 mb-2 bg-white shadow-sm">
             <button
               onClick={() => scrollTable('left')}
               className="p-2 transition bg-gray-100 rounded-full hover:bg-gray-200"
@@ -154,7 +162,7 @@ const RefundOrdersPage = () => {
 
             {filteredOrders.length > 0 && (
               <div className="flex flex-wrap items-center justify-center gap-x-4">
-                {currentPage !== 1 && (
+                {currentPage > 1 && (
                   <button type='button' className='px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium' onClick={() => setCurrentPage(currentPage - 1)}>{t("Prev")}</button>
                 )}
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -166,7 +174,7 @@ const RefundOrdersPage = () => {
                     {page}
                   </button>
                 ))}
-                {totalPages !== currentPage && (
+                {totalPages > currentPage && (
                   <button type='button' className='px-4 py-2 text-lg text-white rounded-xl bg-mainColor font-TextFontMedium' onClick={() => setCurrentPage(currentPage + 1)}>{t("Next")}</button>
                 )}
               </div>
@@ -184,12 +192,11 @@ const RefundOrdersPage = () => {
           </div>
         )}
 
-        {/* Table Container */}
         <div
           className="relative w-full overflow-x-auto pb-28"
           ref={tableContainerRef}
         >
-          {ordersRefund.loading ? (
+          {loading ? (
             <LoaderLogin />
           ) : (
             <>
@@ -206,7 +213,7 @@ const RefundOrdersPage = () => {
                     ))}
                   </tr>
                 </thead>
-                {/* Table Body */}
+
                 <tbody>
                   {filteredOrders.length === 0 ? (
                     <tr>
@@ -218,14 +225,12 @@ const RefundOrdersPage = () => {
                       </td>
                     </tr>
                   ) : (
-                    currentFilteredOrders.map((order, index) => (
+                    filteredOrders.map((order, index) => (
                       <tr key={index} className="border-b">
-                        {/* Row Index */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {(currentPage - 1) * filteredOrdersPerPage + index + 1}
                         </td>
 
-                        {/* Order ID */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           <Link
                             to={`${route}/details/${order.id}`}
@@ -235,21 +240,22 @@ const RefundOrdersPage = () => {
                           </Link>
                         </td>
 
-                        {/* Order Date */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order?.created_at
-                            ? new Date(order.created_at).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              hour12: true,
-                            })
-                            : ''}
+                            ? new Date(order.created_at).toLocaleDateString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true,
+                              }
+                            )
+                            : "-"}
                         </td>
 
-                        {/* User Information */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           <div>{`${order.user?.f_name || "N/A"} ${order.user?.l_name || "-"}`}</div>
                           <div className="flex items-center justify-center gap-2">
@@ -276,63 +282,58 @@ const RefundOrdersPage = () => {
                           </div>
                         </td>
 
-                        {/* Branch */}
                         <td className="px-4 py-2 text-sm text-center lg:text-base">
                           <span className="px-2 py-1 rounded-md text-cyan-500 bg-cyan-200">
                             {order.branch?.name || "-"} / {order.address?.zone.zone || "-"}
                           </span>
                         </td>
 
-                        {/* Order Amount */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order?.amount || 0}
                         </td>
 
-                        {/* Order Payment */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order?.payment_method?.name || 0}
                         </td>
 
-                        {/* Order Status */}
                         <td className="px-4 py-2 text-center">
                           <span
-                            className={`rounded-md px-2 py-1 text-sm ${order?.order_status === 'pending'
-                              ? 'bg-amber-200 text-amber-500'
-                              : order?.order_status === 'confirmed'
-                                ? 'bg-green-200 text-green-500'
-                                : order?.order_status === 'canceled'
-                                  ? 'bg-red-200 text-red-500'
-                                  : 'bg-gray-200 text-gray-500'
+                            className={`rounded-md px-2 py-1 text-sm ${order?.order_status === "pending"
+                              ? "bg-amber-200 text-amber-500"
+                              : order?.order_status === "confirmed"
+                                ? "bg-green-200 text-green-500"
+                                : order?.order_status === "canceled"
+                                  ? "bg-red-200 text-red-500"
+                                  : "bg-gray-200 text-gray-500"
                               }`}
                           >
-                            {order?.order_status || '-'}
-                          </span>
+                            {
+                              order?.order_status === "processing" ? "Accepted" :
+                                order?.order_status === "confirmed" ? t("Processing") :
+                                  order?.order_status || "-"
+                            }                          </span>
                         </td>
 
-                        {/* Status Operations */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order.operation_status || "-"}
                         </td>
-                        {/* Admin Operations */}
                         <td className="px-4 py-2 text-sm text-center text-thirdColor lg:text-base">
                           {order.admin?.name || "-"}
                         </td>
 
-                        {/* Order Type */}
                         <td className="px-4 py-2 text-center">
                           <span
-                            className={`rounded-md px-2 py-1 text-sm ${order?.order_type === 'delivery'
-                              ? 'bg-green-300 text-green-500'
-                              : order?.order_type === 'pickup'
-                                ? 'bg-blue-300 text-blue-500'
-                                : 'bg-gray-200 text-gray-500'
+                            className={`rounded-md px-2 py-1 text-sm ${order?.order_type === "delivery"
+                              ? "bg-green-300 text-green-500"
+                              : order?.order_type === "pickup"
+                                ? "bg-blue-300 text-blue-500"
+                                : "bg-gray-200 text-gray-500"
                               }`}
                           >
-                            {order?.order_type || '-'}
+                            {order?.order_type || "-"}
                           </span>
                         </td>
 
-                        {/* Actions */}
                         <td className="px-4 py-2 text-center">
                           <div className="flex items-center justify-center gap-2">
                             <Link
@@ -359,11 +360,9 @@ const RefundOrdersPage = () => {
             </>
           )}
         </div>
-
       </div>
-
     </>
-  )
-}
+  );
+};
 
 export default RefundOrdersPage;

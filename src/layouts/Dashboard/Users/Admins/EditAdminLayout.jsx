@@ -1,6 +1,6 @@
 import React from 'react'
 import { TitlePage } from '../../../../Components/Components'
-import { EditAdminPage } from '../../../../Pages/Pages'
+import EditAdminPage from "../../../../Pages/Dashboard/Admin/Users/Admins/EditAdminPage";
 import { useTranslation } from 'react-i18next';
 
 const EditAdminLayout = () => {

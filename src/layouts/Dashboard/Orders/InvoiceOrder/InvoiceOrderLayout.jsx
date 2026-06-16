@@ -1,6 +1,6 @@
 import React from 'react'
 import { TitlePage } from '../../../../Components/Components'
-import { InvoiceOrdersPage } from '../../../../Pages/Pages'
+import InvoiceOrdersPage from "../../../../Pages/Dashboard/Admin/Orders/InvoiceOrder/InvoiceOrderPage";
 import { useTranslation } from 'react-i18next';
 
 const InvoiceOrderLayout = () => {

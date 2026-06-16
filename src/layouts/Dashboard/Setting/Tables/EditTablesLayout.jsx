@@ -1,5 +1,5 @@
 import React from 'react'
-import { EditTablesPage } from '../../../../Pages/Pages'
+import EditTablesPage from "../../../../Pages/Dashboard/Admin/Setting/Tables/EditTablesPage";
 import { TitlePage } from '../../../../Components/Components'
 import { useTranslation } from 'react-i18next';
 

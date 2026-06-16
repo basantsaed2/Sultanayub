@@ -1,10 +1,10 @@
 import React from 'react'
-import { LoginPage } from '../../Pages/Pages'
+import CustomerLoginPage from '../../Pages/Dashboard/Admin/BusinessSetup/CustomerLoginPage'
 
 const LoginLayout = () => {
        return (
               <>
-                     <LoginPage />
+                     <CustomerLoginPage />
               </>
        )
 }

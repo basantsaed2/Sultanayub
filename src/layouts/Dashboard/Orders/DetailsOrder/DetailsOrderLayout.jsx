@@ -1,6 +1,6 @@
 import React from 'react'
 import { TitlePage } from '../../../../Components/Components'
-import { DetailsOrdersPage } from '../../../../Pages/Pages'
+import DetailsOrdersPage from "../../../../Pages/Dashboard/Admin/Orders/DetailsOrder/DetailsOrderPage";
 import { useTranslation } from 'react-i18next';
 
 const DetailsOrderLayout = () => {

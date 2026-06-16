@@ -1,6 +1,6 @@
 import React from 'react'
 import { TitlePage } from '../../../../Components/Components'
-import { AddRoleSection } from '../../../../Pages/Pages'
+import AddRoleSection from "../../../../Pages/Dashboard/Admin/Setting/Roles/AddRoleSection";
 import { useTranslation } from 'react-i18next';
 
 const AddRoleLayout = () => {

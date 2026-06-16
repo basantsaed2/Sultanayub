@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useGet } from '../../../Hooks/useGet';
 import { TitlePage, TitleSection } from '../../../Components/Components';
-import { AddDealSection, DealsPage } from '../../../Pages/Pages';
+import AddDealSection from "../../../Pages/Dashboard/Admin/Deals/AddDealSection";
+import DealsPage from "../../../Pages/Dashboard/Admin/Deals/DealsPage";
 import { useTranslation } from 'react-i18next';
 
 const DealsLayout = () => {

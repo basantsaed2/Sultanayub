@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { AddCouponSection, CouponPage } from '../../../Pages/Pages'
+import AddCouponSection from "../../../Pages/Dashboard/Admin/Coupon/AddCouponSection";
+import CouponPage from "../../../Pages/Dashboard/Admin/Coupon/CouponPage";
 import { TitlePage, TitleSection } from '../../../Components/Components'
 import { useTranslation } from 'react-i18next';
 

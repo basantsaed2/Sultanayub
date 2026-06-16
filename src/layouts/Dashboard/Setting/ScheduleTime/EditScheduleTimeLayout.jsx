@@ -1,6 +1,6 @@
 import React from 'react'
 import { TitlePage } from '../../../../Components/Components'
-import { EditScheduleTimePage } from '../../../../Pages/Pages'
+import EditScheduleTimePage from "../../../../Pages/Dashboard/Admin/Setting/ScheduleTime/EditScheduleTimePage";
 import { useTranslation } from 'react-i18next';
 
 const EditScheduleTimeLayout = () => {

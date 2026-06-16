@@ -1,6 +1,6 @@
 import React from 'react'
 import { TitlePage } from '../../../../Components/Components'
-import { EditRolePage } from '../../../../Pages/Pages'
+import EditRolePage from "../../../../Pages/Dashboard/Admin/Setting/Roles/EditRole";
 import { useTranslation } from 'react-i18next';
 
 const EditRoleLayout = () => {

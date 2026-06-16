@@ -1,10 +1,8 @@
 import React, { useEffect } from "react";
 import { LoaderLogin, TitlePage } from "../../../../Components/Components";
-import {
-  AllOrdersPage,
-  CartsOrderSection,
-  SelectDateRangeSection,
-} from "../../../../Pages/Pages";
+import AllOrdersPage from "../../../../Pages/Dashboard/Admin/Orders/AllOrders/AllOrdersPage";
+import CartsOrderSection from "../../../../Pages/Dashboard/Admin/Orders/AllOrders/CartsOrderSection";
+import SelectDateRangeSection from "../../../../Pages/Dashboard/Admin/Orders/SelectDateRangeSection";
 import { useGet } from "../../../../Hooks/useGet";
 import { useSelector } from "react-redux";
 import { OrdersComponent } from "../../../../Store/CreateSlices";

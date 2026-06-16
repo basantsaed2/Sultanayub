@@ -1,5 +1,5 @@
 import React from 'react'
-import { ResturantTimePage } from '../../../../Pages/Pages'
+import ResturantTimePage from "../../../../Pages/Dashboard/Admin/Setting/ResturantTime/ResturantTimePage";
 import { TitlePage } from '../../../../Components/Components'
 import { useTranslation } from 'react-i18next';
 

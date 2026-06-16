@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { TitlePage, TitleSection } from '../../../../Components/Components'
-import { AddCustomersSection, CustomersPage } from '../../../../Pages/Pages'
+import AddCustomersSection from "../../../../Pages/Dashboard/Admin/Users/Customers/AddCustomersSection";
+import CustomersPage from "../../../../Pages/Dashboard/Admin/Users/Customers/CustomersPage";
 import { useTranslation } from 'react-i18next';
 
 const CustomersLayout = () => {

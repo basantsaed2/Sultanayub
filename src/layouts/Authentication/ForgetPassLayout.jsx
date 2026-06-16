@@ -1,5 +1,5 @@
 import React from 'react'
-import { ForgetPassPage } from '../../Pages/Pages'
+import ForgetPassPage from '../../Pages/Authentication/ForgetPassPage'
 
 const ForgetPassLayout = () => {
        return (

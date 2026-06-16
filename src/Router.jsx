@@ -1,265 +1,280 @@
+
+import LoaderLogin from "./Components/Loaders/LoaderLogin.jsx";
+import React, { Suspense } from "react";
 import { createBrowserRouter, Outlet } from "react-router-dom";
-import {
-  AddonsLayout,
-  AddProductLayout,
-  AllOrdersLayout,
-  BannersLayout,
-  BranchesLayout,
-  CanceledOrdersLayout,
-  CancelTimeLayout,
-  CategoryLayout,
-  CitiesLayout,
-  ConfirmedOrdersLayout,
-  DashboardLayout,
-  AdminLandingPage,
-  DealOrderLayout,
-  DeliveredOrdersLayout,
-  DeliveryManLayout,
-  DeliveryTimeLayout,
-  DetailsOrderLayout,
-  DiscountLayout,
-  EditAddonsLayout,
-  EditBannerLayout,
-  EditBranchLayout,
-  EditCategoryLayout,
-  EditCityLayout,
-  EditDeliveryManLayout,
-  EditDiscountLayout,
-  EditOfferLayout,
-  EditPaymentMethodLayout,
-  EditProductLayout,
-  EditTaxLayout,
-  EditZoneLayout,
-  FailedOrdersLayout,
-  ForgetPassLayout,
-  InvoiceOrderLayout,
-  LanguagesLayout,
-  LoginLayout,
-  OffersLayout,
-  OrdersPaymentLayout,
-  OrderTypeLayout,
-  OutForDeliveryOrdersLayout,
-  PaymentMethodLayout,
-  PendingOrdersLayout,
-  ProcessingOrdersLayout,
-  ProductLayout,
-  ResturantTimeLayout,
-  ReturnedOrdersLayout,
-  ScheduleOrdersLayout,
-  SongLayout,
-  TaxesLayout,
-  TaxTypeLayout,
-  ZonesLayout,
-  CouponLayout,
-  EditCouponLayout,
-  BuyOfferLayout,
-  DealsLayout,
-  EditDealLayout,
-  AutomaticPaymentLayout,
-  CustomersLayout,
-  EditCustomersLayout,
-  BusinessSetupLayout,
-  EditRoleLayout,
-  RolesLayout,
-  AdminsLayout,
-  EditAdminLayout,
-  MenuLayout,
-  BranchCategoryLayout,
-  CategoryProductLayout,
-  ProductVariationLayout,
-  VariationOptionLayout,
-  EmailLayout,
-  AddRoleLayout,
-  ScheduleTimeLayout,
-  EditScheduleTimeLayout,
-  RefundOrdersLayout,
-  CancelationNotificationLayout,
-  PolicySupportLayout,
-  CaptianOrderLayout,
-  AddCaptianOrderLayout,
-  EditCaptianOrderLayout,
-  WaiterLayout,
-  AddWaiterLayout,
-  EditWaiterLayout,
-  VoidReasonLayout,
-  EditVoidReasonLayout,
-  AddHallLocationsLayout,
-} from "./layouts/Layouts";
+const AddonsLayout = React.lazy(() => import("./layouts/Dashboard/Addons/AddonsLayout"));
+const AddProductLayout = React.lazy(() => import("./layouts/Dashboard/ProductSetup/AddProductLayout"));
+const AllOrdersLayout = React.lazy(() => import("./layouts/Dashboard/Orders/AllOrders/AllOrdersLayout"));
+const BannersLayout = React.lazy(() => import("./layouts/Dashboard/Banners/BannersLayout"));
+const BranchesLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Branches/BranchesLayout"));
+const CanceledOrdersLayout = React.lazy(() => import("./layouts/Dashboard/Orders/CanceledOrders/CanceledOrdersLayout"));
+const CancelTimeLayout = React.lazy(() => import("./layouts/Dashboard/Setting/CancelTime/CancelTimeLayout"));
+const CategoryLayout = React.lazy(() => import("./layouts/Dashboard/CategorySetup/CategoryLayout"));
+const CitiesLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Cities/CitiesLayout"));
+const ConfirmedOrdersLayout = React.lazy(() => import("./layouts/Dashboard/Orders/ConfirmedOrders/ConfirmedOrdersLayout"));
+const DashboardLayout = React.lazy(() => import("./layouts/Dashboard/Home/DashboardLayout"));
+const AdminLandingPage = React.lazy(() => import("./Pages/Dashboard/Admin/Home/AdminLandingPage"));
+const DealOrderLayout = React.lazy(() => import("./layouts/Dashboard/DealOrder/DealOrderLayout"));
+const DeliveredOrdersLayout = React.lazy(() => import("./layouts/Dashboard/Orders/DeliveredOrders/DeliveredOrdersLayout"));
+const DeliveryManLayout = React.lazy(() => import("./layouts/Dashboard/DeliveryMan/DeliveryManLayout"));
+const DeliveryTimeLayout = React.lazy(() => import("./layouts/Dashboard/Setting/DeliveryTime/DeliveryTimeLayout"));
+const DetailsOrderLayout = React.lazy(() => import("./layouts/Dashboard/Orders/DetailsOrder/DetailsOrderLayout"));
+const DiscountLayout = React.lazy(() => import("./layouts/Dashboard/Discount/DiscountLayout"));
+const EditAddonsLayout = React.lazy(() => import("./layouts/Dashboard/Addons/EditAddonsLayout"));
+const EditBannerLayout = React.lazy(() => import("./layouts/Dashboard/Banners/EditBannerLayout"));
+const EditBranchLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Branches/EditBranchLayout"));
+const EditCategoryLayout = React.lazy(() => import("./layouts/Dashboard/CategorySetup/EditCategoryLayout"));
+const EditCityLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Cities/EditCityLayout"));
+const EditDeliveryManLayout = React.lazy(() => import("./layouts/Dashboard/DeliveryMan/EditDeliveryManLayout"));
+const EditDiscountLayout = React.lazy(() => import("./layouts/Dashboard/Discount/EditDiscountLayout"));
+const EditOfferLayout = React.lazy(() => import("./layouts/Dashboard/Offers/EditOfferLayout"));
+const EditPaymentMethodLayout = React.lazy(() => import("./layouts/Dashboard/Setting/PaymentMethod/EditPaymentMethodLayout"));
+const EditProductLayout = React.lazy(() => import("./layouts/Dashboard/ProductSetup/EditProductLayout"));
+const EditTaxLayout = React.lazy(() => import("./layouts/Dashboard/Taxes/EditTaxLayout"));
+const EditZoneLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Zones/EditZoneLayout"));
+const FailedOrdersLayout = React.lazy(() => import("./layouts/Dashboard/Orders/FailedOrders/FailedOrdersLayout"));
+const ForgetPassLayout = React.lazy(() => import("./layouts/Authentication/ForgetPassLayout"));
+const InvoiceOrderLayout = React.lazy(() => import("./layouts/Dashboard/Orders/InvoiceOrder/InvoiceOrderLayout"));
+const LanguagesLayout = React.lazy(() => import("./layouts/Dashboard/Languages/LanguagesLayout"));
+const LoginLayout = React.lazy(() => import("./layouts/Authentication/LoginLayout"));
+const OffersLayout = React.lazy(() => import("./layouts/Dashboard/Offers/OffersLayout"));
+const OrdersPaymentLayout = React.lazy(() => import("./layouts/Dashboard/OrdersPayment/OrderPaymentLayout"));
+const OrderTypeLayout = React.lazy(() => import("./layouts/Dashboard/Setting/OrderType/OrderTypeLayout"));
+const OutForDeliveryOrdersLayout = React.lazy(() => import("./layouts/Dashboard/Orders/OutForDeliveryOrders/OutForDeliveryOrdersLayout"));
+const PaymentMethodLayout = React.lazy(() => import("./layouts/Dashboard/Setting/PaymentMethod/PaymentMethodLayout"));
+const PendingOrdersLayout = React.lazy(() => import("./layouts/Dashboard/Orders/PendingOrders/PendingOrdersLayout"));
+const ProcessingOrdersLayout = React.lazy(() => import("./layouts/Dashboard/Orders/ProcessingOrders/ProcessingOrdersLayout"));
+const ProductLayout = React.lazy(() => import("./layouts/Dashboard/ProductSetup/ProductLayout"));
+const ResturantTimeLayout = React.lazy(() => import("./layouts/Dashboard/Setting/ResturantTime/ResturantTimeLayout"));
+const ReturnedOrdersLayout = React.lazy(() => import("./layouts/Dashboard/Orders/ReturnedOrders/ReturnedOrdersLayout"));
+const ScheduleOrdersLayout = React.lazy(() => import("./layouts/Dashboard/Orders/ScheduleOrders/ScheduleOrdersLayout"));
+const SongLayout = React.lazy(() => import("./layouts/Dashboard/Song/SongLayout"));
+const TaxesLayout = React.lazy(() => import("./layouts/Dashboard/Taxes/TaxesLayout"));
+const TaxTypeLayout = React.lazy(() => import("./layouts/Dashboard/Taxes/TaxTypeLayout"));
+const ZonesLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Zones/ZonesLayout"));
+const CouponLayout = React.lazy(() => import("./layouts/Dashboard/Coupon/CouponLayout"));
+const EditCouponLayout = React.lazy(() => import("./layouts/Dashboard/Coupon/EditCouponLayout"));
+const BuyOfferLayout = React.lazy(() => import("./layouts/Dashboard/BuyOffer/BuyOfferLayout"));
+const DealsLayout = React.lazy(() => import("./layouts/Dashboard/Deals/DealsLayout"));
+const EditDealLayout = React.lazy(() => import("./layouts/Dashboard/Deals/EditDealLayout"));
+const AutomaticPaymentLayout = React.lazy(() => import("./layouts/Dashboard/Setting/AutomaticPayment/AutomaticPaymentLayout"));
+const CustomersLayout = React.lazy(() => import("./layouts/Dashboard/Users/Customers/CustomersLayout"));
+const EditCustomersLayout = React.lazy(() => import("./layouts/Dashboard/Users/Customers/EditCustomersLayout"));
+const BusinessSetupLayout = React.lazy(() => import("./layouts/Dashboard/BusinessSetup/BusinessSetupLayout"));
+const EditRoleLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Roles/EditRoleLayout"));
+const RolesLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Roles/RolesLayout"));
+const AdminsLayout = React.lazy(() => import("./layouts/Dashboard/Users/Admins/AdminsLayout"));
+const EditAdminLayout = React.lazy(() => import("./layouts/Dashboard/Users/Admins/EditAdminLayout"));
+const MenuLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Menu/MenuLayout"));
+const BranchCategoryLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Branches/BranchCategoryLayout"));
+const CategoryProductLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Branches/CategoryProductLayout"));
+const ProductVariationLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Branches/ProductVariationLayout"));
+const VariationOptionLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Branches/VariationOptionLayout"));
+const EmailLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Email/EmailLayout"));
+const AddRoleLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Roles/AddRoleLayout"));
+const ScheduleTimeLayout = React.lazy(() => import("./layouts/Dashboard/Setting/ScheduleTime/ScheduleTimeLayout"));
+const EditScheduleTimeLayout = React.lazy(() => import("./layouts/Dashboard/Setting/ScheduleTime/EditScheduleTimeLayout"));
+const RefundOrdersLayout = React.lazy(() => import("./layouts/Dashboard/Orders/RefundOrders/RefundOrdersLayout"));
+const CancelationNotificationLayout = React.lazy(() => import("./layouts/Dashboard/Setting/CancelationNotification/CancelationNotificationLayout"));
+const PolicySupportLayout = React.lazy(() => import("./layouts/Dashboard/Setting/PolicySupport/PolicySupportLayout"));
+const CaptianOrderLayout = React.lazy(() => import("./layouts/Dashboard/CaptianOrder/CaptianOrderLayout"));
+const AddCaptianOrderLayout = React.lazy(() => import("./layouts/Dashboard/CaptianOrder/AddCaptianOrderLayout"));
+const EditCaptianOrderLayout = React.lazy(() => import("./layouts/Dashboard/CaptianOrder/EditCaptianOrderLayout"));
+const WaiterLayout = React.lazy(() => import("./layouts/Dashboard/Waiter/WaiterLayout"));
+const AddWaiterLayout = React.lazy(() => import("./layouts/Dashboard/Waiter/AddWaiterLayout"));
+const EditWaiterLayout = React.lazy(() => import("./layouts/Dashboard/Waiter/EditWaiterLayout"));
+const VoidReasonLayout = React.lazy(() => import("./layouts/Dashboard/VoidReason/VoidReasonLayout"));
+const EditVoidReasonLayout = React.lazy(() => import("./layouts/Dashboard/VoidReason/EditVoidReasonLayout"));
+const AddHallLocationsLayout = React.lazy(() => import("./layouts/Dashboard/Setting/HallLocations/AddHallLocationsLayout"));
 import ProtectedLogin from "./ProtectedData/ProtectedLogin";
 import NotFoundPage from "./Pages/NotFoundPage/NotFoundPage";
 import App from "./App";
-import {
-  AddBranchSection,
-  AddFinacialAccountPage,
-  AddHallLocations,
-  AddWaiter,
-  BusinessSettingsPage,
-  CustomerLoginPage,
-  EditFinacialAccountPage,
-  EditHallLocations,
-  EditRolePage,
-  FinacialAccountPage,
-  HallLocations,
-  MainBranchSetupPage,
-  OrdersPage,
-  OrdersPaymentHistoryPage,
-  OrdersPaymentPendingPage,
-  RestaurantTimeSlotPage,
-} from "./Pages/Pages";
-import LogOrders from "./Pages/Dashboard/Admin/Orders/LogOrders/LogOrders";
-import EditEmailPage from "./Pages/Dashboard/Admin/Setting/Email/EditEmail";
-import GroupLayout from "./layouts/Dashboard/Setting/Group/GroupLayout";
-import EditGroupLayout from "./layouts/Dashboard/Setting/Group/EditGroupLayout";
-import ExtraLayout from "./layouts/Dashboard/Setting/Extra/ExtraLayout";
-import EditExtraLayout from "./layouts/Dashboard/Setting/Extra/EditExtraLayout";
-import AppSetupLayout from "./layouts/Dashboard/Setting/AppSetup/AppSetupLayout";
-//import ToggleItems from "./Pages/Dashboard/Admin/ProductSetup/ToggleItems";
-import BranchList from "./DashboardBranches/BranchList";
-import BranchCustomer from "./DashboardBranches/BranchCustomer/BranchCustomer";
-import BranchCustomerAdd from "./DashboardBranches/BranchCustomer/BranchCustomerAdd";
-import BranchAddressAdd from "./DashboardBranches/BranchCustomer/BranchAddressAdd";
-import BranchOffer from "./DashboardBranches/BranchOffer";
-import KitchenType from "./Pages/Dashboard/Admin/Setting/Branches/KitchenType/KitchenType";
-import AddKitchenType from "./Pages/Dashboard/Admin/Setting/Branches/KitchenType/AddKitchenType";
-import EditKitchenType from "./Pages/Dashboard/Admin/Setting/Branches/KitchenType/EditKitchenType";
-import HallLocationsLayout from "./layouts/Dashboard/Setting/HallLocations/HallLocationsLayout";
-import TablesLayout from "./layouts/Dashboard/Setting/Tables/TablesLayout";
-import EditTablesLayout from "./layouts/Dashboard/Setting/Tables/EditTablesLayout";
-import EditHallLocationLayout from "./layouts/Dashboard/Setting/HallLocations/EditHallLocationLayout";
-import CaptianOrder from "./Pages/Dashboard/Admin/CapitanOrder/CapitanOrder";
-import AddCaptianOrder from "./Pages/Dashboard/Admin/CapitanOrder/AddCapitanOrder";
-import EditCaptianOrder from "./Pages/Dashboard/Admin/CapitanOrder/EditCapitanOrder";
-import LandingPage from "./LandingPage/LandingPage";
-import Cashier from "./Pages/Dashboard/Admin/Cashier/Cashier";
-import AddCashier from "./Pages/Dashboard/Admin/Cashier/AddCashier";
-import EditCashier from "./Pages/Dashboard/Admin/Cashier/EditCashier";
-import CashierMan from "./Pages/Dashboard/Admin/CashierMan/CashierMan";
-import AddCashierMan from "./Pages/Dashboard/Admin/CashierMan/AddCashierMan";
-import EditCashierMan from "./Pages/Dashboard/Admin/CashierMan/EditCashierMan";
-import CustomersDue from "./Pages/Dashboard/Admin/Users/CustomersDue/CustomersDue";
-import Upselling from "./Pages/Dashboard/Admin/Upselling/Upselling";
-import AddUpselling from "./Pages/Dashboard/Admin/Upselling/AddUpselling";
-import EditUpselling from "./Pages/Dashboard/Admin/Upselling/EditUpselling";
-import GroupModules from "./Pages/Dashboard/Admin/GroupModules/GroupModules";
-import GroupModuleProducts from "./Pages/Dashboard/Admin/GroupModules/GroupModuleProduct";
-import AddGroupModules from "./Pages/Dashboard/Admin/GroupModules/AddGroupModules";
-import EditGroupModules from "./Pages/Dashboard/Admin/GroupModules/EditGroupModules";
-import OrderPercentage from "./Pages/Dashboard/Admin/Setting/OrderPercentage/OrderPercentage";
-import Recipes from "./Pages/Dashboard/Admin/ProductSetup/Recipes/Recipes";
-import AddRecipes from "./Pages/Dashboard/Admin/ProductSetup/Recipes/AddRecipes";
-import EditRecipes from "./Pages/Dashboard/Admin/ProductSetup/Recipes/EditRecipes";
-import DiscountModule from "./Pages/Dashboard/Admin/Setting/DiscountModule/DiscountModule";
-import AddDiscountModule from "./Pages/Dashboard/Admin/Setting/DiscountModule/AddDiscountModule";
-import EditDiscountModule from "./Pages/Dashboard/Admin/Setting/DiscountModule/EditDiscountModule";
-import DiscountCode from "./Pages/Dashboard/Admin/Setting/DiscountCode/DiscountCode";
-import AddDiscountCode from "./Pages/Dashboard/Admin/Setting/DiscountCode/AddDiscountCode";
-import EditDiscountCode from "./Pages/Dashboard/Admin/Setting/DiscountCode/EditDiscountCode";
-import SinglePageDetails from "./Pages/Dashboard/Admin/Users/Customers/SinglePageDetails";
-import ExpensesCategory from "./Pages/Dashboard/Admin/Expenses/ExpensesCategory/ExpensesCategory";
-import AddExpensesCategory from "./Pages/Dashboard/Admin/Expenses/ExpensesCategory/AddExpensesCategory";
-import EditExpensesCategory from "./Pages/Dashboard/Admin/Expenses/ExpensesCategory/EditExpensesCategory";
-import OrdersReports from "./Pages/Dashboard/Admin/Reports/OrdersReports/OrdersReports";
-import CashierShiftReport from "./Pages/Dashboard/Admin/Reports/CashierShiftReport/CashierShiftReport";
-import FinacialReports from "./Pages/Dashboard/Admin/Reports/FinacialReports/FinacialReports";
-import InvoicesReports from "./Pages/Dashboard/Admin/Reports/InvoicesReports/InvoicesReports";
-import HallReports from "./Pages/Dashboard/Admin/Reports/HallReports/HallReports";
-import EndShifts from "./Pages/Dashboard/Admin/Reports/EndShifts/EndShifts";
+const AddBranchSection = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/Branches/addBranchSection"));
+const AddFinacialAccountPage = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/FinacialAccount/AddFinacialAccountPage"));
+const AddHallLocations = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/HallLocations/AddHallLocations"));
+const AddWaiter = React.lazy(() => import("./Pages/Dashboard/Admin/Waiter/AddWaiter"));
+const BusinessSettingsPage = React.lazy(() => import("./Pages/Dashboard/Admin/BusinessSetup/BusinessSettingsPage"));
+const CustomerLoginPage = React.lazy(() => import("./Pages/Dashboard/Admin/BusinessSetup/CustomerLoginPage"));
+const EditFinacialAccountPage = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/FinacialAccount/EditFinacialAccountPage"));
+const EditHallLocations = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/HallLocations/EditHallLocations"));
+const EditRolePage = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/Roles/EditRole"));
+const FinacialAccountPage = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/FinacialAccount/FinacialAccountPage"));
+const HallLocations = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/HallLocations/HallLocations"));
+const MainBranchSetupPage = React.lazy(() => import("./Pages/Dashboard/Admin/BusinessSetup/MainBranchSetupPage"));
+const OrdersPage = React.lazy(() => import("./Pages/Dashboard/Admin/BusinessSetup/OrdersPage"));
+const OrdersPaymentHistoryPage = React.lazy(() => import("./Pages/Dashboard/Admin/OrdersPayment/OrdersPaymentHistoryPage"));
+const OrdersPaymentPendingPage = React.lazy(() => import("./Pages/Dashboard/Admin/OrdersPayment/OrdersPaymentPendingPage"));
+const RestaurantTimeSlotPage = React.lazy(() => import("./Pages/Dashboard/Admin/BusinessSetup/RestaurantTimeSlotPage"));
+const LogOrders = React.lazy(() => import("./Pages/Dashboard/Admin/Orders/LogOrders/LogOrders"));
+const EditEmailPage = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/Email/EditEmail"));
+const GroupLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Group/GroupLayout"));
+const EditGroupLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Group/EditGroupLayout"));
+const ExtraLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Extra/ExtraLayout"));
+const EditExtraLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Extra/EditExtraLayout"));
+const AppSetupLayout = React.lazy(() => import("./layouts/Dashboard/Setting/AppSetup/AppSetupLayout"));
+//const ToggleItems = React.lazy(() => import("./Pages/Dashboard/Admin/ProductSetup/ToggleItems"));
+const BranchList = React.lazy(() => import("./DashboardBranches/BranchList"));
+const BranchCustomer = React.lazy(() => import("./DashboardBranches/BranchCustomer/BranchCustomer"));
+const BranchCustomerAdd = React.lazy(() => import("./DashboardBranches/BranchCustomer/BranchCustomerAdd"));
+const BranchAddressAdd = React.lazy(() => import("./DashboardBranches/BranchCustomer/BranchAddressAdd"));
+const BranchOffer = React.lazy(() => import("./DashboardBranches/BranchOffer"));
+const KitchenType = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/Branches/KitchenType/KitchenType"));
+const AddKitchenType = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/Branches/KitchenType/AddKitchenType"));
+const EditKitchenType = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/Branches/KitchenType/EditKitchenType"));
+const HallLocationsLayout = React.lazy(() => import("./layouts/Dashboard/Setting/HallLocations/HallLocationsLayout"));
+const TablesLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Tables/TablesLayout"));
+const EditTablesLayout = React.lazy(() => import("./layouts/Dashboard/Setting/Tables/EditTablesLayout"));
+const EditHallLocationLayout = React.lazy(() => import("./layouts/Dashboard/Setting/HallLocations/EditHallLocationLayout"));
+const CaptianOrder = React.lazy(() => import("./Pages/Dashboard/Admin/CapitanOrder/CapitanOrder"));
+const AddCaptianOrder = React.lazy(() => import("./Pages/Dashboard/Admin/CapitanOrder/AddCapitanOrder"));
+const EditCaptianOrder = React.lazy(() => import("./Pages/Dashboard/Admin/CapitanOrder/EditCapitanOrder"));
+const LandingPage = React.lazy(() => import("./LandingPage/LandingPage"));
+const Cashier = React.lazy(() => import("./Pages/Dashboard/Admin/Cashier/Cashier"));
+const AddCashier = React.lazy(() => import("./Pages/Dashboard/Admin/Cashier/AddCashier"));
+const EditCashier = React.lazy(() => import("./Pages/Dashboard/Admin/Cashier/EditCashier"));
+const CashierMan = React.lazy(() => import("./Pages/Dashboard/Admin/CashierMan/CashierMan"));
+const AddCashierMan = React.lazy(() => import("./Pages/Dashboard/Admin/CashierMan/AddCashierMan"));
+const EditCashierMan = React.lazy(() => import("./Pages/Dashboard/Admin/CashierMan/EditCashierMan"));
+const CustomersDue = React.lazy(() => import("./Pages/Dashboard/Admin/Users/CustomersDue/CustomersDue"));
+const Upselling = React.lazy(() => import("./Pages/Dashboard/Admin/Upselling/Upselling"));
+const AddUpselling = React.lazy(() => import("./Pages/Dashboard/Admin/Upselling/AddUpselling"));
+const EditUpselling = React.lazy(() => import("./Pages/Dashboard/Admin/Upselling/EditUpselling"));
+const GroupModules = React.lazy(() => import("./Pages/Dashboard/Admin/GroupModules/GroupModules"));
+const GroupModuleProducts = React.lazy(() => import("./Pages/Dashboard/Admin/GroupModules/GroupModuleProduct"));
+const AddGroupModules = React.lazy(() => import("./Pages/Dashboard/Admin/GroupModules/AddGroupModules"));
+const EditGroupModules = React.lazy(() => import("./Pages/Dashboard/Admin/GroupModules/EditGroupModules"));
+const OrderPercentage = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/OrderPercentage/OrderPercentage"));
+const Recipes = React.lazy(() => import("./Pages/Dashboard/Admin/ProductSetup/Recipes/Recipes"));
+const AddRecipes = React.lazy(() => import("./Pages/Dashboard/Admin/ProductSetup/Recipes/AddRecipes"));
+const EditRecipes = React.lazy(() => import("./Pages/Dashboard/Admin/ProductSetup/Recipes/EditRecipes"));
+const DiscountModule = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/DiscountModule/DiscountModule"));
+const AddDiscountModule = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/DiscountModule/AddDiscountModule"));
+const EditDiscountModule = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/DiscountModule/EditDiscountModule"));
+const DiscountCode = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/DiscountCode/DiscountCode"));
+const AddDiscountCode = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/DiscountCode/AddDiscountCode"));
+const EditDiscountCode = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/DiscountCode/EditDiscountCode"));
+const SinglePageDetails = React.lazy(() => import("./Pages/Dashboard/Admin/Users/Customers/SinglePageDetails"));
+const ExpensesCategory = React.lazy(() => import("./Pages/Dashboard/Admin/Expenses/ExpensesCategory/ExpensesCategory"));
+const AddExpensesCategory = React.lazy(() => import("./Pages/Dashboard/Admin/Expenses/ExpensesCategory/AddExpensesCategory"));
+const EditExpensesCategory = React.lazy(() => import("./Pages/Dashboard/Admin/Expenses/ExpensesCategory/EditExpensesCategory"));
+const OrdersReports = React.lazy(() => import("./Pages/Dashboard/Admin/Reports/OrdersReports/OrdersReports"));
+const CashierShiftReport = React.lazy(() => import("./Pages/Dashboard/Admin/Reports/CashierShiftReport/CashierShiftReport"));
+const FinacialReports = React.lazy(() => import("./Pages/Dashboard/Admin/Reports/FinacialReports/FinacialReports"));
+const InvoicesReports = React.lazy(() => import("./Pages/Dashboard/Admin/Reports/InvoicesReports/InvoicesReports"));
+const HallReports = React.lazy(() => import("./Pages/Dashboard/Admin/Reports/HallReports/HallReports"));
+const EndShifts = React.lazy(() => import("./Pages/Dashboard/Admin/Reports/EndShifts/EndShifts"));
 
-import ExpensesList from "./Pages/Dashboard/Admin/Expenses/ExpensesList/ExpensesList";
-import AddExpensesList from "./Pages/Dashboard/Admin/Expenses/ExpensesList/AddExpensesList";
-import EditExpensesList from "./Pages/Dashboard/Admin/Expenses/ExpensesList/EditExpensesList";
-import ExpensesPayment from "./Pages/Dashboard/Admin/Expenses/ExpensesPayment/ExpensesPayment";
-import ServiceFees from "./Pages/Dashboard/Admin/ServiceFees/ServiceFees";
-import AddServiceFees from "./Pages/Dashboard/Admin/ServiceFees/AddServiceFees";
-import EditServiceFees from "./Pages/Dashboard/Admin/ServiceFees/EditServiceFees";
-import MaterialCategory from "./Pages/Dashboard/Admin/MaterialModule/MaterialCategory/MaterialCategory";
-import AddMaterialCategory from "./Pages/Dashboard/Admin/MaterialModule/MaterialCategory/AddMaterialCategory";
-import EditMaterialCategory from "./Pages/Dashboard/Admin/MaterialModule/MaterialCategory/EditMaterialCategory";
-import MaterialList from "./Pages/Dashboard/Admin/MaterialModule/MaterialList/MaterialList";
-import AddMaterialList from "./Pages/Dashboard/Admin/MaterialModule/MaterialList/AddMaterialList";
-import EditMaterialList from "./Pages/Dashboard/Admin/MaterialModule/MaterialList/EditMaterialList";
-import ManufacturingHistory from "./Pages/Dashboard/Admin/Manufacturing/ManufacturingHistory";
-import AddManufacturing from "./Pages/Dashboard/Admin/Manufacturing/AddManufacturing";
-import PurchaseConsumersion from "./Pages/Dashboard/Admin/Purchase/PurchaseConsumersion/PurchaseConsumersion";
-import AddPurchaseConsumersion from "./Pages/Dashboard/Admin/Purchase/PurchaseConsumersion/AddPurchaseConsumersion";
-import EditPurchaseConsumersion from "./Pages/Dashboard/Admin/Purchase/PurchaseConsumersion/EditPurchaseConsumersion";
-import PurchaseWasted from "./Pages/Dashboard/Admin/Purchase/PurchaseWasted/PurchaseWasted";
-import AddPurchaseWasted from "./Pages/Dashboard/Admin/Purchase/PurchaseWasted/AddPurchaseWasted";
-import EditPurchaseWasted from "./Pages/Dashboard/Admin/Purchase/PurchaseWasted/EditPurchaseWasted";
-import PurchaseList from "./Pages/Dashboard/Admin/Purchase/PurchaseList/PurchaseList";
-import AddPurchaseList from "./Pages/Dashboard/Admin/Purchase/PurchaseList/AddPurchaseList";
-import EditPurchaseList from "./Pages/Dashboard/Admin/Purchase/PurchaseList/EditPurchaseList";
-import PreparationMan from "./Pages/Dashboard/Admin/Setting/Branches/PreparationMan/PreparationMan";
-import AddPreparationMan from "./Pages/Dashboard/Admin/Setting/Branches/PreparationMan/AddPreparationMan";
-import EditPreparationMan from "./Pages/Dashboard/Admin/Setting/Branches/PreparationMan/EditPreparationMan";
-import DeliveryManOrdersParent from "./Pages/Dashboard/Admin/DeliveryMan/DeliveryManOrder/DeliveryManOrdersParent";
-// import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
-import OrdersDeliveryParent from "./Pages/Dashboard/Admin/OrdersDelivery/OrdersDeliveryParent";
-import DeletedCustomer from "./Pages/Dashboard/Admin/Users/DeletedCustomer/DeletedCustomer";
-import DueGroupModule from "./Pages/Dashboard/Admin/GroupModules/DueGroupModule";
-import LanguageSystem from "./Pages/Dashboard/Admin/Setting/LanguageSystem/LanguageSystem";
-import Store from "./Pages/Dashboard/Admin/Store/Store";
-import AddStore from "./Pages/Dashboard/Admin/Store/AddStore";
-import EditStore from "./Pages/Dashboard/Admin/Store/EditStore";
-import StoreMan from "./Pages/Dashboard/Admin/StoreMan/StoreMan";
-import AddStoreMan from "./Pages/Dashboard/Admin/StoreMan/AddStoreMan";
-import EditStoreMan from "./Pages/Dashboard/Admin/StoreMan/EditStoreMan";
-import InventoryMaterial from "./Pages/Dashboard/Admin/Inventory/InventoryMaterial";
-import InventoryProduct from "./Pages/Dashboard/Admin/Inventory/InventoryProduct";
-import FreeDiscount from "./Pages/Dashboard/Admin/FreeDiscount/FreeDiscount";
-import Popup from "./Pages/Dashboard/Admin/Popup/Popup";
-import VoidList from "./Pages/Dashboard/Admin/VoidList/VoidList";
-import PurchaseCount from "./Pages/Dashboard/Admin/StockCount/StockCount";
-// import ReceiptLanguage from "./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage";
-import StockCount from "./Pages/Dashboard/Admin/StockCount/StockCount";
-import StockTransfer from "./Pages/Dashboard/Admin/StockTransfer/StockTransfer";
-import PurchaseCategory from "./Pages/Dashboard/Admin/ProductReceipes/PurchaseCategory/PurchaseCategory";
-import AddPurchaseCategory from "./Pages/Dashboard/Admin/ProductReceipes/PurchaseCategory/AddPurchaseCategory";
-import EditPurchaseCategory from "./Pages/Dashboard/Admin/ProductReceipes/PurchaseCategory/EditPurchaseCategory";
-import PurchaseProduct from "./Pages/Dashboard/Admin/ProductReceipes/PurchaseProduct/PurchaseProduct";
-import AddPurchaseProduct from "./Pages/Dashboard/Admin/ProductReceipes/PurchaseProduct/AddPurchaseProduct";
-import EditPurchaseProduct from "./Pages/Dashboard/Admin/ProductReceipes/PurchaseProduct/EditPurchaseProduct";
-import PurchaseRecipe from "./Pages/Dashboard/Admin/ProductReceipes/PurchaseProduct/PurchaseRecipes/PurchaseRecipe";
-import AddPurchaseRecipe from "./Pages/Dashboard/Admin/ProductReceipes/PurchaseProduct/PurchaseRecipes/AddPurchaseRecipe";
-import EditPurchaseRecipe from "./Pages/Dashboard/Admin/ProductReceipes/PurchaseProduct/PurchaseRecipes/EditPurchaseRecipe";
-import FakeOrderPage from "./Pages/Dashboard/Admin/Setting/FakeOrder/FakeOrderPage";
-import ReceiptDesignPage from "./Pages/Dashboard/Admin/Setting/ReceiptDesign/ReceiptDesignPage";
-import Bundles from "./Pages/Dashboard/Admin/Bundles/Bundles";
-import AddBundles from "./Pages/Dashboard/Admin/Bundles/AddBundles";
-import EditBundles from "./Pages/Dashboard/Admin/Bundles/EditBundles";
-import SocialMedia from "./Pages/Dashboard/Admin/SocialMedia/SocialMedia";
-import AddSocialMedia from "./Pages/Dashboard/Admin/SocialMedia/AddSocialMedia";
-import EditSocialMedia from "./Pages/Dashboard/Admin/SocialMedia/EditSocialMedia";
-import ProductVariation from "./Pages/Dashboard/Admin/ProductSetup/ProductVariation";
-import VariationRecipe from "./Pages/Dashboard/Admin/ProductSetup/VariationRecipe/VariationRecipe";
-import AddVariationRecipe from "./Pages/Dashboard/Admin/ProductSetup/VariationRecipe/AddVariationRecipe";
-import EditVariationRecipe from "./Pages/Dashboard/Admin/ProductSetup/VariationRecipe/EditVariationRecipe";
-import RealTimeSalesReports from "./Pages/Dashboard/Admin/Reports/SalesReport/RealTimeSalesReports";
-import PricingProduct from "./Pages/Dashboard/Admin/PricingProduct/PricingProduct";
-import ProductsReports from "./Pages/Dashboard/Admin/Reports/ProductsReports/ProductsReports";
-import ProductsMovements from "./Pages/Dashboard/Admin/Reports/ProductsMovements/ProductsMovements";
-import DineReports from "./Pages/Dashboard/Admin/Reports/DineReports/DineReports";
-import CashierShortage from "./Pages/Dashboard/Admin/Reports/CashierShortage/CashierShortage";
-import PrinterModule from "./Pages/Dashboard/Admin/Setting/Branches/KitchenType/PrinterModule/PrinterModule";
-import AddPrinterModule from "./Pages/Dashboard/Admin/Setting/Branches/KitchenType/PrinterModule/AddPrinterModule";
-import EditPrinterModule from "./Pages/Dashboard/Admin/Setting/Branches/KitchenType/PrinterModule/EditPrinterModule";
+const ExpensesList = React.lazy(() => import("./Pages/Dashboard/Admin/Expenses/ExpensesList/ExpensesList"));
+const AddExpensesList = React.lazy(() => import("./Pages/Dashboard/Admin/Expenses/ExpensesList/AddExpensesList"));
+const EditExpensesList = React.lazy(() => import("./Pages/Dashboard/Admin/Expenses/ExpensesList/EditExpensesList"));
+const ExpensesPayment = React.lazy(() => import("./Pages/Dashboard/Admin/Expenses/ExpensesPayment/ExpensesPayment"));
+const ServiceFees = React.lazy(() => import("./Pages/Dashboard/Admin/ServiceFees/ServiceFees"));
+const AddServiceFees = React.lazy(() => import("./Pages/Dashboard/Admin/ServiceFees/AddServiceFees"));
+const EditServiceFees = React.lazy(() => import("./Pages/Dashboard/Admin/ServiceFees/EditServiceFees"));
+const MaterialCategory = React.lazy(() => import("./Pages/Dashboard/Admin/MaterialModule/MaterialCategory/MaterialCategory"));
+const AddMaterialCategory = React.lazy(() => import("./Pages/Dashboard/Admin/MaterialModule/MaterialCategory/AddMaterialCategory"));
+const EditMaterialCategory = React.lazy(() => import("./Pages/Dashboard/Admin/MaterialModule/MaterialCategory/EditMaterialCategory"));
+const MaterialList = React.lazy(() => import("./Pages/Dashboard/Admin/MaterialModule/MaterialList/MaterialList"));
+const AddMaterialList = React.lazy(() => import("./Pages/Dashboard/Admin/MaterialModule/MaterialList/AddMaterialList"));
+const EditMaterialList = React.lazy(() => import("./Pages/Dashboard/Admin/MaterialModule/MaterialList/EditMaterialList"));
+const ManufacturingHistory = React.lazy(() => import("./Pages/Dashboard/Admin/Manufacturing/ManufacturingHistory"));
+const AddManufacturing = React.lazy(() => import("./Pages/Dashboard/Admin/Manufacturing/AddManufacturing"));
+const PurchaseConsumersion = React.lazy(() => import("./Pages/Dashboard/Admin/Purchase/PurchaseConsumersion/PurchaseConsumersion"));
+const AddPurchaseConsumersion = React.lazy(() => import("./Pages/Dashboard/Admin/Purchase/PurchaseConsumersion/AddPurchaseConsumersion"));
+const EditPurchaseConsumersion = React.lazy(() => import("./Pages/Dashboard/Admin/Purchase/PurchaseConsumersion/EditPurchaseConsumersion"));
+const PurchaseWasted = React.lazy(() => import("./Pages/Dashboard/Admin/Purchase/PurchaseWasted/PurchaseWasted"));
+const AddPurchaseWasted = React.lazy(() => import("./Pages/Dashboard/Admin/Purchase/PurchaseWasted/AddPurchaseWasted"));
+const EditPurchaseWasted = React.lazy(() => import("./Pages/Dashboard/Admin/Purchase/PurchaseWasted/EditPurchaseWasted"));
+const PurchaseList = React.lazy(() => import("./Pages/Dashboard/Admin/Purchase/PurchaseList/PurchaseList"));
+const AddPurchaseList = React.lazy(() => import("./Pages/Dashboard/Admin/Purchase/PurchaseList/AddPurchaseList"));
+const EditPurchaseList = React.lazy(() => import("./Pages/Dashboard/Admin/Purchase/PurchaseList/EditPurchaseList"));
+const PreparationMan = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/Branches/PreparationMan/PreparationMan"));
+const AddPreparationMan = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/Branches/PreparationMan/AddPreparationMan"));
+const EditPreparationMan = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/Branches/PreparationMan/EditPreparationMan"));
+const DeliveryManOrdersParent = React.lazy(() => import("./Pages/Dashboard/Admin/DeliveryMan/DeliveryManOrder/DeliveryManOrdersParent"));
+// const ReceiptLanguage = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage"));
+const OrdersDeliveryParent = React.lazy(() => import("./Pages/Dashboard/Admin/OrdersDelivery/OrdersDeliveryParent"));
+const DeletedCustomer = React.lazy(() => import("./Pages/Dashboard/Admin/Users/DeletedCustomer/DeletedCustomer"));
+const DueGroupModule = React.lazy(() => import("./Pages/Dashboard/Admin/GroupModules/DueGroupModule"));
+const LanguageSystem = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/LanguageSystem/LanguageSystem"));
+const Store = React.lazy(() => import("./Pages/Dashboard/Admin/Store/Store"));
+const AddStore = React.lazy(() => import("./Pages/Dashboard/Admin/Store/AddStore"));
+const EditStore = React.lazy(() => import("./Pages/Dashboard/Admin/Store/EditStore"));
+const StoreMan = React.lazy(() => import("./Pages/Dashboard/Admin/StoreMan/StoreMan"));
+const AddStoreMan = React.lazy(() => import("./Pages/Dashboard/Admin/StoreMan/AddStoreMan"));
+const EditStoreMan = React.lazy(() => import("./Pages/Dashboard/Admin/StoreMan/EditStoreMan"));
+const InventoryMaterial = React.lazy(() => import("./Pages/Dashboard/Admin/Inventory/InventoryMaterial"));
+const InventoryProduct = React.lazy(() => import("./Pages/Dashboard/Admin/Inventory/InventoryProduct"));
+const FreeDiscount = React.lazy(() => import("./Pages/Dashboard/Admin/FreeDiscount/FreeDiscount"));
+const Popup = React.lazy(() => import("./Pages/Dashboard/Admin/Popup/Popup"));
+const VoidList = React.lazy(() => import("./Pages/Dashboard/Admin/VoidList/VoidList"));
+const PurchaseCount = React.lazy(() => import("./Pages/Dashboard/Admin/StockCount/StockCount"));
+// const ReceiptLanguage = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/ReceiptLanguage/ReceiptLanguage"));
+const StockCount = React.lazy(() => import("./Pages/Dashboard/Admin/StockCount/StockCount"));
+const StockTransfer = React.lazy(() => import("./Pages/Dashboard/Admin/StockTransfer/StockTransfer"));
+const PurchaseCategory = React.lazy(() => import("./Pages/Dashboard/Admin/ProductReceipes/PurchaseCategory/PurchaseCategory"));
+const AddPurchaseCategory = React.lazy(() => import("./Pages/Dashboard/Admin/ProductReceipes/PurchaseCategory/AddPurchaseCategory"));
+const EditPurchaseCategory = React.lazy(() => import("./Pages/Dashboard/Admin/ProductReceipes/PurchaseCategory/EditPurchaseCategory"));
+const PurchaseProduct = React.lazy(() => import("./Pages/Dashboard/Admin/ProductReceipes/PurchaseProduct/PurchaseProduct"));
+const AddPurchaseProduct = React.lazy(() => import("./Pages/Dashboard/Admin/ProductReceipes/PurchaseProduct/AddPurchaseProduct"));
+const EditPurchaseProduct = React.lazy(() => import("./Pages/Dashboard/Admin/ProductReceipes/PurchaseProduct/EditPurchaseProduct"));
+const PurchaseRecipe = React.lazy(() => import("./Pages/Dashboard/Admin/ProductReceipes/PurchaseProduct/PurchaseRecipes/PurchaseRecipe"));
+const AddPurchaseRecipe = React.lazy(() => import("./Pages/Dashboard/Admin/ProductReceipes/PurchaseProduct/PurchaseRecipes/AddPurchaseRecipe"));
+const EditPurchaseRecipe = React.lazy(() => import("./Pages/Dashboard/Admin/ProductReceipes/PurchaseProduct/PurchaseRecipes/EditPurchaseRecipe"));
+const FakeOrderPage = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/FakeOrder/FakeOrderPage"));
+const ReceiptDesignPage = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/ReceiptDesign/ReceiptDesignPage"));
+const Bundles = React.lazy(() => import("./Pages/Dashboard/Admin/Bundles/Bundles"));
+const AddBundles = React.lazy(() => import("./Pages/Dashboard/Admin/Bundles/AddBundles"));
+const EditBundles = React.lazy(() => import("./Pages/Dashboard/Admin/Bundles/EditBundles"));
+const SocialMedia = React.lazy(() => import("./Pages/Dashboard/Admin/SocialMedia/SocialMedia"));
+const AddSocialMedia = React.lazy(() => import("./Pages/Dashboard/Admin/SocialMedia/AddSocialMedia"));
+const EditSocialMedia = React.lazy(() => import("./Pages/Dashboard/Admin/SocialMedia/EditSocialMedia"));
+const ProductVariation = React.lazy(() => import("./Pages/Dashboard/Admin/ProductSetup/ProductVariation"));
+const VariationRecipe = React.lazy(() => import("./Pages/Dashboard/Admin/ProductSetup/VariationRecipe/VariationRecipe"));
+const AddVariationRecipe = React.lazy(() => import("./Pages/Dashboard/Admin/ProductSetup/VariationRecipe/AddVariationRecipe"));
+const EditVariationRecipe = React.lazy(() => import("./Pages/Dashboard/Admin/ProductSetup/VariationRecipe/EditVariationRecipe"));
+const RealTimeSalesReports = React.lazy(() => import("./Pages/Dashboard/Admin/Reports/SalesReport/RealTimeSalesReports"));
+const PricingProduct = React.lazy(() => import("./Pages/Dashboard/Admin/PricingProduct/PricingProduct"));
+const ProductsReports = React.lazy(() => import("./Pages/Dashboard/Admin/Reports/ProductsReports/ProductsReports"));
+const ProductsMovements = React.lazy(() => import("./Pages/Dashboard/Admin/Reports/ProductsMovements/ProductsMovements"));
+const DineReports = React.lazy(() => import("./Pages/Dashboard/Admin/Reports/DineReports/DineReports"));
+const CashierShortage = React.lazy(() => import("./Pages/Dashboard/Admin/Reports/CashierShortage/CashierShortage"));
+const PrinterModule = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/Branches/KitchenType/PrinterModule/PrinterModule"));
+const AddPrinterModule = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/Branches/KitchenType/PrinterModule/AddPrinterModule"));
+const EditPrinterModule = React.lazy(() => import("./Pages/Dashboard/Admin/Setting/Branches/KitchenType/PrinterModule/EditPrinterModule"));
 
-import ProductOffers from "./Pages/Dashboard/Admin/ProductOffers/ProductOffers";
-import AddProductOffer from "./Pages/Dashboard/Admin/ProductOffers/AddProductOffer";
-import EditProductOffer from "./Pages/Dashboard/Admin/ProductOffers/EditProductOffer";
-import DineOrders from "./Pages/Dashboard/Admin/Orders/DineOrders/DineOrders";
+const ProductOffers = React.lazy(() => import("./Pages/Dashboard/Admin/ProductOffers/ProductOffers"));
+const AddProductOffer = React.lazy(() => import("./Pages/Dashboard/Admin/ProductOffers/AddProductOffer"));
+const EditProductOffer = React.lazy(() => import("./Pages/Dashboard/Admin/ProductOffers/EditProductOffer"));
+const DineOrders = React.lazy(() => import("./Pages/Dashboard/Admin/Orders/DineOrders/DineOrders"));
 
 const ProductSetupLayout = () => {
-  return <Outlet />;
+  return (
+    <Suspense fallback={<LoaderLogin />}>
+      <Outlet />
+    </Suspense>
+  );
 };
 const SettingLayout = () => {
-  return <Outlet />;
+  return (
+    <Suspense fallback={<LoaderLogin />}>
+      <Outlet />
+    </Suspense>
+  );
 };
 const OrderLayout = () => {
-  return <Outlet />;
+  return (
+    <Suspense fallback={<LoaderLogin />}>
+      <Outlet />
+    </Suspense>
+  );
 };
 const AppBranchCategoryLayout = () => {
-  return <Outlet />;
+  return (
+    <Suspense fallback={<LoaderLogin />}>
+      <Outlet />
+    </Suspense>
+  );
 };
 
 export const router = createBrowserRouter([

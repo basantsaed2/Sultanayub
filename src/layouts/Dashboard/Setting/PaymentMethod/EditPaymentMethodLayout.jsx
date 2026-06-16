@@ -1,6 +1,6 @@
 import React from 'react'
 import { TitlePage } from '../../../../Components/Components'
-import { EditPaymentMethodPage } from '../../../../Pages/Pages'
+import EditPaymentMethodPage from "../../../../Pages/Dashboard/Admin/Setting/PaymentMethod/EditPaymentMethodPage";
 import { useTranslation } from 'react-i18next';
 
 const EditPaymentMethodLayout = () => {

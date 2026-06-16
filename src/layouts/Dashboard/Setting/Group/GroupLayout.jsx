@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { TitlePage, TitleSection } from '../../../../Components/Components'
-import { AddGroupPage, GroupPage } from '../../../../Pages/Pages'
+import AddGroupPage from "../../../../Pages/Dashboard/Admin/Setting/Group/AddGroupPage";
+import GroupPage from "../../../../Pages/Dashboard/Admin/Setting/Group/GroupPage";
 import { useTranslation } from 'react-i18next';
 
 const GroupLayout = () => {

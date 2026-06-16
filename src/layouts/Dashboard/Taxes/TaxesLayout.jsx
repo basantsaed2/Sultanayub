@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { TitlePage, TitleSection } from '../../../Components/Components'
-import { AddTaxSection, TaxesPage } from '../../../Pages/Pages'
+import AddTaxSection from "../../../Pages/Dashboard/Admin/Taxes/AddTaxSection";
+import TaxesPage from "../../../Pages/Dashboard/Admin/Taxes/TaxesPage";
 import { useTranslation } from 'react-i18next';
 
 const TaxesLayout = () => {

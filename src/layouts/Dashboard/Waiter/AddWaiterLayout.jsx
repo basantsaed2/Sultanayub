@@ -3,7 +3,7 @@ import { TitlePage } from '../../../Components/Components';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { IoArrowBack } from 'react-icons/io5';
-import { AddWaiter } from '../../../Pages/Pages';
+import AddWaiter from "../../../Pages/Dashboard/Admin/Waiter/AddWaiter";
 
 const AddWaiterLayout = () => {
   const { t } = useTranslation();

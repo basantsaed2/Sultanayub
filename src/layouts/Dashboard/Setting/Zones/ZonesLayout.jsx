@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { TitlePage, TitleSection } from '../../../../Components/Components'
-import { AddZoneSection, ZonesPage } from '../../../../Pages/Pages'
+import AddZoneSection from "../../../../Pages/Dashboard/Admin/Setting/Zones/addZoneSection";
+import ZonesPage from "../../../../Pages/Dashboard/Admin/Setting/Zones/ZonesPage";
 import { useTranslation } from 'react-i18next';
 
 const ZonesLayout = () => {

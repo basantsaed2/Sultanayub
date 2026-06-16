@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { AddCategorySection, CategoryPage } from '../../../Pages/Pages'
+import AddCategorySection from "../../../Pages/Dashboard/Admin/CategorySetup/AddCategorySection";
+import CategoryPage from "../../../Pages/Dashboard/Admin/CategorySetup/CategoryPage";
 import { TitlePage, TitleSection } from '../../../Components/Components'
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../Context/Auth';

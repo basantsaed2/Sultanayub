@@ -7,6 +7,7 @@ import { setNewOrders, triggerRefresh } from '../../Store/CreateSlices';
 import { NewOrdersComponent } from '../Components';
 import { useNotificationSound } from './NotificationListener';
 import { useAuth } from '../../Context/Auth';
+import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import echo from '../../echo';
 
@@ -18,6 +19,7 @@ const OrderNotificationHandler = ({ apiUrl, role }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [allCount, setAllCount] = useState(0);
     const notifiedIdsRef = useRef(new Set());
+    const queryClient = useQueryClient();
 
     // Track whether real-time is connected — starts as null (unknown)
     const [isRealtimeConnected, setIsRealtimeConnected] = useState(null);
@@ -106,6 +108,7 @@ const OrderNotificationHandler = ({ apiUrl, role }) => {
 
         dispatch(triggerRefresh());
         refetchCountOrders();
+        queryClient.invalidateQueries(); // Invalidate ALL cached react-query data, including all order endpoints, to ensure everything updates seamlessly.
         notifyUser(orderIdStr);
         setIsOpen(true);
     }, [dispatch, refetchCountOrders]);

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { TitlePage, TitleSection } from '../../../../Components/Components'
-import { AddTablesSection, TablesPage } from '../../../../Pages/Pages'
+import AddTablesSection from "../../../../Pages/Dashboard/Admin/Setting/Tables/AddTablesSection";
+import TablesPage from "../../../../Pages/Dashboard/Admin/Setting/Tables/TablesPage";
 import { useTranslation } from 'react-i18next';
 
 const TablesLayout = () => {

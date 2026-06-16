@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { AddVoidReason, VoidReason } from '../../../Pages/Pages'
+import AddVoidReason from "../../../Pages/Dashboard/Admin/VoidReason/AddVoidReason";
+import VoidReason from "../../../Pages/Dashboard/Admin/VoidReason/VoidReason";
 import { TitlePage, TitleSection } from '../../../Components/Components'
 import { useTranslation } from 'react-i18next';
 

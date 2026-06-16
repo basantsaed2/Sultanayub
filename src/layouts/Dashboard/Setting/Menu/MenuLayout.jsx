@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { AddMenuPage, MenuPage } from '../../../../Pages/Pages'
+import AddMenuPage from "../../../../Pages/Dashboard/Admin/Setting/Menu/AddMenuPage";
+import MenuPage from "../../../../Pages/Dashboard/Admin/Setting/Menu/MenuPage";
 import { TitlePage, TitleSection } from '../../../../Components/Components'
 import { useTranslation } from 'react-i18next';
 

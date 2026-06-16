@@ -21,6 +21,7 @@ import {
   setOrdersReturned,
   setOrdersRefund,
   setOrdersSchedule,
+  setFilterActive,
 } from "../../../../Store/CreateSlices";
 import { useAuth } from "../../../../Context/Auth";
 import { useTranslation } from "react-i18next";
@@ -123,6 +124,8 @@ const SelectDateRangeSection = ({ typPage }) => {
 
   useEffect(() => {
     if (response !== null) {
+      // Mark filter as active so order pages display filtered Redux data
+      dispatch(setFilterActive(true));
       switch (typPage) {
         case "all":
           dispatch(setOrdersAll(response.data.orders));
@@ -193,6 +196,8 @@ const SelectDateRangeSection = ({ typPage }) => {
     setEndDate("");
     setStateType(t("All Types"));
     setSelectedType("all");
+    // Clear filter flag so order pages switch back to paginated API data
+    dispatch(setFilterActive(false));
   };
 
   const handleData = (e) => {

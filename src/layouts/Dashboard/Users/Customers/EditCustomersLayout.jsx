@@ -1,6 +1,6 @@
 import React from 'react';
 import { TitlePage } from '../../../../Components/Components';
-import { EditCustomersPage } from '../../../../Pages/Pages';
+import EditCustomersPage from "../../../../Pages/Dashboard/Admin/Users/Customers/EditCustomersPage";
 import { useTranslation } from 'react-i18next';
 import { IoArrowBack } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation

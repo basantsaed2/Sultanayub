@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { AutomaticPaymentPage } from '../../../../Pages/Pages'
+import AutomaticPaymentPage from "../../../../Pages/Dashboard/Admin/Setting/AutomaticPayment/AutomaticPaymentPage";
 import { TitlePage, TitleSection } from '../../../../Components/Components'
 import { useTranslation } from 'react-i18next';
 

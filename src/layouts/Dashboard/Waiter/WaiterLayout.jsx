@@ -3,7 +3,7 @@ import { TitlePage } from '../../../Components/Components'
 import AddButton from '../../../Components/Buttons/AddButton'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next';
-import { Waiter } from '../../../Pages/Pages';
+import Waiter from "../../../Pages/Dashboard/Admin/Waiter/Waiter";
 
 const WaiterLayout = () => {
     const [update, setUpdate] = useState(false)

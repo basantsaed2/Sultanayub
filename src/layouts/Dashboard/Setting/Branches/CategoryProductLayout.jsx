@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { TitlePage, TitleSection } from '../../../../Components/Components'
-import { CategoryProductPage } from '../../../../Pages/Pages'
+import CategoryProductPage from "../../../../Pages/Dashboard/Admin/Setting/Branches/CategoryProductPage";
 import { useTranslation } from 'react-i18next';
 
 const CategoryProductLayout = () => {

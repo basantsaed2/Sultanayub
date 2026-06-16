@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { TitlePage, TitleSection } from '../../../../Components/Components'
-import { AddAdminSection, AdminsPage } from '../../../../Pages/Pages'
+import AddAdminSection from "../../../../Pages/Dashboard/Admin/Users/Admins/AddAdminSection";
+import AdminsPage from "../../../../Pages/Dashboard/Admin/Users/Admins/AdminsPage";
 import { useGet } from '../../../../Hooks/useGet';
 import { useTranslation } from 'react-i18next';
 

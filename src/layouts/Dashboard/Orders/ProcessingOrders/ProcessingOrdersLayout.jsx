@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { LoaderLogin, TitlePage } from '../../../../Components/Components'
-import { ProcessingOrdersPage, SelectDateRangeSection } from '../../../../Pages/Pages'
+import ProcessingOrdersPage from "../../../../Pages/Dashboard/Admin/Orders/ProcessingOrders/ProcessingOrdersPage";
+import SelectDateRangeSection from "../../../../Pages/Dashboard/Admin/Orders/SelectDateRangeSection";
 import { OrdersComponent } from '../../../../Store/CreateSlices'
 import { useGet } from '../../../../Hooks/useGet'
 import { useTranslation } from 'react-i18next';

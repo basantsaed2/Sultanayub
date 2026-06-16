@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { AddButton, TitlePage, TitleSection } from '../../../../Components/Components'
-import { AddBranchSection, BranchesPage } from '../../../../Pages/Pages'
+import AddBranchSection from "../../../../Pages/Dashboard/Admin/Setting/Branches/addBranchSection";
+import BranchesPage from "../../../../Pages/Dashboard/Admin/Setting/Branches/BranchesPage";
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 

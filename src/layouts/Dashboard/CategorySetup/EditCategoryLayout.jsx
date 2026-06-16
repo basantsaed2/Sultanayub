@@ -1,6 +1,6 @@
 import React from 'react'
 import { TitlePage } from '../../../Components/Components'
-import { EditCategoryPage } from '../../../Pages/Pages'
+import EditCategoryPage from "../../../Pages/Dashboard/Admin/CategorySetup/EditCategoryPage";
 import { useTranslation } from 'react-i18next';
 
 const EditCategotyLayout = () => {

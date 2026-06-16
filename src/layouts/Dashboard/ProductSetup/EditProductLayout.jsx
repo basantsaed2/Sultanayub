@@ -1,6 +1,6 @@
 import React from 'react'
 import { TitlePage } from '../../../Components/Components'
-import { EditProductPage } from '../../../Pages/Pages'
+import EditProductPage from "../../../Pages/Dashboard/Admin/ProductSetup/EditProductPage";
 import { useTranslation } from 'react-i18next';
 
 const EditProductLayout = () => {

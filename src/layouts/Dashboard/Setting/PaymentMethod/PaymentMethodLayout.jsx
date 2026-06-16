@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { AddPaymentMethodSection, PaymentMethodPage } from '../../../../Pages/Pages'
+import AddPaymentMethodSection from "../../../../Pages/Dashboard/Admin/Setting/PaymentMethod/AddPaymentMethodSection";
+import PaymentMethodPage from "../../../../Pages/Dashboard/Admin/Setting/PaymentMethod/PaymentMethodPage";
 import { TitlePage, TitleSection } from '../../../../Components/Components'
 import { useTranslation } from 'react-i18next';
 

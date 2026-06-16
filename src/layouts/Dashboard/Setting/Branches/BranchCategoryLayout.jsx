@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { TitlePage, TitleSection } from '../../../../Components/Components'
-import { BranchCategoryPage } from '../../../../Pages/Pages'
+import BranchCategoryPage from "../../../../Pages/Dashboard/Admin/Setting/Branches/BranchCategoryPage";
 import { useTranslation } from 'react-i18next';
 
 const BranchCategoryLayout = () => {

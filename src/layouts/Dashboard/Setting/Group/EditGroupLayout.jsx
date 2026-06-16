@@ -1,6 +1,6 @@
 import React from 'react'
 import { TitlePage } from '../../../../Components/Components'
-import { EditGroupPage } from '../../../../Pages/Pages'
+import EditGroupPage from "../../../../Pages/Dashboard/Admin/Setting/Group/EditGroupPage";
 import { useTranslation } from 'react-i18next';
 
 const EditGroupLayout = () => {

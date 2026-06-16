@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { TitlePage, TitleSection } from '../../../../Components/Components'
-import { AddRoleSection, RolesPage } from '../../../../Pages/Pages'
+import AddRoleSection from "../../../../Pages/Dashboard/Admin/Setting/Roles/AddRoleSection";
+import RolesPage from "../../../../Pages/Dashboard/Admin/Setting/Roles/RolesPage";
 import AddButton from '../../../../Components/Buttons/AddButton'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next';

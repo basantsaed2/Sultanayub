@@ -1,6 +1,6 @@
 import React from 'react'
 import { TitlePage } from '../../../Components/Components'
-import { EditTaxPage } from '../../../Pages/Pages'
+import EditTaxPage from "../../../Pages/Dashboard/Admin/Taxes/EditTaxPage";
 import { useTranslation } from 'react-i18next';
 import { IoArrowBack } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';

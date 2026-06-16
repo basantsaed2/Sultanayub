@@ -1,6 +1,6 @@
 import React from 'react'
 import { TitlePage } from '../../../Components/Components'
-import { SongPage } from '../../../Pages/Pages'
+import SongPage from "../../../Pages/Dashboard/Admin/Song/SongPage";
 import { useTranslation } from 'react-i18next';
 
 const SongLayout = () => {

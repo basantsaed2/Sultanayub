@@ -1,5 +1,5 @@
 import React from 'react'
-import { DealOrderPage } from '../../../Pages/Pages'
+import DealOrderPage from "../../../Pages/Dashboard/Admin/DealOrder/DealOrderPage";
 import { TitlePage } from '../../../Components/Components'
 import { useTranslation } from 'react-i18next';
 

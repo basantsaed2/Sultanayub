@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { TitlePage, TitleSection } from '../../../Components/Components';
-import { AddOfferSection, OffersPage } from '../../../Pages/Pages';
+import AddOfferSection from "../../../Pages/Dashboard/Admin/Offers/AddOfferSection";
+import OffersPage from "../../../Pages/Dashboard/Admin/Offers/OffersPage";
 import { useGet } from '../../../Hooks/useGet';
 import { useTranslation } from 'react-i18next';
 

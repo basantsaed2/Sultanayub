@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { TitlePage, TitleSection } from '../../../Components/Components'
-import { AddLanguagesSection, LanguagesPage } from '../../../Pages/Pages'
+import AddLanguagesSection from "../../../Pages/Dashboard/Admin/Languages/AddLanguageSection";
+import LanguagesPage from "../../../Pages/Dashboard/Admin/Languages/LanguagesPage";
 import { useTranslation } from 'react-i18next';
 
 const LanguagesLayout = () => {

@@ -1,6 +1,6 @@
 import React from 'react'
 import { TitlePage } from '../../../../Components/Components'
-import { CancelationNotificationPage } from '../../../../Pages/Pages'
+import CancelationNotificationPage from "../../../../Pages/Dashboard/Admin/Setting/CancelationNotification/CancelationNotificationPage";
 import { useTranslation } from 'react-i18next';
 
 const CancelationNotificationLayout = () => {

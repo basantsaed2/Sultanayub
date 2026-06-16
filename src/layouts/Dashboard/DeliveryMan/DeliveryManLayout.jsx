@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { TitlePage, TitleSection } from '../../../Components/Components'
-import { AddDeliveryManSection, DeliveryManPage } from '../../../Pages/Pages'
+import AddDeliveryManSection from "../../../Pages/Dashboard/Admin/DeliveryMan/AddDeliveryManSection";
+import DeliveryManPage from "../../../Pages/Dashboard/Admin/DeliveryMan/DeliveryManPage";
 import { useGet } from '../../../Hooks/useGet';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../Context/Auth';

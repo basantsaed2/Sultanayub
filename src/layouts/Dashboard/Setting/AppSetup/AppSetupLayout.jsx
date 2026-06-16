@@ -1,6 +1,6 @@
 import React from 'react'
 import { TitlePage } from '../../../../Components/Components'
-import { AppSetupPage } from '../../../../Pages/Pages'
+import AppSetupPage from "../../../../Pages/Dashboard/Admin/Setting/AppSetup/AppSetupPage";
 import { useTranslation } from 'react-i18next';
 
 const AppSetupLayout = () => {

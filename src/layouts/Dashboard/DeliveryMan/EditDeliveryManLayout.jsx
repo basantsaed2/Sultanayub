@@ -1,6 +1,6 @@
 import React from 'react'
 import { TitlePage } from '../../../Components/Components'
-import { EditDeliveryManPage } from '../../../Pages/Pages'
+import EditDeliveryManPage from "../../../Pages/Dashboard/Admin/DeliveryMan/EditDeliveryManPage";
 import { useTranslation } from 'react-i18next';
 
 const EditDeliveryManLayout = () => {
