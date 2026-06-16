@@ -11,6 +11,15 @@ import { useTranslation } from "react-i18next";
 const AllOrdersLayout = () => {
   const { t, i18n } = useTranslation();
   const userRole = localStorage.getItem("role") || "admin";
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
+  // Fetch order counts from API
+  const { data: countData, loading: countLoading } = useGet({
+    url: userRole === "admin" ? `${apiUrl}/admin/order/count` : null,
+  });
+
+  // Check if filter is active
+  const filterActive = useSelector((state) => state.filterActive?.active);
 
   const ordersAllCount = useSelector((state) => state.ordersAll.data);
   const ordersAllCountLoading = useSelector((state) => state.ordersAll.loading);
@@ -39,38 +48,84 @@ const AllOrdersLayout = () => {
   //   ordersRefund:ordersRefundCount.length,
   // }
 
-  const counters = {
-    ordersAll: ordersAllCount.length,
-    ordersPending: ordersAllCount.filter(
+  // Use API counter data as default, fall back to filtered array if not available
+  // When filter is active, calculate counts from filtered Redux data
+  const counters = filterActive ? {
+    ordersAll: ordersAllCount?.length || 0,
+    ordersPending: ordersAllCount?.filter(
       (order) => order.order_status === "pending"
-    ).length,
-    ordersConfirmed: ordersAllCount.filter(
+    ).length || 0,
+    ordersConfirmed: ordersAllCount?.filter(
       (order) => order.order_status === "confirmed"
-    ).length,
-    ordersProcessing: ordersAllCount.filter(
+    ).length || 0,
+    ordersProcessing: ordersAllCount?.filter(
       (order) => order.order_status === "processing"
-    ).length,
-    ordersOutForDelivery: ordersAllCount.filter(
+    ).length || 0,
+    ordersOutForDelivery: ordersAllCount?.filter(
       (order) => order.order_status === "out_for_delivery"
-    ).length,
-    ordersDelivered: ordersAllCount.filter(
+    ).length || 0,
+    ordersDelivered: ordersAllCount?.filter(
       (order) => order.order_status === "delivered"
-    ).length,
-    ordersReturned: ordersAllCount.filter(
+    ).length || 0,
+    ordersReturned: ordersAllCount?.filter(
       (order) => order.order_status === "returned"
-    ).length,
-    ordersRefund: ordersAllCount.filter(
+    ).length || 0,
+    ordersRefund: ordersAllCount?.filter(
       (order) => order.order_status === "refund"
-    ).length,
-    ordersFailed: ordersAllCount.filter(
+    ).length || 0,
+    ordersFailed: ordersAllCount?.filter(
       (order) => order.order_status === "faild_to_deliver"
-    ).length,
-    ordersCanceled: ordersAllCount.filter(
+    ).length || 0,
+    ordersCanceled: ordersAllCount?.filter(
       (order) => order.order_status === "canceled"
-    ).length,
-    ordersSchedule: ordersAllCount.filter(
+    ).length || 0,
+    ordersSchedule: ordersAllCount?.filter(
       (order) => order.order_status === "scheduled"
-    ).length,
+    ).length || 0,
+  } : countData ? {
+    ordersAll: countData.all || 0,
+    ordersPending: countData.pending || 0,
+    ordersConfirmed: countData.confirmed || 0,
+    ordersProcessing: countData.processing || 0,
+    ordersOutForDelivery: countData.out_for_delivery || 0,
+    ordersDelivered: countData.delivered || 0,
+    ordersReturned: countData.returned || 0,
+    ordersRefund: countData.refund || 0,
+    ordersFailed: countData.faild_to_deliver || 0,
+    ordersCanceled: countData.canceled || 0,
+    ordersSchedule: countData.scheduled || 0,
+  } : {
+    ordersAll: ordersAllCount?.length || 0,
+    ordersPending: ordersAllCount?.filter(
+      (order) => order.order_status === "pending"
+    ).length || 0,
+    ordersConfirmed: ordersAllCount?.filter(
+      (order) => order.order_status === "confirmed"
+    ).length || 0,
+    ordersProcessing: ordersAllCount?.filter(
+      (order) => order.order_status === "processing"
+    ).length || 0,
+    ordersOutForDelivery: ordersAllCount?.filter(
+      (order) => order.order_status === "out_for_delivery"
+    ).length || 0,
+    ordersDelivered: ordersAllCount?.filter(
+      (order) => order.order_status === "delivered"
+    ).length || 0,
+    ordersReturned: ordersAllCount?.filter(
+      (order) => order.order_status === "returned"
+    ).length || 0,
+    ordersRefund: ordersAllCount?.filter(
+      (order) => order.order_status === "refund"
+    ).length || 0,
+    ordersFailed: ordersAllCount?.filter(
+      (order) => order.order_status === "faild_to_deliver"
+    ).length || 0,
+    ordersCanceled: ordersAllCount?.filter(
+      (order) => order.order_status === "canceled"
+    ).length || 0,
+    ordersSchedule: ordersAllCount?.filter(
+      (order) => order.order_status === "scheduled"
+    ).length || 0,
   };
 
   return (
@@ -78,7 +133,7 @@ const AllOrdersLayout = () => {
       <OrdersComponent />
       <div className="flex flex-col w-full mb-0">
         <TitlePage text={t("AllOrders")} />
-        {ordersAllCountLoading ? (
+        {ordersAllCountLoading || countLoading ? (
           <>
             <div className="flex items-center justify-center w-full">
               <LoaderLogin />

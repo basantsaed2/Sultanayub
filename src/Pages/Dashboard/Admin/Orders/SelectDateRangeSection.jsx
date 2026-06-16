@@ -85,9 +85,12 @@ const SelectDateRangeSection = ({ typPage }) => {
     { id: "scheduled", name: t("scheduled") },
   ];
 
+  // Fetch branches only once via React Query cache - do NOT refetch on mount
   useEffect(() => {
-    refetchBranch(); // Refetch data when the component mounts
-  }, [refetchBranch]);
+    if (dataBranch?.branches) {
+      setBranchs(dataBranch.branches);
+    }
+  }, [dataBranch]);
 
   const handleOpenDropdown = (type) => {
     if (type === "branch") {
@@ -115,12 +118,6 @@ const SelectDateRangeSection = ({ typPage }) => {
     setSelectedType(option.id);
     setStateType(option.name);
   };
-
-  useEffect(() => {
-    if (dataBranch?.branches) {
-      setBranchs(dataBranch.branches);
-    }
-  }, [dataBranch]);
 
   useEffect(() => {
     if (response !== null) {

@@ -6,7 +6,8 @@ import { FaFileInvoice, FaWhatsapp, FaRegCopy } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../../../Context/Auth";
 import { useGet } from "../../../../../Hooks/useGet";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setOrderPageStatus } from "../../../../../Store/CreateSlices";
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -21,11 +22,13 @@ const AllOrdersPage = () => {
   const filteredOrdersPerPage = 20;
 
   // Filter active flag (set by SelectDateRangeSection via Redux)
+  const dispatch = useDispatch();
   const filterActive = useSelector(state => state.filterActive?.active || false);
   // Redux fallback data (used when filter is active or my_orders errors)
   const reduxOrdersData = useSelector(state => state.ordersAll.data || []);
 
   const branchesUrl = role === "branch" ? `${apiUrl}/branch/online_order` : `${apiUrl}/admin/order`;
+  const [shouldFetchFallbackOrders, setShouldFetchFallbackOrders] = useState(false);
 
   const { data: dataOrders, loading, error } = useGet({
     url: `${apiUrl}/admin/order/my_orders`,
@@ -36,6 +39,14 @@ const AllOrdersPage = () => {
     }
   });
 
+  useEffect(() => {
+    if (error) {
+      dispatch(setOrderPageStatus('failed'));
+    } else if (dataOrders) {
+      dispatch(setOrderPageStatus('success'));
+    }
+  }, [dataOrders, error, dispatch]);
+
   // ONLY call this fallback API if the primary my_orders API fails
   const { data: fallbackDataOrders, loading: fallbackLoading } = useGet({
     url: branchesUrl,
@@ -44,15 +55,17 @@ const AllOrdersPage = () => {
       page: currentPage,
       per_page: filteredOrdersPerPage
     },
-    enabled: !!error 
+    enabled: shouldFetchFallbackOrders
   });
 
   // Use filter/Redux data if filter is active. Otherwise, use primary data, or fallback data if primary errors.
   const ordersData = filterActive
     ? (Array.isArray(reduxOrdersData) ? reduxOrdersData : [])
-    : error 
+    : Array.isArray(dataOrders?.orders?.data)
+      ? dataOrders.orders.data
+      : error
         ? (Array.isArray(fallbackDataOrders?.orders?.data) ? fallbackDataOrders.orders.data : (Array.isArray(fallbackDataOrders?.orders) ? fallbackDataOrders.orders : []))
-        : (Array.isArray(dataOrders?.orders?.data) ? dataOrders.orders.data : []);
+        : [];
 
   useEffect(() => {
     setFilteredOrders(ordersData);

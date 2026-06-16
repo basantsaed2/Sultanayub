@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { useGet } from "../Hooks/useGet";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -79,6 +79,11 @@ const initialOrderCountsState = {
        canceled: 0,
        scheduled: 0,
        confirmed: 0,
+};
+
+const initialOrderPageState = {
+       active: false,
+       status: 'unknown', // unknown | success | failed
 };
 
 const initialLanguage = { data: [], selected: 'en', }
@@ -373,6 +378,19 @@ const filterActiveSlice = createSlice({
        },
 });
 
+const orderPageStateSlice = createSlice({
+       name: "orderPageState",
+       initialState: initialOrderPageState,
+       reducers: {
+              setOrderPageActive: (state, action) => {
+                     state.active = action.payload;
+              },
+              setOrderPageStatus: (state, action) => {
+                     state.status = action.payload;
+              },
+       },
+});
+
 const orderCountsSlice = createSlice({
        name: "orderCounts",
        initialState: initialOrderCountsState,
@@ -386,7 +404,7 @@ const orderCountsSlice = createSlice({
 
 
 const role = localStorage.getItem("role"); // قراءة الدور
-const branchesUrl =
+const primaryOrdersUrl =
        role === "branch"
               ? `${apiUrl}/branch/online_order`
               : `${apiUrl}/admin/order`;
@@ -397,14 +415,22 @@ export const OrdersComponent = () => {
        const trigger = useSelector((state) => state.globalTrigger.value);
        const isFilterActive = useSelector((state) => state.filterActive.active);
 
-       const { refetch: refetchOrders, data: dataOrders, loading } = useGet({
-              url: branchesUrl
+              const orderPageStatus = useSelector((state) => state.orderPageState?.status || 'unknown');
+       const shouldFetchPrimaryOrders = orderPageStatus === 'failed';
+
+       const { refetch: refetchPrimaryOrders, data: primaryOrdersData, loading } = useGet({
+              url: primaryOrdersUrl,
+              params: {
+                     order_status: 'all'
+              },
+              enabled: shouldFetchPrimaryOrders
        });
 
-
        useEffect(() => {
-              refetchOrders();
-       }, [refetchOrders, trigger]);
+              if (shouldFetchPrimaryOrders) {
+                     refetchPrimaryOrders();
+              }
+       }, [refetchPrimaryOrders, trigger, shouldFetchPrimaryOrders]);
 
        // Log data to debug
        useEffect(() => {
@@ -421,29 +447,26 @@ export const OrdersComponent = () => {
               dispatch(ordersScheduleSlice.actions.setLoading(loading));
        }, [loading, dispatch]);
 
-
-
-
        useEffect(() => {
-              if (!isFilterActive && dataOrders && Array.isArray(dataOrders.orders)) {
-                     dispatch(ordersAllSlice.actions.setOrdersAll(dataOrders.orders));
-                     dispatch(ordersPendingSlice.actions.setOrdersPending(dataOrders.pending));
-                     dispatch(ordersConfirmedSlice.actions.setOrdersConfirmed(dataOrders.confirmed));
-                     dispatch(ordersProcessingSlice.actions.setOrdersProcessing(dataOrders.processing));
-                     dispatch(ordersOutForDeliverySlice.actions.setOrdersOutForDelivery(dataOrders.out_for_delivery));
-                     dispatch(ordersDeliveredSlice.actions.setOrdersDelivered(dataOrders.delivered));
-                     dispatch(ordersReturnedSlice.actions.setOrdersReturned(dataOrders.returned));
-                     dispatch(ordersRefundSlice.actions.setOrdersRefund(dataOrders.refund));
-                     dispatch(ordersFailedSlice.actions.setOrdersFailed(dataOrders.faild_to_deliver));
-                     dispatch(ordersCanceledSlice.actions.setOrdersCanceled(dataOrders.canceled));
-                     dispatch(ordersScheduleSlice.actions.setOrdersSchedule(dataOrders.scheduled));
+              if (!isFilterActive && Array.isArray(primaryOrdersData?.orders)) {
+                     dispatch(ordersAllSlice.actions.setOrdersAll(primaryOrdersData.orders));
+                     dispatch(ordersPendingSlice.actions.setOrdersPending(primaryOrdersData.pending));
+                     dispatch(ordersConfirmedSlice.actions.setOrdersConfirmed(primaryOrdersData.confirmed));
+                     dispatch(ordersProcessingSlice.actions.setOrdersProcessing(primaryOrdersData.processing));
+                     dispatch(ordersOutForDeliverySlice.actions.setOrdersOutForDelivery(primaryOrdersData.out_for_delivery));
+                     dispatch(ordersDeliveredSlice.actions.setOrdersDelivered(primaryOrdersData.delivered));
+                     dispatch(ordersReturnedSlice.actions.setOrdersReturned(primaryOrdersData.returned));
+                     dispatch(ordersRefundSlice.actions.setOrdersRefund(primaryOrdersData.refund));
+                     dispatch(ordersFailedSlice.actions.setOrdersFailed(primaryOrdersData.faild_to_deliver));
+                     dispatch(ordersCanceledSlice.actions.setOrdersCanceled(primaryOrdersData.canceled));
+                     dispatch(ordersScheduleSlice.actions.setOrdersSchedule(primaryOrdersData.scheduled));
               }
-       }, [dataOrders, dispatch, isFilterActive]);
-
-
+       }, [primaryOrdersData, dispatch, isFilterActive]);
 
        return null; // No UI returned
 };
+
+export const { setOrderPageStatus } = orderPageStateSlice.actions;
 
 // Fetch real-time order counts for sidebar badges
 export const OrderCountsComponent = () => {
@@ -492,6 +515,7 @@ export const { setGlobalSearch, clearGlobalSearch } = searchSlice.actions;
 export const { triggerRefresh } = globalTriggerSlice.actions;
 export const { setFilterActive } = filterActiveSlice.actions;
 export const { setOrderCounts } = orderCountsSlice.actions;
+export const orderPageStateReducer = orderPageStateSlice.reducer;
 
 // Export reducers
 export const newOrdersReducer = newOrdersSlice.reducer;
