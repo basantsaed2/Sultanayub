@@ -423,7 +423,9 @@ export const OrdersComponent = () => {
               params: {
                      order_status: 'all'
               },
-              enabled: shouldFetchPrimaryOrders
+              enabled: shouldFetchPrimaryOrders,
+              staleTime: 0,
+              gcTime: 0
        });
 
        useEffect(() => {
@@ -478,7 +480,11 @@ export const OrderCountsComponent = () => {
                      ? `${apiUrl}/branch/online_order/count`
                      : `${apiUrl}/admin/order/count`;
 
-       const { refetch: refetchCounts, data: countsData } = useGet({ url: countUrl });
+       const { refetch: refetchCounts, data: countsData } = useGet({ 
+              url: countUrl,
+              staleTime: 0,
+              gcTime: 0
+       });
 
        useEffect(() => {
               refetchCounts();

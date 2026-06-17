@@ -15,7 +15,7 @@ import { usePost } from "../../../../../Hooks/usePostJson";
 import { useChangeState } from "../../../../../Hooks/useChangeState";
 import { useAuth } from "../../../../../Context/Auth";
 import { useDispatch } from "react-redux";
-import { removeCanceledOrder } from "../../../../../Store/CreateSlices";
+import { removeCanceledOrder, triggerRefresh } from "../../../../../Store/CreateSlices";
 import { useSelector } from "react-redux"; // Add this import
 import { FaFileInvoice, FaWhatsapp, FaCopy } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
@@ -212,6 +212,8 @@ const DetailsOrderPage = () => {
       setDeliveriesFilter(deliveries);
       // Invalidate ALL cached order queries so list pages see the updated status
       queryClient.invalidateQueries();
+      // Also trigger the count refetch so sidebar badges update
+      dispatch(triggerRefresh());
       refetchDetailsOrder(); // Refetch to update the UI with new status and delivery info.
     }
   }, [response]);
@@ -378,6 +380,8 @@ const DetailsOrderPage = () => {
 
       // Invalidate ALL cached order queries so every list page reflects the new status
       queryClient.invalidateQueries();
+      // Also trigger the count refetch so sidebar badges update
+      dispatch(triggerRefresh());
 
       if (orderData?.order_status === "confirmed") {
         // 1. نرسل الداتا بالكامل لدالة التجهيز

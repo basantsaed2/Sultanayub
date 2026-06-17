@@ -34,7 +34,11 @@ const OrderNotificationHandler = ({ apiUrl, role }) => {
     const {
         refetch: refetchCountOrders,
         data: dataCountOrders,
-    } = useGet({ url: branchesUrl });
+    } = useGet({ 
+        url: branchesUrl,
+        staleTime: 0,
+        gcTime: 0 
+    });
 
     useEffect(() => {
         refetchCountOrders();
@@ -65,7 +69,7 @@ const OrderNotificationHandler = ({ apiUrl, role }) => {
         playNotificationSound();
         if (document.hidden && Notification.permission === 'granted') {
             try {
-                new Notification(t('New Order Received'), {
+                new Notification(`${t('New Order Received')} #${uniqueId}`, {
                     body: t('Check your dashboard for details'),
                     tag: uniqueId,
                     renotify: true,
@@ -106,19 +110,37 @@ const OrderNotificationHandler = ({ apiUrl, role }) => {
             }));
         });
 
-        dispatch(triggerRefresh());
-        refetchCountOrders();
-        queryClient.invalidateQueries(); // Invalidate ALL cached react-query data, including all order endpoints, to ensure everything updates seamlessly.
         notifyUser(orderIdStr);
         setIsOpen(true);
-    }, [dispatch, refetchCountOrders]);
+
+        // Add a 500ms delay before refetching to ensure the backend DB transaction is fully committed
+        setTimeout(() => {
+            dispatch(triggerRefresh());
+            refetchCountOrders();
+            queryClient.invalidateQueries();
+        }, 500);
+
+    }, [dispatch, refetchCountOrders, queryClient]);
 
     // ─── Real-time handler: confirmed payload { order_id: 92118 } ─────────────
     const handleIncomingOrder = useCallback((data) => {
         console.log('📦 Real-time NewOrderEvent received:', data);
-        const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+        let parsed = typeof data === 'string' ? JSON.parse(data) : data;
+        
+        // If the payload is wrapped in a Pusher event object, parse the inner data string
+        if (parsed?.data && typeof parsed.data === 'string') {
+            try {
+                parsed = JSON.parse(parsed.data);
+            } catch (e) {
+                console.error('Failed to parse inner data:', e);
+            }
+        }
+
         const orderId = parsed?.order_id ?? parsed?.order?.id ?? parsed?.id ?? null;
-        if (!orderId) return;
+        if (!orderId) {
+            console.warn('⚠️ Could not extract orderId from real-time event', parsed);
+            return;
+        }
         processNewOrder(String(orderId));
     }, [processNewOrder]);
 
@@ -139,9 +161,15 @@ const OrderNotificationHandler = ({ apiUrl, role }) => {
 
             let all_orders = [];
             if (Array.isArray(raw_orders)) {
-                all_orders = raw_orders.map(id => String(id));
+                all_orders = raw_orders.map(item => {
+                    const extractedId = typeof item === 'object' && item !== null ? (item.order_id || item.id || item) : item;
+                    return String(extractedId);
+                });
             } else if (typeof raw_orders === 'object' && raw_orders !== null) {
-                all_orders = Object.values(raw_orders).map(id => String(id));
+                all_orders = Object.values(raw_orders).map(item => {
+                    const extractedId = typeof item === 'object' && item !== null ? (item.order_id || item.id || item) : item;
+                    return String(extractedId);
+                });
             } else if (raw_orders) {
                 all_orders = [String(raw_orders)];
             }
@@ -159,7 +187,11 @@ const OrderNotificationHandler = ({ apiUrl, role }) => {
             if (hasNew && total > 0) {
                 all_orders.forEach(id => processNewOrder(id));
             } else {
-                dispatch(setNewOrders({ count: total, orders: all_orders }));
+                dispatch(setNewOrders({ 
+                    count: total, 
+                    id: total > 0 ? all_orders[all_orders.length - 1] : null,
+                    orders: all_orders 
+                }));
             }
         } catch (err) {
             console.error('❌ Fallback notification API error:', err);
@@ -273,6 +305,7 @@ const OrderNotificationHandler = ({ apiUrl, role }) => {
             );
             dispatch(setNewOrders({
                 count: Math.max(0, updatedOrders.length),
+                id: updatedOrders.length > 0 ? updatedOrders[updatedOrders.length - 1] : null,
                 orders: updatedOrders,
             }));
         }

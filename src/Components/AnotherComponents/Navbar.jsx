@@ -263,6 +263,7 @@ const Navbar = () => {
       const updatedOrders = currentOrders.filter(id => String(id) !== String(orderId));
       dispatch(setNewOrders({
         count: updatedOrders.length,
+        id: updatedOrders.length > 0 ? updatedOrders[updatedOrders.length - 1] : null,
         orders: updatedOrders
       }));
     }

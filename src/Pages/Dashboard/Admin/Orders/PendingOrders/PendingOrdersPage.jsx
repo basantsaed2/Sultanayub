@@ -29,7 +29,9 @@ const PendingOrdersPage = () => {
       order_status: 'pending',
       page: currentPage,
       per_page: filteredOrdersPerPage
-    }
+    },
+    staleTime: 0,
+    gcTime: 0
   });
 
   const ordersData = (filterActive || error)

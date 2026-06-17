@@ -29,7 +29,9 @@ const FailedOrdersPage = () => {
       order_status: 'faild_to_deliver',
       page: currentPage,
       per_page: filteredOrdersPerPage
-    }
+    },
+    staleTime: 0,
+    gcTime: 0
   });
 
   const ordersData = (filterActive || error)

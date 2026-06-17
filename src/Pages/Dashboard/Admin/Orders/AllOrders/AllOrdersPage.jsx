@@ -36,7 +36,9 @@ const AllOrdersPage = () => {
       order_status: 'all',
       page: currentPage,
       per_page: filteredOrdersPerPage
-    }
+    },
+    staleTime: 0,
+    gcTime: 0
   });
 
   useEffect(() => {
@@ -55,7 +57,9 @@ const AllOrdersPage = () => {
       page: currentPage,
       per_page: filteredOrdersPerPage
     },
-    enabled: shouldFetchFallbackOrders
+    enabled: !!error || filterActive,
+    staleTime: 0,
+    gcTime: 0
   });
 
   // Use filter/Redux data if filter is active. Otherwise, use primary data, or fallback data if primary errors.

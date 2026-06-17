@@ -29,7 +29,9 @@ const ProcessingOrdersPage = () => {
       order_status: 'confirmed',
       page: currentPage,
       per_page: filteredOrdersPerPage
-    }
+    },
+    staleTime: 0,
+    gcTime: 0
   });
 
   const ordersData = (filterActive || error)
