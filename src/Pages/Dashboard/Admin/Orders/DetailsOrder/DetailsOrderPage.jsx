@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { useGet } from "../../../../../Hooks/useGet";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   DropDown,
   LoaderLogin,
@@ -33,16 +34,11 @@ const DetailsOrderPage = () => {
   const role = auth.userState?.role ? auth.userState?.role : localStorage.getItem("role");
   const route = role === "branch" ? "/branch/orders" : "/dashboard/orders";
 
-  // ✅ Details Order endpoint
-  const detailsOrderUrl =
-    role === "branch"
-      ? `${apiUrl}/branch/online_order/order/${orderNumPath}?locale=${selectedLanguage}`
-      : `${apiUrl}/admin/order/order/${orderNumPath}?locale=${selectedLanguage}`;
-
   const {
     refetch: refetchDetailsOrder,
     loading: loadingDetailsOrder,
     data: dataDetailsOrder,
+    error: errorDetailsOrder,
   } = useGet({ url: `${apiUrl}/admin/order/order/${orderNumPath}?locale=${selectedLanguage}` });
 
   // ✅ Delivery endpoint
@@ -94,6 +90,7 @@ const DetailsOrderPage = () => {
   // State to hold computed values
   const [permission, setPermission] = useState([]);
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
   const canceledOrders = useSelector((state) => state.canceledOrders); // Add this line
 
   const [openTransferModal, setOpenTransferModal] = useState(false);
@@ -143,6 +140,14 @@ const DetailsOrderPage = () => {
       setBranches(filteredBranches);
     }
   }, [dataDetailsOrder]);
+
+  // Show a toast when the order ID is invalid — but do NOT navigate away
+  useEffect(() => {
+    if (!loadingDetailsOrder && (errorDetailsOrder || dataDetailsOrder?.errors)) {
+      const msg = dataDetailsOrder?.errors || t("OrderNotFound") || "Order not found";
+      auth.toastError(msg);
+    }
+  }, [errorDetailsOrder, dataDetailsOrder, loadingDetailsOrder]);
 
   const timeString = dataDetailsOrder?.order?.date || "";
   const [olderHours, olderMinutes] = timeString.split(":").map(Number); // Extract hours and minutes as numbers
@@ -205,6 +210,8 @@ const DetailsOrderPage = () => {
       setSearchDelivery("");
       setOpenDeliveries(false);
       setDeliveriesFilter(deliveries);
+      // Invalidate ALL cached order queries so list pages see the updated status
+      queryClient.invalidateQueries();
       refetchDetailsOrder(); // Refetch to update the UI with new status and delivery info.
     }
   }, [response]);
@@ -368,6 +375,9 @@ const DetailsOrderPage = () => {
   useEffect(() => {
     if (responseChange && responseChange.status === 200) {
       const orderData = responseChange.data;
+
+      // Invalidate ALL cached order queries so every list page reflects the new status
+      queryClient.invalidateQueries();
 
       if (orderData?.order_status === "confirmed") {
         // 1. نرسل الداتا بالكامل لدالة التجهيز

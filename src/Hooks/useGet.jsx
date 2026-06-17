@@ -3,7 +3,7 @@ import { useAuth } from "../Context/Auth";
 import { useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 
-export const useGet = ({ url, params, queryKey, enabled = true }) => {
+export const useGet = ({ url, params, queryKey, enabled = true, staleTime, gcTime }) => {
     const auth = useAuth();
     const token = auth?.userState?.token || '';
 
@@ -26,6 +26,8 @@ export const useGet = ({ url, params, queryKey, enabled = true }) => {
         queryKey: finalQueryKey,
         queryFn: fetcher,
         enabled: enabled && !!token && !!url, // Run if enabled is true AND we have a token and URL
+        ...(staleTime !== undefined ? { staleTime } : {}),
+        ...(gcTime !== undefined ? { gcTime } : {}),
     });
 
     // We alias isLoading to loading to maintain backward compatibility with existing components
