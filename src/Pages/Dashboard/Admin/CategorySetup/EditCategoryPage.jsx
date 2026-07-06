@@ -65,6 +65,7 @@ const EditCategoryPage = () => {
 
   const [categoryName, setCategoryName] = useState([]);
   const [priority, setPriority] = useState("");
+  const [appType, setAppType] = useState("all");
 
   const [statusCategory, setStatusCategory] = useState(0);
   const [activeCategory, setActiveCategory] = useState(0);
@@ -126,6 +127,7 @@ const EditCategoryPage = () => {
 
       setCategories(dataCategory.category.categories);
       setPriority(dataCategory.category.priority);
+      setAppType(dataCategory.category.app_type || "all");
       setImage(dataCategory.category.image_link);
       setImageFile(dataCategory.category.image_link);
       setBanner(dataCategory.category.banner_link);
@@ -289,6 +291,7 @@ const EditCategoryPage = () => {
     formData.append("image", imageFile);
     formData.append("banner_image", bannerFile);
 
+    formData.append("app_type", appType);
     formData.append("status", statusCategory);
     formData.append("active", activeCategory);
 
@@ -439,6 +442,22 @@ const EditCategoryPage = () => {
                               onClick={() => handleBannerClick(BannerRef)}
                             />
                           </div>
+                          {/* App Type */}
+                          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                            <span className="text-xl font-TextFontRegular text-thirdColor">
+                              {t("App Type")}:
+                            </span>
+                            <select
+                              value={appType}
+                              onChange={(e) => setAppType(e.target.value)}
+                              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-thirdColor text-base font-TextFontRegular bg-white focus:outline-none focus:ring-2 focus:ring-mainColor"
+                            >
+                              <option value="all">{t("All")}</option>
+                              <option value="web">{t("Web")}</option>
+                              <option value="app">{t("App")}</option>
+                            </select>
+                          </div>
+
                           <div className="sm:w-full xl:w-[30%] flex items-start justify-start gap-x-1 pt-8">
                             <div className="flex items-center justify-start w-2/4 gap-x-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">

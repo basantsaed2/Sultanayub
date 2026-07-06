@@ -59,6 +59,7 @@ const AddCategorySection = ({ update, setUpdate }) => {
   const [currentTap, setCurrentTap] = useState(0);
   const [categoryName, setCategoryName] = useState([]);
   const [priority, setPriority] = useState("");
+  const [appType, setAppType] = useState("all");
   const [statusCategory, setStatusCategory] = useState(0);
   const [activeCategory, setActiveCategory] = useState(0);
 
@@ -205,6 +206,7 @@ const AddCategorySection = ({ update, setUpdate }) => {
       // setStateCategoriesPriority('Select Category Priority')
       setPriority("");
       // setCategoriesPriorityId('')
+      setAppType("all");
       setStatecategoriesAddonse(t("Select Category Addons"));
       setSelectedCategoriesAddons([]);
       setStatusCategory(0);
@@ -244,6 +246,7 @@ const AddCategorySection = ({ update, setUpdate }) => {
     // setParent('')
     // setStateCategoriesPriority('Select Category Priority')
     setPriority("");
+    setAppType("all");
     setStatecategoriesAddonse("Select Category Addons");
     setSelectedCategoriesAddons([]);
     setStatusCategory(0);
@@ -322,6 +325,7 @@ const AddCategorySection = ({ update, setUpdate }) => {
     formData.append("image", imageFile);
     formData.append("banner_image", bannerFile);
 
+    formData.append("app_type", appType);
     formData.append("status", statusCategory);
     formData.append("active", activeCategory);
 
@@ -473,6 +477,22 @@ const AddCategorySection = ({ update, setUpdate }) => {
                               onClick={() => handleBannerClick(BannerRef)}
                             />
                           </div>
+                          {/* App Type */}
+                          <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                            <span className="text-xl font-TextFontRegular text-thirdColor">
+                              {t("App Type")}:
+                            </span>
+                            <select
+                              value={appType}
+                              onChange={(e) => setAppType(e.target.value)}
+                              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-thirdColor text-base font-TextFontRegular bg-white focus:outline-none focus:ring-2 focus:ring-mainColor"
+                            >
+                              <option value="all">{t("All")}</option>
+                              <option value="web">{t("Web")}</option>
+                              <option value="app">{t("App")}</option>
+                            </select>
+                          </div>
+
                           <div className="sm:w-full xl:w-[30%] flex items-start justify-start gap-x-1 pt-8">
                             <div className="flex items-center justify-start w-2/4 gap-x-1">
                               <span className="text-xl font-TextFontRegular text-thirdColor">
