@@ -218,6 +218,14 @@ const OrderNotificationHandler = ({ apiUrl, role }) => {
 
     // ─── Subscribe to Reverb + monitor connection state ───────────────────────
     useEffect(() => {
+        // If echo is null (VITE_REVERB_APP_KEY not set), skip real-time entirely
+        if (!echo) {
+            console.warn('⚠️ Echo is not initialised (no app key) — using API polling fallback');
+            setIsRealtimeConnected(false);
+            startFallbackPolling();
+            return () => stopFallbackPolling();
+        }
+
         const channel = echo.channel('newOrder');
         channel.listen('.NewOrderEvent', handleIncomingOrder);
         console.log('🔌 Subscribed to Reverb channel: newOrder | Event: .NewOrderEvent');
