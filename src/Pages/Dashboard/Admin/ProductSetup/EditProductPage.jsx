@@ -65,6 +65,7 @@ const EditProductPage = () => {
   const productImageRef = useRef();
   const groupRef = useRef();
   const unitRef = useRef();
+  const appTypeRef = useRef();
 
   /* States */
   const [taps, setTaps] = useState([]);
@@ -93,6 +94,7 @@ const EditProductPage = () => {
 
   const [itemTypes, setItemTypes] = useState([]);
   const [stockTypes, setStockTypes] = useState([]);
+  const [appTypes, setAppTypes] = useState([]);
 
   useEffect(() => {
     setItemTypes([
@@ -106,6 +108,12 @@ const EditProductPage = () => {
       { id: "unlimited", name: t("unlimited") },
       { id: "daily", name: t("daily") },
       { id: "fixed", name: t("fixed") },
+    ]);
+    setAppTypes([
+      { id: "", name: t("Selected App Type") },
+      { id: "all", name: t("all") },
+      { id: "web", name: t("web") },
+      { id: "app", name: t("app") },
     ]);
   }, [t, i18n.language]);
 
@@ -129,6 +137,8 @@ const EditProductPage = () => {
   const [selectedItemTypeName, setSelectedItemTypeName] = useState("");
   const [selectedStockTypeState, setSelectedStockTypeState] = useState(t("Selected Stock Type"));
   const [selectedStockTypeName, setSelectedStockTypeName] = useState("");
+  const [selectedAppTypeState, setSelectedAppTypeState] = useState(t("Selected App Type"));
+  const [selectedAppTypeName, setSelectedAppTypeName] = useState("");
   const [productStockNumber, setProductStockNumber] = useState("");
   const [productPrice, setProductPrice] = useState("");
   const [productPoint, setProductPoint] = useState("");
@@ -152,6 +162,7 @@ const EditProductPage = () => {
   const [isOPenProductTax, setIsOPenProductTax] = useState(false);
   const [isOPenProductGroup, setIsOPenProductGroup] = useState(false);
   const [isOPenProductUnit, setIsOPenProductUnit] = useState(false);
+  const [isOPenProductAppType, setIsOPenProductAppType] = useState(false);
 
   /* Refetch Data */
   useEffect(() => {
@@ -296,6 +307,8 @@ const EditProductPage = () => {
       setSelectedItemTypeState(productEdit.item_type || t("Selected Item Type"));
       setSelectedStockTypeName(productEdit.stock_type || "");
       setSelectedStockTypeState(productEdit.stock_type || t("Selected Stock Type"));
+      setSelectedAppTypeName(productEdit.app_type || "");
+      setSelectedAppTypeState(productEdit.app_type || t("Selected App Type"));
       setProductStockNumber(productEdit.number ?? "");
       setProductPrice(productEdit.price ?? 0);
       setProductPoint(productEdit.points ?? 0);
@@ -407,6 +420,7 @@ const EditProductPage = () => {
     formData.append("sub_category_id", selectedSubCategoryId);
     formData.append("item_type", selectedItemTypeName);
     formData.append("stock_type", selectedStockTypeName);
+    formData.append("app_type", selectedAppTypeName);
     formData.append("number", productStockNumber);
     formData.append("price", productPrice);
     formData.append("discount_id", selectedDiscountId);
@@ -729,6 +743,7 @@ const EditProductPage = () => {
     setIsOPenProductTax(false);
     setIsOPenProductGroup(false);
     setIsOPenProductUnit(false);
+    setIsOPenProductAppType(false);
   };
 
   const handleOpenCategory = () => {
@@ -767,6 +782,16 @@ const EditProductPage = () => {
   const handleOpenOptionProductStockType = () => setIsOPenProductStockType(false);
   const handleOpenOptionProductDiscount = () => setIsOPenProductDiscount(false);
   const handleOpenOptionProductTax = () => setIsOPenProductTax(false);
+
+  const handleOpenAppType = () => {
+    handleCloseAllDropdowns();
+    setIsOPenProductAppType(!isOPenProductAppType);
+  };
+  const handleOpenOptionProductAppType = () => setIsOPenProductAppType(false);
+  const handleSelectProductAppType = (option) => {
+    setSelectedAppTypeName(option.id);
+    setSelectedAppTypeState(option.name);
+  };
 
   const handleSelectProductVariationType = (option, variationIndex) => {
     setProductVariations((prev) =>
@@ -1173,6 +1198,24 @@ const EditProductPage = () => {
                 />
               </div>
 
+              {/* App Type */}
+              <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("App Type")}:
+                </span>
+                <DropDown
+                  ref={appTypeRef}
+                  handleOpen={handleOpenAppType}
+                  stateoption={selectedAppTypeState}
+                  openMenu={isOPenProductAppType}
+                  handleOpenOption={handleOpenOptionProductAppType}
+                  options={appTypes}
+                  onSelectOption={handleSelectProductAppType}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-start justify-start w-full gap-5 sm:flex-col lg:flex-row">
               {selectedStockTypeName === "daily" ||
                 selectedStockTypeName === "fixed" ? (
                 <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">

@@ -60,6 +60,7 @@ const AddProductPage = () => {
   const productImageRef = useRef();
   const groupRef = useRef();
   const unitRef = useRef();
+  const appTypeRef = useRef();
 
   /* States */
   const [taps, setTaps] = useState([]);
@@ -88,6 +89,7 @@ const AddProductPage = () => {
 
   const [itemTypes, setItemTypes] = useState([]);
   const [stockTypes, setStockTypes] = useState([]);
+  const [appTypes, setAppTypes] = useState([]);
 
   useEffect(() => {
     setItemTypes([
@@ -101,6 +103,12 @@ const AddProductPage = () => {
       { id: "unlimited", name: t("unlimited") },
       { id: "daily", name: t("daily") },
       { id: "fixed", name: t("fixed") },
+    ]);
+    setAppTypes([
+      { id: "", name: t("Selected App Type") },
+      { id: "all", name: t("all") },
+      { id: "web", name: t("web") },
+      { id: "app", name: t("app") },
     ]);
   }, [t, i18n.language]);
 
@@ -159,6 +167,12 @@ const AddProductPage = () => {
     t("Selected Stock Type")
   );
   const [selectedStockTypeName, setSelectedStockTypeName] = useState("");
+
+  // Product App Type
+  const [selectedAppTypeState, setSelectedAppTypeState] = useState(
+    t("Selected App Type")
+  );
+  const [selectedAppTypeName, setSelectedAppTypeName] = useState("");
   // Product Stock Number
   const [productStockNumber, setProductStockNumber] = useState("");
 
@@ -200,6 +214,7 @@ const AddProductPage = () => {
   const [isOPenProductTax, setIsOPenProductTax] = useState(false);
   const [isOPenProductGroup, setIsOPenProductGroup] = useState(false);
   const [isOPenProductUnit, setIsOPenProductUnit] = useState(false);
+  const [isOPenProductAppType, setIsOPenProductAppType] = useState(false);
 
   /* Refetch Data */
   useEffect(() => {
@@ -263,6 +278,7 @@ const AddProductPage = () => {
     if (!selectedGroupId) setSelectedGroupState(t("Selected Group"));
     if (!selectedItemTypeName) setSelectedItemTypeState(t("Selected Item Type"));
     if (!selectedStockTypeName) setSelectedStockTypeState(t("Selected Stock Type"));
+    if (!selectedAppTypeName) setSelectedAppTypeState(t("Selected App Type"));
     if (!selectedUnit) setSelectedUnitState(t("Selected Unit"));
     if (selectedAddonsId.length === 0) setSelectedAddonsState(t("Selected Addons"));
     if (!productImage) setProductImageName(t("Choose Photo"));
@@ -421,6 +437,7 @@ const AddProductPage = () => {
     setIsOPenProductTax(false);
     setIsOPenProductGroup(false);
     setIsOPenProductUnit(false);
+    setIsOPenProductAppType(false);
   };
 
   const handleOpenCategory = () => {
@@ -454,6 +471,16 @@ const AddProductPage = () => {
   const handleOpenOptionProductStockType = () => setIsOPenProductStockType(false);
   const handleOpenOptionProductDiscount = () => setIsOPenProductDiscount(false);
   const handleOpenOptionProductTax = () => setIsOPenProductTax(false);
+
+  const handleOpenAppType = () => {
+    handleCloseAllDropdowns();
+    setIsOPenProductAppType(!isOPenProductAppType);
+  };
+  const handleOpenOptionProductAppType = () => setIsOPenProductAppType(false);
+  const handleSelectProductAppType = (option) => {
+    setSelectedAppTypeName(option.id);
+    setSelectedAppTypeState(option.name);
+  };
 
   const handleSelectProductVariationType = (option, variationIndex) => {
     // Update the `type` of the variation at `variationIndex`
@@ -642,6 +669,8 @@ const AddProductPage = () => {
     setSelectedItemTypeName("");
     setSelectedStockTypeState(t("Selected Stock Type"));
     setSelectedStockTypeName("");
+    setSelectedAppTypeState(t("Selected App Type"));
+    setSelectedAppTypeName("");
     setProductStockNumber("");
     setProductPrice("");
     setProductPoint("");
@@ -767,6 +796,7 @@ const AddProductPage = () => {
     formData.append("sub_category_id", selectedSubCategoryId);
     formData.append("item_type", selectedItemTypeName);
     formData.append("stock_type", selectedStockTypeName);
+    formData.append("app_type", selectedAppTypeName);
     formData.append("number", productStockNumber);
     formData.append("price", productPrice);
     formData.append("discount_id", selectedDiscountId);
@@ -1144,6 +1174,24 @@ const AddProductPage = () => {
                 />
               </div>
 
+              {/* App Type */}
+              <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("App Type")}:
+                </span>
+                <DropDown
+                  ref={appTypeRef}
+                  handleOpen={handleOpenAppType}
+                  stateoption={selectedAppTypeState}
+                  openMenu={isOPenProductAppType}
+                  handleOpenOption={handleOpenOptionProductAppType}
+                  options={appTypes}
+                  onSelectOption={handleSelectProductAppType}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-start justify-start w-full gap-5 sm:flex-col lg:flex-row">
               {selectedStockTypeName === "daily" ||
                 selectedStockTypeName === "fixed" ? (
                 <div className="sm:w-full lg:w-[33%] flex flex-col items-start justify-center gap-y-1">
