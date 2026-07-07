@@ -126,33 +126,33 @@ const TaxesPage = ({ refetch, setUpdate }) => {
     setLoadingAction(true);
     const formData = new FormData();
     formData.append("tax_id", targetTaxId);
-    
-    let submitIndex = 0;
 
-    selectedProductIds.forEach((productId) => {
-      selectedBranches.forEach((branchId) => {
-        selectedModules.forEach((moduleId) => {
-          const isOnlineModule = ["take_away", "delivery", "online"].includes(String(moduleId))
-            || moduleOptions.find(m => m.value == moduleId)?.is_online;
-
-          if (isOnlineModule) {
-            const typesToUse = selectedOnlineTypes.length > 0 ? selectedOnlineTypes : ["all"];
-            typesToUse.forEach((onlineType) => {
-              formData.append(`products[${submitIndex}]`, productId);
-              formData.append(`branch_id[${submitIndex}]`, branchId);
-              formData.append(`tax_modules[${submitIndex}]`, moduleId);
-              formData.append(`type[${submitIndex}]`, onlineType);
-              submitIndex++;
-            });
-          } else {
-            formData.append(`products[${submitIndex}]`, productId);
-            formData.append(`branch_id[${submitIndex}]`, branchId);
-            formData.append(`tax_modules[${submitIndex}]`, moduleId);
-            submitIndex++;
-          }
-        });
-      });
+    // Send products as a flat list
+    selectedProductIds.forEach((productId, i) => {
+      formData.append(`products[${i}]`, productId);
     });
+
+    // Send branches as a flat list
+    selectedBranches.forEach((branchId, i) => {
+      formData.append(`branch_id[${i}]`, branchId);
+    });
+
+    // Send modules as a flat list
+    selectedModules.forEach((moduleId, i) => {
+      formData.append(`tax_modules[${i}]`, moduleId);
+    });
+
+    // Send types as a flat list (only if any online module is selected)
+    const hasOnlineModule = selectedModules.some(moduleId =>
+      ["take_away", "delivery", "online"].includes(String(moduleId))
+      || moduleOptions.find(m => m.value == moduleId)?.is_online
+    );
+    if (hasOnlineModule) {
+      const typesToUse = selectedOnlineTypes.length > 0 ? selectedOnlineTypes : ["all"];
+      typesToUse.forEach((onlineType, i) => {
+        formData.append(`type[${i}]`, onlineType);
+      });
+    }
 
     try {
       await axios.post(`${apiUrl}/admin/tax_product/selecte_products`, formData, {
