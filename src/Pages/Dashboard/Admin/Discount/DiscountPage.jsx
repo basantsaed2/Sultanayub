@@ -7,6 +7,8 @@ import { DeleteIcon, EditIcon } from "../../../../Assets/Icons/AllIcons";
 import Warning from "../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import DiscountProductsModal from "./DiscountProductsModal";
+import DiscountDetailsModal from "./DiscountDetailsModal";
 
 const DiscountPage = ({ refetch, setUpdate }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -23,6 +25,22 @@ const DiscountPage = ({ refetch, setUpdate }) => {
 
   const [discounts, setDiscounts] = useState([]);
   const [openDelete, setOpenDelete] = useState(null);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDiscountId, setSelectedDiscountId] = useState(null);
+
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedDiscount, setSelectedDiscount] = useState(null);
+
+  const handleOpenAddProduct = (id) => {
+    setSelectedDiscountId(id);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenDetails = (discount) => {
+    setSelectedDiscount(discount);
+    setIsDetailsModalOpen(true);
+  };
 
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
   const discountsPerPage = 20; // Limit to 20 discounts per page
@@ -101,7 +119,7 @@ const DiscountPage = ({ refetch, setUpdate }) => {
     }
   }, [dataDiscounts]); // Only run this effect when `data` changes
 
-  const headers = [t("sl"), t("name"), t("type"), t("amount"), t("action")];
+  const headers = [t("sl"), t("name"), t("type"), t("amount"), t("StartDate"), t("EndDate"), t("ShowDetails"), t("AddProduct"), t("action")];
   return (
     <div className="flex items-start justify-start w-full overflow-x-scroll pb-28 scrollSection">
       {loadingDiscounts || loadingDelete ? (
@@ -151,6 +169,30 @@ const DiscountPage = ({ refetch, setUpdate }) => {
                       </td>
                       <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                         {discount?.amount || "-"}
+                      </td>
+                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                        {discount?.start_date || "-"}
+                      </td>
+                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
+                        {discount?.end_date || "-"}
+                      </td>
+                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-base overflow-hidden">
+                        <button
+                          type="button"
+                          className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded transition-colors"
+                          onClick={() => handleOpenDetails(discount)}
+                        >
+                          {t("ShowDetails")}
+                        </button>
+                      </td>
+                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-base overflow-hidden">
+                        <button
+                          type="button"
+                          className="bg-mainColor text-white px-3 py-1 rounded"
+                          onClick={() => handleOpenAddProduct(discount.id)}
+                        >
+                          {t("AddProduct")}
+                        </button>
                       </td>
                       <td className="px-4 py-3 text-center">
                         <div className="flex items-center justify-center gap-2">
@@ -259,6 +301,20 @@ const DiscountPage = ({ refetch, setUpdate }) => {
             </div>
           )}
         </div>
+      )}
+      {isModalOpen && selectedDiscountId && (
+        <DiscountProductsModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          discountId={selectedDiscountId}
+        />
+      )}
+      {isDetailsModalOpen && selectedDiscount && (
+        <DiscountDetailsModal
+          isOpen={isDetailsModalOpen}
+          onClose={() => setIsDetailsModalOpen(false)}
+          discount={selectedDiscount}
+        />
       )}
     </div>
   );

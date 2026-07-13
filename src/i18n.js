@@ -2273,6 +2273,8 @@ const resources = {
                "Total Discount": "Total Discount",
                "MultipleShift": "Multiple Shift",
 
+               "ShowDetails" : "Show Details",
+
           },
 
      },
@@ -4403,6 +4405,9 @@ const resources = {
                "Loading orders data...": "جاري تحميل بيانات الطلبات...",
                "EGP": "ج.م",
                "MultipleShift": "متعدد الشفتات",
+
+               "ShowDetails": "عرض التفاصيل",
+
           },
      },
 };

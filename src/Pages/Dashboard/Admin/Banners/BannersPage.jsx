@@ -8,6 +8,7 @@ import { useDelete } from "../../../../Hooks/useDelete";
 import Warning from "../../../../Assets/Icons/AnotherIcons/WarningIcon";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { useTranslation } from "react-i18next";
+import BannerProductsModal from "./BannerProductsModal";
 
 const BannersPage = ({ refetch, setUpdate }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -25,6 +26,14 @@ const BannersPage = ({ refetch, setUpdate }) => {
 
   const [banners, setBanners] = useState([]);
   const [openDelete, setOpenDelete] = useState(null);
+
+  const [isProductsModalOpen, setIsProductsModalOpen] = useState(false);
+  const [selectedBanner, setSelectedBanner] = useState(null);
+
+  const handleOpenProducts = (banner) => {
+    setSelectedBanner(banner);
+    setIsProductsModalOpen(true);
+  };
 
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
   const bannersPerPage = 20; // Limit to 20 banners per page
@@ -101,8 +110,7 @@ const BannersPage = ({ refetch, setUpdate }) => {
   const headers = [
     t("serialNumber"),
     t("image"),
-    t("category"),
-    t("product"),
+    t("products"),
     t("deal"),
     t("status"),
     t("action"),
@@ -159,10 +167,13 @@ const BannersPage = ({ refetch, setUpdate }) => {
                         </div>
                       </td>
                       <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                        {banner?.category_banner?.name || "-"}
-                      </td>
-                      <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
-                        {banner?.product?.name || "-"}
+                        <button
+                          type="button"
+                          className="bg-mainColor text-white px-3 py-1 rounded transition-colors"
+                          onClick={() => handleOpenProducts(banner)}
+                        >
+                          {t("products")}
+                        </button>
                       </td>
                       <td className="min-w-[150px] sm:min-w-[100px] sm:w-2/12 lg:w-2/12 py-2 text-center text-thirdColor text-sm sm:text-base lg:text-lg xl:text-xl overflow-hidden">
                         {banner?.deal?.title || "-"}
@@ -283,6 +294,14 @@ const BannersPage = ({ refetch, setUpdate }) => {
             </div>
           )}
         </div>
+      )}
+      {isProductsModalOpen && selectedBanner && (
+        <BannerProductsModal
+          isOpen={isProductsModalOpen}
+          onClose={() => setIsProductsModalOpen(false)}
+          bannerId={selectedBanner.id}
+          banner={selectedBanner}
+        />
       )}
     </div>
   );

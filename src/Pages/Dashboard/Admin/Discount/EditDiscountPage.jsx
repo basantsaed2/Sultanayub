@@ -12,6 +12,7 @@ import {
 import { useGet } from "../../../../Hooks/useGet";
 import { usePost } from "../../../../Hooks/usePostJson";
 import { useTranslation } from "react-i18next";
+import Select from "react-select";
 
 const EditDiscountPage = () => {
   const { discountId } = useParams();
@@ -38,16 +39,43 @@ const EditDiscountPage = () => {
   const [stateType, setStateType] = useState("Select Discount Type");
   const [typeName, setTypeName] = useState("");
 
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [selectedModules, setSelectedModules] = useState([]);
+  const moduleOptions = [
+    { value: "all", label: t("all") },
+    { value: "pos", label: t("pos") },
+    { value: "web", label: t("web") },
+    { value: "app", label: t("app") },
+  ];
+
   const [isOpenDiscountType, setIsOpenDiscountType] = useState(false);
 
   useEffect(() => {
     if (dataDiscount) {
-      setDiscountName(dataDiscount.discount.name || "-");
-      setDiscountAmount(dataDiscount.discount.amount || "-");
-      setStateType(dataDiscount.discount.type || "-");
-      setTypeName(dataDiscount.discount.type || "-");
+      setDiscountName(dataDiscount.discount.name || "");
+      setDiscountAmount(dataDiscount.discount.amount || "");
+      setStateType(dataDiscount.discount.type || "Select Discount Type");
+      setTypeName(dataDiscount.discount.type || "");
+      setStartDate(dataDiscount.discount.start_date || "");
+      setEndDate(dataDiscount.discount.end_date || "");
+      
+      if (dataDiscount.discount.module) {
+        let mods = dataDiscount.discount.module;
+        if (typeof mods === 'string') {
+          try {
+             mods = JSON.parse(mods);
+          } catch(e) {
+             mods = mods.split(',');
+          }
+        }
+        if (Array.isArray(mods)) {
+           const selected = moduleOptions.filter(opt => mods.includes(opt.value));
+           setSelectedModules(selected);
+        }
+      }
     }
-  }, [dataDiscount]);
+  }, [dataDiscount, t]);
 
   const handleOpenDiscountType = () => {
     setIsOpenDiscountType(!isOpenDiscountType);
@@ -100,12 +128,29 @@ const EditDiscountPage = () => {
       auth.toastError(t("please Select Discount Type"));
       return;
     }
+    if (!startDate) {
+      auth.toastError(t("please Enter Start Date"));
+      return;
+    }
+    if (!endDate) {
+      auth.toastError(t("please Enter End Date"));
+      return;
+    }
+    if (!selectedModules || selectedModules.length === 0) {
+      auth.toastError(t("please Select Modules"));
+      return;
+    }
 
     const formData = new FormData();
 
     formData.append("name", discountName);
     formData.append("amount", discountAmount);
     formData.append("type", typeName);
+    formData.append("start_date", startDate);
+    formData.append("end_date", endDate);
+    selectedModules.forEach((mod) => {
+      formData.append("module[]", mod.value);
+    });
 
     postData(formData, t("Discount Edited Success"));
   };
@@ -160,6 +205,46 @@ const EditDiscountPage = () => {
                     onSelectOption={handleSelectDiscountType}
                     options={discountType}
                     border={false}
+                  />
+                </div>
+                {/* Start Date */}
+                <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                    {t("StartDate")}:
+                  </span>
+                  <input
+                    type="date"
+                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:border-mainColor"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </div>
+                {/* End Date */}
+                <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                    {t("EndDate")}:
+                  </span>
+                  <input
+                    type="date"
+                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:border-mainColor"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
+                </div>
+                {/* Module Multiselect */}
+                <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                    {t("Module")}:
+                  </span>
+                  <Select
+                    isMulti
+                    name="modules"
+                    options={moduleOptions}
+                    className="w-full basic-multi-select"
+                    classNamePrefix="select"
+                    value={selectedModules}
+                    onChange={setSelectedModules}
+                    placeholder={t("Select Module")}
                   />
                 </div>
               </div>

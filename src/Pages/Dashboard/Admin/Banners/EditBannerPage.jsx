@@ -1,9 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useGet } from "../../../../Hooks/useGet";
 import { usePost } from "../../../../Hooks/usePostJson";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  DropDown,
   LoaderLogin,
   NumberInput,
   StaticButton,
@@ -13,6 +12,7 @@ import {
 } from "../../../../Components/Components";
 import { useAuth } from "../../../../Context/Auth";
 import { useTranslation } from "react-i18next";
+import Select from "react-select";
 
 const EditBannerPage = () => {
   const { bannerId } = useParams();
@@ -50,34 +50,22 @@ const EditBannerPage = () => {
     url: `${apiUrl}/admin/banner/update/${bannerId}`,
   });
 
-  const dropDownCategories = useRef();
-  const dropDownProducts = useRef();
-  const dropDownDeals = useRef();
-  const ImageRef = useRef([]);
+  const ImageRef = React.useRef([]);
 
   // const [taps, setTaps] = useState([{ id: 1, name: 'English(EN)' }, { id: 2, name: 'Arabic(Ar)' }, { id: 3, name: 'garman' }])
   const [taps, setTaps] = useState([]);
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
-  const [filterProducts, setFilterProducts] = useState([]);
   const [deals, setDeals] = useState([]);
 
   const [currentTap, setCurrentTap] = useState(0);
 
   const [bannerOrder, setBannerOrder] = useState("");
 
-  const [stateCategories, setStateCategories] = useState(t("Select Category"));
-  const [categoryId, setCategoryId] = useState("");
-  const [isOpenCategory, setIsOpenCategory] = useState(false);
-
-  const [stateProducts, setStateProducts] = useState(t("Select Product"));
-  const [productId, setProductId] = useState("");
-  const [isOpenProduct, setIsOpenProduct] = useState(false);
-
-  const [stateDeals, setStateDeals] = useState(t("Select Deal"));
-  const [dealId, setDealId] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [selectedDeal, setSelectedDeal] = useState(null);
   const [bannerStatus, setBannerStatus] = useState(0);
-  const [isOpenDeal, setIsOpenDeal] = useState(false);
 
   const [image, setImage] = useState([]);
   const [imageFile, setImageFile] = useState([]);
@@ -90,6 +78,37 @@ const EditBannerPage = () => {
     refetchCategory(); // Refetch data when the component mounts
   }, [refetchTranslation, refetchBanner, refetchData, refetchCategory]);
 
+  const categoryOptions = (categories || []).map((category) => ({
+    value: category.id,
+    label: category.name,
+  }));
+  const productOptions = (products || []).map((product) => ({
+    value: product.id,
+    label: product.name || product.title,
+  }));
+  const dealOptions = (deals || []).map((deal) => ({
+    value: deal.id,
+    label: deal.name || deal.title,
+  }));
+
+  const customStyles = {
+    control: (provided) => ({
+      ...provided,
+      borderColor: "#9E090F",
+      borderRadius: "8px",
+      minHeight: "48px",
+      boxShadow: "none",
+      "&:hover": {
+        borderColor: "#9E090F",
+      },
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected ? "#9E090F" : state.isFocused ? "#FDECEC" : "white",
+      color: state.isSelected ? "white" : "#333",
+    }),
+  };
+
   useEffect(() => {
     if (
       allData &&
@@ -100,17 +119,9 @@ const EditBannerPage = () => {
       allData?.deals
     ) {
       setTaps(allData?.translations || []);
-      setCategories(
-        [
-          { id: "", name: t("Select Category") },
-          ...dataCategory.parent_categories,
-        ] || []
-      );
-      setProducts(
-        [{ id: "", name: t("Select Product") }, ...allData?.products] || []
-      );
-      // setFilterProducts([{ id: '', name:'Select Product' }, ...allData?.products] || []);
-      setDeals([{ id: "", name: t("Select Deal") }, ...allData?.deals] || []);
+      setCategories(dataCategory.parent_categories || []);
+      setProducts(allData?.products || []);
+      setDeals(allData?.deals || []);
     }
   }, [allData, dataCategory]);
 
@@ -118,18 +129,24 @@ const EditBannerPage = () => {
     if (dataBanner && dataBanner.banner) {
       const data = dataBanner.banner;
 
-      setStateCategories(data?.category_banner?.name || t("Select Category"));
-      setCategoryId(data?.category_banner?.id || "");
-      setStateProducts(data?.product?.name || t("Select Product"));
+      const initialCategories = data?.categories && Array.isArray(data.categories)
+        ? data.categories.map(cat => ({ id: cat.id, name: cat.name }))
+        : [];
+      const initialProducts = data?.products && Array.isArray(data.products)
+        ? data.products.map(prod => ({ id: prod.id, name: prod.name }))
+        : [];
 
-      const filterP = products.filter((product) => {
-        return product.category_id === data?.category_banner?.id;
-      });
-
-      setFilterProducts([{ id: "", name: t("Select Product") }, ...filterP] || []);
-      setProductId(data?.product?.id || "");
-      setStateDeals(data?.deal?.title || t("Select Deal"));
-      setDealId(data?.deal?.id || "");
+      setSelectedCategories(
+        initialCategories.map((item) => ({ value: item.id, label: item.name }))
+      );
+      setSelectedProducts(
+        initialProducts.map((item) => ({ value: item.id, label: item.name }))
+      );
+      setSelectedDeal(
+        data?.deal?.id
+          ? { value: data.deal.id, label: data.deal.title || data.deal.name }
+          : null
+      );
 
       setImage(data?.images || []);
       setImageFile(data?.images || []);
@@ -144,51 +161,16 @@ const EditBannerPage = () => {
     }
   };
 
-  const handleOpenCategory = () => {
-    setIsOpenCategory(!isOpenCategory);
-    setIsOpenProduct(false);
-    setIsOpenDeal(false);
+  const handleSelectCategory = (selectedOptions) => {
+    setSelectedCategories(selectedOptions || []);
   };
 
-  const handleOpenOptionCategory = () => setIsOpenCategory(false);
-
-  const handleSelectCategory = (option) => {
-    setCategoryId(option.id);
-    setStateCategories(option.name);
-
-    setDealId("");
-
-    const filterProducts = products.filter((product) => {
-      return product.category_id === option.id;
-    });
-
-    setFilterProducts(filterProducts);
+  const handleSelectProduct = (selectedOptions) => {
+    setSelectedProducts(selectedOptions || []);
   };
-
-  const handleOpenProduct = () => {
-    setIsOpenCategory(false);
-    setIsOpenProduct(!isOpenProduct);
-    setIsOpenDeal(false);
-  };
-  const handleOpenOptionProduct = () => setIsOpenProduct(false);
-
-  const handleSelectProduct = (option) => {
-    setProductId(option.id);
-    setStateProducts(option.name);
-  };
-
-  const handleOpenDeal = () => {
-    setIsOpenCategory(false);
-    setIsOpenProduct(false);
-    setIsOpenDeal(!isOpenDeal);
-  };
-  const handleOpenOptionDeal = () => setIsOpenDeal(false);
 
   const handleSelectDeal = (option) => {
-    setCategoryId("");
-    setProductId("");
-    setDealId(option.id);
-    setStateDeals(option.name || option.title);
+    setSelectedDeal(option);
   };
 
   const handleTap = (index) => {
@@ -212,27 +194,6 @@ const EditBannerPage = () => {
     navigate(-1, { replace: true });
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        dropDownCategories.current &&
-        !dropDownCategories.current.contains(event.target) &&
-        dropDownProducts.current &&
-        !dropDownProducts.current.contains(event.target) &&
-        dropDownDeals.current &&
-        !dropDownDeals.current.contains(event.target)
-      ) {
-        setIsOpenCategory(false);
-        setIsOpenProduct(false);
-        setIsOpenDeal(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   const handleBannerEdit = (e) => {
     e.preventDefault();
@@ -283,9 +244,13 @@ const EditBannerPage = () => {
     });
 
     formData.append("order", bannerOrder);
-    formData.append("category_id", categoryId);
-    formData.append("product_id", productId);
-    formData.append("deal_id", dealId);
+    selectedCategories.forEach((category) => {
+      formData.append("categories[]", category.value);
+    });
+    selectedProducts.forEach((product) => {
+      formData.append("products[]", product.value);
+    });
+    formData.append("deal_id", selectedDeal?.value || "");
     formData.append("status", bannerStatus);
 
     postData(formData, "Banner Added Success");
@@ -372,60 +337,47 @@ const EditBannerPage = () => {
             </div>
 
             <div className="flex flex-wrap items-center justify-start w-full gap-4 mb-4">
-              {!dealId && (
-                <>
-                  {/* Categoriess */}
-                  <div className="sm:w-full xl:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                    <span className="text-xl font-TextFontRegular text-thirdColor">
-                      {t("Category")}:
-                    </span>
-                    <DropDown
-                      ref={dropDownCategories}
-                      handleOpen={handleOpenCategory}
-                      stateoption={stateCategories}
-                      openMenu={isOpenCategory}
-                      handleOpenOption={handleOpenOptionCategory}
-                      onSelectOption={handleSelectCategory}
-                      options={categories}
-                      border={false}
-                    />
-                  </div>
-                  {/* Products */}
-                  <div className="sm:w-full xl:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                    <span className="text-xl font-TextFontRegular text-thirdColor">
-                      {t("Product")}:
-                    </span>
-                    <DropDown
-                      ref={dropDownProducts}
-                      handleOpen={handleOpenProduct}
-                      stateoption={stateProducts}
-                      openMenu={isOpenProduct}
-                      handleOpenOption={handleOpenOptionProduct}
-                      onSelectOption={handleSelectProduct}
-                      options={filterProducts}
-                      border={false}
-                    />
-                  </div>
-                </>
-              )}
-              {/* Deals */}
-              {!categoryId && (
-                <div className="sm:w-full xl:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                  <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("Deal")}:
-                  </span>
-                  <DropDown
-                    ref={dropDownDeals}
-                    handleOpen={handleOpenDeal}
-                    stateoption={stateDeals}
-                    openMenu={isOpenDeal}
-                    handleOpenOption={handleOpenOptionDeal}
-                    onSelectOption={handleSelectDeal}
-                    options={deals}
-                    border={false}
-                  />
-                </div>
-              )}
+              <div className="sm:w-full xl:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Category")}:
+                </span>
+                <Select
+                  isMulti
+                  options={categoryOptions}
+                  value={selectedCategories}
+                  onChange={handleSelectCategory}
+                  placeholder={t("Select Category")}
+                  styles={customStyles}
+                  className="w-full"
+                />
+              </div>
+              <div className="sm:w-full xl:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Product")}:
+                </span>
+                <Select
+                  isMulti
+                  options={productOptions}
+                  value={selectedProducts}
+                  onChange={handleSelectProduct}
+                  placeholder={t("Select Product")}
+                  styles={customStyles}
+                  className="w-full"
+                />
+              </div>
+              <div className="sm:w-full xl:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Deal")}: 
+                </span>
+                <Select
+                  options={dealOptions}
+                  value={selectedDeal}
+                  onChange={handleSelectDeal}
+                  placeholder={t("Select Deal")}
+                  styles={customStyles}
+                  className="w-full"
+                />
+              </div>
             </div>
 
             <div className="flex flex-wrap items-center justify-start w-full gap-8 mb-4">

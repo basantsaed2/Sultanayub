@@ -10,6 +10,7 @@ import {
   TextInput,
 } from "../../../../Components/Components";
 import { useTranslation } from "react-i18next";
+import Select from "react-select";
 
 const AddDiscountSection = ({ update, setUpdate }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -31,6 +32,16 @@ const AddDiscountSection = ({ update, setUpdate }) => {
 
   const [stateType, setStateType] = useState(t("Select Discount Type"));
   const [typeName, setTypeName] = useState("");
+
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [selectedModules, setSelectedModules] = useState([]);
+  const moduleOptions = [
+    { value: "all", label: t("all") },
+    { value: "pos", label: t("pos") },
+    { value: "web", label: t("web") },
+    { value: "app", label: t("app") },
+  ];
 
   const [isOpenDiscountType, setIsOpenDiscountType] = useState(false);
 
@@ -56,6 +67,9 @@ const AddDiscountSection = ({ update, setUpdate }) => {
     setDiscountAmount("");
     setStateType("Select Discount Type");
     setTypeName("");
+    setStartDate("");
+    setEndDate("");
+    setSelectedModules([]);
   };
 
   useEffect(() => {
@@ -89,12 +103,29 @@ const AddDiscountSection = ({ update, setUpdate }) => {
       auth.toastError(t("please Select Discount Type"));
       return;
     }
+    if (!startDate) {
+      auth.toastError(t("please Enter Start Date"));
+      return;
+    }
+    if (!endDate) {
+      auth.toastError(t("please Enter End Date"));
+      return;
+    }
+    if (!selectedModules || selectedModules.length === 0) {
+      auth.toastError(t("please Select Modules"));
+      return;
+    }
 
     const formData = new FormData();
 
     formData.append("name", discountName);
     formData.append("amount", discountAmount);
     formData.append("type", typeName);
+    formData.append("start_date", startDate);
+    formData.append("end_date", endDate);
+    selectedModules.forEach((mod) => {
+      formData.append("module[]", mod.value);
+    });
 
     postData(formData, "Discount Added Success");
   };
@@ -147,6 +178,46 @@ const AddDiscountSection = ({ update, setUpdate }) => {
                   onSelectOption={handleSelectDiscountType}
                   options={discountType}
                   border={false}
+                />
+              </div>
+              {/* Start Date */}
+              <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("StartDate")}:
+                </span>
+                <input
+                  type="date"
+                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:border-mainColor"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+              </div>
+              {/* End Date */}
+              <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("EndDate")}:
+                </span>
+                <input
+                  type="date"
+                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:border-mainColor"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </div>
+              {/* Module Multiselect */}
+              <div className="sm:w-full lg:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Module")}:
+                </span>
+                <Select
+                  isMulti
+                  name="modules"
+                  options={moduleOptions}
+                  className="w-full basic-multi-select"
+                  classNamePrefix="select"
+                  value={selectedModules}
+                  onChange={setSelectedModules}
+                  placeholder={t("Select Module")}
                 />
               </div>
             </div>

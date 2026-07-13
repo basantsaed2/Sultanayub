@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  DropDown,
   NumberInput,
   StaticButton,
   StaticLoader,
@@ -12,6 +11,7 @@ import {
 import { useGet } from "../../../../Hooks/useGet";
 import { usePost } from "../../../../Hooks/usePostJson";
 import { useAuth } from "../../../../Context/Auth";
+import Select from "react-select";
 
 import { useTranslation } from "react-i18next";
 
@@ -34,17 +34,13 @@ const AddBannerSection = ({ update, setUpdate }) => {
   });
   const { t, i18n } = useTranslation();
 
-  const dropDownCategories = useRef();
-  const dropDownProducts = useRef();
-  const dropDownDeals = useRef();
-  const ImageRef = useRef([]);
+  const ImageRef = React.useRef([]);
   const auth = useAuth();
 
   // const [taps, setTaps] = useState([{ id: 1, name: 'English(EN)' }, { id: 2, name: 'Arabic(Ar)' }, { id: 3, name: 'garman' }])
   const [taps, setTaps] = useState([]);
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
-  const [filterProducts, setFilterProducts] = useState([]);
   const [deals, setDeals] = useState([]);
 
   const [currentTap, setCurrentTap] = useState(0);
@@ -53,17 +49,9 @@ const AddBannerSection = ({ update, setUpdate }) => {
 
   const [bannerStatus, setBannerStatus] = useState(0);
 
-  const [stateCategories, setStateCategories] = useState(t("SelectCategory"));
-  const [categoryId, setCategoryId] = useState("");
-  const [isOpenCategory, setIsOpenCategory] = useState(false);
-
-  const [stateProducts, setStateProducts] = useState(t("Select Product"));
-  const [productId, setProductId] = useState("");
-  const [isOpenProduct, setIsOpenProduct] = useState(false);
-
-  const [stateDeals, setStateDeals] = useState(t("Select Deal"));
-  const [dealId, setDealId] = useState("");
-  const [isOpenDeal, setIsOpenDeal] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [selectedDeal, setSelectedDeal] = useState(null);
 
   const [image, setImage] = useState([]);
   const [imageFile, setImageFile] = useState([]);
@@ -72,6 +60,37 @@ const AddBannerSection = ({ update, setUpdate }) => {
     refetchData(); // Refetch data when the component mounts
     refetchCategory(); // Refetch data when the component mounts
   }, [refetchData, refetchCategory]);
+
+  const categoryOptions = (categories || []).map((category) => ({
+    value: category.id,
+    label: category.name,
+  }));
+  const productOptions = (products || []).map((product) => ({
+    value: product.id,
+    label: product.name || product.title,
+  }));
+  const dealOptions = (deals || []).map((deal) => ({
+    value: deal.id,
+    label: deal.name || deal.title,
+  }));
+
+  const customStyles = {
+    control: (provided) => ({
+      ...provided,
+      borderColor: "#9E090F",
+      borderRadius: "8px",
+      minHeight: "48px",
+      boxShadow: "none",
+      "&:hover": {
+        borderColor: "#9E090F",
+      },
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected ? "#9E090F" : state.isFocused ? "#FDECEC" : "white",
+      color: state.isSelected ? "white" : "#333",
+    }),
+  };
 
   useEffect(() => {
     if (
@@ -83,17 +102,9 @@ const AddBannerSection = ({ update, setUpdate }) => {
       allData?.deals
     ) {
       setTaps(allData?.translations || []);
-      setCategories(
-        [
-          { id: "", name: stateCategories },
-          ...dataCategory.parent_categories,
-        ] || []
-      );
-      setProducts(
-        [{ id: "", name: stateProducts }, ...allData?.products] || []
-      );
-      // setFilterProducts([{ id: '', name: stateProducts }, ...allData?.products] || []);
-      setDeals([{ id: "", name: stateDeals }, ...allData?.deals] || []);
+      setCategories(dataCategory.parent_categories || []);
+      setProducts(allData?.products || []);
+      setDeals(allData?.deals || []);
     }
   }, [allData, dataCategory]);
 
@@ -103,46 +114,16 @@ const AddBannerSection = ({ update, setUpdate }) => {
     }
   };
 
-  const handleOpenCategory = () => {
-    setIsOpenCategory(!isOpenCategory);
-    setIsOpenProduct(false);
-    setIsOpenDeal(false);
+  const handleSelectCategory = (selectedOptions) => {
+    setSelectedCategories(selectedOptions || []);
   };
 
-  const handleOpenOptionCategory = () => setIsOpenCategory(false);
-
-  const handleSelectCategory = (option) => {
-    setCategoryId(option.id);
-    setStateCategories(option.name);
-
-    const filterProducts = products.filter((product) => {
-      return product.category_id === option.id;
-    });
-    setFilterProducts([{ id: "", name: "Select product" }, ...filterProducts]);
+  const handleSelectProduct = (selectedOptions) => {
+    setSelectedProducts(selectedOptions || []);
   };
-
-  const handleOpenProduct = () => {
-    setIsOpenCategory(false);
-    setIsOpenProduct(!isOpenProduct);
-    setIsOpenDeal(false);
-  };
-  const handleOpenOptionProduct = () => setIsOpenProduct(false);
-
-  const handleSelectProduct = (option) => {
-    setProductId(option.id);
-    setStateProducts(option.name);
-  };
-
-  const handleOpenDeal = () => {
-    setIsOpenCategory(false);
-    setIsOpenProduct(false);
-    setIsOpenDeal(!isOpenDeal);
-  };
-  const handleOpenOptionDeal = () => setIsOpenDeal(false);
 
   const handleSelectDeal = (option) => {
-    setDealId(option.id);
-    setStateDeals(option.name || option.title);
+    setSelectedDeal(option);
   };
 
   const handleTap = (index) => {
@@ -167,42 +148,13 @@ const AddBannerSection = ({ update, setUpdate }) => {
   const handleReset = () => {
     setCurrentTap(0);
     setBannerOrder("");
-    setStateCategories(t("SelectCategory"));
-    setCategoryId("");
-    setStateProducts(t("Select Product"));
-    setProductId("");
-    setFilterProducts([]);
-    setStateDeals(t("Select Deal"));
-    setDealId("");
+    setSelectedCategories([]);
+    setSelectedProducts([]);
+    setSelectedDeal(null);
     setImage([]);
     setImageFile([]);
     setBannerStatus(0);
   };
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      // Close dropdown if clicked outside
-      if (
-        dropDownCategories.current &&
-        !dropDownCategories.current.contains(event.target) &&
-        dropDownProducts.current &&
-        !dropDownProducts.current.contains(event.target) &&
-        dropDownDeals.current &&
-        !dropDownDeals.current.contains(event.target)
-
-        // )
-      ) {
-        setIsOpenCategory(null);
-        setIsOpenProduct(null);
-        setIsOpenDeal(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   const handleBannerAdd = (e) => {
     e.preventDefault();
@@ -253,9 +205,13 @@ const AddBannerSection = ({ update, setUpdate }) => {
     });
 
     formData.append("order", bannerOrder);
-    formData.append("category_id", categoryId);
-    formData.append("product_id", productId);
-    formData.append("deal_id", dealId);
+    selectedCategories.forEach((category) => {
+      formData.append("categories[]", category.value);
+    });
+    selectedProducts.forEach((product) => {
+      formData.append("products[]", product.value);
+    });
+    formData.append("deal_id", selectedDeal?.value || "");
     formData.append("status", bannerStatus);
     postData(formData, "Banner Added Success");
   };
@@ -342,64 +298,47 @@ const AddBannerSection = ({ update, setUpdate }) => {
             </div>
 
             <div className="flex flex-wrap items-center justify-start w-full gap-4 mb-4">
-              {!dealId && (
-                <>
-                  {/* Categoriess */}
-                  <div className="sm:w-full xl:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                    <span className="text-xl font-TextFontRegular text-thirdColor">
-                      {t("Category")}:
-                    </span>
-                    <DropDown
-                      ref={dropDownCategories}
-                      handleOpen={handleOpenCategory}
-                      stateoption={stateCategories}
-                      openMenu={isOpenCategory}
-                      handleOpenOption={handleOpenOptionCategory}
-                      onSelectOption={handleSelectCategory}
-                      options={categories}
-                      border={false}
-                    />
-                  </div>
-                  {/* Products */}
-                  <div className="sm:w-full xl:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                    <span className="text-xl font-TextFontRegular text-thirdColor">
-                      {t("Product")}:
-                    </span>
-                    <DropDown
-                      ref={dropDownProducts}
-                      handleOpen={handleOpenProduct}
-                      stateoption={
-                        filterProducts.length === 0
-                          ? t("No Products")
-                          : stateProducts
-                      }
-                      openMenu={isOpenProduct}
-                      handleOpenOption={handleOpenOptionProduct}
-                      onSelectOption={handleSelectProduct}
-                      options={filterProducts}
-                      border={false}
-                    />
-                  </div>
-                </>
-              )}
-              {/* Deals */}
-              {!categoryId && (
-                <div className="sm:w-full xl:w-[30%] flex flex-col items-start justify-center gap-y-1">
-                  <span className="text-xl font-TextFontRegular text-thirdColor">
-                    {t("Deal")}:
-                  </span>
-                  <DropDown
-                    ref={dropDownDeals}
-                    handleOpen={handleOpenDeal}
-                    stateoption={stateDeals}
-                    openMenu={isOpenDeal}
-                    handleOpenOption={handleOpenOptionDeal}
-                    onSelectOption={handleSelectDeal}
-                    options={deals}
-                    border={false}
-                  />
-                </div>
-              )}
+              <div className="sm:w-full xl:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Category")}:
+                </span>
+                <Select
+                  isMulti
+                  options={categoryOptions}
+                  value={selectedCategories}
+                  onChange={handleSelectCategory}
+                  placeholder={t("Select Category")}
+                  styles={customStyles}
+                  className="w-full"
+                />
+              </div>
+              <div className="sm:w-full xl:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Product")}:
+                </span>
+                <Select
+                  isMulti
+                  options={productOptions}
+                  value={selectedProducts}
+                  onChange={handleSelectProduct}
+                  placeholder={t("Select Product")}
+                  styles={customStyles}
+                  className="w-full"
+                />
+              </div>
+              <div className="sm:w-full xl:w-[30%] flex flex-col items-start justify-center gap-y-1">
+                <span className="text-xl font-TextFontRegular text-thirdColor">
+                  {t("Deal")}:
+                </span>
+                <Select
+                  options={dealOptions}
+                  value={selectedDeal}
+                  onChange={handleSelectDeal}
+                  placeholder={t("Select Deal")}
+                  styles={customStyles}
+                  className="w-full"
+                />
+              </div>
             </div>
 
             <div className="flex flex-wrap items-center justify-start w-full gap-8 mb-4">
