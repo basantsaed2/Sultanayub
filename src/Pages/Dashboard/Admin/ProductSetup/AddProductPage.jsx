@@ -323,6 +323,8 @@ const AddProductPage = () => {
     const newVariation = {
       type: "",
       required: 0,
+      weight: 0,
+      weight_unit: "",
       min: "",
       max: "",
       names: taps.map((tap) => ({
@@ -937,6 +939,10 @@ const AddProductPage = () => {
         formData.append(`variations[${indexVar}][min]`, variation.min);
         formData.append(`variations[${indexVar}][max]`, variation.max);
         formData.append(`variations[${indexVar}][required]`, variation.required ? 1 : 0);
+        formData.append(`variations[${indexVar}][weight]`, variation.weight ? 1 : 0);
+        if (variation.weight === 1) {
+          formData.append(`variations[${indexVar}][weight_unit]`, variation.weight_unit || "");
+        }
       });
     }
     postData(formData, t("Product Added Success"));
@@ -1674,6 +1680,49 @@ const AddProductPage = () => {
                                     checked={ele.required === 1}
                                   />
                                 </div>
+                                <div className="w-[32%] flex mt-10 items-center justify-center gap-x-3">
+                                  <span className="text-xl font-TextFontRegular text-thirdColor">
+                                    {t("Weight")}:
+                                  </span>
+                                  <Switch
+                                    handleClick={() => {
+                                      setProductVariations((prevProductVariations) =>
+                                        prevProductVariations.map((item, idx) =>
+                                          idx === indexVariation
+                                            ? {
+                                              ...item,
+                                              weight: item.weight === 1 ? 0 : 1,
+                                            }
+                                            : item
+                                        )
+                                      );
+                                    }}
+                                    checked={ele.weight === 1}
+                                  />
+                                </div>
+                                {ele.weight === 1 && (
+                                  <div className="w-[32%] flex flex-col mt-4 items-start justify-center gap-y-1">
+                                    <span className="text-xl font-TextFontRegular text-thirdColor mb-1">{t("Weight Unit")}:</span>
+                                    <select
+                                      className="w-full px-4 py-3 border rounded-md outline-none border-mainColor bg-white"
+                                      value={ele.weight_unit || ""}
+                                      onChange={(e) => {
+                                        const updatedValue = e.target.value;
+                                        setProductVariations((prevProductVariations) =>
+                                          prevProductVariations.map((item, idx) =>
+                                            idx === indexVariation
+                                              ? { ...item, weight_unit: updatedValue }
+                                              : item
+                                          )
+                                        );
+                                      }}
+                                    >
+                                      {units.map(unit => (
+                                        <option key={unit.id} value={unit.id}>{unit.name}</option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                )}
                                 <div className="w-full">
                                   <TitlePage text={t("Options Variation")} />
                                 </div>
