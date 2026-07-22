@@ -24,8 +24,8 @@ const LinksSidebar = () => {
     () => ({
       ordersAll: orderCounts?.orders || 0,
       ordersPending: orderCounts?.pending || 0,
-      ordersConfirmed: orderCounts?.confirmed || 0,
-      ordersProcessing: orderCounts?.processing || 0,
+      ordersConfirmed: orderCounts?.processing || 0,
+      ordersProcessing: orderCounts?.confirmed || 0,
       ordersOutForDelivery: orderCounts?.out_for_delivery || 0,
       ordersDelivered: orderCounts?.delivered || 0,
       ordersReturned: orderCounts?.returned || 0,
