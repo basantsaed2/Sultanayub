@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useGet } from "../../../../../Hooks/useGet";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -27,6 +27,7 @@ const DetailsOrderPage = () => {
   const auth = useAuth();
   const { orderId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const pathOrder = location.pathname;
   const orderNumPath = pathOrder.split("/").pop();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -98,6 +99,7 @@ const DetailsOrderPage = () => {
   const [loadingBranches, setLoadingBranches] = useState(false);
   const [selectedBranchId, setSelectedBranchId] = useState(null);
   const [loadingTransfer, setLoadingTransfer] = useState(false);
+  const [navigating, setNavigating] = useState(false);
 
   useEffect(() => {
     // Only remove if the order exists in canceled orders
@@ -123,17 +125,17 @@ const DetailsOrderPage = () => {
     if (dataDetailsOrder && dataDetailsOrder?.order) {
       setDetailsData(dataDetailsOrder?.order);
       setOrderStatusName(dataDetailsOrder?.order?.order_status);
-      const formattedOrderStatus = dataDetailsOrder?.order_status.map(
+      const formattedOrderStatus = (dataDetailsOrder?.order_status || []).map(
         (status) => ({ name: status })
       );
       setOrderStatus(formattedOrderStatus); // Update state with the transformed data
-      setDeliveries(dataDetailsOrder?.deliveries);
-      setDeliveriesFilter(dataDetailsOrder?.deliveries);
+      setDeliveries(dataDetailsOrder?.deliveries || []);
+      setDeliveriesFilter(dataDetailsOrder?.deliveries || []);
       setPreparationTime(dataDetailsOrder?.preparing_time);
 
       // FIX: Use the fresh current branch ID from dataDetailsOrder
-      const currentBranchId = dataDetailsOrder.order?.branch.id;
-      const filteredBranches = dataDetailsOrder.branches.filter(
+      const currentBranchId = dataDetailsOrder.order?.branch?.id;
+      const filteredBranches = (dataDetailsOrder.branches || []).filter(
         branch => branch.id !== currentBranchId
       );
 
@@ -141,13 +143,39 @@ const DetailsOrderPage = () => {
     }
   }, [dataDetailsOrder]);
 
-  // Show a toast when the order ID is invalid — but do NOT navigate away
+  // Show a toast when the order ID is invalid — stay on the current page
   useEffect(() => {
     if (!loadingDetailsOrder && (errorDetailsOrder || dataDetailsOrder?.errors)) {
-      const msg = dataDetailsOrder?.errors || t("OrderNotFound") || "Order not found";
+      const rawError = typeof dataDetailsOrder?.errors === "string" ? dataDetailsOrder.errors : "";
+      const msg = rawError ? t(rawError) : t("OrderNotFound");
       auth.toastError(msg);
     }
-  }, [errorDetailsOrder, dataDetailsOrder, loadingDetailsOrder]);
+  }, [errorDetailsOrder, dataDetailsOrder, loadingDetailsOrder, t]);
+
+  // Navigate to prev/next order only after verifying it exists
+  const handleOrderNavigation = async (targetId) => {
+    if (navigating) return;
+    setNavigating(true);
+    try {
+      const token = auth?.userState?.token || localStorage.getItem("token") || "";
+      const res = await fetch(
+        `${apiUrl}/admin/order/order/${targetId}?locale=${selectedLanguage}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const json = await res.json();
+      if (!res.ok || json?.errors) {
+        const rawError = typeof json?.errors === "string" ? json.errors : "";
+        const errMsg = rawError ? t(rawError) : t("OrderNotFound");
+        auth.toastError(errMsg);
+      } else {
+        navigate(`${route}/details/${targetId}`);
+      }
+    } catch {
+      auth.toastError(t("OrderNotFound"));
+    } finally {
+      setNavigating(false);
+    }
+  };
 
   const timeString = dataDetailsOrder?.order?.date || "";
   const [olderHours, olderMinutes] = timeString.split(":").map(Number); // Extract hours and minutes as numbers
@@ -505,15 +533,74 @@ const DetailsOrderPage = () => {
     };
   }, []);
 
+  // Detect a hard error with no data to show (e.g. refresh on invalid ID)
+  const isHardError =
+    !loadingDetailsOrder &&
+    (errorDetailsOrder || dataDetailsOrder?.errors) &&
+    (!detailsData || detailsData.length === 0 || !detailsData.id);
+
   return (
     <>
-      {loadingDetailsOrder || loadingPost || loadingChange ? (
+      {loadingDetailsOrder || loadingPost || loadingChange || navigating ? (
         <div className="mx-auto">
           <LoaderLogin />
         </div>
+      ) : isHardError ? (
+        /* ── Refreshed directly on an invalid order ID ── */
+        <div className="flex items-center justify-center w-full min-h-[60vh] p-4">
+          <div className="flex flex-col items-center justify-center max-w-lg w-full p-8 md:p-10 bg-white border border-gray-100 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 text-center relative overflow-hidden group">
+            {/* Top decorative gradient line */}
+            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-red-500 via-mainColor to-red-700"></div>
+
+            {/* Subtle background glow */}
+            <div className="absolute -top-12 -right-12 w-32 h-32 bg-red-100/50 rounded-full blur-2xl pointer-events-none group-hover:scale-150 transition-all duration-500"></div>
+            <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-red-100/50 rounded-full blur-2xl pointer-events-none group-hover:scale-150 transition-all duration-500"></div>
+
+            {/* Glowing Icon Badge */}
+            <div className="relative mb-6">
+              <div className="absolute inset-0 rounded-full bg-red-400/20 animate-ping"></div>
+              <div className="relative flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200/80 shadow-inner">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-10 h-10 text-mainColor transform group-hover:scale-110 transition-transform duration-300"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* Main Title */}
+            <h3 className="mb-2 text-2xl font-bold text-gray-800 font-TextFontSemiBold tracking-tight">
+              {t("OrderNotFound")}
+            </h3>
+
+            {/* Error Message / Description */}
+            <p className="mb-8 text-sm md:text-base text-gray-500 leading-relaxed font-TextFontRegular max-w-sm">
+              {typeof dataDetailsOrder?.errors === "string" ? t(dataDetailsOrder.errors) : t("OrderNotFoundDesc")}
+            </p>
+
+            {/* Primary Action Button */}
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full justify-center">
+              <button
+                onClick={() => navigate(`${route}/all`)}
+                className="w-full sm:w-auto px-6 py-3 text-white text-sm rounded-xl bg-gradient-to-r from-[#9E090F] to-[#D1191C] hover:from-[#7a060b] hover:to-[#a31215] shadow-md hover:shadow-lg transform active:scale-95 transition-all duration-200 font-TextFontMedium flex items-center justify-center gap-2"
+              >
+                <span>{t("BackToOrders")}</span>
+              </button>
+            </div>
+          </div>
+        </div>
       ) : (
         <>
-          {detailsData.length === 0 ? (
+          {!detailsData.id ? (
             <div className="mx-auto">
               <LoaderLogin />
             </div>
@@ -522,473 +609,469 @@ const DetailsOrderPage = () => {
               {/* Left Section */}
               <div className="sm:w-full lg:w-8/12">
                 <div className="w-full p-2 bg-white shadow-md rounded-xl ">
-                  {detailsData.length === 0 ? (
-                    <div>
-                      <LoaderLogin />
-                    </div>
-                  ) : (
-                    <div className="w-full">
-                      {/* Header */}
-                      <div className="w-full px-2 py-4 rounded-lg shadow md:px-4 lg:px-4">
-                        {/* Header – Original Design + Creative Invoice Placement */}
-                        <div className="flex flex-col items-start justify-between pb-2 border-b border-gray-300">
-                          <div className="w-full relative"> {/* relative only for the creative button */}
+                  <div className="w-full">
+                    {/* Header */}
+                    <div className="w-full px-2 py-4 rounded-lg shadow md:px-4 lg:px-4">
+                      {/* Header – Original Design + Creative Invoice Placement */}
+                      <div className="flex flex-col items-start justify-between pb-2 border-b border-gray-300">
+                        <div className="w-full relative"> {/* relative only for the creative button */}
 
-                            {/* Title + Prev/Next Buttons – exactly as before */}
-                            <div className="flex flex-wrap items-center justify-between w-full">
-                              <h1 className="text-2xl text-gray-800 font-TextFontMedium">
-                                {t("Order")}{" "}
-                                <span className="text-mainColor">
-                                  #{detailsData?.id || ""}
-                                </span>
-                              </h1>
+                          {/* Title + Prev/Next Buttons – exactly as before */}
+                          <div className="flex flex-wrap items-center justify-between w-full">
+                            <h1 className="text-2xl text-gray-800 font-TextFontMedium">
+                              {t("Order")}{" "}
+                              <span className="text-mainColor">
+                                #{detailsData?.id || ""}
+                              </span>
+                            </h1>
 
-                              {
-                                role !== "branch" ? (
-                                  <div className="flex items-center justify-center gap-2 sm:w-full lg:w-6/12">
-                                    <Link
-                                      to={`${route}/details/${Number(orderNumPath) - 1}`}
-                                      className="w-6/12 px-1 py-1 text-sm text-center text-white transition-all duration-300 ease-in-out border-2 rounded-lg md:text-md bg-mainColor border-mainColor hover:bg-white hover:text-mainColor"
-                                    >
-                                      {"<<"} {t("PrevOrder")}
-                                    </Link>
-                                    <Link
-                                      to={`${route}/details/${Number(orderNumPath) + 1}`}
-                                      className="w-6/12 px-1 py-1 text-sm text-center text-white transition-all duration-300 ease-in-out border-2 rounded-lg md:text-md bg-mainColor border-mainColor hover:bg-white hover:text-mainColor"
-                                    >
-                                      {t("NextOrder")} {">>"}
-                                    </Link>
-                                  </div>
-                                ) : null
-                              }
+                            {
+                              role !== "branch" ? (
+                                <div className="flex items-center justify-center gap-2 sm:w-full lg:w-6/12">
+                                  <button
+                                    disabled={navigating}
+                                    onClick={() => handleOrderNavigation(Number(orderNumPath) - 1)}
+                                    className="w-6/12 px-1 py-1 text-sm text-center text-white transition-all duration-300 ease-in-out border-2 rounded-lg md:text-md bg-mainColor border-mainColor hover:bg-white hover:text-mainColor disabled:opacity-60 disabled:cursor-not-allowed"
+                                  >
+                                    {"<<"} {t("PrevOrder")}
+                                  </button>
+                                  <button
+                                    disabled={navigating}
+                                    onClick={() => handleOrderNavigation(Number(orderNumPath) + 1)}
+                                    className="w-6/12 px-1 py-1 text-sm text-center text-white transition-all duration-300 ease-in-out border-2 rounded-lg md:text-md bg-mainColor border-mainColor hover:bg-white hover:text-mainColor disabled:opacity-60 disabled:cursor-not-allowed"
+                                  >
+                                    {t("NextOrder")} {">>"}
+                                  </button>
+                                </div>
+                              ) : null
+                            }
 
-                            </div>
+                          </div>
 
-                            {/* Original metadata lines */}
-                            {detailsData?.address && (
-                              <p className="mt-1 text-sm text-gray-700">
-                                <span className="font-TextFontSemiBold">{t("Zone")}:</span>{" "}
-                                {detailsData?.address?.zone?.zone || ""}
-                              </p>
-                            )}
+                          {/* Original metadata lines */}
+                          {detailsData?.address && (
                             <p className="mt-1 text-sm text-gray-700">
-                              <span className="font-TextFontSemiBold">{t("Branch")}:</span>{" "}
-                              {detailsData?.branch?.name || ""}
+                              <span className="font-TextFontSemiBold">{t("Zone")}:</span>{" "}
+                              {detailsData?.address?.zone?.zone || ""}
                             </p>
-                            <p className="mt-1 text-sm text-gray-700">
-                              <span className="font-TextFontSemiBold">{t("OrderTime")}:</span>{" "}
-                              {detailsData?.order_time || ""}
-                            </p>
-                            <p className="mt-1 text-sm text-gray-700">
-                              <span className="font-TextFontSemiBold">{t("OrderDate")}:</span>{" "}
-                              {detailsData?.order_date || ""}
-                            </p>
-                            <p className="mt-1 text-sm text-gray-700">
-                              <span className="font-TextFontSemiBold">{t("Schedule")}:</span>{" "}
-                              {detailsData?.schedule || "-"}
-                            </p>
-                            <p className="mt-1 text-sm text-gray-700">
-                              <span className="font-TextFontSemiBold">{t("Source")}:</span>{" "}
-                              {detailsData?.source || "-"}
-                            </p>
+                          )}
+                          <p className="mt-1 text-sm text-gray-700">
+                            <span className="font-TextFontSemiBold">{t("Branch")}:</span>{" "}
+                            {detailsData?.branch?.name || ""}
+                          </p>
+                          <p className="mt-1 text-sm text-gray-700">
+                            <span className="font-TextFontSemiBold">{t("OrderTime")}:</span>{" "}
+                            {detailsData?.order_time || ""}
+                          </p>
+                          <p className="mt-1 text-sm text-gray-700">
+                            <span className="font-TextFontSemiBold">{t("OrderDate")}:</span>{" "}
+                            {detailsData?.order_date || ""}
+                          </p>
+                          <p className="mt-1 text-sm text-gray-700">
+                            <span className="font-TextFontSemiBold">{t("Schedule")}:</span>{" "}
+                            {detailsData?.schedule || "-"}
+                          </p>
+                          <p className="mt-1 text-sm text-gray-700">
+                            <span className="font-TextFontSemiBold">{t("Source")}:</span>{" "}
+                            {detailsData?.source || "-"}
+                          </p>
 
-                            {/* CREATIVE PLACEMENT: Elegant floating badge on the right */}
-                            <div className="absolute top-1/2 -translate-y-1/2 right-0 rtl:right-auto rtl:left-0
+                          {/* CREATIVE PLACEMENT: Elegant floating badge on the right */}
+                          <div className="absolute top-1/2 -translate-y-1/2 right-0 rtl:right-auto rtl:left-0
                     hidden sm:block"> {/* Hidden on mobile, appears from sm+ */}
-                              <Link
-                                to={`${route}/invoice/${detailsData?.id}`}
-                                className="flex items-center gap-2.5 px-5 py-3 text-sm font-medium text-white 
+                            <Link
+                              to={`${route}/invoice/${detailsData?.id}`}
+                              className="flex items-center gap-2.5 px-5 py-3 text-sm font-medium text-white 
                    bg-gradient-to-r from-red-500 to-red-600 rounded-full shadow-lg 
                    hover:shadow-xl hover:scale-105 transition-all duration-300 
                    whitespace-nowrap border border-red-400"
-                              >
-                                <FaFileInvoice className="text-lg" />
-                                <span className="hidden lg:inline">{t("View Invoice")}</span>
-                                <span className="lg:hidden">{t("Invoice")}</span>
-                              </Link>
-                            </div>
-
-                            {/* Mobile fallback – small floating button at top-right (same as original but prettier) */}
-                            <div className="absolute top-2 right-2 sm:hidden">
-                              <Link
-                                to={`${route}/invoice/${detailsData?.id}`}
-                                className="flex items-center justify-center w-10 h-10 text-white bg-green-500 rounded-full shadow-md hover:bg-green-600 hover:scale-110 transition-all duration-300"
-                                aria-label={t("ViewInvoice")}
-                              >
-                                <FaFileInvoice className="text-lg" />
-                              </Link>
-                            </div>
-
+                            >
+                              <FaFileInvoice className="text-lg" />
+                              <span className="hidden lg:inline">{t("View Invoice")}</span>
+                              <span className="lg:hidden">{t("Invoice")}</span>
+                            </Link>
                           </div>
-                        </div>
 
-                        {/* Order Information */}
-                        <div className="flex items-start justify-center w-full gap-4 sm:flex-col xl:flex-row">
-                          <div className="p-2 bg-white rounded-md shadow-md sm:w-full xl:w-6/12">
-                            <p className="text-gray-800 text-md">
-                              <span className="font-TextFontSemiBold text-mainColor">
-                                {t("Status")}:
-                              </span>{" "}
-                              {t(detailsData?.order_status) || ""}
-                            </p>
-                            <p className="text-gray-800 text-md">
-                              <span className="font-TextFontSemiBold text-mainColor">
-                                {t("PaymentMethod")}:
-                              </span>{" "}
-                              {detailsData?.payment_method?.name || ""}
-                            </p>
-                            {detailsData?.payment_method?.name ===
-                              "Visa Master Card" && (
-                                <>
-                                  <p className="text-gray-800 text-md">
-                                    <span className="font-TextFontSemiBold text-mainColor">
-                                      {t("PaymentStatus")}:
-                                    </span>{" "}
-                                    {t(detailsData?.status_payment) || ""}
-                                  </p>
-                                  <p className="text-gray-800 text-md">
-                                    <span className="font-TextFontSemiBold text-mainColor">
-                                      {t("Transaction ID")}:
-                                    </span>{" "}
-                                    {detailsData?.transaction_id || ""}
-                                  </p>
-                                </>
-                              )}
+                          {/* Mobile fallback – small floating button at top-right (same as original but prettier) */}
+                          <div className="absolute top-2 right-2 sm:hidden">
+                            <Link
+                              to={`${route}/invoice/${detailsData?.id}`}
+                              className="flex items-center justify-center w-10 h-10 text-white bg-green-500 rounded-full shadow-md hover:bg-green-600 hover:scale-110 transition-all duration-300"
+                              aria-label={t("ViewInvoice")}
+                            >
+                              <FaFileInvoice className="text-lg" />
+                            </Link>
                           </div>
-                          <div className="p-2 bg-white rounded-md shadow-md sm:w-full xl:w-6/12">
-                            <p className="text-gray-800 text-md">
-                              <span className="font-TextFontSemiBold text-mainColor">
-                                {t("OrderType")}:
-                              </span>{" "}
-                              <span
-                                className={`px-2 py-1 rounded-full text-md ${detailsData?.order_type === "take_away"
-                                  ? "text-green-700 bg-green-100" // Green text with light green bg
-                                  : "text-blue-700 bg-blue-100" // Adjust for delivery (blue as example)
-                                  }`}
-                              >
-                                {t(detailsData?.order_type) || ""}
-                              </span>{" "}
-                            </p>
-                            <p className="text-gray-800 text-md">
-                              <span className="font-TextFontSemiBold text-mainColor">
-                                {t("OrderNote")}:
-                              </span>{" "}
-                              {detailsData?.notes || "No Notes"}
-                            </p>
-                            {detailsData?.payment_method?.id !== 2 && (
-                              <p className="text-gray-800 text-md">
-                                <span className="font-TextFontSemiBold text-mainColor">
-                                  {t("OrderRecipt")}:
-                                </span>
-                                {detailsData?.receipt ? (
-                                  <>
-                                    <span
-                                      className="ml-2 underline cursor-pointer text-mainColor font-TextFontMedium"
-                                      onClick={() =>
-                                        handleOpenReceipt(detailsData.id)
-                                      }
-                                    >
-                                      {t("Receipt")}
-                                    </span>
 
-                                    {openReceipt === detailsData.id && (
-                                      <Dialog
-                                        open={true}
-                                        onClose={handleCloseReceipt}
-                                        className="relative z-10"
-                                      >
-                                        <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
-                                        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                                          <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
-                                            <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-4xl">
-                                              <div className="flex items-center justify-center w-full p-5">
-                                                <img
-                                                  src={
-                                                    detailsData?.receipt
-                                                      ? `data:image/jpeg;base64,${detailsData?.receipt}`
-                                                      : ""
-                                                  }
-                                                  className="max-h-[80vh] object-center object-contain shadow-md rounded-2xl"
-                                                  alt="Receipt"
-                                                />
-                                              </div>
-                                              <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-x-3">
-                                                <button
-                                                  type="button"
-                                                  onClick={handleCloseReceipt}
-                                                  className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md bg-mainColor font-TextFontMedium sm:mt-0 sm:w-auto"
-                                                >
-                                                  {t("Close")}
-                                                </button>
-                                              </div>
-                                            </DialogPanel>
-                                          </div>
-                                        </div>
-                                      </Dialog>
-                                    )}
-                                  </>
-                                ) : (
-                                  <span className="ml-2 text-gray-800 underline text-md font-TextFontMedium">
-                                    {t("NoRecipt")}
-                                  </span>
-                                )}
-                              </p>
-                            )}
-                          </div>
                         </div>
                       </div>
 
-                      {/* Combined Orders Table */}
-                      <div className="p-2 my-3 bg-white border border-gray-200 rounded-lg shadow-lg">
-                        {/* Table Header */}
-                        <h2 className="mb-2 text-2xl font-bold text-gray-800">
-                          {t("Order Items")}
-                        </h2>
+                      {/* Order Information */}
+                      <div className="flex items-start justify-center w-full gap-4 sm:flex-col xl:flex-row">
+                        <div className="p-2 bg-white rounded-md shadow-md sm:w-full xl:w-6/12">
+                          <p className="text-gray-800 text-md">
+                            <span className="font-TextFontSemiBold text-mainColor">
+                              {t("Status")}:
+                            </span>{" "}
+                            {t(detailsData?.order_status) || ""}
+                          </p>
+                          <p className="text-gray-800 text-md">
+                            <span className="font-TextFontSemiBold text-mainColor">
+                              {t("PaymentMethod")}:
+                            </span>{" "}
+                            {detailsData?.payment_method?.name || ""}
+                          </p>
+                          {detailsData?.payment_method?.name ===
+                            "Visa Master Card" && (
+                              <>
+                                <p className="text-gray-800 text-md">
+                                  <span className="font-TextFontSemiBold text-mainColor">
+                                    {t("PaymentStatus")}:
+                                  </span>{" "}
+                                  {t(detailsData?.status_payment) || ""}
+                                </p>
+                                <p className="text-gray-800 text-md">
+                                  <span className="font-TextFontSemiBold text-mainColor">
+                                    {t("Transaction ID")}:
+                                  </span>{" "}
+                                  {detailsData?.transaction_id || ""}
+                                </p>
+                              </>
+                            )}
+                        </div>
+                        <div className="p-2 bg-white rounded-md shadow-md sm:w-full xl:w-6/12">
+                          <p className="text-gray-800 text-md">
+                            <span className="font-TextFontSemiBold text-mainColor">
+                              {t("OrderType")}:
+                            </span>{" "}
+                            <span
+                              className={`px-2 py-1 rounded-full text-md ${detailsData?.order_type === "take_away"
+                                ? "text-green-700 bg-green-100" // Green text with light green bg
+                                : "text-blue-700 bg-blue-100" // Adjust for delivery (blue as example)
+                                }`}
+                            >
+                              {t(detailsData?.order_type) || ""}
+                            </span>{" "}
+                          </p>
+                          <p className="text-gray-800 text-md">
+                            <span className="font-TextFontSemiBold text-mainColor">
+                              {t("OrderNote")}:
+                            </span>{" "}
+                            {detailsData?.notes || "No Notes"}
+                          </p>
+                          {detailsData?.payment_method?.id !== 2 && (
+                            <p className="text-gray-800 text-md">
+                              <span className="font-TextFontSemiBold text-mainColor">
+                                {t("OrderRecipt")}:
+                              </span>
+                              {detailsData?.receipt ? (
+                                <>
+                                  <span
+                                    className="ml-2 underline cursor-pointer text-mainColor font-TextFontMedium"
+                                    onClick={() =>
+                                      handleOpenReceipt(detailsData.id)
+                                    }
+                                  >
+                                    {t("Receipt")}
+                                  </span>
 
-                        {/* Table wrapped in a horizontal scroll container */}
-                        <div className="overflow-x-auto">
-                          <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gradient-to-r from-[#9E090F] to-[#D1191C] text-white">
-                              <tr>
-                                <th className={`px-2 py-2 max-w-[30px] text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
-                                  #
-                                </th>
-                                <th className={`px-3 py-2 text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
-                                  {t("Products")}
-                                </th>
-                                <th className={`px-3 py-2 text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
-                                  {t("variation")}
-                                </th>
-                                <th className={`px-3 py-2 text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
-                                  {t("Addons")}
-                                </th>
-                                <th className={`px-3 py-2 text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
-                                  {t("Excludes")}
-                                </th>
-                                <th className={`px-3 py-2 text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
-                                  {t("Extra")}
-                                </th>
-                                <th className={`px-3 py-2 text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
-                                  {t("Notes")}
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                              {(detailsData?.order_details || []).map((order, orderIndex) => {
-                                // 1. CALCULATE TOTAL UNIT PRICE (Base + Variations + Extras)
-                                const basePrice = order.product?.price || 0;
-                                const priceAfterDiscount = order.product?.price_after_discount || basePrice;
-                                const priceAfterTax = order.product?.price_after_tax || basePrice;
-
-                                const variationsPrice = (order.variations || []).reduce((total, variation) => {
-                                  const optionsTotal = (variation.options || []).reduce((sum, opt) => sum + (opt.price || 0), 0);
-                                  return total + optionsTotal;
-                                }, 0);
-
-                                const extrasPrice = (order.extras || []).reduce((total, extra) => total + (extra.price || 0), 0);
-
-                                const totalPriceIncludingVariations = priceAfterDiscount + variationsPrice;
-
-                                return (
-                                  <tr key={`order-${orderIndex}`} className="hover:bg-gray-50">
-                                    {/* Order Number Column */}
-                                    <td className="px-2 py-1 font-semibold whitespace-normal border-r border-gray-300">
-                                      {orderIndex + 1}
-                                    </td>
-
-                                    {/* Products Column: UPDATED TO SHOW TOTAL PRICE */}
-                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                      <div className="mb-3">
-                                        {order.product?.image_link && (
-                                          <img
-                                            src={order.product.image_link}
-                                            alt={order.product.name}
-                                            className="w-14 h-14 object-cover rounded border border-gray-300 mb-1"
-                                          />
-                                        )}
-                                        <div className="font-semibold text-gray-800">
-                                          {order.product?.name}
-                                        </div>
-
-                                        {/* Displaying the Combined Price */}
-                                        <div className="text-sm font-bold text-mainColor">
-                                          {t("Price")}: {totalPriceIncludingVariations.toFixed(2)}
-                                          {variationsPrice > 0 && (
-                                            <span className="text-[12px] text-gray-600 font-normal block italic">
-                                              {t("price_breakdown", {
-                                                base: priceAfterDiscount,
-                                                variations: variationsPrice
-                                              })}
-                                            </span>
-                                          )}
-                                        </div>
-
-                                        <div className="text-sm text-gray-600">
-                                          {t("Qty")}: {order.product?.count || 1}
+                                  {openReceipt === detailsData.id && (
+                                    <Dialog
+                                      open={true}
+                                      onClose={handleCloseReceipt}
+                                      className="relative z-10"
+                                    >
+                                      <DialogBackdrop className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+                                      <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                                        <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+                                          <DialogPanel className="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-4xl">
+                                            <div className="flex items-center justify-center w-full p-5">
+                                              <img
+                                                src={
+                                                  detailsData?.receipt
+                                                    ? `data:image/jpeg;base64,${detailsData?.receipt}`
+                                                    : ""
+                                                }
+                                                className="max-h-[80vh] object-center object-contain shadow-md rounded-2xl"
+                                                alt="Receipt"
+                                              />
+                                            </div>
+                                            <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-x-3">
+                                              <button
+                                                type="button"
+                                                onClick={handleCloseReceipt}
+                                                className="inline-flex justify-center w-full px-6 py-3 text-sm text-white rounded-md bg-mainColor font-TextFontMedium sm:mt-0 sm:w-auto"
+                                              >
+                                                {t("Close")}
+                                              </button>
+                                            </div>
+                                          </DialogPanel>
                                         </div>
                                       </div>
-                                    </td>
-
-                                    {/* Variations Column */}
-                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                      {order.variations && order.variations.length > 0 ? (
-                                        order.variations.map((variation, varIndex) => (
-                                          <div key={`variation-${varIndex}`} className="mb-3">
-                                            <div className="font-semibold text-gray-800">{variation.name}</div>
-                                            <div className="text-xs text-gray-500">
-                                              {t("Type")}:{" "}
-                                              {variation.options?.map((option, optIndex) => (
-                                                <span key={`option-${optIndex}`} className="mr-1">
-                                                  {option.name}
-                                                  {option.price > 0 && (
-                                                    <span className="text-mainColor font-bold"> (+{option.price})</span>
-                                                  )}
-                                                  {optIndex < variation.options.length - 1 ? ", " : ""}
-                                                </span>
-                                              ))}
-                                            </div>
-                                          </div>
-                                        ))
-                                      ) : (
-                                        <span className="text-gray-500">-</span>
-                                      )}
-                                    </td>
-
-                                    {/* Addons Column */}
-                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                      {order.addons && order.addons.length > 0 ? (
-                                        order.addons.map((addon, addonIndex) => {
-                                          const addonName = addon?.name || "—";
-                                          const addonPrice = addon?.price || 0;
-                                          const count = addon?.count || 1;
-                                          return (
-                                            <div key={`addon-${addonIndex}`} className="mb-3">
-                                              <div className="font-semibold text-gray-800">
-                                                {addonName}
-                                                {count > 1 && <span className="text-xs text-gray-500"> ×{count}</span>}
-                                              </div>
-                                              <div className="text-sm text-gray-500">
-                                                {t("Price")}: {addonPrice} {count > 1 && `× ${count} = ${addonPrice * count}`}
-                                              </div>
-                                            </div>
-                                          );
-                                        })
-                                      ) : (
-                                        <span className="text-gray-400">—</span>
-                                      )}
-                                    </td>
-
-                                    {/* Excludes Column */}
-                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                      {order.excludes && order.excludes.length > 0 ? (
-                                        order.excludes.map((exclude, excludeIndex) => (
-                                          <div key={`exclude-${excludeIndex}`} className="mb-3">
-                                            <div className="font-semibold text-gray-800">{exclude.name}</div>
-                                          </div>
-                                        ))
-                                      ) : (
-                                        <span className="text-gray-500">-</span>
-                                      )}
-                                    </td>
-
-                                    {/* Extras Column */}
-                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                      {order.extras && order.extras.length > 0 ? (
-                                        order.extras.map((extra, i) => (
-                                          <div key={i} className="mb-2">
-                                            <div className="font-medium">{extra?.name || "—"}</div>
-                                            <div className="text-xs text-gray-500">
-                                              {t("Price")}: {extra.price || "-"}
-                                            </div>
-                                          </div>
-                                        ))
-                                      ) : (
-                                        <span className="text-gray-400">—</span>
-                                      )}
-                                    </td>
-
-                                    {/* Notes Column */}
-                                    <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
-                                      {order.product?.notes ? (
-                                        <div className="relative p-2 text-sm text-gray-700 border-l-4 border-red-400 rounded-md shadow-sm bg-red-50">
-                                          <p className="line-clamp-3">{order.product.notes}</p>
-                                        </div>
-                                      ) : (
-                                        <span className="text-gray-500">{t("No notes")}</span>
-                                      )}
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
+                                    </Dialog>
+                                  )}
+                                </>
+                              ) : (
+                                <span className="ml-2 text-gray-800 underline text-md font-TextFontMedium">
+                                  {t("NoRecipt")}
+                                </span>
+                              )}
+                            </p>
+                          )}
                         </div>
                       </div>
+                    </div>
 
-                      {/* Order Summary */}
-                      <div className="flex flex-col p-2 my-2 gap-y-1">
-                        {/* Calculate totals safely */}
-                        {(() => {
-                          let totalItemPrice = 0;
-                          let totalAddonPrice = 0;
+                    {/* Combined Orders Table */}
+                    <div className="p-2 my-3 bg-white border border-gray-200 rounded-lg shadow-lg">
+                      {/* Table Header */}
+                      <h2 className="mb-2 text-2xl font-bold text-gray-800">
+                        {t("Order Items")}
+                      </h2>
 
-                          (detailsData?.order_details || []).forEach((orderDetail) => {
-                            // Product is a single object → NOT an array
-                            const product = orderDetail.product;
-                            if (product) {
-                              totalItemPrice += (product.price_after_discount ? product.price_after_discount : product.price_after_tax ? product.price_after_tax : product.price || 0) * (product.count || 1);
-                            }
+                      {/* Table wrapped in a horizontal scroll container */}
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gradient-to-r from-[#9E090F] to-[#D1191C] text-white">
+                            <tr>
+                              <th className={`px-2 py-2 max-w-[30px] text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
+                                #
+                              </th>
+                              <th className={`px-3 py-2 text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
+                                {t("Products")}
+                              </th>
+                              <th className={`px-3 py-2 text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
+                                {t("variation")}
+                              </th>
+                              <th className={`px-3 py-2 text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
+                                {t("Addons")}
+                              </th>
+                              <th className={`px-3 py-2 text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
+                                {t("Excludes")}
+                              </th>
+                              <th className={`px-3 py-2 text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
+                                {t("Extra")}
+                              </th>
+                              <th className={`px-3 py-2 text-xs font-medium tracking-wider ${selectedLanguage === "ar" ? "text-right" : "text-left"} uppercase border-gray-300`}>
+                                {t("Notes")}
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {(detailsData?.order_details || []).map((order, orderIndex) => {
+                              // 1. CALCULATE TOTAL UNIT PRICE (Base + Variations + Extras)
+                              const basePrice = order.product?.price || 0;
+                              const priceAfterDiscount = order.product?.price_after_discount || basePrice;
+                              const priceAfterTax = order.product?.price_after_tax || basePrice;
 
-                            // Inside your total calculation loop
-                            (orderDetail.variations || []).forEach((v) => {
-                              (v.options || []).forEach((opt) => {
-                                totalItemPrice += (opt.price || 0) * (product.count || 1);
-                              });
-                            });
+                              const variationsPrice = (order.variations || []).reduce((total, variation) => {
+                                const optionsTotal = (variation.options || []).reduce((sum, opt) => sum + (opt.price || 0), 0);
+                                return total + optionsTotal;
+                              }, 0);
 
-                            // Addons
-                            (orderDetail.addons || []).forEach((addonItem) => {
-                              totalAddonPrice += (addonItem?.price || 0) * (addonItem.count || 1);
-                            });
+                              const extrasPrice = (order.extras || []).reduce((total, extra) => total + (extra.price || 0), 0);
 
-                            // Extras
-                            (orderDetail.extras || []).forEach((extraItem) => {
-                              totalItemPrice += extraItem.price || 0;
+                              const totalPriceIncludingVariations = priceAfterDiscount + variationsPrice;
+
+                              return (
+                                <tr key={`order-${orderIndex}`} className="hover:bg-gray-50">
+                                  {/* Order Number Column */}
+                                  <td className="px-2 py-1 font-semibold whitespace-normal border-r border-gray-300">
+                                    {orderIndex + 1}
+                                  </td>
+
+                                  {/* Products Column: UPDATED TO SHOW TOTAL PRICE */}
+                                  <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
+                                    <div className="mb-3">
+                                      {order.product?.image_link && (
+                                        <img
+                                          src={order.product.image_link}
+                                          alt={order.product.name}
+                                          className="w-14 h-14 object-cover rounded border border-gray-300 mb-1"
+                                        />
+                                      )}
+                                      <div className="font-semibold text-gray-800">
+                                        {order.product?.name}
+                                      </div>
+
+                                      {/* Displaying the Combined Price */}
+                                      <div className="text-sm font-bold text-mainColor">
+                                        {t("Price")}: {totalPriceIncludingVariations.toFixed(2)}
+                                        {variationsPrice > 0 && (
+                                          <span className="text-[12px] text-gray-600 font-normal block italic">
+                                            {t("price_breakdown", {
+                                              base: priceAfterDiscount,
+                                              variations: variationsPrice
+                                            })}
+                                          </span>
+                                        )}
+                                      </div>
+
+                                      <div className="text-sm text-gray-600">
+                                        {t("Qty")}: {order.product?.count || 1}
+                                      </div>
+                                    </div>
+                                  </td>
+
+                                  {/* Variations Column */}
+                                  <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
+                                    {order.variations && order.variations.length > 0 ? (
+                                      order.variations.map((variation, varIndex) => (
+                                        <div key={`variation-${varIndex}`} className="mb-3">
+                                          <div className="font-semibold text-gray-800">{variation.name}</div>
+                                          <div className="text-xs text-gray-500">
+                                            {t("Type")}:{" "}
+                                            {variation.options?.map((option, optIndex) => (
+                                              <span key={`option-${optIndex}`} className="mr-1">
+                                                {option.name}
+                                                {option.price > 0 && (
+                                                  <span className="text-mainColor font-bold"> (+{option.price})</span>
+                                                )}
+                                                {optIndex < (variation.options?.length || 0) - 1 ? ", " : ""}
+                                              </span>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      ))
+                                    ) : (
+                                      <span className="text-gray-500">-</span>
+                                    )}
+                                  </td>
+
+                                  {/* Addons Column */}
+                                  <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
+                                    {order.addons && order.addons.length > 0 ? (
+                                      order.addons.map((addon, addonIndex) => {
+                                        const addonName = addon?.name || "—";
+                                        const addonPrice = addon?.price || 0;
+                                        const count = addon?.count || 1;
+                                        return (
+                                          <div key={`addon-${addonIndex}`} className="mb-3">
+                                            <div className="font-semibold text-gray-800">
+                                              {addonName}
+                                              {count > 1 && <span className="text-xs text-gray-500"> ×{count}</span>}
+                                            </div>
+                                            <div className="text-sm text-gray-500">
+                                              {t("Price")}: {addonPrice} {count > 1 && `× ${count} = ${addonPrice * count}`}
+                                            </div>
+                                          </div>
+                                        );
+                                      })
+                                    ) : (
+                                      <span className="text-gray-400">—</span>
+                                    )}
+                                  </td>
+
+                                  {/* Excludes Column */}
+                                  <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
+                                    {order.excludes && order.excludes.length > 0 ? (
+                                      order.excludes.map((exclude, excludeIndex) => (
+                                        <div key={`exclude-${excludeIndex}`} className="mb-3">
+                                          <div className="font-semibold text-gray-800">{exclude.name}</div>
+                                        </div>
+                                      ))
+                                    ) : (
+                                      <span className="text-gray-500">-</span>
+                                    )}
+                                  </td>
+
+                                  {/* Extras Column */}
+                                  <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
+                                    {order.extras && order.extras.length > 0 ? (
+                                      order.extras.map((extra, i) => (
+                                        <div key={i} className="mb-2">
+                                          <div className="font-medium">{extra?.name || "—"}</div>
+                                          <div className="text-xs text-gray-500">
+                                            {t("Price")}: {extra.price || "-"}
+                                          </div>
+                                        </div>
+                                      ))
+                                    ) : (
+                                      <span className="text-gray-400">—</span>
+                                    )}
+                                  </td>
+
+                                  {/* Notes Column */}
+                                  <td className="px-2 py-1 whitespace-normal border-r border-gray-300">
+                                    {order.product?.notes ? (
+                                      <div className="relative p-2 text-sm text-gray-700 border-l-4 border-red-400 rounded-md shadow-sm bg-red-50">
+                                        <p className="line-clamp-3">{order.product.notes}</p>
+                                      </div>
+                                    ) : (
+                                      <span className="text-gray-500">{t("No notes")}</span>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* Order Summary */}
+                    <div className="flex flex-col p-2 my-2 gap-y-1">
+                      {/* Calculate totals safely */}
+                      {(() => {
+                        let totalItemPrice = 0;
+                        let totalAddonPrice = 0;
+
+                        (detailsData?.order_details || []).forEach((orderDetail) => {
+                          // Product is a single object → NOT an array
+                          const product = orderDetail.product;
+                          if (product) {
+                            totalItemPrice += (product.price_after_discount ? product.price_after_discount : product.price_after_tax ? product.price_after_tax : product.price || 0) * (product.count || 1);
+                          }
+
+                          // Inside your total calculation loop
+                          (orderDetail.variations || []).forEach((v) => {
+                            (v.options || []).forEach((opt) => {
+                              totalItemPrice += (opt.price || 0) * (product.count || 1);
                             });
                           });
 
-                          return (
-                            <>
-                              <p className="flex items-center justify-between w-full">
-                                {t("ItemsPrice")}: <span>{totalItemPrice.toFixed(2)}</span>
-                              </p>
-                              <p className="flex items-center justify-between w-full">
-                                {t("AddonsPrice")}: <span>{totalAddonPrice.toFixed(2)}</span>
-                              </p>
-                              <p className="flex items-center justify-between w-full">
-                                {t("Subtotal")}: <span>{(totalItemPrice + totalAddonPrice).toFixed(2)}</span>
-                              </p>
-                              <p className="flex items-center justify-between w-full">
-                                {t("Tax/VAT")}: <span>{detailsData?.total_tax || 0}</span>
-                              </p>
-                              <p className="flex items-center justify-between w-full">
-                                {t("CouponDiscount")}: <span>{detailsData?.coupon_discount || 0}</span>
-                              </p>
-                              <p className="flex items-center justify-between w-full">
-                                {t("servicefees")}: <span>{detailsData?.service_fees || 0}</span>
-                              </p>
-                              <p className="flex items-center justify-between w-full">
-                                {t("DeliveryFee")}: <span>{detailsData?.address?.zone?.price || 0}</span>
-                              </p>
-                              <p className="flex items-center justify-between w-full text-lg font-TextFontSemiBold text-mainColor">
-                                {t("Total")}: <span>{detailsData?.amount || 0}</span>
-                              </p>
-                            </>
-                          );
-                        })()}
-                      </div>
+                          // Addons
+                          (orderDetail.addons || []).forEach((addonItem) => {
+                            totalAddonPrice += (addonItem?.price || 0) * (addonItem.count || 1);
+                          });
+
+                          // Extras
+                          (orderDetail.extras || []).forEach((extraItem) => {
+                            totalItemPrice += extraItem.price || 0;
+                          });
+                        });
+
+                        return (
+                          <>
+                            <p className="flex items-center justify-between w-full">
+                              {t("ItemsPrice")}: <span>{totalItemPrice.toFixed(2)}</span>
+                            </p>
+                            <p className="flex items-center justify-between w-full">
+                              {t("AddonsPrice")}: <span>{totalAddonPrice.toFixed(2)}</span>
+                            </p>
+                            <p className="flex items-center justify-between w-full">
+                              {t("Subtotal")}: <span>{(totalItemPrice + totalAddonPrice).toFixed(2)}</span>
+                            </p>
+                            <p className="flex items-center justify-between w-full">
+                              {t("Tax/VAT")}: <span>{detailsData?.total_tax || 0}</span>
+                            </p>
+                            <p className="flex items-center justify-between w-full">
+                              {t("CouponDiscount")}: <span>{detailsData?.coupon_discount || 0}</span>
+                            </p>
+                            <p className="flex items-center justify-between w-full">
+                              {t("servicefees")}: <span>{detailsData?.service_fees || 0}</span>
+                            </p>
+                            <p className="flex items-center justify-between w-full">
+                              {t("DeliveryFee")}: <span>{detailsData?.address?.zone?.price || 0}</span>
+                            </p>
+                            <p className="flex items-center justify-between w-full text-lg font-TextFontSemiBold text-mainColor">
+                              {t("Total")}: <span>{detailsData?.amount || 0}</span>
+                            </p>
+                          </>
+                        );
+                      })()}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
 
@@ -1617,7 +1700,7 @@ const DetailsOrderPage = () => {
                     {t("Order Status History")}
                   </h3>
                   <div className="space-y-4 timeline">
-                    {dataDetailsOrder.log_order.map((log, index) => (
+                    {(dataDetailsOrder?.log_order || []).map((log, index) => (
                       <div
                         key={log.id}
                         className={`timeline-item relative pl-6 ${index === 0 ? "first-item" : ""
@@ -1666,20 +1749,20 @@ const DetailsOrderPage = () => {
                             <span className="changed-by">
                               {t("Changed by")}:{" "}
                               <span className="font-medium">
-                                {log.admin.name}
+                                {log.admin?.name || "-"}
                               </span>
                             </span>
                             <span className="change-date">
-                              {new Date(log.created_at).toLocaleTimeString([], {
+                              {log.created_at ? new Date(log.created_at).toLocaleTimeString([], {
                                 hour: "2-digit",
                                 minute: "2-digit",
-                              })}
+                              }) : "-"}
                             </span>
                           </div>
                         </div>
 
                         {/* Timeline connector (except for last item) */}
-                        {index !== dataDetailsOrder.log_order.length - 1 && (
+                        {index !== (dataDetailsOrder?.log_order?.length ?? 0) - 1 && (
                           <div className="timeline-connector absolute left-[5px] top-5 bottom-0 w-px bg-gray-300"></div>
                         )}
                       </div>
@@ -1698,7 +1781,7 @@ const DetailsOrderPage = () => {
                       </h3>
                       <div className="flex items-center">
                         <FaClock className="mr-2 text-gray-500" />
-                        {preparationTime ? (
+                        {preparationTime && typeof preparationTime?.hours !== "undefined" ? (
                           <>
                             <span
                               className={

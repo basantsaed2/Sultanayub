@@ -2274,6 +2274,10 @@ const resources = {
                "MultipleShift": "Multiple Shift",
 
                "ShowDetails" : "Show Details",
+               "OrderNotFound": "Order Not Found",
+               "OrderNotFoundDesc": "The requested order could not be found or may have been removed.",
+               "BackToOrders": "Back to Orders",
+               "id is wrong": "Order Not Found",
 
           },
 
@@ -3984,6 +3988,10 @@ const resources = {
                "Loadingbranches": "جاري تحميل الفروع...",
                "ON": "تشغيل",
                "OFF": "إيقاف",
+               "OrderNotFound": "الطلب غير موجود",
+               "OrderNotFoundDesc": "تعذر العثور على الطلب المطلوب أو ربما تم حذفه.",
+               "BackToOrders": "العودة إلى الطلبات",
+               "id is wrong": "الطلب غير موجود",
                "PaymobLogo": "شعار Paymob:",
                "PaymobTitle": "عنوان Paymob",
                "PaymobCallBackUrl": "رابط رد اتصال Paymob",
@@ -4407,6 +4415,9 @@ const resources = {
                "MultipleShift": "متعدد الشفتات",
 
                "ShowDetails": "عرض التفاصيل",
+               "OrderNotFound": "الطلب غير موجود",
+               "OrderNotFoundDesc": "تعذر العثور على الطلب المطلوب أو ربما تم حذفه.",
+               "BackToOrders": "العودة إلى الطلبات",
 
           },
      },
